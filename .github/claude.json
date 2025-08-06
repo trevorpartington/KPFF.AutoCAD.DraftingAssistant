@@ -1,0 +1,9 @@
+{
+  "claude": {
+    "enabled": true,
+    "model": "claude-3-5-sonnet-20241022",
+    "max_tokens": 4000,
+    "temperature": 0.1,
+    "system_prompt": "You are a helpful AI assistant that helps with code review, documentation, and development tasks. Focus on providing constructive feedback and suggestions for improvement."
+  }
+}

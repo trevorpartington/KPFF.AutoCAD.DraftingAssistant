@@ -1,0 +1,17 @@
+# Global owners
+* @trevorpartington
+
+# Core library
+src/KPFF.AutoCAD.DraftingAssistant.Core/ @trevorpartington
+
+# Plugin
+src/KPFF.AutoCAD.DraftingAssistant.Plugin/ @trevorpartington
+
+# UI
+src/KPFF.AutoCAD.DraftingAssistant.UI/ @trevorpartington
+
+# Tests
+tests/ @trevorpartington
+
+# Documentation
+*.md @trevorpartington
