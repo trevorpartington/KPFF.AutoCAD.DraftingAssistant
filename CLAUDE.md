@@ -26,7 +26,7 @@ This is a **4-project .NET solution** for an AutoCAD plugin system:
 ```
 Core (net8.0-windows) ← Plugin (depends on Core)
                       ← UI (WPF, depends on Core) 
-                      ← Tests (net9.0, xUnit, references Plugin + Core)
+                      ← Tests (net8.0, xUnit, references Plugin + Core)
 ```
 
 ### Key Components
@@ -37,7 +37,7 @@ Core (net8.0-windows) ← Plugin (depends on Core)
 
 ### Technology Stack
 - .NET 8.0 (Windows) for core components
-- .NET 9.0 for tests
+- .NET 8.0 for tests
 - WPF for UI framework
 - xUnit for testing framework
 - AutoCAD API integration
