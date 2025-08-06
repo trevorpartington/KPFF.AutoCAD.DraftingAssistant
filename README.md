@@ -67,3 +67,7 @@ This project is proprietary to KPFF and is not open source.
 ## 🤝 Support
 
 For support and questions, please contact the development team.
+
+## 🤖 AI Assistance
+
+This repository is configured with Claude GitHub App for AI-assisted code review and development support. Claude will automatically review pull requests and provide helpful suggestions for code improvements.
