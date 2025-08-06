@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
 
 </Project>
