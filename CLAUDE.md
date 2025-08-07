@@ -54,3 +54,34 @@ Core (net8.0-windows) ← Plugin (depends on Core)
 - All projects have nullable reference types enabled
 - The solution is designed for AutoCAD 2020+ compatibility
 - UI project uses WPF with App.xaml/MainWindow.xaml structure
+
+## AutoCAD Plugin Debugging
+
+### Prerequisites
+- AutoCAD 2025 with Civil 3D installed
+- Visual Studio 2022 with the plugin project loaded
+
+### Debugging Setup
+1. Set the startup project to `KPFF.AutoCAD.DraftingAssistant.Plugin`
+2. Select the "Debug Civil 3D 2025" launch profile
+3. Press F5 to start debugging
+
+### How It Works
+- Visual Studio launches AutoCAD 2025 with Civil 3D Imperial template
+- AutoCAD executes `start.scr` which loads the plugin DLL
+- Plugin commands are automatically executed to verify functionality
+- Set breakpoints in the plugin code for debugging
+
+### Available Plugin Commands
+- `KPFFSTART` - Initialize and start the drafting assistant
+- `KPFFHELP` - Display available commands and help information
+
+### Debugging Commands
+- `dotnet build src/KPFF.AutoCAD.DraftingAssistant.Plugin` - Build plugin project
+- `dotnet build src/KPFF.AutoCAD.DraftingAssistant.Plugin -c Release` - Build for release
+
+### Troubleshooting
+- Ensure AutoCAD 2025 path is correct in launch profile
+- Verify DLL path in start.scr matches build output location
+- Check AutoCAD command line for plugin loading errors
+- Use `NETUNLOAD` in AutoCAD to unload plugin before rebuilding

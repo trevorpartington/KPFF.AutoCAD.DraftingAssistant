@@ -1,15 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.Core\KPFF.AutoCAD.DraftingAssistant.Core.csproj" />
-    <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.UI\KPFF.AutoCAD.DraftingAssistant.UI.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoCAD.NET" Version="24.2.0" />
+    <PackageReference Include="AutoCAD.NET.Core" Version="24.2.0" />
+    <PackageReference Include="AutoCAD.NET.Model" Version="24.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.Core\KPFF.AutoCAD.DraftingAssistant.Core.csproj" />
+    <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.UI\KPFF.AutoCAD.DraftingAssistant.UI.csproj" />
+  </ItemGroup>
 
 </Project>
