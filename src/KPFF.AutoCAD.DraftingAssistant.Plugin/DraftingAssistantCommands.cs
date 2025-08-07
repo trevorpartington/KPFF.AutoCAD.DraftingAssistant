@@ -3,6 +3,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
+using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 
@@ -47,61 +48,61 @@ public class DraftingAssistantCommands
     /// </summary>
     private static void ExecuteCommand<T>() where T : class, ICommandHandler
     {
-        ILogger? logger = null;
-        try
-        {
-            // Ensure plugin is initialized
-            EnsurePluginInitialized();
-            
-            var container = ServiceContainer.Instance;
-            logger = container.IsRegistered<ILogger>() ? container.Resolve<ILogger>() : null;
-            
-            var command = container.Resolve<T>();
-            command.Execute();
-        }
-        catch (System.Exception ex)
-        {
-            logger?.LogError($"Error executing command {typeof(T).Name}", ex);
-            
-            // Show user-friendly error message
-            ShowUserError($"Command failed: {ex.Message}");
-            
-            // Don't rethrow - we don't want to crash AutoCAD
-        }
+        var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+        var logger = serviceProvider?.GetOptionalService<ILogger>();
+        
+        ExceptionHandler.TryExecute(
+            action: () =>
+            {
+                // Ensure plugin is initialized
+                EnsurePluginInitialized(serviceProvider, logger);
+                
+                if (serviceProvider == null)
+                {
+                    throw new InvalidOperationException("Service provider not available - plugin may not be initialized");
+                }
+                
+                var command = serviceProvider.GetService<T>();
+                command.Execute();
+            },
+            logger: logger ?? new DebugLogger(),
+            context: $"Command Execution: {typeof(T).Name}",
+            showUserMessage: true
+        );
     }
 
     /// <summary>
     /// Ensures the plugin is properly initialized before executing commands
     /// </summary>
-    private static void EnsurePluginInitialized()
+    private static void EnsurePluginInitialized(IServiceProvider? serviceProvider, ILogger? logger)
     {
         try
         {
             // First validate AutoCAD document context
             ValidateDocumentContext();
             
-            var container = ServiceContainer.Instance;
+            if (serviceProvider == null)
+            {
+                throw new InvalidOperationException("Service provider not available");
+            }
             
             // Check if services are registered
-            if (!container.IsRegistered<IPaletteManager>())
+            if (!serviceProvider.IsServiceRegistered<IPaletteManager>())
             {
                 throw new InvalidOperationException("Plugin not properly initialized - services not registered");
             }
             
             // Force initialization if needed
-            var paletteManager = container.Resolve<IPaletteManager>();
+            var paletteManager = serviceProvider.GetService<IPaletteManager>();
             if (!paletteManager.IsInitialized)
             {
-                var logger = container.IsRegistered<ILogger>() ? container.Resolve<ILogger>() : null;
                 logger?.LogWarning("Plugin not initialized - attempting to initialize now");
-                
-                // Try to force initialization
                 paletteManager.Initialize();
             }
         }
         catch (System.Exception ex)
         {
-            throw new InvalidOperationException("Failed to initialize plugin", ex);
+            ExceptionHandler.HandleException(ex, logger ?? new DebugLogger(), null, "Plugin Initialization Check", false, true);
         }
     }
 
@@ -136,32 +137,7 @@ public class DraftingAssistantCommands
         }
         catch (System.Exception ex)
         {
-            throw new InvalidOperationException("AutoCAD document context is not valid for command execution", ex);
-        }
-    }
-
-    /// <summary>
-    /// Shows user-friendly error messages
-    /// </summary>
-    private static void ShowUserError(string message)
-    {
-        try
-        {
-            if (ServiceContainer.Instance.IsRegistered<INotificationService>())
-            {
-                var notificationService = ServiceContainer.Instance.Resolve<INotificationService>();
-                notificationService.ShowError("KPFF Drafting Assistant", message);
-            }
-            else
-            {
-                // Fallback to AutoCAD's built-in error reporting
-                Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog($"KPFF Drafting Assistant Error\n\n{message}");
-            }
-        }
-        catch
-        {
-            // If all else fails, at least output to debug
-            System.Diagnostics.Debug.WriteLine($"KPFF Drafting Assistant Error: {message}");
+            ExceptionHandler.HandleException(ex, new DebugLogger(), null, "Document Context Validation", false, true);
         }
     }
 }

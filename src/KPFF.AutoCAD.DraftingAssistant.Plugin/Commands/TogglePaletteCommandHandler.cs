@@ -1,5 +1,6 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
+using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 
@@ -22,15 +23,17 @@ public class TogglePaletteCommandHandler : ICommandHandler
 
     public void Execute()
     {
-        try
-        {
-            _logger.LogInformation($"Executing command: {CommandName}");
-            _paletteManager.Toggle();
-        }
-        catch (System.Exception ex)
-        {
-            _logger.LogError($"Error executing command {CommandName}", ex);
-            throw;
-        }
+        ExceptionHandler.TryExecute(
+            action: () =>
+            {
+                _logger.LogInformation($"Executing command: {CommandName}");
+                var wasVisible = _paletteManager.IsVisible;
+                _paletteManager.Toggle();
+                var newState = _paletteManager.IsVisible ? "visible" : "hidden";
+                _logger.LogDebug($"Palette toggled from {(wasVisible ? "visible" : "hidden")} to {newState}");
+            },
+            logger: _logger,
+            context: $"Command Execution: {CommandName}"
+        );
     }
 }
