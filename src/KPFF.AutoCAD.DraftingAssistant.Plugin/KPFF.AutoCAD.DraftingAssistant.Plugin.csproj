@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.Core\KPFF.AutoCAD.DraftingAssistant.Core.csproj" />
     <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.UI\KPFF.AutoCAD.DraftingAssistant.UI.csproj" />
   </ItemGroup>

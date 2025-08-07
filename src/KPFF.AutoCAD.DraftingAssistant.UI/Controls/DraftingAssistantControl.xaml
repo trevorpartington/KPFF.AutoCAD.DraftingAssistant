@@ -1,0 +1,41 @@
+<UserControl x:Class="KPFF.AutoCAD.DraftingAssistant.UI.Controls.DraftingAssistantControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KPFF.AutoCAD.DraftingAssistant.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#2E3440">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/DarkTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Grid>
+        <TabControl x:Name="MainTabControl" Style="{StaticResource DarkTabControlStyle}">
+            <!-- Configure Tab -->
+            <TabItem Header="Configure" Style="{StaticResource DarkTabItemStyle}">
+                <local:ConfigurationControl x:Name="ConfigurationControl" />
+            </TabItem>
+            
+            <!-- Construction Notes Tab -->
+            <TabItem Header="Construction Notes" Style="{StaticResource DarkTabItemStyle}">
+                <local:ConstructionNoteControl x:Name="ConstructionNotesControl" />
+            </TabItem>
+            
+            <!-- Title Blocks Tab -->
+            <TabItem Header="Title Blocks" Style="{StaticResource DarkTabItemStyle}">
+                <local:TitleBlockControl x:Name="TitleBlockControl" />
+            </TabItem>
+            
+            <!-- Plotting Tab -->
+            <TabItem Header="Plotting" Style="{StaticResource DarkTabItemStyle}">
+                <local:PlottingControl x:Name="PlottingControl" />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
