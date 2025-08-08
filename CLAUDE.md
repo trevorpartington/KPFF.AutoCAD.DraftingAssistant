@@ -85,3 +85,95 @@ Core (net8.0-windows) ← Plugin (depends on Core)
 - Verify DLL path in start.scr matches build output location
 - Check AutoCAD command line for plugin loading errors
 - Use `NETUNLOAD` in AutoCAD to unload plugin before rebuilding
+
+## Construction Notes Automation System
+
+### Overview
+The construction notes automation system provides dual-mode functionality:
+- **Auto Notes**: Automatically scans drawing viewports to detect bubble multileaders and extract note numbers
+- **Excel Notes**: Uses manual Excel-based configuration for note assignment to sheets
+
+### File Structure
+
+#### Project Configuration
+- **ProjectConfig.json**: Main project settings including:
+  - Project name, client information
+  - Sheet naming convention patterns (regex-based)
+  - File paths to Excel index file
+  - Multileader style specifications for Auto Notes
+
+#### Excel File Structure (ProjectIndex.xlsx)
+- **SheetIndex table**: Complete sheet list with title block information
+- **{SERIES}-NOTES tables**: Construction note definitions per drawing series
+  - Example: PV-NOTES, C-NOTES, UCP-NOTES
+  - Columns: Note Number, Note Text
+- **EXCEL-NOTES table**: Manual sheet-to-notes mapping for fallback mode
+  - Column 1: Sheet Name (e.g., "PV-101")
+  - Columns 2-25: Note numbers present on that sheet
+
+### User Interface
+
+#### Configuration Tab Layout
+```
+[Select Sheets] [Select Project] [Configure Project]
+─────────────────────────────────────────────────────
+Active Project: [Project Name or "No project selected"]
+─────────────────────────────────────────────────────
+[Configuration details display area]
+```
+
+#### Construction Notes Tab
+- Radio button selection: Auto Notes (default) | Excel Notes
+- "Update Notes" button processes selected sheets based on chosen mode
+
+### Technical Implementation
+
+#### Sheet Naming Convention
+Projects use consistent naming patterns that are configurable:
+- Examples: "PV-101", "C001", "UCP-12"
+- Regex patterns defined in project configuration
+- Auto-detection with user validation fallback
+
+#### Construction Note Blocks
+Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX`
+- Examples: "101-NT01", "1-NT24"
+- Dynamic block attributes:
+  - **Number**: Note number (1, 2, 4, etc.)
+  - **Note**: Full note text from series-specific table
+  - **Visibility**: ON/OFF state for displaying/hiding blocks
+- Empty blocks start with Visibility=OFF to remain invisible
+
+#### Auto Notes Processing
+1. Identify viewports in layout
+2. Calculate model space boundaries for each viewport
+3. Use ray casting to determine which bubble multileaders fall within boundaries
+4. Filter multileaders by designated style (from project config)
+5. Extract note numbers from bubble text content
+6. Combine results from all viewports into master list
+
+#### Excel Notes Processing
+1. Read EXCEL-NOTES table for target sheet
+2. Extract note numbers from columns 2-25
+3. Map note numbers to note text using series-specific tables
+4. Update construction note blocks directly
+
+#### Dynamic Block Handling
+```csharp
+// Access pattern for dynamic blocks
+if (blockRef.IsDynamicBlock)
+{
+    var baseBlockName = blockRef.DynamicBlockTableRecord.Name;
+    var properties = blockRef.DynamicBlockReferencePropertyCollection;
+    // Modify Number, Note attributes and Visibility property
+}
+```
+
+### Development Dependencies
+- **EPPlus**: Excel file reading (handles files open in Excel)
+- **AutoCAD .NET API**: Drawing analysis, block manipulation, viewport processing
+- **System.Text.Json**: Project configuration serialization
+
+### Future Enhancements
+- Automated construction note block creation for new sheets
+- Enhanced viewport geometry support for complex layouts
+- Template-based note management system
