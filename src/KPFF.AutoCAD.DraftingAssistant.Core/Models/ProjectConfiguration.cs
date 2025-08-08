@@ -5,6 +5,7 @@ public class ProjectConfiguration
     public string ProjectName { get; set; } = string.Empty;
     public string ClientName { get; set; } = string.Empty;
     public string ProjectIndexFilePath { get; set; } = string.Empty;
+    public string ProjectDWGFilePath { get; set; } = string.Empty;
     public SheetNamingConfiguration SheetNaming { get; set; } = new();
     public WorksheetConfiguration Worksheets { get; set; } = new();
     public TableConfiguration Tables { get; set; } = new();

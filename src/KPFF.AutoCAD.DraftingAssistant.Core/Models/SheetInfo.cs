@@ -3,6 +3,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Models;
 public class SheetInfo
 {
     public string SheetName { get; set; } = string.Empty;
+    public string DWGFileName { get; set; } = string.Empty;
     public string DrawingTitle { get; set; } = string.Empty;
     public string ProjectNumber { get; set; } = string.Empty;
     public string Scale { get; set; } = string.Empty;

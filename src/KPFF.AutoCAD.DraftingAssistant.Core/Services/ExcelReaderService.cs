@@ -51,13 +51,19 @@ public class ExcelReaderService : IExcelReader
 
                     switch (headerName.ToLowerInvariant())
                     {
+                        case "sheet":
                         case "sheet name":
                         case "sheetname":
                             sheet.SheetName = cellValue;
                             break;
+                        case "file":
+                        case "filename":
+                        case "dwg file":
+                            sheet.DWGFileName = cellValue;
+                            break;
+                        case "title":
                         case "drawing title":
                         case "drawingtitle":
-                        case "title":
                             sheet.DrawingTitle = cellValue;
                             break;
                         case "project number":
@@ -123,9 +129,10 @@ public class ExcelReaderService : IExcelReader
 
             using var package = new ExcelPackage(new FileInfo(filePath));
             
-            // Try to find worksheet with notes - use config or series-specific
-            var worksheet = package.Workbook.Worksheets[config.Worksheets.Notes] ?? 
-                           package.Workbook.Worksheets[series];
+            // Try to find worksheet with notes - series-specific first, then config
+            var worksheet = package.Workbook.Worksheets[$"{series} Notes"] ?? 
+                           package.Workbook.Worksheets[series] ??
+                           package.Workbook.Worksheets[config.Worksheets.Notes];
             
             if (worksheet == null)
             {

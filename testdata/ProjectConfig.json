@@ -1,20 +1,22 @@
 {
-  "projectName": "PROJ-ABC-100 Test Project",
+  "projectName": "Test Project",
   "clientName": "Test Client",
   "projectIndexFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\ProjectIndex.xlsx",
+  "projectDWGFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\",
   "sheetNaming": {
-    "pattern": "([A-Z]{4})-([A-Z]{1,3})-?(\\d{1,3})",
-    "seriesGroup": 2,
-    "numberGroup": 3,
+    "pattern": "([A-Z]{1,3})-?(\\d{1,3})",
+    "seriesGroup": 1,
+    "numberGroup": 2,
     "examples": [
-      "PROJ-ABC-100",
-      "PROJ-PV-101", 
-      "PROJ-C-001"
+      "ABC-101",
+      "ABC-102",
+      "PV-101", 
+      "C-001"
     ]
   },
   "worksheets": {
     "sheets": "Index",
-    "notes": "ABC Notes"
+    "notes": "Excel Notes"
   },
   "tables": {
     "sheetIndex": "SHEET_INDEX",

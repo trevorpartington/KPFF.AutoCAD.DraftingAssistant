@@ -67,17 +67,18 @@ public class ProjectConfigurationService : IProjectConfigurationService
             ProjectName = "New Project",
             ClientName = "",
             ProjectIndexFilePath = "",
+            ProjectDWGFilePath = "",
             SheetNaming = new SheetNamingConfiguration
             {
                 Pattern = @"([A-Z]{1,3})-?(\d{1,3})",
                 SeriesGroup = 1,
                 NumberGroup = 2,
-                Examples = new[] { "PV-101", "C-001", "UCP-12" }
+                Examples = new[] { "ABC-101", "PV-101", "C-001" }
             },
             Worksheets = new WorksheetConfiguration
             {
-                Sheets = "Sheets",
-                Notes = "Notes"
+                Sheets = "Index",
+                Notes = "Excel Notes"
             },
             Tables = new TableConfiguration
             {
@@ -111,6 +112,11 @@ public class ProjectConfigurationService : IProjectConfigurationService
             errors.Add("Project index file path is required");
         else if (!File.Exists(configuration.ProjectIndexFilePath))
             errors.Add($"Project index file not found: {configuration.ProjectIndexFilePath}");
+
+        if (string.IsNullOrEmpty(configuration.ProjectDWGFilePath))
+            errors.Add("Project DWG file path is required");
+        else if (!Directory.Exists(configuration.ProjectDWGFilePath))
+            errors.Add($"Project DWG directory not found: {configuration.ProjectDWGFilePath}");
 
         if (string.IsNullOrEmpty(configuration.SheetNaming.Pattern))
             errors.Add("Sheet naming pattern is required");

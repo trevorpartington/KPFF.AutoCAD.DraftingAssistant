@@ -21,18 +21,49 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Button -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
-            <Button Name="ConfigureButton" 
-                    Content="Configure" 
-                    Width="100" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="ConfigureButton_Click"/>
-        </StackPanel>
+        <!-- Button Row -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Action Buttons -->
+            <StackPanel Grid.Row="0" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Left" 
+                        Margin="0,0,0,15">
+                <Button Name="SelectProjectButton" 
+                        Content="Select Project" 
+                        Width="100" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="SelectProjectButton_Click"
+                        Margin="0,0,10,0"/>
+                <Button Name="SelectSheetsButton" 
+                        Content="Select Sheets" 
+                        Width="100" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="SelectSheetsButton_Click"/>
+            </StackPanel>
+            
+            <!-- Active Project Status -->
+            <StackPanel Grid.Row="1" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Left">
+                <TextBlock Text="Active Project: " 
+                          Style="{StaticResource DarkTextBlockStyle}"
+                          FontWeight="SemiBold"
+                          VerticalAlignment="Center"/>
+                <TextBlock Name="ActiveProjectTextBlock" 
+                          Text="No project selected" 
+                          Style="{StaticResource DarkTextBlockStyle}"
+                          FontStyle="Italic"
+                          VerticalAlignment="Center"
+                          Foreground="White"/>
+            </StackPanel>
+        </Grid>
         
         <!-- Text Readout Area -->
         <Border Grid.Row="1" 
@@ -42,9 +73,14 @@
                 Background="{StaticResource DarkSurfaceBrush}">
             <ScrollViewer Margin="15" VerticalScrollBarVisibility="Auto">
                 <TextBlock x:Name="ConfigurationTextBlock"
-                          Text="Configure settings and project parameters.
+                          Text="Configuration Management
 
-This area will display configuration information and status updates."
+Select a project configuration file to get started:
+• Click 'Select Project' to browse for a ProjectConfig.json file
+• Use 'Configure Project' to modify project settings
+• Choose 'Select Sheets' to pick which layouts to process
+
+Once configured, project details and sheet information will appear here."
                           Style="{StaticResource DarkTextBlockStyle}"
                           TextWrapping="Wrap"
                           FontFamily="Consolas"
