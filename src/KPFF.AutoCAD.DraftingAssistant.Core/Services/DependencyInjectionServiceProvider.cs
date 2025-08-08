@@ -40,6 +40,15 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     }
 
     /// <summary>
+    /// Registers a service with a factory function as singleton
+    /// </summary>
+    public void RegisterSingleton<T>(Func<System.IServiceProvider, T> factory) where T : class
+    {
+        ThrowIfBuilt();
+        _services.AddSingleton(factory);
+    }
+
+    /// <summary>
     /// Registers a service with transient lifetime
     /// </summary>
     public void RegisterTransient<TInterface, TImplementation>()
@@ -88,7 +97,7 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
         EnsureBuilt();
         
-        var service = _serviceProvider.GetService<T>();
+        var service = _serviceProvider.GetService(typeof(T)) as T;
         if (service == null)
         {
             throw new InvalidOperationException($"Service of type {typeof(T).Name} is not registered.");
@@ -104,7 +113,7 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
         EnsureBuilt();
         
-        return _serviceProvider.GetService<T>();
+        return _serviceProvider.GetService(typeof(T)) as T;
     }
 
     /// <summary>
@@ -115,7 +124,7 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
         EnsureBuilt();
         
-        return _serviceProvider.GetService<T>() != null;
+        return _serviceProvider.GetService(typeof(T)) != null;
     }
 
     /// <summary>

@@ -117,6 +117,49 @@ public static class ExceptionHandler
     }
 
     /// <summary>
+    /// Safely executes an async action with standardized exception handling
+    /// </summary>
+    public static async Task<bool> TryExecuteAsync(
+        Func<Task> asyncAction,
+        ILogger logger,
+        INotificationService? notificationService = null,
+        string context = "",
+        bool showUserMessage = false)
+    {
+        try
+        {
+            await asyncAction();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex, logger, notificationService, context, showUserMessage);
+        }
+    }
+
+    /// <summary>
+    /// Safely executes an async function with standardized exception handling
+    /// </summary>
+    public static async Task<(bool Success, T? Result)> TryExecuteAsync<T>(
+        Func<Task<T>> asyncFunction,
+        ILogger logger,
+        INotificationService? notificationService = null,
+        string context = "",
+        bool showUserMessage = false)
+    {
+        try
+        {
+            var result = await asyncFunction();
+            return (true, result);
+        }
+        catch (Exception ex)
+        {
+            var handled = HandleException(ex, logger, notificationService, context, showUserMessage);
+            return (handled, default(T));
+        }
+    }
+
+    /// <summary>
     /// Converts technical exceptions to user-friendly messages
     /// </summary>
     private static string GetUserFriendlyMessage(Exception exception)

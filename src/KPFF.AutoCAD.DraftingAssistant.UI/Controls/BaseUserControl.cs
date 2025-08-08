@@ -10,42 +10,32 @@ namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 /// </summary>
 public abstract class BaseUserControl : UserControl
 {
-    protected ILogger Logger { get; private set; } = null!;
-    protected INotificationService NotificationService { get; private set; } = null!;
+    protected ILogger Logger { get; }
+    protected INotificationService NotificationService { get; }
 
-    protected BaseUserControl()
+    protected BaseUserControl() : this(null, null)
     {
-        // Initialize on UI thread
-        if (!Dispatcher.CheckAccess())
-        {
-            Dispatcher.Invoke(() => InitializeServices());
-        }
-        else
-        {
-            InitializeServices();
-        }
     }
 
-    private void InitializeServices()
+    protected BaseUserControl(ILogger? logger, INotificationService? notificationService)
     {
-        // Use service container if available, otherwise create fallback services
-        try
-        {
-            var container = ServiceContainer.Instance;
-            Logger = container.IsRegistered<ILogger>() 
-                ? container.Resolve<ILogger>() 
-                : new DebugLogger();
-            
-            NotificationService = container.IsRegistered<INotificationService>()
-                ? container.Resolve<INotificationService>()
-                : new WpfNotificationService();
-        }
-        catch
-        {
-            // Fallback if service container is not available
-            Logger = new DebugLogger();
-            NotificationService = new WpfNotificationService();
-        }
+        // Use dependency injection if available, otherwise fallback to service locator
+        Logger = logger ?? GetLoggerService();
+        NotificationService = notificationService ?? GetNotificationService();
+    }
+
+    private static ILogger GetLoggerService()
+    {
+        return ApplicationServices.IsInitialized 
+            ? ApplicationServices.GetService<ILogger>()
+            : new DebugLogger();
+    }
+
+    private static INotificationService GetNotificationService()
+    {
+        return ApplicationServices.IsInitialized
+            ? ApplicationServices.GetService<INotificationService>()
+            : new Controls.WpfNotificationService();
     }
 
     /// <summary>

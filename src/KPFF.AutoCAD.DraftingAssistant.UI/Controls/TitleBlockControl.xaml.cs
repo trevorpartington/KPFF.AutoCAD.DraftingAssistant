@@ -1,10 +1,18 @@
 using System.Windows;
+using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
 public partial class TitleBlockControl : BaseUserControl
 {
-    public TitleBlockControl()
+    public TitleBlockControl() : this(null, null)
+    {
+    }
+
+    public TitleBlockControl(
+        ILogger? logger,
+        INotificationService? notificationService) 
+        : base(logger, notificationService)
     {
         InitializeComponent();
     }

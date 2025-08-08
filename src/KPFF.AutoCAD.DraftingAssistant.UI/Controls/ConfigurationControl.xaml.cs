@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using Microsoft.Win32;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
@@ -15,14 +16,126 @@ public partial class ConfigurationControl : BaseUserControl
     private List<SheetInfo> _availableSheets = new();
     private List<SheetInfo> _selectedSheets = new();
 
-    public ConfigurationControl()
+    public ConfigurationControl() : this(null, null, null, null)
+    {
+    }
+
+    public ConfigurationControl(
+        IProjectConfigurationService? configService,
+        IExcelReader? excelReader,
+        ILogger? logger,
+        INotificationService? notificationService) 
+        : base(logger, notificationService)
     {
         InitializeComponent();
         
-        // TODO: Replace with proper dependency injection
+        // Use constructor injection or fall back to service locator
+        _configService = configService ?? GetConfigurationService();
+        _excelReader = excelReader ?? GetExcelReaderService();
+        
+        // Load default project configuration
+        _ = LoadDefaultProjectAsync();
+    }
+
+    private static IProjectConfigurationService GetConfigurationService()
+    {
+        if (ApplicationServices.IsInitialized)
+        {
+            return ApplicationServices.GetService<IProjectConfigurationService>();
+        }
+        
         var logger = new DebugLogger();
-        _configService = new ProjectConfigurationService(logger);
-        _excelReader = new ExcelReaderService(logger);
+        return new ProjectConfigurationService(logger);
+    }
+
+    private static IExcelReader GetExcelReaderService()
+    {
+        if (ApplicationServices.IsInitialized)
+        {
+            return ApplicationServices.GetService<IExcelReader>();
+        }
+        
+        var logger = new DebugLogger();
+        return new ExcelReaderService(logger);
+    }
+
+    private async Task LoadDefaultProjectAsync()
+    {
+        await ExceptionHandler.TryExecuteAsync(async () =>
+        {
+            // Get the solution directory and construct path to testdata
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var solutionRoot = FindSolutionRoot(currentDirectory);
+            if (solutionRoot != null)
+            {
+                var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "ProjectConfig.json");
+                if (File.Exists(defaultConfigPath))
+                {
+                    _currentProject = await _configService.LoadConfigurationAsync(defaultConfigPath);
+                    if (_currentProject != null)
+                    {
+                        ActiveProjectTextBlock.Text = _currentProject.ProjectName;
+                        ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                        
+                        await LoadProjectDetails();
+                        await LoadAndSelectAllSheetsAsync();
+                    }
+                }
+            }
+        }, Logger, NotificationService, "LoadDefaultProjectAsync", showUserMessage: false);
+    }
+
+    private static string? FindSolutionRoot(string startPath)
+    {
+        var directory = new DirectoryInfo(startPath);
+        while (directory != null)
+        {
+            if (directory.GetFiles("*.sln").Length > 0 || 
+                directory.GetDirectories("testdata").Length > 0)
+            {
+                return directory.FullName;
+            }
+            directory = directory.Parent;
+        }
+        return null;
+    }
+
+    private async Task LoadAndSelectAllSheetsAsync()
+    {
+        if (_currentProject == null) return;
+
+        try
+        {
+            // Load available sheets from Excel file
+            if (File.Exists(_currentProject.ProjectIndexFilePath))
+            {
+                _availableSheets = await _excelReader.ReadSheetIndexAsync(_currentProject.ProjectIndexFilePath, _currentProject);
+                
+                if (_availableSheets.Count > 0)
+                {
+                    // Select all sheets by default
+                    _selectedSheets = new List<SheetInfo>(_availableSheets);
+                    
+                    // Update display to show all sheets are selected
+                    var displayText = $"Default Configuration Loaded\n\n" +
+                                    $"Project: {_currentProject.ProjectName}\n" +
+                                    $"Client: {_currentProject.ClientName}\n\n" +
+                                    $"Automatically selected all {_selectedSheets.Count} sheets:\n\n" +
+                                    string.Join("\n", _selectedSheets.Take(10).Select(s => $"• {s.SheetName} - {s.DrawingTitle}"));
+                    
+                    if (_selectedSheets.Count > 10)
+                    {
+                        displayText += $"\n... and {_selectedSheets.Count - 10} more sheets";
+                    }
+                    
+                    UpdateConfigurationDisplay(displayText);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            UpdateConfigurationDisplay($"Error loading sheets for auto-selection: {ex.Message}");
+        }
     }
 
     private async void SelectProjectButton_Click(object sender, RoutedEventArgs e)
@@ -157,13 +270,15 @@ public partial class ConfigurationControl : BaseUserControl
 
     private void ShowErrorNotification(string message)
     {
-        // TODO: Implement proper error notification
+        Logger.LogError(message);
+        NotificationService.ShowError("Configuration Error", message);
         UpdateConfigurationDisplay($"ERROR: {message}");
     }
 
     private void ShowWarningNotification(string message)
     {
-        // TODO: Implement proper warning notification
+        Logger.LogWarning(message);
+        NotificationService.ShowWarning("Configuration Warning", message);
         UpdateConfigurationDisplay($"WARNING: {message}");
     }
 }
