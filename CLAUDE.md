@@ -103,11 +103,11 @@ The construction notes automation system provides dual-mode functionality:
   - Multileader style specifications for Auto Notes
 
 #### Excel File Structure (ProjectIndex.xlsx)
-- **SheetIndex table**: Complete sheet list with title block information
-- **{SERIES}-NOTES tables**: Construction note definitions per drawing series
-  - Example: PV-NOTES, C-NOTES, UCP-NOTES
+- **SHEET_INDEX table**: Complete sheet list with title block information
+- **{SERIES}_NOTES tables**: Construction note definitions per drawing series
+  - Example: PV_NOTES, C_NOTES, UCP_NOTES
   - Columns: Note Number, Note Text
-- **EXCEL-NOTES table**: Manual sheet-to-notes mapping for fallback mode
+- **EXCEL_NOTES table**: Manual sheet-to-notes mapping for fallback mode
   - Column 1: Sheet Name (e.g., "PV-101")
   - Columns 2-25: Note numbers present on that sheet
 

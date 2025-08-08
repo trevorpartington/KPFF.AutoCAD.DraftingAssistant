@@ -1,4 +1,4 @@
-using EPPlus;
+using OfficeOpenXml;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -15,24 +15,24 @@ public class ExcelReaderService : IExcelReader
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     }
 
-    public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath)
+    public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config)
     {
         try
         {
             var sheets = new List<SheetInfo>();
             
             using var package = new ExcelPackage(new FileInfo(filePath));
-            var worksheet = package.Workbook.Worksheets["Sheets"];
+            var worksheet = package.Workbook.Worksheets[config.Worksheets.Sheets];
             if (worksheet == null)
             {
-                _logger.LogWarning($"Worksheet 'Sheets' not found in {filePath}");
+                _logger.LogWarning($"Worksheet '{config.Worksheets.Sheets}' not found in {filePath}");
                 return sheets;
             }
 
-            var table = worksheet.Tables["SheetIndex"];
+            var table = worksheet.Tables[config.Tables.SheetIndex];
             if (table == null)
             {
-                _logger.LogWarning($"Table 'SheetIndex' not found in worksheet 'Sheets'");
+                _logger.LogWarning($"Table '{config.Tables.SheetIndex}' not found in worksheet '{config.Worksheets.Sheets}'");
                 return sheets;
             }
 
@@ -114,22 +114,22 @@ public class ExcelReaderService : IExcelReader
         }
     }
 
-    public async Task<List<ConstructionNote>> ReadConstructionNotesAsync(string filePath, string series)
+    public async Task<List<ConstructionNote>> ReadConstructionNotesAsync(string filePath, string series, ProjectConfiguration config)
     {
         try
         {
             var notes = new List<ConstructionNote>();
-            var tableName = $"{series.ToUpperInvariant()}-NOTES";
+            var tableName = string.Format(config.Tables.NotesPattern, series.ToUpperInvariant());
 
             using var package = new ExcelPackage(new FileInfo(filePath));
             
-            // Try to find worksheet with notes - could be "Notes" or series-specific
-            var worksheet = package.Workbook.Worksheets["Notes"] ?? 
+            // Try to find worksheet with notes - use config or series-specific
+            var worksheet = package.Workbook.Worksheets[config.Worksheets.Notes] ?? 
                            package.Workbook.Worksheets[series];
             
             if (worksheet == null)
             {
-                _logger.LogWarning($"Notes worksheet not found for series {series}");
+                _logger.LogWarning($"Notes worksheet '{config.Worksheets.Notes}' not found for series {series}");
                 return notes;
             }
 
@@ -170,24 +170,25 @@ public class ExcelReaderService : IExcelReader
         }
     }
 
-    public async Task<List<SheetNoteMapping>> ReadExcelNotesAsync(string filePath)
+    public async Task<List<SheetNoteMapping>> ReadExcelNotesAsync(string filePath, ProjectConfiguration config)
     {
         try
         {
             var mappings = new List<SheetNoteMapping>();
 
             using var package = new ExcelPackage(new FileInfo(filePath));
-            var worksheet = package.Workbook.Worksheets["Notes"];
+            // Excel notes are in a separate worksheet, not the series-specific notes worksheet
+            var worksheet = package.Workbook.Worksheets["Excel Notes"];
             if (worksheet == null)
             {
-                _logger.LogWarning($"Notes worksheet not found in {filePath}");
+                _logger.LogWarning($"Excel Notes worksheet not found in {filePath}");
                 return mappings;
             }
 
-            var table = worksheet.Tables["EXCEL-NOTES"];
+            var table = worksheet.Tables[config.Tables.ExcelNotes];
             if (table == null)
             {
-                _logger.LogWarning("Table 'EXCEL-NOTES' not found in notes worksheet");
+                _logger.LogWarning($"Table '{config.Tables.ExcelNotes}' not found in notes worksheet");
                 return mappings;
             }
 

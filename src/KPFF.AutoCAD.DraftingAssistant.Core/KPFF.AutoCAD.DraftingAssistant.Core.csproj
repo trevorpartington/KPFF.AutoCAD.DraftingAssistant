@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageReference Include="EPPlus" Version="7.5.3" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="AutoCAD.NET" Version="26.0.0" />
+    <PackageReference Include="AutoCAD.NET" Version="25.1.0" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,34 @@
+{
+  "projectName": "PROJ-ABC-100 Test Project",
+  "clientName": "Test Client",
+  "projectIndexFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\ProjectIndex.xlsx",
+  "sheetNaming": {
+    "pattern": "([A-Z]{4})-([A-Z]{1,3})-?(\\d{1,3})",
+    "seriesGroup": 2,
+    "numberGroup": 3,
+    "examples": [
+      "PROJ-ABC-100",
+      "PROJ-PV-101", 
+      "PROJ-C-001"
+    ]
+  },
+  "worksheets": {
+    "sheets": "Index",
+    "notes": "ABC Notes"
+  },
+  "tables": {
+    "sheetIndex": "SHEET_INDEX",
+    "excelNotes": "EXCEL_NOTES",
+    "notesPattern": "{0}_NOTES"
+  },
+  "constructionNotes": {
+    "multileaderStyleName": "KPFF_Note_Standard",
+    "noteBlockPattern": "{0}-NT{1:D2}",
+    "maxNotesPerSheet": 24,
+    "attributes": {
+      "numberAttribute": "Number",
+      "noteAttribute": "Note"
+    },
+    "visibilityPropertyName": "Visibility"
+  }
+}

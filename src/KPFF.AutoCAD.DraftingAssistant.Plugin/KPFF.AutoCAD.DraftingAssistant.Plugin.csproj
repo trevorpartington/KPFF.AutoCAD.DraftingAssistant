@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoCAD.NET" Version="24.2.0" />
-    <PackageReference Include="AutoCAD.NET.Core" Version="24.2.0" />
-    <PackageReference Include="AutoCAD.NET.Model" Version="24.2.0" />
+    <PackageReference Include="AutoCAD.NET" Version="25.1.0" />
+    <PackageReference Include="AutoCAD.NET.Core" Version="25.1.0" />
+    <PackageReference Include="AutoCAD.NET.Model" Version="25.1.0" />
   </ItemGroup>
 
   <ItemGroup>
