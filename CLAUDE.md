@@ -104,12 +104,16 @@ The construction notes automation system provides dual-mode functionality:
 
 #### Excel File Structure (ProjectIndex.xlsx)
 - **SHEET_INDEX table**: Complete sheet list with title block information
+  - Columns: Sheet, File, Title
+  - Example: "ABC-101", "PROJ-ABC-100", "ABC PLAN"
 - **{SERIES}_NOTES tables**: Construction note definitions per drawing series
-  - Example: PV_NOTES, C_NOTES, UCP_NOTES
-  - Columns: Note Number, Note Text
-- **EXCEL_NOTES table**: Manual sheet-to-notes mapping for fallback mode
-  - Column 1: Sheet Name (e.g., "PV-101")
+  - Example: ABC_NOTES, PV_NOTES, C_NOTES
+  - Columns: Number, Note
+  - Example: Number=1, Note="CONSTRUCT CURB"
+- **EXCEL_NOTES table**: Manual sheet-to-notes mapping for Excel Notes mode
+  - Column 1: Sheet Name (e.g., "ABC-101")  
   - Columns 2-25: Note numbers present on that sheet
+  - Example: "ABC-101", "1", "1", "", "" (means two instances of note 1 on sheet ABC-101)
 
 ### User Interface
 
@@ -130,7 +134,9 @@ Active Project: [Project Name or "No project selected"]
 
 #### Sheet Naming Convention
 Projects use consistent naming patterns that are configurable:
-- Examples: "PV-101", "C001", "UCP-12"
+- Pattern: Series + Number (e.g., "ABC-101" where ABC=series, 101=number)
+- Supports 1-3 letter series (A, AB, ABC) and 1-3 digit numbers (1, 12, 123)  
+- Examples: "A-1", "AB-12", "ABC-123"
 - Regex patterns defined in project configuration
 - Auto-detection with user validation fallback
 
@@ -152,10 +158,16 @@ Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX
 6. Combine results from all viewports into master list
 
 #### Excel Notes Processing
-1. Read EXCEL-NOTES table for target sheet
+1. Read EXCEL_NOTES table for target sheet
 2. Extract note numbers from columns 2-25
-3. Map note numbers to note text using series-specific tables
+3. Map note numbers to note text using series-specific tables (e.g., ABC_NOTES)
 4. Update construction note blocks directly
+
+**Example Workflow:**
+- Sheet ABC-101 has entries in EXCEL_NOTES: column 1="ABC-101", column 2="1", column 3="1"
+- This means sheet ABC-101 has two instances of note 1
+- Note 1 definition comes from ABC_NOTES table: Number=1, Note="CONSTRUCT CURB"
+- System updates blocks 101-NT01 and 101-NT02 with Number="1", Note="CONSTRUCT CURB", Visibility="ON"
 
 #### Dynamic Block Handling
 ```csharp
@@ -172,6 +184,13 @@ if (blockRef.IsDynamicBlock)
 - **EPPlus**: Excel file reading (handles files open in Excel)
 - **AutoCAD .NET API**: Drawing analysis, block manipulation, viewport processing
 - **System.Text.Json**: Project configuration serialization
+
+### Configuration Updates (Recent)
+The system has been simplified to remove worksheet dependencies:
+- Tables are now accessed directly by name across the entire workbook
+- Removed WorksheetConfiguration class and worksheet-based lookups
+- Configuration now only requires table names: SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES
+- More robust and works regardless of which worksheet contains the tables
 
 ### Future Enhancements
 - Automated construction note block creation for new sheets
