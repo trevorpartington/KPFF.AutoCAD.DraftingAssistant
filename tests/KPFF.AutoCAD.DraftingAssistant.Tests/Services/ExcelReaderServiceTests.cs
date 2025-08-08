@@ -39,7 +39,7 @@ public class ExcelReaderServiceTests
         
         Assert.NotEmpty(worksheets);
         // Expected worksheets based on our design
-        Assert.Contains("Sheets", worksheets);
+        Assert.Contains("Index", worksheets);
     }
 
     [Fact]
@@ -53,7 +53,6 @@ public class ExcelReaderServiceTests
 
         var configService = new ProjectConfigurationService(_mockLogger.Object);
         var config = configService.CreateDefaultConfiguration();
-        config.Worksheets.Sheets = "Index";
         config.Tables.SheetIndex = "SHEET_INDEX";
 
         var sheets = await _excelReader.ReadSheetIndexAsync(_testFilePath, config);

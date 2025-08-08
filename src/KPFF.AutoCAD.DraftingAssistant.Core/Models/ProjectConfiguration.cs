@@ -7,7 +7,6 @@ public class ProjectConfiguration
     public string ProjectIndexFilePath { get; set; } = string.Empty;
     public string ProjectDWGFilePath { get; set; } = string.Empty;
     public SheetNamingConfiguration SheetNaming { get; set; } = new();
-    public WorksheetConfiguration Worksheets { get; set; } = new();
     public TableConfiguration Tables { get; set; } = new();
     public ConstructionNotesConfiguration ConstructionNotes { get; set; } = new();
 }
@@ -20,17 +19,12 @@ public class SheetNamingConfiguration
     public string[] Examples { get; set; } = Array.Empty<string>();
 }
 
-public class WorksheetConfiguration
-{
-    public string Sheets { get; set; } = "Sheets";
-    public string Notes { get; set; } = "Notes";
-}
 
 public class TableConfiguration
 {
-    public string SheetIndex { get; set; } = "SheetIndex";
-    public string ExcelNotes { get; set; } = "EXCEL-NOTES";
-    public string NotesPattern { get; set; } = "{0}-NOTES";
+    public string SheetIndex { get; set; } = "SHEET_INDEX";
+    public string ExcelNotes { get; set; } = "EXCEL_NOTES";
+    public string NotesPattern { get; set; } = "{0}_NOTES";
 }
 
 public class ConstructionNotesConfiguration

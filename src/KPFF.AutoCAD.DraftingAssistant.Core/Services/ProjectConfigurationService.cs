@@ -75,16 +75,11 @@ public class ProjectConfigurationService : IProjectConfigurationService
                 NumberGroup = 2,
                 Examples = new[] { "ABC-101", "PV-101", "C-001" }
             },
-            Worksheets = new WorksheetConfiguration
-            {
-                Sheets = "Index",
-                Notes = "Excel Notes"
-            },
             Tables = new TableConfiguration
             {
-                SheetIndex = "SheetIndex",
-                ExcelNotes = "EXCEL-NOTES",
-                NotesPattern = "{0}-NOTES"
+                SheetIndex = "SHEET_INDEX",
+                ExcelNotes = "EXCEL_NOTES",
+                NotesPattern = "{0}_NOTES"
             },
             ConstructionNotes = new ConstructionNotesConfiguration
             {

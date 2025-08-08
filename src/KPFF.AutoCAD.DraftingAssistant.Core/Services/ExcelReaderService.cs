@@ -22,19 +22,19 @@ public class ExcelReaderService : IExcelReader
             var sheets = new List<SheetInfo>();
             
             using var package = new ExcelPackage(new FileInfo(filePath));
-            var worksheet = package.Workbook.Worksheets[config.Worksheets.Sheets];
-            if (worksheet == null)
-            {
-                _logger.LogWarning($"Worksheet '{config.Worksheets.Sheets}' not found in {filePath}");
-                return sheets;
-            }
-
-            var table = worksheet.Tables[config.Tables.SheetIndex];
+            
+            // Access table directly across all worksheets
+            var table = package.Workbook.Worksheets
+                .SelectMany(ws => ws.Tables)
+                .FirstOrDefault(t => t.Name == config.Tables.SheetIndex);
+                
             if (table == null)
             {
-                _logger.LogWarning($"Table '{config.Tables.SheetIndex}' not found in worksheet '{config.Worksheets.Sheets}'");
+                _logger.LogWarning($"Table '{config.Tables.SheetIndex}' not found in {filePath}");
                 return sheets;
             }
+            
+            var worksheet = table.WorkSheet;
 
             var headers = table.Columns.Select(c => c.Name).ToArray();
             var startRow = table.Address.Start.Row + 1; // Skip header
@@ -129,23 +129,18 @@ public class ExcelReaderService : IExcelReader
 
             using var package = new ExcelPackage(new FileInfo(filePath));
             
-            // Try to find worksheet with notes - series-specific first, then config
-            var worksheet = package.Workbook.Worksheets[$"{series} Notes"] ?? 
-                           package.Workbook.Worksheets[series] ??
-                           package.Workbook.Worksheets[config.Worksheets.Notes];
-            
-            if (worksheet == null)
-            {
-                _logger.LogWarning($"Notes worksheet '{config.Worksheets.Notes}' not found for series {series}");
-                return notes;
-            }
-
-            var table = worksheet.Tables[tableName];
+            // Access table directly across all worksheets
+            var table = package.Workbook.Worksheets
+                .SelectMany(ws => ws.Tables)
+                .FirstOrDefault(t => t.Name == tableName);
+                
             if (table == null)
             {
-                _logger.LogWarning($"Table '{tableName}' not found in notes worksheet");
+                _logger.LogWarning($"Table '{tableName}' not found for series {series}");
                 return notes;
             }
+            
+            var worksheet = table.WorkSheet;
 
             var startRow = table.Address.Start.Row + 1; // Skip header
             var endRow = table.Address.End.Row;
@@ -184,20 +179,19 @@ public class ExcelReaderService : IExcelReader
             var mappings = new List<SheetNoteMapping>();
 
             using var package = new ExcelPackage(new FileInfo(filePath));
-            // Excel notes are in a separate worksheet, not the series-specific notes worksheet
-            var worksheet = package.Workbook.Worksheets["Excel Notes"];
-            if (worksheet == null)
-            {
-                _logger.LogWarning($"Excel Notes worksheet not found in {filePath}");
-                return mappings;
-            }
-
-            var table = worksheet.Tables[config.Tables.ExcelNotes];
+            
+            // Access table directly across all worksheets
+            var table = package.Workbook.Worksheets
+                .SelectMany(ws => ws.Tables)
+                .FirstOrDefault(t => t.Name == config.Tables.ExcelNotes);
+                
             if (table == null)
             {
-                _logger.LogWarning($"Table '{config.Tables.ExcelNotes}' not found in notes worksheet");
+                _logger.LogWarning($"Table '{config.Tables.ExcelNotes}' not found in {filePath}");
                 return mappings;
             }
+            
+            var worksheet = table.WorkSheet;
 
             var startRow = table.Address.Start.Row + 1; // Skip header
             var endRow = table.Address.End.Row;

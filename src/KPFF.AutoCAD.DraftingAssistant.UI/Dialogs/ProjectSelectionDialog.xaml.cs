@@ -93,8 +93,8 @@ public partial class ProjectSelectionDialog : Window
                 "Configuration Details:",
                 $"• Sheet Pattern: {_loadedProject.SheetNaming.Pattern}",
                 $"• Series Group: {_loadedProject.SheetNaming.SeriesGroup}, Number Group: {_loadedProject.SheetNaming.NumberGroup}",
-                $"• Sheets Worksheet: {_loadedProject.Worksheets.Sheets}",
-                $"• Notes Worksheet: {_loadedProject.Worksheets.Notes}",
+                $"• Sheet Index Table: {_loadedProject.Tables.SheetIndex}",
+                $"• Excel Notes Table: {_loadedProject.Tables.ExcelNotes}",
                 $"• Max Notes per Sheet: {_loadedProject.ConstructionNotes.MaxNotesPerSheet}",
                 "",
             };

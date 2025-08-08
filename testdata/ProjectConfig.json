@@ -8,15 +8,16 @@
     "seriesGroup": 1,
     "numberGroup": 2,
     "examples": [
-      "ABC-101",
-      "ABC-102",
-      "PV-101", 
-      "C-001"
+      "ABC-123",
+      "ABC-12",
+	  "ABC-1",
+      "AB-123",
+	  "AB-12",
+	  "AB-1",	  
+      "A-123",
+	  "A-12",
+      "A-1"
     ]
-  },
-  "worksheets": {
-    "sheets": "Index",
-    "notes": "Excel Notes"
   },
   "tables": {
     "sheetIndex": "SHEET_INDEX",
@@ -24,7 +25,7 @@
     "notesPattern": "{0}_NOTES"
   },
   "constructionNotes": {
-    "multileaderStyleName": "KPFF_Note_Standard",
+    "multileaderStyleName": "ML-STYLE-01",
     "noteBlockPattern": "{0}-NT{1:D2}",
     "maxNotesPerSheet": 24,
     "attributes": {
