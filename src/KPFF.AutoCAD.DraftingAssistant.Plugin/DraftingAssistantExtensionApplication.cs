@@ -71,6 +71,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
     /// <summary>
     /// Sets up the dependency injection container with all required services
+    /// CRASH FIX: Use isolated services that never access drawing context during initialization
     /// </summary>
     private static void SetupDependencyInjection()
     {
@@ -81,7 +82,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
         _serviceProvider = new DependencyInjectionServiceProvider();
 
-        // Register core services
+        // Register core services - use isolated instances to avoid drawing context access
         var debugLogger = new DebugLogger();
         _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
         _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);

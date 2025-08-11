@@ -39,22 +39,16 @@ public partial class ConfigurationControl : BaseUserControl
 
     private static IProjectConfigurationService GetConfigurationService()
     {
-        if (ApplicationServices.IsInitialized)
-        {
-            return ApplicationServices.GetService<IProjectConfigurationService>();
-        }
-        
+        // CRASH FIX: Never access ApplicationServices during UI initialization
+        // This prevents heap corruption from AutoCAD object disposal issues
         var logger = new DebugLogger();
         return new ProjectConfigurationService(logger);
     }
 
     private static IExcelReader GetExcelReaderService()
     {
-        if (ApplicationServices.IsInitialized)
-        {
-            return ApplicationServices.GetService<IExcelReader>();
-        }
-        
+        // CRASH FIX: Never access ApplicationServices during UI initialization
+        // This prevents heap corruption from AutoCAD object disposal issues
         var logger = new DebugLogger();
         return new ExcelReaderService(logger);
     }

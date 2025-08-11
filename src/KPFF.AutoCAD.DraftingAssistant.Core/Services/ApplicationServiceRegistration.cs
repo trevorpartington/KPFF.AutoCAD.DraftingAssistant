@@ -41,6 +41,13 @@ public class ApplicationServiceRegistration : IServiceRegistration
         // Excel services
         _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
 
+        // Construction Notes services (stub implementations to prevent crashes)
+        _serviceProvider.RegisterTransient<IConstructionNotesService, ConstructionNotesService>();
+        _serviceProvider.RegisterTransient<IConstructionNoteBlockManager, ConstructionNoteBlockManager>();
+        
+        // CRASH FIX: Removed CurrentDrawingBlockManager registration from DI container
+        // It will be instantiated manually when needed to avoid premature AutoCAD access
+        
         // Notification services - these will be registered by specific layers (UI/Plugin)
     }
 

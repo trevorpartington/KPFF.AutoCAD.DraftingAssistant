@@ -273,3 +273,93 @@ Each API reference file contains:
 - Parameter descriptions
 - Property accessor information
 - Links to related classes and namespaces
+
+## Excel Notes Implementation Approach
+
+### Phase-Based Development Strategy
+
+The Excel Notes functionality is being implemented using a **safe, incremental approach** to avoid AutoCAD crashes and ensure reliable operation:
+
+#### **Phase 1: Read-Only Block Discovery (COMPLETED)**
+- **Goal**: Safely find and read construction note blocks without modifications
+- **Implementation**: `CurrentDrawingBlockManager` with read-only operations
+- **Key Features**:
+  - Pattern matching for NT## blocks (NT01, NT02, etc.)
+  - Safe AutoCAD object access with extensive error handling
+  - Block attribute reading (Number, Note)
+  - Dynamic block visibility state detection
+- **Testing**: `TESTPHASE1` and `TESTPHASE1DETAIL` commands
+- **Status**: ✅ **Complete and tested**
+
+#### **Phase 2: Single Block Update (PLANNED)**
+- **Goal**: Safely modify one construction note block in active drawing
+- **Features**: Update block attributes and visibility state
+- **Testing**: Update specific block with hardcoded values
+
+#### **Phase 3: Excel-Driven Batch Updates (PLANNED)**  
+- **Goal**: Update multiple blocks based on Excel EXCEL_NOTES table
+- **Features**: Map Excel data to blocks for current layout
+- **Testing**: Process one sheet currently open in AutoCAD
+
+#### **Phase 4: Side Database Operations (PLANNED)**
+- **Goal**: Safely open external DWG files without crashes
+- **Features**: Database(false, true) pattern with proper file handling
+- **Testing**: Read blocks from closed DWG files
+
+### **Simplified Block Architecture (IMPLEMENTED)**
+
+#### **Before (Redundant)**
+- Block names: `101-NT01`, `101-NT02`, `102-NT01`, `102-NT02`
+- Result: N layouts × 24 blocks = hundreds of definitions
+
+#### **After (Optimized)**  
+- Block names: `NT01`, `NT02`, ... `NT24`
+- Same blocks used across all layouts with different attribute values
+- Result: Only 24 total block definitions
+
+### **Critical Safety Measures (IMPLEMENTED)**
+
+#### **AutoCAD Crash Prevention**
+The system includes extensive crash prevention for the access violation (0xc0000005) issues:
+
+1. **Deferred Initialization**: No AutoCAD object access during plugin load
+2. **Safe Object Access**: All DocumentManager access wrapped in try-catch
+3. **Lazy Service Creation**: CurrentDrawingBlockManager not in DI container
+4. **Defensive Programming**: Null checks and graceful fallbacks throughout
+
+#### **Transaction Safety**
+- Read-only transactions for discovery operations
+- Proper transaction disposal and error handling
+- No premature commits that could corrupt drawings
+
+#### **Drawing State Protection**
+- Never access viewports or other entities accidentally
+- Only target construction note blocks with precise pattern matching
+- Extensive logging for debugging and audit trails
+
+### **Excel Integration Strategy**
+
+#### **Data Flow**
+1. **Excel Reading**: EPPlus library reads EXCEL_NOTES table
+2. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES
+3. **Block Updates**: Update NT## blocks with mapped data per layout
+4. **Validation**: Verify all updates completed successfully
+
+#### **Error Handling**
+- Handle locked Excel files (EPPlus works with files open in Excel)  
+- Graceful handling of missing sheets, tables, or data
+- Rollback capability if updates fail mid-process
+
+### **Testing Strategy**
+
+#### **Development Testing**
+- **Unit Tests**: Mock AutoCAD objects for safe testing
+- **Integration Commands**: Manual testing commands (TESTPHASE1, etc.)
+- **Incremental Validation**: Test each phase before proceeding
+
+#### **Production Readiness**
+- **Error Recovery**: Comprehensive exception handling
+- **Audit Logging**: Full operation logs for troubleshooting  
+- **User Feedback**: Clear progress reporting and error messages
+
+This approach ensures **reliable, crash-free operation** while maintaining **clean, maintainable code** that follows AutoCAD .NET API best practices.

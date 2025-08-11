@@ -26,16 +26,16 @@ public abstract class BaseUserControl : UserControl
 
     private static ILogger GetLoggerService()
     {
-        return ApplicationServices.IsInitialized 
-            ? ApplicationServices.GetService<ILogger>()
-            : new DebugLogger();
+        // CRASH FIX: Never access ApplicationServices during UI initialization
+        // This prevents binding errors during AutoCAD document context switching
+        return new DebugLogger();
     }
 
     private static INotificationService GetNotificationService()
     {
-        return ApplicationServices.IsInitialized
-            ? ApplicationServices.GetService<INotificationService>()
-            : new Controls.WpfNotificationService();
+        // CRASH FIX: Never access ApplicationServices during UI initialization  
+        // This prevents binding errors during AutoCAD document context switching
+        return new Controls.WpfNotificationService();
     }
 
     /// <summary>
