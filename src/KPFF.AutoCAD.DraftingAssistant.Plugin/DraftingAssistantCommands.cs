@@ -1,4 +1,5 @@
 using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Runtime;
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
@@ -187,6 +188,30 @@ public class DraftingAssistantCommands
                 if (blocks.Count == 0)
                 {
                     ed.WriteMessage($"No construction note blocks found in layout '{layoutName}'\n");
+                    
+                    // If no blocks found, show available layouts for debugging
+                    ed.WriteMessage("\n--- Available Layouts ---\n");
+                    try
+                    {
+                        Database db = doc.Database;
+                        using (Transaction layoutTr = db.TransactionManager.StartTransaction())
+                        {
+                            DBDictionary layoutDict = layoutTr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                            
+                            foreach (DBDictionaryEntry entry in layoutDict)
+                            {
+                                if (!entry.Key.Equals("Model", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    ed.WriteMessage($"  - '{entry.Key}'\n");
+                                }
+                            }
+                            layoutTr.Commit();
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        ed.WriteMessage($"Could not list available layouts: {ex.Message}\n");
+                    }
                 }
                 else
                 {
@@ -345,6 +370,278 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nERROR: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Phase 2 Test: Single Construction Note Block Update
+    /// Tests the ability to safely modify a single block's attributes and visibility
+    /// </summary>
+    [CommandMethod("TESTPHASE2")]
+    public void TestPhase2BlockUpdate()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== PHASE 2 TEST: Single Block Update ===\n");
+            ed.WriteMessage($"Current Drawing: {doc.Name}\n\n");
+
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not initialized\n");
+                return;
+            }
+
+            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var blockManager = new CurrentDrawingBlockManager(logger);
+
+            // Get user inputs
+            PromptResult layoutResult = ed.GetString("\nEnter layout name (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+            string layoutName = layoutResult.StringResult;
+
+            PromptResult blockResult = ed.GetString("\nEnter block name (e.g., NT01): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+            string blockName = blockResult.StringResult;
+
+            PromptIntegerOptions numberOptions = new PromptIntegerOptions("\nEnter note number (1-999): ");
+            numberOptions.AllowNegative = false;
+            numberOptions.AllowZero = false;
+            numberOptions.LowerLimit = 1;
+            numberOptions.UpperLimit = 999;
+            PromptIntegerResult numberResult = ed.GetInteger(numberOptions);
+            if (numberResult.Status != PromptStatus.OK)
+                return;
+            int noteNumber = numberResult.Value;
+
+            PromptResult noteResult = ed.GetString($"\nEnter note text for #{noteNumber}: ");
+            if (noteResult.Status != PromptStatus.OK)
+                return;
+            string noteText = noteResult.StringResult;
+
+            PromptKeywordOptions visibilityOptions = new PromptKeywordOptions("\nMake block visible? ");
+            visibilityOptions.Keywords.Add("Yes");
+            visibilityOptions.Keywords.Add("No");
+            visibilityOptions.Keywords.Default = "Yes";
+            PromptResult visibilityResult = ed.GetKeywords(visibilityOptions);
+            if (visibilityResult.Status != PromptStatus.OK)
+                return;
+            bool makeVisible = visibilityResult.StringResult.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+
+            ed.WriteMessage($"\n--- Update Summary ---\n");
+            ed.WriteMessage($"Layout: {layoutName}\n");
+            ed.WriteMessage($"Block: {blockName}\n");
+            ed.WriteMessage($"Number: {noteNumber}\n");
+            ed.WriteMessage($"Note: {TruncateString(noteText, 50)}\n");
+            ed.WriteMessage($"Visible: {(makeVisible ? "Yes" : "No")}\n");
+            ed.WriteMessage($"--- Starting Update ---\n");
+
+            // Perform the update
+            bool success = blockManager.UpdateConstructionNoteBlock(layoutName, blockName, noteNumber, noteText, makeVisible);
+
+            if (success)
+            {
+                ed.WriteMessage("\n✓ UPDATE SUCCESSFUL!\n");
+                ed.WriteMessage("The block has been updated with the new data.\n");
+                
+                // Verify the update by reading it back
+                ed.WriteMessage("\n--- Verification ---\n");
+                var blocks = blockManager.GetConstructionNoteBlocks(layoutName);
+                var updatedBlock = blocks.FirstOrDefault(b => b.BlockName.Equals(blockName, StringComparison.OrdinalIgnoreCase));
+                
+                if (updatedBlock != null)
+                {
+                    ed.WriteMessage($"Verified Block: {updatedBlock.BlockName}\n");
+                    ed.WriteMessage($"  Number: {(updatedBlock.Number > 0 ? updatedBlock.Number.ToString() : "(empty)")}\n");
+                    ed.WriteMessage($"  Note: {TruncateString(updatedBlock.Note, 60)}\n");
+                    ed.WriteMessage($"  Visible: {updatedBlock.IsVisible}\n");
+                }
+                else
+                {
+                    ed.WriteMessage("WARNING: Could not verify the update\n");
+                }
+            }
+            else
+            {
+                ed.WriteMessage("\n✗ UPDATE FAILED!\n");
+                ed.WriteMessage("The block could not be updated. Check the debug output for details.\n");
+            }
+
+            ed.WriteMessage("\n=== Phase 2 Test Complete ===\n");
+            ed.WriteMessage("Check the Visual Studio Debug Output for detailed information.\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR: {ex.Message}\n");
+            ed.WriteMessage($"Stack Trace:\n{ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Phase 2 Reset Test: Resets a block back to empty state
+    /// Useful for testing multiple iterations
+    /// </summary>
+    [CommandMethod("TESTPHASE2RESET")]
+    public void TestPhase2BlockReset()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== PHASE 2 RESET: Clear Block Data ===\n");
+
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not initialized\n");
+                return;
+            }
+
+            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var blockManager = new CurrentDrawingBlockManager(logger);
+
+            // Get user inputs
+            PromptResult layoutResult = ed.GetString("\nEnter layout name (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+            string layoutName = layoutResult.StringResult;
+
+            PromptResult blockResult = ed.GetString("\nEnter block name to reset (e.g., NT01): ");
+            if (blockResult.Status != PromptStatus.OK)
+                return;
+            string blockName = blockResult.StringResult;
+
+            ed.WriteMessage($"\nResetting block {blockName} in layout {layoutName}...\n");
+
+            // Reset the block (empty values, hidden)
+            bool success = blockManager.UpdateConstructionNoteBlock(layoutName, blockName, 0, "", false);
+
+            if (success)
+            {
+                ed.WriteMessage("✓ RESET SUCCESSFUL! Block is now empty and hidden.\n");
+            }
+            else
+            {
+                ed.WriteMessage("✗ RESET FAILED!\n");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Diagnostic command to list all available layouts in the current drawing
+    /// Helps debug layout access issues
+    /// </summary>
+    [CommandMethod("TESTLAYOUTS")]
+    public void TestLayouts()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== LAYOUT DIAGNOSTIC ===\n");
+            ed.WriteMessage($"Current Drawing: {doc.Name}\n");
+            ed.WriteMessage($"Drawing Path: {doc.Database.Filename}\n\n");
+
+            Database db = doc.Database;
+
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Get the layout dictionary
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    
+                    ed.WriteMessage($"Total layouts found: {layoutDict.Count}\n");
+                    ed.WriteMessage("==========================================\n");
+
+                    int layoutCount = 0;
+                    foreach (DBDictionaryEntry entry in layoutDict)
+                    {
+                        layoutCount++;
+                        string layoutName = entry.Key;
+                        ObjectId layoutId = entry.Value;
+                        
+                        try
+                        {
+                            Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                            string tabName = layout.LayoutName;
+                            bool isModelSpace = layoutName.Equals("Model", StringComparison.OrdinalIgnoreCase);
+                            
+                            ed.WriteMessage($"{layoutCount}. Dictionary Key: \"{layoutName}\"\n");
+                            ed.WriteMessage($"   Tab Name: \"{tabName}\"\n");
+                            ed.WriteMessage($"   Type: {(isModelSpace ? "Model Space" : "Paper Space")}\n");
+                            ed.WriteMessage($"   ObjectId: {layoutId}\n");
+                            
+                            // Check if this layout has construction note blocks
+                            if (!isModelSpace)
+                            {
+                                var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+                                var logger = serviceProvider?.GetService<Core.Interfaces.ILogger>();
+                                var blockManager = new CurrentDrawingBlockManager(logger);
+                                
+                                var blocks = blockManager.GetConstructionNoteBlocks(layoutName);
+                                ed.WriteMessage($"   Construction Note Blocks: {blocks.Count}\n");
+                                
+                                if (blocks.Count > 0)
+                                {
+                                    foreach (var block in blocks)
+                                    {
+                                        ed.WriteMessage($"     - {block.BlockName} (Visible: {block.IsVisible})\n");
+                                    }
+                                }
+                            }
+                            
+                            ed.WriteMessage("------------------------------------------\n");
+                        }
+                        catch (System.Exception layoutEx)
+                        {
+                            ed.WriteMessage($"{layoutCount}. Dictionary Key: \"{layoutName}\" [ERROR: {layoutEx.Message}]\n");
+                            ed.WriteMessage("------------------------------------------\n");
+                        }
+                    }
+                    
+                    ed.WriteMessage("\n=== LAYOUT TEST RESULTS ===\n");
+                    ed.WriteMessage($"Expected Layouts: ABC-101, ABC-102\n");
+                    
+                    // Test specific layout access
+                    bool abc101Found = layoutDict.Contains("ABC-101");
+                    bool abc102Found = layoutDict.Contains("ABC-102");
+                    
+                    ed.WriteMessage($"ABC-101 found: {abc101Found}\n");
+                    ed.WriteMessage($"ABC-102 found: {abc102Found}\n");
+                    
+                    // Try case variations
+                    ed.WriteMessage("\n--- Case Variation Tests ---\n");
+                    string[] variations = { "abc-101", "ABC-101", "Abc-101", "ABC101", "abc101" };
+                    foreach (string variation in variations)
+                    {
+                        bool found = layoutDict.Contains(variation);
+                        ed.WriteMessage($"'{variation}': {found}\n");
+                    }
+                    
+                    tr.Commit();
+                }
+                catch (System.Exception ex)
+                {
+                    ed.WriteMessage($"Error accessing layout dictionary: {ex.Message}\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR: {ex.Message}\n");
+            ed.WriteMessage($"Stack Trace:\n{ex.StackTrace}\n");
         }
     }
 

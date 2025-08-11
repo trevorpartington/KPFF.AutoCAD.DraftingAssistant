@@ -64,6 +64,7 @@ public class CurrentDrawingBlockManager
                     if (!layoutDict.Contains(layoutName))
                     {
                         _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                        LogAvailableLayouts(layoutDict, tr);
                         return blocks;
                     }
 
@@ -344,5 +345,266 @@ public class CurrentDrawingBlockManager
         }
 
         return allBlocks;
+    }
+
+    /// <summary>
+    /// Phase 2: Updates a single construction note block with new data
+    /// Safe modification method with proper transaction handling
+    /// </summary>
+    /// <param name="layoutName">Layout containing the block</param>
+    /// <param name="blockName">Block name (e.g., "NT01")</param>
+    /// <param name="noteNumber">Note number to set</param>
+    /// <param name="noteText">Note text to set</param>
+    /// <param name="makeVisible">Whether to make the block visible</param>
+    /// <returns>True if update was successful</returns>
+    public bool UpdateConstructionNoteBlock(string layoutName, string blockName, int noteNumber, string noteText, bool makeVisible)
+    {
+        _logger.LogInformation($"Attempting to update block {blockName} in layout {layoutName}");
+        
+        try
+        {
+            // CRASH FIX: Add safety guard around AutoCAD object access
+            Document? doc = null;
+            try
+            {
+                doc = Application.DocumentManager?.MdiActiveDocument;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
+                return false;
+            }
+
+            if (doc == null)
+            {
+                _logger.LogWarning("No active document found");
+                return false;
+            }
+
+            Database db = doc.Database;
+
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Get the layout
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                        LogAvailableLayouts(layoutDict, tr);
+                        return false;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+
+                    // Get the block table record for this layout
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                    // Find the target block
+                    BlockReference targetBlockRef = null;
+                    foreach (ObjectId objId in layoutBtr)
+                    {
+                        Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                        
+                        if (entity is BlockReference blockRef)
+                        {
+                            string currentBlockName = GetEffectiveBlockName(blockRef, tr);
+                            if (currentBlockName.Equals(blockName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                targetBlockRef = blockRef;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (targetBlockRef == null)
+                    {
+                        _logger.LogWarning($"Block '{blockName}' not found in layout '{layoutName}'");
+                        return false;
+                    }
+
+                    _logger.LogDebug($"Found target block {blockName}, updating attributes and visibility");
+
+                    // Update block attributes
+                    bool attributesUpdated = UpdateBlockAttributes(targetBlockRef, noteNumber, noteText, tr);
+                    
+                    // Update visibility state if it's a dynamic block
+                    bool visibilityUpdated = true;
+                    if (targetBlockRef.IsDynamicBlock)
+                    {
+                        visibilityUpdated = UpdateDynamicBlockVisibility(targetBlockRef, makeVisible);
+                    }
+
+                    if (attributesUpdated && visibilityUpdated)
+                    {
+                        tr.Commit();
+                        _logger.LogInformation($"Successfully updated block {blockName}: Number={noteNumber}, Note='{noteText.Substring(0, Math.Min(noteText.Length, 30))}...', Visible={makeVisible}");
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Block update failed - rolling back transaction");
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error updating block: {ex.Message}", ex);
+                    return false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update construction note block: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates the attributes of a construction note block
+    /// </summary>
+    private bool UpdateBlockAttributes(BlockReference blockRef, int noteNumber, string noteText, Transaction tr)
+    {
+        try
+        {
+            AttributeCollection attCol = blockRef.AttributeCollection;
+            bool numberUpdated = false;
+            bool noteUpdated = false;
+            
+            foreach (ObjectId attId in attCol)
+            {
+                AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
+                if (attRef != null)
+                {
+                    string tag = attRef.Tag.ToUpper();
+                    
+                    if (tag == "NUMBER")
+                    {
+                        attRef.TextString = noteNumber > 0 ? noteNumber.ToString() : "";
+                        numberUpdated = true;
+                        _logger.LogDebug($"Updated NUMBER attribute: '{attRef.TextString}'");
+                    }
+                    else if (tag == "NOTE")
+                    {
+                        attRef.TextString = noteText ?? "";
+                        noteUpdated = true;
+                        _logger.LogDebug($"Updated NOTE attribute: '{attRef.TextString.Substring(0, Math.Min(attRef.TextString.Length, 50))}...'");
+                    }
+                }
+            }
+
+            if (!numberUpdated)
+            {
+                _logger.LogWarning("NUMBER attribute not found or not updated");
+            }
+            if (!noteUpdated)
+            {
+                _logger.LogWarning("NOTE attribute not found or not updated");
+            }
+
+            return numberUpdated && noteUpdated;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update block attributes: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates the visibility state of a dynamic block
+    /// </summary>
+    private bool UpdateDynamicBlockVisibility(BlockReference blockRef, bool makeVisible)
+    {
+        try
+        {
+            DynamicBlockReferencePropertyCollection props = blockRef.DynamicBlockReferencePropertyCollection;
+            
+            foreach (DynamicBlockReferenceProperty prop in props)
+            {
+                if (prop.PropertyName.Equals("Visibility", StringComparison.OrdinalIgnoreCase) ||
+                    prop.PropertyName.Equals("Visibility1", StringComparison.OrdinalIgnoreCase))
+                {
+                    string targetState = makeVisible ? "ON" : "OFF";
+                    
+                    // Check if this visibility state exists in the allowed values
+                    var allowedValues = prop.GetAllowedValues();
+                    bool stateExists = false;
+                    
+                    foreach (object allowedValue in allowedValues)
+                    {
+                        string allowedState = allowedValue.ToString();
+                        if (allowedState.Equals(targetState, StringComparison.OrdinalIgnoreCase))
+                        {
+                            stateExists = true;
+                            break;
+                        }
+                        // Also check for alternative visibility states
+                        if (makeVisible && (allowedState.Equals("Visible", StringComparison.OrdinalIgnoreCase) ||
+                                          allowedState.Equals("Hex", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            targetState = allowedState;
+                            stateExists = true;
+                            break;
+                        }
+                    }
+
+                    if (stateExists)
+                    {
+                        prop.Value = targetState;
+                        _logger.LogDebug($"Set visibility to: {targetState}");
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Visibility state '{targetState}' not found in allowed values: [{string.Join(", ", allowedValues)}]");
+                        return false;
+                    }
+                }
+            }
+            
+            _logger.LogWarning("No visibility property found in dynamic block");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update dynamic block visibility: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Helper method to log available layouts for debugging
+    /// </summary>
+    private void LogAvailableLayouts(DBDictionary layoutDict, Transaction tr)
+    {
+        try
+        {
+            _logger.LogInformation("Available layouts in drawing:");
+            foreach (DBDictionaryEntry entry in layoutDict)
+            {
+                string layoutName = entry.Key;
+                if (!layoutName.Equals("Model", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        Layout layout = tr.GetObject(entry.Value, OpenMode.ForRead) as Layout;
+                        string tabName = layout?.LayoutName ?? "Unknown";
+                        _logger.LogInformation($"  - Dictionary Key: '{layoutName}', Tab Name: '{tabName}'");
+                    }
+                    catch
+                    {
+                        _logger.LogInformation($"  - Dictionary Key: '{layoutName}' (could not read tab name)");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Could not enumerate available layouts: {ex.Message}", ex);
+        }
     }
 }
