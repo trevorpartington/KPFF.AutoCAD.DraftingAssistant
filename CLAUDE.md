@@ -192,6 +192,40 @@ The system has been simplified to remove worksheet dependencies:
 - Configuration now only requires table names: SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES
 - More robust and works regardless of which worksheet contains the tables
 
+### Excel Notes Implementation Status
+
+#### ✅ Phase 1 Complete: Read-Only Block Discovery
+- `CurrentDrawingBlockManager` successfully discovers NT## construction note blocks
+- Safe AutoCAD object access with crash prevention
+- Comprehensive logging and error handling
+- Test commands: TESTPHASE1, TESTPHASE1DETAIL, TESTLAYOUTS
+
+#### ✅ Phase 2 Complete: Single Block Update  
+- **Real-time block updates working for open drawings**
+- `UpdateConstructionNoteBlock()` method successfully updates:
+  - NUMBER and NOTE attributes
+  - Dynamic block visibility state (OFF → ON)
+  - Proper transaction handling with rollback on failure
+- Test commands: TESTPHASE2, TESTPHASE2RESET
+- **Verified Results**: Block NT02 updated to Number=55, Note="AGAIN", Visible=True
+
+#### 🔄 Phase 3 Planned: Excel Integration
+- Integrate with ExcelReaderService to read note definitions from Excel tables
+- Map note numbers to note text using series-specific tables (ABC_NOTES, etc.)
+- Batch processing for multiple blocks in a layout
+
+#### 🔄 Phase 4 Needed: Closed Drawing Operations
+**Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
+
+**Required for Production Use**: 
+- **Side Database Pattern**: Use `Database.ReadDwgFile()` to access closed drawings
+- **External File Access**: Open external DWG files in memory without displaying them
+- **Batch Processing**: Update multiple drawings (both open and closed) in sequence  
+- **File Management**: Safe opening, updating, and closing of external files
+- **Advanced Error Handling**: File locking, permission issues, corrupted files
+
+This is critical for the user's workflow: "select any number of sheets and make updates to both drawings they have opened on their computer and drawings that are closed"
+
 ### Future Enhancements
 - Automated construction note block creation for new sheets
 - Enhanced viewport geometry support for complex layouts
