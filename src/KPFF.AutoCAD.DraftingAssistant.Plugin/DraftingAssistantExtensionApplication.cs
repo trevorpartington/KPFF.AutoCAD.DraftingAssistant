@@ -4,6 +4,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Services;
+using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 
@@ -12,100 +13,107 @@ namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 /// </summary>
 public class DraftingAssistantExtensionApplication : IExtensionApplication
 {
+    private static DependencyInjectionServiceProvider? _serviceProvider;
     private ILogger? _logger;
     private PluginStartupManager? _startupManager;
 
     public void Initialize()
     {
-        try
-        {
-            SetupDependencyInjection();
-            _logger = ServiceContainer.Instance.Resolve<ILogger>();
-            var paletteManager = ServiceContainer.Instance.Resolve<IPaletteManager>();
+        ExceptionHandler.TryExecute(
+            action: () =>
+            {
+                SetupDependencyInjection();
+                _logger = _serviceProvider!.GetService<ILogger>();
+                var paletteManager = _serviceProvider.GetService<IPaletteManager>();
 
-            _logger.LogInformation("KPFF Drafting Assistant Plugin initializing...");
-            
-            // Use the startup manager for robust initialization
-            _startupManager = new PluginStartupManager(_logger, paletteManager);
-            _startupManager.BeginInitialization();
-            
-            _logger.LogInformation("KPFF Drafting Assistant Plugin setup completed - initialization in progress");
-        }
-        catch (System.Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Critical error initializing plugin: {ex.Message}");
-            // Don't rethrow - we want AutoCAD to continue working
-        }
+                _logger.LogInformation("KPFF Drafting Assistant Plugin initializing...");
+                
+                // Use the startup manager for robust initialization
+                _startupManager = new PluginStartupManager(_logger, paletteManager);
+                _startupManager.BeginInitialization();
+                
+                _logger.LogInformation("KPFF Drafting Assistant Plugin setup completed - initialization in progress");
+            },
+            logger: _logger ?? new DebugLogger(),
+            context: "Plugin Initialization",
+            showUserMessage: false
+        );
     }
 
     public void Terminate()
     {
-        try
-        {
-            _logger?.LogInformation("KPFF Drafting Assistant Plugin terminating...");
-            
-            // Cleanup startup manager
-            _startupManager = null;
-            
-            // Cleanup services
-            if (ServiceContainer.Instance.IsRegistered<IPaletteManager>())
+        ExceptionHandler.TryExecute(
+            action: () =>
             {
-                var paletteManager = ServiceContainer.Instance.Resolve<IPaletteManager>();
-                paletteManager.Cleanup();
-            }
-            
-            ServiceContainer.Instance.Clear();
-            _logger?.LogInformation("KPFF Drafting Assistant Plugin terminated successfully");
-        }
-        catch (System.Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error terminating plugin: {ex.Message}");
-            // Don't rethrow during shutdown
-        }
+                _logger?.LogInformation("KPFF Drafting Assistant Plugin terminating...");
+                
+                // Cleanup startup manager
+                _startupManager = null;
+                
+                // Cleanup services
+                if (_serviceProvider?.IsServiceRegistered<IPaletteManager>() == true)
+                {
+                    var paletteManager = _serviceProvider.GetService<IPaletteManager>();
+                    paletteManager.Cleanup();
+                }
+                
+                // Dispose and cleanup the service provider
+                _serviceProvider?.Dispose();
+                _serviceProvider = null;
+                
+                _logger?.LogInformation("KPFF Drafting Assistant Plugin terminated successfully");
+            },
+            logger: _logger ?? new DebugLogger(),
+            context: "Plugin Termination",
+            showUserMessage: false
+        );
     }
 
     /// <summary>
     /// Sets up the dependency injection container with all required services
+    /// CRASH FIX: Use isolated services that never access drawing context during initialization
     /// </summary>
     private static void SetupDependencyInjection()
     {
-        var container = ServiceContainer.Instance;
+        if (_serviceProvider != null)
+        {
+            return; // Already initialized
+        }
 
-        // Register core services
-        container.Register<ILogger>(new DebugLogger());
-        container.Register<INotificationService>(() => 
-            new AutoCadNotificationService());
+        _serviceProvider = new DependencyInjectionServiceProvider();
+
+        // Register core services - use isolated instances to avoid drawing context access
+        var debugLogger = new DebugLogger();
+        _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
+        _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
+
+        // Register notification service with logger dependency
+        _serviceProvider.RegisterSingleton<INotificationService, AutoCadNotificationService>();
         
         // Register palette manager with dependencies
-        container.Register<IPaletteManager>(() => 
-            new AutoCadPaletteManager(
-                container.Resolve<ILogger>(),
-                container.Resolve<INotificationService>()));
+        _serviceProvider.RegisterSingleton<IPaletteManager, AutoCadPaletteManager>();
 
         // Register command handlers
-        RegisterCommandHandlers(container);
+        RegisterCommandHandlers(_serviceProvider);
+
+        // Build the service provider
+        _serviceProvider.BuildServiceProvider();
     }
 
     /// <summary>
     /// Registers all command handlers with the container
     /// </summary>
-    private static void RegisterCommandHandlers(ServiceContainer container)
+    private static void RegisterCommandHandlers(DependencyInjectionServiceProvider serviceProvider)
     {
-        var logger = container.Resolve<ILogger>();
-        var paletteManager = container.Resolve<IPaletteManager>();
-
-        // Create and register command handlers directly
-        var showCommand = new ShowPaletteCommandHandler(paletteManager, logger);
-        var hideCommand = new HidePaletteCommandHandler(paletteManager, logger);
-        var toggleCommand = new TogglePaletteCommandHandler(paletteManager, logger);
-        
-        container.Register<ShowPaletteCommandHandler>(showCommand);
-        container.Register<HidePaletteCommandHandler>(hideCommand);
-        container.Register<TogglePaletteCommandHandler>(toggleCommand);
-
-        // Create help command with list of other commands
-        var commands = new List<ICommandHandler> { showCommand, hideCommand, toggleCommand };
-        var helpCommand = new HelpCommandHandler(logger, commands);
-        container.Register<HelpCommandHandler>(helpCommand);
+        // Register command handlers as transient (new instance each time)
+        serviceProvider.RegisterTransient<ShowPaletteCommandHandler, ShowPaletteCommandHandler>();
+        serviceProvider.RegisterTransient<HidePaletteCommandHandler, HidePaletteCommandHandler>();
+        serviceProvider.RegisterTransient<TogglePaletteCommandHandler, TogglePaletteCommandHandler>();
+        serviceProvider.RegisterTransient<HelpCommandHandler, HelpCommandHandler>();
     }
+
+    /// <summary>
+    /// Gets the current service provider instance
+    /// </summary>
+    public static IServiceProvider? ServiceProvider => _serviceProvider;
 }

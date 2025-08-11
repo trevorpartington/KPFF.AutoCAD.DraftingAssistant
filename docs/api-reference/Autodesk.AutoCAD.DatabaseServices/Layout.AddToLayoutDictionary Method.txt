@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Methods > AddToLayoutDictionary Method
+Layout.AddToLayoutDictionary MethodDescription
+ 
+
+This method adds the layout to the specified database's layout dictionary, and specifies the block table record to use.
+
+Visual Basic
+Public virtual Function AddToLayoutDictionary(
+    toWhichDatabase As Database, 
+    blockTableRecordId As ObjectId
+) As void
+C#
+public virtual void AddToLayoutDictionary(
+    Database toWhichDatabase, 
+    ObjectId blockTableRecordId
+);
+Parameters
+Parameters  Description  
+Database toWhichDatabase  Input database to which to add the layout  
+ObjectId blockTableRecordId  Input block table record to use  
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

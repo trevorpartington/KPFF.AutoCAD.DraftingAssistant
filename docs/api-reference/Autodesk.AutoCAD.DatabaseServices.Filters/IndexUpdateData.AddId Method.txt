@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods > AddId Method
+IndexUpdateData.AddId MethodDescription
+ 
+
+This method does not check to see if the ObjectId corresponds to the same database as the one whose indexes are being updated.
+
+Visual Basic
+Public Function AddId(
+    id As ObjectId
+) As void
+C#
+public void AddId(
+    ObjectId id
+);
+Parameters
+Parameters  Description  
+ObjectId id  Object ID for which mapping data or flag data will be added later  
+
+Links
+IndexUpdateData Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

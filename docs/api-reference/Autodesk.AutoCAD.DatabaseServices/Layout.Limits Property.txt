@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > Limits Property
+Layout.Limits PropertyDescription
+ 
+
+Accesses the current limits set in the layout.
+
+Visual Basic
+Public Property Limits() As Extents2d
+C#
+public Extents2d Limits;
+Conditions
+Read-only
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

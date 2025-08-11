@@ -1,0 +1,35 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Methods
+Application MethodsMethods
+Method  Description  
+ AddModelessWindow  This is AddModelessWindow, a member of class Application.  
+ EvaluateDiesel  This is EvaluateDiesel, a member of class Application.  
+ GetSafeOwner  This is GetSafeOwner, a member of class Application.  
+ GetSystemVariable  
+Returns the system variable.  
+ GetWhoHasInfo  Obtains information on who has a file open for editing by AutoCAD.
+
+Information is retrieved from DWL files, which are... more  
+ Invoke  This .NET method wraps the ObjectARX function acedInvoke(). It invokes an external function defined in another ARX application.  
+ IsFileLocked  This is IsFileLocked, a member of class Application.  
+ LoadJSScript  Use this function to load and execute JavaScript without a palette.  
+ Quit  
+Quits the application  
+ SetCreateContextMenuHandler  This is SetCreateContextMenuHandler, a member of class Application.  
+ SetEnableWinFormHandler  This is SetEnableWinFormHandler, a member of class Application.  
+ SetFilterMessageWinFormsHandler  This is SetFilterMessageWinFormsHandler, a member of class Application.  
+ SetOnIdleWinFormsHandler  This is SetOnIdleWinFormsHandler, a member of class Application.  
+ SetOnWinFormsLoadedHandler  This is SetOnWinFormsLoadedHandler, a member of class Application.  
+ SetOnWpfLoadedHandler  This is SetOnWpfLoadedHandler, a member of class Application.  
+ SetPreProcessMessageWinFormsHandler  This is SetPreProcessMessageWinFormsHandler, a member of class Application.  
+ SetShowExceptionDialogHandler  This is SetShowExceptionDialogHandler, a member of class Application.  
+ SetSystemVariable  
+Sets the system variable.  
+ ShowAlertDialog  
+Shows the alert dialog with the specified message.  
+ ShowModalWindow    
+ ShowModelessWindow    
+ TryGetSystemVariable  This is TryGetSystemVariable, a member of class Application.  
+ UpdateScreen  
+Refreshes the screen.  
+
+   Comments?  

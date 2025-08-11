@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Constructor
+MLeader.MLeader ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public MLeader();
+Links
+MLeader Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

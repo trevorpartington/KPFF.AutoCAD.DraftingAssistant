@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties > Definition Property
+SpatialFilter.Definition PropertyDescription
+ 
+
+Accesses the definition of the SpatialFilter object.
+
+Visual Basic
+Public Property Definition() As SpatialFilterDefinition
+C#
+public SpatialFilterDefinition Definition;
+Conditions
+Read / Write
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

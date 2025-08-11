@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class
+MLeader ClassDescription
+ 
+
+This .NET class wraps the AcDbMLeader ObjectARX class. 
+
+The MLeader class represents the multi-leader object.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Entity
+        Autodesk.AutoCAD.DatabaseServices.MLeader
+Visual Basic
+Public Class MLeader
+Inherits Entity
+C#
+public class MLeader : Entity;
+Links
+MLeader Methods, MLeader Properties
+   Comments?  

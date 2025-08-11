@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Properties > IsUptoDate Property
+Index.IsUptoDate PropertyDescription
+ 
+
+Accesses information in addition to TDUPDATE to verify the up-to-date status. This can be used to verify the validity within a session (as opposed to the TDUPDATE value being compared to LastUpdatedAt). This has a concrete implementation.
+
+Visual Basic
+Public Property IsUptoDate() As bool
+C#
+public bool IsUptoDate;
+Conditions
+Read-only
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

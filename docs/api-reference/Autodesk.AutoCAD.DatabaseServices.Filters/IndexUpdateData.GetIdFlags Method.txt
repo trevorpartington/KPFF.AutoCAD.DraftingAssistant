@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods > GetIdFlags Method
+IndexUpdateData.GetIdFlags MethodDescription
+ 
+
+Returns the 8-bit flag value associated with id
+
+Visual Basic
+Public Function GetIdFlags(
+    id As ObjectId
+) As byte
+C#
+public byte GetIdFlags(
+    ObjectId id
+);
+Parameters
+Parameters  Description  
+ObjectId id  Object ID that flags is associated with  
+
+Links
+IndexUpdateData Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

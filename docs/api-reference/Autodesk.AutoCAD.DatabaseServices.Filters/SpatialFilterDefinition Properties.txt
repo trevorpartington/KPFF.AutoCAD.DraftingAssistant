@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties
+SpatialFilterDefinition PropertiesProperties
+Property  Description  
+ BackClip  
+Accesses the back clip distance in the negative extrusion direction.  
+ Elevation  
+Accesses the elevation; along with the normal, this will define an ECS in which the polygon points are defined  
+ Enabled  
+Assesses if to make the clip volume effective, or alternatively, be all of 3D space  
+ FrontClip  
+Accesses the front clip distance in the positive extrusion direction  
+ Normal  
+Accesses the positive extrusion direction vector  
+
+   Comments?  

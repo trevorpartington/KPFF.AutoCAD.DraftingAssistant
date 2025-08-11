@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Methods > GetViewports Method
+Layout.GetViewports MethodDescription
+ 
+
+This function returns a collection of ObjectIds of all the Viewports that exist in the Layout's paperspace. The first ID in the list will be the paperspace viewport. If the list returned is empty, then this Layout has never been switched to (activated). The list is updated each time a layout is activated, and kept up-to-date while that layout is active (whenever viewports are added or deleted).
+
+Visual Basic
+Public Function GetViewports() As ObjectIdCollection
+C#
+public ObjectIdCollection GetViewports();
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

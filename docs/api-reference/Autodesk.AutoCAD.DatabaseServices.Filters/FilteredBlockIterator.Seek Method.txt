@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Methods > Seek Method
+FilteredBlockIterator.Seek MethodDescription
+ 
+
+The Seek() method is only provided to implement legacy behavior. 
+
+This is a somewhat awkward method for generalized index traversal. It is needed to support legacy database emulation. In practice, the capability to seek up to two of the previously visited Ids (not including the one at the cursor) is needed. Seeking back up to two earlier visited Ids is a must.
+
+Visual Basic
+Public Function Seek(
+    id As ObjectId
+) As void
+C#
+public void Seek(
+    ObjectId id
+);
+Parameters
+Parameters  Description  
+ObjectId id  ObjectId to seek to  
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

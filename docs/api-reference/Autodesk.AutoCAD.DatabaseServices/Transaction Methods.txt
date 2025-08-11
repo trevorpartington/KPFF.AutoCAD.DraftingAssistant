@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods
+Methods
+Method  Description  
+ Abort  
+Aborts the transaction.  
+ AddNewlyCreatedDBObject  obj must point to an object that is newly created (that is, it has never been closed) and is already... more  
+ Commit  This function commits the changes made in all the DBObjects opened during the Transaction, and then closes them.... more  
+ GetAllObjects  This function returns all the objects currently open in the transaction.  
+ GetObject    
+
+   Comments?  

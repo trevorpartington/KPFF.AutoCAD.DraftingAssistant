@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Methods
+LayerFilter MethodsMethods
+Method  Description  
+ Add  
+This function will add the input layer to the set of layers within the filter object that define those entities... more  
+ GetAt  
+This function finds the layer whose index is index and sets name to point to that layer's name.  
+ Remove  
+This function will remove the input layer from the filter. This will mean entities NOT on this layer are considered... more  
+
+   Comments?  

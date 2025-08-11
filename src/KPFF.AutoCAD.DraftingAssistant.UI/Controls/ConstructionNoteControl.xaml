@@ -21,11 +21,29 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Button -->
+        <!-- Radio Buttons and Update Button -->
         <StackPanel Grid.Row="0" 
-                    Orientation="Horizontal" 
+                    Orientation="Vertical" 
                     HorizontalAlignment="Left" 
                     Margin="0,0,0,20">
+            
+            <!-- Radio Buttons -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Left" 
+                        Margin="0,0,0,15">
+                <RadioButton Name="AutoNotesRadioButton" 
+                            Content="Auto Notes" 
+                            GroupName="NotesMode"
+                            Style="{StaticResource DarkRadioButtonStyle}"
+                            Margin="0,0,20,0"/>
+                <RadioButton Name="ExcelNotesRadioButton" 
+                            Content="Excel Notes" 
+                            GroupName="NotesMode"
+                            IsChecked="True"
+                            Style="{StaticResource DarkRadioButtonStyle}"/>
+            </StackPanel>
+            
+            <!-- Update Button -->
             <Button Name="UpdateNotesButton" 
                     Content="Update Notes" 
                     Width="120" 

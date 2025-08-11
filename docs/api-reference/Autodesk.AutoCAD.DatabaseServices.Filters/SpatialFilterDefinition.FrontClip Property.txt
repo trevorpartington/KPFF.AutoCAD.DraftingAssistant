@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties > FrontClip Property
+SpatialFilterDefinition.FrontClip PropertyDescription
+ 
+
+Accesses the front clip distance in the positive extrusion direction
+
+Visual Basic
+Public Property FrontClip() As double
+C#
+public double FrontClip;
+Conditions
+Read-only
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

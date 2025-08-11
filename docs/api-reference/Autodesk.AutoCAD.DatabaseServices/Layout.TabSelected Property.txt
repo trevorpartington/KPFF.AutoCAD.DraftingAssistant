@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > TabSelected Property
+Layout.TabSelected PropertyDescription
+ 
+
+Accesses the layout tab is included in the selection set for operations that affect multiple tabs. The user can perform multiple selection via the user interface using shift-click.
+
+Visual Basic
+Public Property TabSelected() As bool
+C#
+public bool TabSelected;
+Conditions
+Read / Write
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

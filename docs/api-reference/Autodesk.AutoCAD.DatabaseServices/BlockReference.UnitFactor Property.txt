@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > UnitFactor Property
+BlockReference.UnitFactor PropertyDescription
+ 
+
+Returns the unit factor.
+
+Visual Basic
+Public Property UnitFactor() As double
+C#
+public double UnitFactor;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Methods > AddLeaderLine Method
+AddLeaderLine MethodOverload List
+Method  Description  
+ MLeader.AddLeaderLine (int)  
+Adds a leaderline to the leader cluster with specified index.
+Returns the index of added leader line.  
+ MLeader.AddLeaderLine (Point3d)  
+Adds a new leader line to this MLeader object.
+This function can be invoked when the MLeader already have a... more  
+
+   Comments?  

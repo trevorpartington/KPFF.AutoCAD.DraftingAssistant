@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events
+Application EventsEvents
+Event  Description  
+ BeginCloseAll  Wraps the AcEditorReactor::beginCloseAll() ObjectARX function. This callback function indicates AutoCAD is about to close all open drawings; the user can... more  
+ BeginDoubleClick  Wraps the AcEditorReactor::beginDoubleClick() ObjectARX function. This callback function indicates that the mouse button has been double clicked.  
+ BeginExtraction  Wraps the AcDwgExtractor::ExtractorReactor::beginExtraction() ObjectARX function. Called at the beginning of the extraction process.
+Gives clients an opportunity to queue extra... more  
+ BeginQuit  Wraps the AcEditorReactor::beginQuit() ObjectARX function, which is called when AutoCAD starts to shutdown.  
+ EndExtraction  Wraps the AcDwgExtractor::ExtractorReactor::endExtraction() ObjectARX function. Called at the end of the extraction process.
+Gives clients an opportunity to add extra... more  
+ PreTranslateMessage  Occurs before a message is translated.  
+ QuitAborted  Wraps the AcEditorReactor.quitAborted() ObjectARX function. This notification occurs if a shutdown of AutoCAD is aborted, either by an individual veto()... more  
+ QuitWillStart  
+Wraps the AcEditorReactor.quitWillStart()
+ObjectARX function. This notification occurs just after the beginQuit() notification if it has not been vetoed and... more  
+ SystemVariableChanged  
+Wraps the AcEditorReactor.sysVarChanged() ObjectARX function. This callback indicates that an attempt was made to change the varName system variable. It... more  
+ SystemVariableChanging  
+Wraps the AcEditorReactor.sysVarWillChange() ObjectARX function. This callback indicates that an attempt is being made to change the varName system variable.... more  
+
+   Comments?  

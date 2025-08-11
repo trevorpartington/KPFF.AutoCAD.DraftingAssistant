@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Properties > IsValid Property
+LayerFilter.IsValid PropertyDescription
+ 
+
+Assesses whether all the layers exist in the layer table of the database the object is associated with.
+
+Visual Basic
+Public virtual Property IsValid() As bool
+C#
+public virtual bool IsValid;
+Conditions
+Read-only
+
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

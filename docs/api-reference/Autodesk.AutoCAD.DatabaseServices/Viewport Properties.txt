@@ -1,0 +1,36 @@
+Autodesk.AutoCAD.GraphicsInterface Namespace > Viewport Class > Viewport Properties
+Viewport PropertiesProperties
+Property  Description  
+ AcadWindowId  
+Returns the Viewport index number of the viewport being drawn to. This is the same index that the AutoCAD CVPORT... more  
+ CameraLocation  
+Returns camera location to the viewport camera's world coordinate location. This is where the viewport's "eye" would be in world... more  
+ CameraTarget  
+Returns the camera target location point to the viewport camera's world coordinate target. This is a point where the viewport's... more  
+ CameraUpVector  
+Returns the camera "up" direction vector to the viewport camera's world coordinate "up" vector. This is the world space vector... more  
+ DeviceContextViewportCorners  
+It positions the geometry (such as icons) that remain in a fixed position or fixed size in the viewport's display.... more  
+ EyeToModelTransform  
+Returns the transformation matrix to the current eye coordinate to Model Coordinate transformation matrix.  
+ EyeToWorldTransform  
+Returns the transformation matrix to the current eye coordinate to Model Coordinate transformation matrix.  
+ FrontAndBackClipping  
+Fills in the parameters with information about the existence and location of front and back display clipping planes. Clipping planes... more  
+ IsPerspective  
+Returns true if perspective mode is in effect. Otherwise, returns false.  
+ LinetypeGenerationCriteria  
+During linetype elaboration of ever smaller objects, a point is reached where the dashes are so small as to be... more  
+ LinetypeScaleMultiplier  
+This is a value supplied by the viewport itself. It is an additional multiplier that is used affecting all linetypes... more  
+ ModelToEyeTransform  
+Transforms matrix to the current Model Coordinate to eye coordinate.  
+ ViewDirection  
+Returns the current view direction of the viewport. This value can be calculated from the target and camera points in... more  
+ ViewportId  
+Returns the viewport ID. This is an AcGi-specific ID that has no relation to the AutoCAD CVPORT system variable. This... more  
+ WorldToEyeTransform  
+Transforms matrix to the current World Coordinate to eye coordinate transformation matrix.
+  
+
+   Comments?  

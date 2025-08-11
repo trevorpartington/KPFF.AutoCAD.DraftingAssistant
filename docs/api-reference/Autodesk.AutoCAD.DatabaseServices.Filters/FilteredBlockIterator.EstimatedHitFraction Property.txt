@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Properties > EstimatedHitFraction Property
+FilteredBlockIterator.EstimatedHitFraction PropertyDescription
+ 
+
+Used to prioritize the order in which FilteredBlockIterator objects will be used during a block traversal. If a concrete implementation cannot estimate, it should return 1.0. Returning 0.0 will force the iterator to be the first one used for the traversal. Returning 1.0 will force it to be the last iterator used. 
+
+Returns the estimated fraction in the interval (0.0 to 1.0) of the amount of the contents of the index that will be hit based on the Filter query
+
+Visual Basic
+Public Property EstimatedHitFraction() As double
+C#
+public double EstimatedHitFraction;
+Conditions
+Read-only
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

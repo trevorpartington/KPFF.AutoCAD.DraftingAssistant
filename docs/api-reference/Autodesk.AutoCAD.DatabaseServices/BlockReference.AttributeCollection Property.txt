@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > AttributeCollection Property
+BlockReference.AttributeCollection PropertyDescription
+ 
+
+Returns the AttributeCollection property value.
+
+Visual Basic
+Public Property AttributeCollection() As Autodesk.AutoCAD.DatabaseServices.AttributeCollection
+C#
+public Autodesk.AutoCAD.DatabaseServices.AttributeCollection AttributeCollection;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

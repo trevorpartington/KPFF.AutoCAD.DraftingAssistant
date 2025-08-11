@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Properties > MLeaderStyle Property
+MLeader.MLeaderStyle PropertyDescription
+ 
+
+Accesses the object ID of current MLeader style.
+
+Visual Basic
+Public Property MLeaderStyle() As ObjectId
+C#
+public ObjectId MLeaderStyle;
+Conditions
+Read / Write
+
+Links
+MLeader Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

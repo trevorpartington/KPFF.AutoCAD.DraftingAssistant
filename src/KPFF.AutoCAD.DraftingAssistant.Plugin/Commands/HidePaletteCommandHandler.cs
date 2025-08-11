@@ -1,5 +1,6 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
+using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 
@@ -22,15 +23,15 @@ public class HidePaletteCommandHandler : ICommandHandler
 
     public void Execute()
     {
-        try
-        {
-            _logger.LogInformation($"Executing command: {CommandName}");
-            _paletteManager.Hide();
-        }
-        catch (System.Exception ex)
-        {
-            _logger.LogError($"Error executing command {CommandName}", ex);
-            throw;
-        }
+        ExceptionHandler.TryExecute(
+            action: () =>
+            {
+                _logger.LogInformation($"Executing command: {CommandName}");
+                _paletteManager.Hide();
+                _logger.LogDebug("Palette hide command completed successfully");
+            },
+            logger: _logger,
+            context: $"Command Execution: {CommandName}"
+        );
     }
 }

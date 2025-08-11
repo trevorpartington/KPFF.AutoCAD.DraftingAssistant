@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Methods > GetPoints Method
+SpatialFilterDefinition.GetPoints MethodDescription
+ 
+
+Returns the points that define the boundary.
+
+Visual Basic
+Public Function GetPoints() As Point2dCollection
+C#
+public Point2dCollection GetPoints();
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

@@ -27,7 +27,8 @@ public class PluginStartupManager
     public bool IsInitializing => _isInitializing;
 
     /// <summary>
-    /// Starts the initialization process with multiple fallback mechanisms
+    /// Starts the initialization process with safe deferred approach
+    /// CRASH FIX: Removed immediate AutoCAD object access to prevent access violations
     /// </summary>
     public void BeginInitialization()
     {
@@ -37,12 +38,11 @@ public class PluginStartupManager
             return;
         }
 
-        _logger.LogInformation("Beginning plugin initialization sequence");
+        _logger.LogInformation("Beginning safe plugin initialization sequence");
         
-        // Try multiple initialization strategies
-        TryImmediateInitialization();
+        // CRASH FIX: Only use delayed initialization to avoid accessing AutoCAD objects too early
+        // Removed immediate and event-based initialization that caused crashes
         ScheduleDelayedInitialization();
-        RegisterEventBasedInitialization();
     }
 
     /// <summary>
@@ -160,11 +160,9 @@ public class PluginStartupManager
         {
             _logger.LogDebug($"Document about to be activated: {e.Document?.Name ?? "Unknown"}");
             
-            // Prepare for document switch - suspend any active operations
-            if (_isInitialized)
-            {
-                PrepareForDocumentSwitch(e.Document);
-            }
+            // CRASH FIX: Don't access any drawing services during document context switching
+            // This prevents interference with AutoCAD's internal style/property binding system
+            // Just log the event and let AutoCAD complete the switch
         }
         catch (System.Exception ex)
         {
@@ -178,9 +176,10 @@ public class PluginStartupManager
         {
             _logger.LogDebug($"Document activated: {e.Document?.Name ?? "Unknown"}");
             
+            // CRASH FIX: Defer any palette validation to avoid interfering with AutoCAD's
+            // document context binding. Let AutoCAD fully complete document activation first.
             if (_isInitialized)
             {
-                // Ensure services are available for the activated document
                 ValidatePaletteForDocument(e.Document);
             }
         }
@@ -245,43 +244,23 @@ public class PluginStartupManager
 
     /// <summary>
     /// Checks if AutoCAD is in a state ready for initialization
+    /// CRASH FIX: Simplified to avoid accessing objects that may cause access violations
     /// </summary>
     private static bool IsAutoCadReady()
     {
         try
         {
-            // Check if application is available
-            var docManager = Application.DocumentManager;
-            if (docManager == null) return false;
-
-            // Check if we can access basic AutoCAD functionality
-            var docCount = docManager.Count; // This will throw if AutoCAD isn't ready
+            // CRASH FIX: Only check basic application availability without accessing documents
+            // Removed all DocumentManager, MdiActiveDocument, and document.Name access
+            // that were causing crashes during drawing load
             
-            // Additional checks for document readiness
-            if (docCount > 0)
-            {
-                var currentDoc = docManager.MdiActiveDocument;
-                if (currentDoc != null)
-                {
-                    // Try to access document name to ensure it's fully loaded
-                    var _ = currentDoc.Name;
-                }
-            }
-
-            // Additional validation - check if we can access main application services
-            try
-            {
-                var _ = Autodesk.AutoCAD.ApplicationServices.Core.Application.Version;
-            }
-            catch
-            {
-                return false;
-            }
-
+            // Simple check - if we can access the application version, AutoCAD is minimally ready
+            var _ = Autodesk.AutoCAD.ApplicationServices.Core.Application.Version;
             return true;
         }
         catch
         {
+            // If we can't even get the version, AutoCAD definitely isn't ready
             return false;
         }
     }

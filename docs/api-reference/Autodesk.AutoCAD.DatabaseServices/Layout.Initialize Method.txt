@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Methods > Initialize Method
+Layout.Initialize MethodDescription
+ 
+
+This method will do the behind the scenes work to establish a Paper Space viewport for the layout. This allows a layout to be set up and made ready for other viewports and entities to be put into the layout as well as to set various layout properties. 
+
+Returns an existing ObjectId object that will be set to the objectId of the paper space Viewport created by this function
+
+Visual Basic
+Public Function Initialize() As ObjectId
+C#
+public ObjectId Initialize();
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

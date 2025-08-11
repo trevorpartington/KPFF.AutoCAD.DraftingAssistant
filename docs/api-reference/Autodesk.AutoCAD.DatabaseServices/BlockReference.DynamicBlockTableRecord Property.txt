@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > DynamicBlockTableRecord Property
+BlockReference.DynamicBlockTableRecord PropertyDescription
+ 
+
+Returns the object ID of the dynamic block definition (a BlockTableRecord) if the block reference is a dynamic block.
+
+Visual Basic
+Public Property DynamicBlockTableRecord() As ObjectId
+C#
+public ObjectId DynamicBlockTableRecord;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

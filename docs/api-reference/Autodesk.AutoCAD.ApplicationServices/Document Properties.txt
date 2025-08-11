@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Document Class > Document Properties
+Document PropertiesProperties
+Property  Description  
+ CommandInProgress  Accesses the command name string.  
+ Database  Wraps the AcApDocument.database() ObjectARX function, which returns the database object (Database) being used by this Document.  
+ Editor  Accesses the Editor associated with this document.  
+ FormatForSave  The DocumentSaveFormat for the document.  
+ GraphicsManager  Accesses the graphics manager.  
+ IsActive  Assesses if the document is active or not.  
+ IsNamedDrawing  Returns true if the drawing for this document is a named file on the disk (as opposed to a new... more  
+ IsReadOnly  Accesses if the document is read-only or not.  
+ Name  Accesses the name of the document.  
+ TransactionManager  Accesses the TransactionManager object for this Document.
+If an application is opening objects from more than one document at... more  
+ UserData  Accesses the user data.  
+ Window  Accesses the window.  
+
+   Comments?  

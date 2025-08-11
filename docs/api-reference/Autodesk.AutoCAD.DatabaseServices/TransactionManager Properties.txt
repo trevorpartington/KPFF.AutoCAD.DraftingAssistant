@@ -1,0 +1,10 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Properties
+TransactionManager PropertiesProperties
+Property  Description  
+ NumberOfActiveTransactions  
+Returns the number of active transactions.  
+ NumberOfOpenedObjects  Returns the number of objects opened by all transactions.  
+ TopTransaction  
+Accesses the the Transaction object that is at the top of the transaction stack (that is, the most recently created... more  
+
+   Comments?  

@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class
+IndexUpdateData ClassDescription
+ 
+
+This .NET class wraps the AcDbIndexUpdateData ObjectARX class. 
+
+This class is used to serve as a mapping between an ObjectId and any index specific data or flags. For example, during spatial index update, one could associate an entity extents with the ObjectId within this instance. 
+
+The primary purpose of the class's get and set methods is to give applications a non-intrusive yet efficient method (O(1)) of associating flags and data with an ObjectId during an index update. 
+
+An IndexUpdateData instance is never directly instantiated. It is always supplied as an argument.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Filters.IndexUpdateData
+Visual Basic
+Public sealed Class IndexUpdateData
+Inherits DisposableWrapper
+C#
+public sealed class IndexUpdateData : DisposableWrapper;
+Links
+IndexUpdateData Methods
+   Comments?  

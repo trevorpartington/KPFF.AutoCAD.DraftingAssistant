@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties
+SpatialFilter PropertiesProperties
+Property  Description  
+ ClipSpaceToWorldCoordinateSystemTransform  
+Transforms the clip boundary points from their coordinate system (whatever it may be) to WCS  
+ Definition  
+Accesses the definition of the SpatialFilter object.  
+ HasPerspectiveCamera  
+Assesses if a perspective camera is currently defined for this SpatialFilter object.  
+ Inverted  This property controls whether or not the SpatialFilter filters out the contents outside of the clip boundary (not inverted) or... more  
+ OriginalInverseBlockTransform  
+Accesses the inverse of the block transform for the associated BlockReference when the Filter was last set.  
+
+   Comments?  

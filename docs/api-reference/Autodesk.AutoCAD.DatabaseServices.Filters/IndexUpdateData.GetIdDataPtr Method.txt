@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods > GetIdDataPtr Method
+IndexUpdateData.GetIdDataPtr MethodDescription
+ 
+
+Returns the 32-bit data value associated with id
+
+Visual Basic
+Public Function GetIdDataPtr(
+    id As ObjectId
+) As IntPtr
+C#
+public IntPtr GetIdDataPtr(
+    ObjectId id
+);
+Parameters
+Parameters  Description  
+ObjectId id  Object ID that data is associated with  
+
+Links
+IndexUpdateData Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

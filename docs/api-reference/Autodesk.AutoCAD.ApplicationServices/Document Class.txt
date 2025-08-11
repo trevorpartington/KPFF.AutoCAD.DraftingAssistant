@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Document Class
+Document ClassDescription
+ 
+
+This class wraps the AcApDocument ObjectARX class. 
+
+ 
+
+Each open drawing will have an associated Document object. The Document object contains information such as the filename, the MFC CDocument object, the current database, and the save format of the current drawing.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.Document
+Visual Basic
+Public sealed Class Document
+Inherits DisposableWrapper
+C#
+public sealed class Document : DisposableWrapper;
+Links
+Document Methods, Document Properties, Document Events
+   Comments?  

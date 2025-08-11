@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Methods > Start Method
+FilteredBlockIterator.Start MethodDescription
+ 
+
+Initiates iteration.
+
+Visual Basic
+Public Function Start() As void
+C#
+public void Start();
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

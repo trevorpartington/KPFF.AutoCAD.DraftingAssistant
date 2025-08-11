@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties > Enabled Property
+SpatialFilterDefinition.Enabled PropertyDescription
+ 
+
+Assesses if to make the clip volume effective, or alternatively, be all of 3D space
+
+Visual Basic
+Public Property Enabled() As bool
+C#
+public bool Enabled;
+Conditions
+Read-only
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

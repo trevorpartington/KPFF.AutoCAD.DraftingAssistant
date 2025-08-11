@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Properties
+FilteredBlockIterator PropertiesProperties
+Property  Description  
+ BuffersForComposition  
+During use by CompositeFilteredBlockIterator, the way multiple index/filter pairs are handled is through allocating corresponding FilteredBlockIterator objects, and prioritizing... more  
+ EstimatedHitFraction  
+Used to prioritize the order in which FilteredBlockIterator objects will be used during a block traversal. If a concrete implementation... more  
+ Id  
+Accesses the ObjectId at the current iterator position  
+ Next  
+Accesses the cursor and returns the next ObjectId  
+
+   Comments?  

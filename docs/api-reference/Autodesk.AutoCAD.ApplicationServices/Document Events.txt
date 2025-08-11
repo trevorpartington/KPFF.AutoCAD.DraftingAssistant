@@ -1,0 +1,36 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Document Class > Document Events
+Document EventsEvents
+Event  Description  
+ BeginDocumentClose  Wraps the AcEditorReactor2.beginDocClose() ObjectARX function.
+Implementers can call DocumentBeginCloseEventArgs.Veto() during this notification to stop AutoCAD from shutting down the document.... more  
+ CloseAborted  Wraps the AcEditorReactor2.docCloseAborted() ObjectARX function.
+This notification is sent after a reactor has vetoed the document closing event. It is... more  
+ CloseWillStart  Wraps the AcEditorReactor2.docCloseWillStart() ObjectARX function.
+This notification is fired at the same time as the BeginDocumentClose event  
+ CommandCancelled  Wraps the AcEditorReactor.commandcanceled() ObjectARX function.
+This indicates that the command cmdStr has been canceled by the user or another application,... more  
+ CommandEnded  Wraps the AcEditorReactor.commandEnded() ObjectARX function.
+It indicates that the command cmdStr has completed.  
+ CommandFailed  Wraps the AcEditorReactor.commandFailed() ObjectARX function.
+This indicates that the command cmdStr failed to complete successfully.  
+ CommandWillStart  Wraps the AcEditorReactor.commandWillStart() ObjectARX function.
+This indicates that the command cmdStr is about to begin execution.  
+ ImpliedSelectionChanged  Wraps the AcEditorReactor2.pickfirstModified() ObjectARX function.
+This notification is triggered when the pickfirst selection set has been modified; that is, for... more  
+ LayoutSwitched  This event is fired when the layout is switching.  
+ LayoutSwitching  This event is fired when the layout is switched.  
+ LispCancelled  Wraps the AcEditorReactor.lispcanceled() ObjectARX function.
+This indicates that the AutoLISP interpreter completed evaluation of an expression, and relinquishes control to... more  
+ LispEnded  Wraps the AcEditorReactor::lispEnded() ObjectARX function.
+This callback function indicates that the AutoLISP interpreter completed evaluation of an expression, and relinquishes... more  
+ LispWillStart  Wraps the AcEditorReactor.lispWillStart() ObjectARX function.
+This callback function indicates that an expression is about to be executed by the AutoLISP... more  
+ ModelessOperationEnded  Wraps the AcEditorReactor.modelessOperationEnded() ObjectARX function.
+Informs AutoCAD when a modeless application has finished. Implementers can query ModelessOperationEventArgs during this notification... more  
+ ModelessOperationWillStart  Wraps the AcEditorReactor.modelessOperationWillStart() ObjectARX function.
+Informs AutoCAD when a modeless application will start. Implementers can query ModelessOperationEventArgs during this notification... more  
+ UnknownCommand  Wraps the AcEditorReactor.unknownCommand() ObjectARX function.
+This event allows applications to respond to users' attempts to execute commands that AutoCAD... more  
+ ViewChanged  This is ViewChanged, a member of class Document.  
+
+   Comments?  

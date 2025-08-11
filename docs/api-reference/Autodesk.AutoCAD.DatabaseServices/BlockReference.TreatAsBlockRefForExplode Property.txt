@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > TreatAsBlockRefForExplode Property
+BlockReference.TreatAsBlockRefForExplode PropertyDescription
+ 
+
+Called by the AutoCAD EXPLODE command to determine how the entity should be exploded.
+
+Visual Basic
+Public virtual Property TreatAsBlockRefForExplode() As bool
+C#
+public virtual bool TreatAsBlockRefForExplode;
+Conditions
+Read-only
+
+Notes
+The default value is to false, which will result in the entity's explode() method being used. 
+
+ 
+
+If the entity's class implementation has overridden this method and has it return true, then the AutoCAD EXPLODE command will treat the entity as though it is an actual BlockReference object and will use AutoCAD's internal code to do the explode operation.
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

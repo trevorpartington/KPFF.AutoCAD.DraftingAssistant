@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.GraphicsInterface Namespace > Viewport Class > Viewport Properties > ViewportId Property
+Viewport.ViewportId Property    Description
+ 
+
+Returns the viewport ID. This is an AcGi-specific ID that has no relation to the AutoCAD CVPORT system variable. This ID is used by the ViewportDraw.isValidId() function to determine if a viewport is still valid. 
+
+ 
+
+The ID returned by this function is unique for every viewport in AutoCAD (including Paper Space Viewports and tiled view windows when TILEMODE == 1) much the way a handle is for an entity.
+
+Visual Basic
+Public abstract Property ViewportId() As IntPtr
+C#
+public abstract IntPtr ViewportId;
+Conditions
+Read / Write
+
+Links
+Viewport Class, Autodesk.AutoCAD.GraphicsInterface Namespace
+   Comments?  

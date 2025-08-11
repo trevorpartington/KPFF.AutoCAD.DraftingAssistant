@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties > OriginalInverseBlockTransform Property
+SpatialFilter.OriginalInverseBlockTransform PropertyDescription
+ 
+
+Accesses the inverse of the block transform for the associated BlockReference when the Filter was last set.
+
+Visual Basic
+Public Property OriginalInverseBlockTransform() As Matrix3d
+C#
+public Matrix3d OriginalInverseBlockTransform;
+Conditions
+Read-only
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

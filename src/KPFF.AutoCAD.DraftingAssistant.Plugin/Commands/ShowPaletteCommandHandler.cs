@@ -1,5 +1,6 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
+using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 
@@ -22,15 +23,15 @@ public class ShowPaletteCommandHandler : ICommandHandler
 
     public void Execute()
     {
-        try
-        {
-            _logger.LogInformation($"Executing command: {CommandName}");
-            _paletteManager.Show();
-        }
-        catch (System.Exception ex)
-        {
-            _logger.LogError($"Error executing command {CommandName}", ex);
-            throw;
-        }
+        ExceptionHandler.TryExecute(
+            action: () =>
+            {
+                _logger.LogInformation($"Executing command: {CommandName}");
+                _paletteManager.Show();
+                _logger.LogDebug("Palette show command completed successfully");
+            },
+            logger: _logger,
+            context: $"Command Execution: {CommandName}"
+        );
     }
 }

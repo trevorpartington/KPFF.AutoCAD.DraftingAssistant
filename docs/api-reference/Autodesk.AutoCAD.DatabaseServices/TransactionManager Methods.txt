@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods
+TransactionManager MethodsMethods
+Method  Description  
+ AddNewlyCreatedDBObject  This method wraps the AcDbTransactionManager::addNewlyCreatedDBRObject ObjectARX function.
+
+obj must point to an object that is newly created (that is, it... more  
+ GetAllObjects  
+Searches all currently existing transaction objects and returns an objects collection with pointers to all objects it finds.  
+ GetObject    
+ QueueForGraphicsFlush  
+Queues up the graphics changes of all transaction-resident modified entities from any existing transaction.  
+ StartOpenCloseTransaction  This method instantiates, initializes, and returns an OpenCloseTransaction object.  
+ StartTransaction  
+Begins a new transaction.  
+
+   Comments?  

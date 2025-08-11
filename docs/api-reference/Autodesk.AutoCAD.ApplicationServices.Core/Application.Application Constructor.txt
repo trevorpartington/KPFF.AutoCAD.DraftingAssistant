@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Constructor
+Application.Application ConstructorDescription
+This is Application, a member of class Application.
+
+Visual Basic
+Protected Sub New()
+C#
+protected Application();
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

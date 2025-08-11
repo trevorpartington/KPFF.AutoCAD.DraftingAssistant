@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.GraphicsInterface Namespace > Viewport Class > Viewport Methods
+Viewport MethodsMethods
+Method  Description  
+ DoInversePerspective  
+Transforms value from display coordinates to eye coordinates and returns the object.  
+ DoPerspective  
+Transforms value from eye coordinates to display coordinates.  
+ GetNumPixelsInUnitSquare  
+In perspective mode, the WCS unit square gets smaller and encompasses fewer pixels as it recedes away from the camera,... more  
+ LayerVisible  
+Returns true if the layer is not frozen in this viewport and not globally frozen. Indicating that geometry on this... more  
+
+   Comments?  

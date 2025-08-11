@@ -1,0 +1,133 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods
+Database MethodsMethods
+Method  Description  
+ AbortDeepClone  
+Triggers an Editor notification that the deepClone operation identified by idMap has been aborted. The IdMapping object will uniquely identify... more  
+ AddDBObject  
+Adds the object pointed to by appendIt to the database, giving it a handle and an object ID. The new... more  
+ AttachXref  
+Attaches the xref file specified by fileName to the database, thus creating a new xref BlockTableRecord. The new block... more  
+ AuditXData  
+Currently not implemented.  
+ BindXrefs  
+This function binds the xrefs whose BlockTableRecord object IDs are in xrefIds. If insertBind is true, then the symbolTable... more  
+ ClassDxfName  
+This function returns the DXF name for the class.  
+ ApplyPartialOpenFilters  This is ApplyPartialOpenFilters, a member of class Database.  
+ CloseInput  If a drawing file is associated with this Database, then this function forces an immediate read of all necessary... more  
+ CountEmptyObjects  Counts empty objects (zero length curves and/or empty TEXT/MTEXT) in the database.  
+ CountHardReferences  
+This function traverses the database looking for objects with a hard reference to any of the objects whose objectId entities... more  
+ DeepCloneObjects  
+Clones all objects in the objectId array and appends them to the container object specified by owner. mapping is filled... more  
+ DetachXref  
+This function detaches the xref in the database whose BlockTableRecord is specified by xrefId.  
+ DisablePartialOpen  
+When called during partial open notification, this function vetoes the partial open operation and causes the entire drawing database to... more  
+ DisableUndoRecording  
+This function turns Undo recording on or off for operations performed on the database. If disable==true, then Undo recording... more  
+ DbFromId  Looks up a runtime ID in a map and returns the associated Database object.  
+ DxfIn  
+This function reads the DXF file specified into the database object.
+The default for fileName is no output file. When... more  
+ DxfOut    
+ EraseEmptyObjects  Erases empty objects (zero length curves and/or empty TEXT/MTEXT) in the database.  
+ EvaluateFields    
+ ForceWblockDatabaseCopy  
+This function causes the next (and only the next) Database.wblock() call on this database to result in a copy of... more  
+ FromAcadDatabase  Converts a COM object of the type AcadDatabase to a Database object.  
+ DxfOutEx  Saves this drawing to a DXF file and allows the caller to specify a code page.  
+ GetAllDatabases  Returns an array of all currently active databases.
+Can be used to validate a Database object.  
+ GetDimensionStyleChildData  
+This function returns the DimStyleTableRecord referenced by the dimension.  
+ GetDimensionStyleChildId  
+Given a parent dimension style ID and a dimension class descriptor, this function returns the child dimension style ID, if... more  
+ GetDimensionStyleParentId  
+Given a child dimension style ID, this function returns the parent dimension style ID. If the parent is unavailable, the... more  
+ GetDimRecentStyleList  
+This function allows the application to get the object ID entities of the most recently used dimstyles (up to 6)... more  
+ GetDimstyleData  
+This function copies the database dimension variable values into the DimStyleTableRecord.  
+ GetHostDwgXrefGraph  
+Returns the node associated with the host drawing.  
+ GetNearestLineWeight  
+The getNearestLineWeight() method takes a lineweight and returns the nearest LineWeight enum value. For example, if you pass in 4,... more  
+ GetObjectId  
+Returns the objectId of the object that has the handle value contained in objHandle. If createIfNotFound is true and... more  
+ GetMetaObject  This is GetMetaObject, a member of class Database.  
+ GetSupportedDxfOutVersions  
+Returns an array with the major and minor version numbers of outputting DXF.  
+ GetSupportedSaveVersions  
+Returns an array with the major and minor version numbers of the saving ability.  
+ GetViewports  
+This function enumerates the Viewports in a drawing.  
+ GetVisualStyleList  
+This function returns a list containing the localized names of the visual styles defined in the visual style dictionary. Anonymous... more  
+ Insert    
+ IsObjectNonPersistent  
+Returns true if the object denoted by id is non-persistent.  
+ IsValidLineWeight  
+Returns true for lineweights that match one of the predefined lineweights, and false otherwise.  
+ LoadLineTypeFile  
+This function loads the linetype specified by lineTypeName from the file specified by filename and stores it in the database... more  
+ IdFromDb  Looks up a database in a map and returns its runtime ID.  
+ LoadMlineStyleFile  
+This function loads the MlineStyle specified by mlineStyleName from the file specified by fileName. If fileName is not a... more  
+ MarkObjectNonPersistent  
+Marks an object non-persistent or persistent. Objects in the drawing database are persistent by default (if they have an owner).... more  
+ OverlayXref  
+Overlays the xref file specified by fileName to the database, thus creating a new xref BlockTableRecord. The new block... more  
+ Purge    
+ ReadDwgFile    
+ ReclaimMemoryFromErasedObjects  
+This member function deletes the objects underneath the input object ids and performs some related cleanup.
+The object ids in... more  
+ ReloadXrefs  
+This function reloads the xrefs whose BlockTableRecord ObjectIds are in xrefIds. The ObjectIds in xrefIds must all be from... more  
+ ResolveXrefs  
+This function resolves existing xrefs in the working database.
+If useThreadEngine is true, and other factors haven't disabled it, then... more  
+ RestoreForwardingXrefSymbols  
+This function must be used with RestoreOriginalXrefSymbols(), and should be wrapped around all code with plans to edit and/or... more  
+ RestoreOriginalXrefSymbols  
+This function must be used with RestoreForwardingXrefSymbols(), and should be wrapped around all code with plans to edit and/or... more  
+ ResetTimes  This function resets the Database TDCREATE, TDUPDATE, TDINDWG, and TDUSRTIMER to the settings for a new drawing (TDCREATE and TDUPDATE... more  
+ Save  
+Currently not implemented.  
+ SaveAs    
+ SetDimstyleData  
+This function copies the dimension variable information in style into the database on which this method is called, making those... more  
+ SetTimeZoneAsUtcOffset  This .NET function wraps the the AcDbDatabase::setTimeZoneAsUtcOffset() ObjectARX function.
+
+Sets the current time zone for this database using an offset... more  
+ SetWorldPaperspaceUcsBaseOrigin  
+This function sets origin to be the new paperspace "default" UCS origin point for the view specified by orthoView.... more  
+ RuntimeId  Get this database instance's runtime ID.  
+ SetWorldUcsBaseOrigin  
+This function sets origin to be the new model space "default" UCS origin point for the view specified by orthoView... more  
+ TimeZoneDescription  This .NET function wraps the AcDbDatabase::getTimeZoneInfo()
+ObjectARX function.
+
+Returns a description of a time zone. This method does not affect... more  
+ TimeZoneOffset  This function converts the offset, in hours, of the time zone passed in, from UTC (GMT). For example, the offset... more  
+ UnloadXrefs  
+Unloads the xrefs whose BlockTableRecord ObjectIds are in xrefIds.  
+ UpdateExt  
+This function iterates through all the entities in the database's Model Space and updates the database's Model Space extents variables... more  
+ Wblock    
+ XBindXrefs  
+This function binds the xref symbolTable records whose ObjectIds are in xrefSymbolIds. If insertBind is true, then the symbolTable... more  
+ WblockCloneObjects  
+Clones all objects in the identifiers collection and appends them to the container object specified by owner. The objects can... more  
+ WorldPaperspaceUcsBaseOrigin  
+This function returns the database's model space "default" UCS origin point (in WCS coordinates) for the view specified by orthoView... more  
+ WorldUcsBaseOrigin  
+This function returns the database's model space "default" UCS origin point (in WCS coordinates) for the view specified by orthoView... more  
+
+Topics
+Topic  Description  
+Autodesk.AutoCAD.DatabaseServices.Database.ApplyPartialOpenFilters@SpatialFilter@Autodesk.AutoCAD.DatabaseServices.Filters.LayerFilter  
+This function can be called on a database to filter its model space entities to only bring part of the... more  
+
+   Comments?  

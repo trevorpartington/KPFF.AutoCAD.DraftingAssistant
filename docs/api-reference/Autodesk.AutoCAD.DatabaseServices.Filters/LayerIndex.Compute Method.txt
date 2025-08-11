@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerIndex Class > LayerIndex Methods > Compute Method
+LayerIndex.Compute MethodDescription
+ 
+
+This function uses the layer table pointed to by pLT and the block table record pointed to by pBTR to compute the appropriate filter information.
+
+Visual Basic
+Public Function Compute(
+    pLT As LayerTable, 
+    record As BlockTableRecord
+) As void
+C#
+public void Compute(
+    LayerTable pLT, 
+    BlockTableRecord record
+);
+Parameters
+Parameters  Description  
+LayerTable pLT  Input layer table of the Database  
+BlockTableRecord record  Input block table record for which the filter should be generated  
+
+Links
+LayerIndex Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

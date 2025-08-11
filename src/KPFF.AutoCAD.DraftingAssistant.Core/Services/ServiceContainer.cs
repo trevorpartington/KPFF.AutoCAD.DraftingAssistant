@@ -4,7 +4,9 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 /// <summary>
 /// Simple dependency injection container for the application
+/// DEPRECATED: Use ApplicationServices and ApplicationServiceRegistration instead
 /// </summary>
+[Obsolete("Use ApplicationServices and ApplicationServiceRegistration instead", false)]
 public class ServiceContainer
 {
     private readonly Dictionary<Type, object> _services = new();

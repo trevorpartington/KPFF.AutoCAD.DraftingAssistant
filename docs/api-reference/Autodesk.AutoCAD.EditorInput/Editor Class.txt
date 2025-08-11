@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class
+Editor ClassDescription
+ 
+
+This .NET class wraps the AcEditor ObjectARX class. The single system object of a class derived from this abstract base class allows applications to manage AutoCAD drawing editor notification reactors. Applications can add and remove reactors from the AutoCAD drawing editor reactor chain.
+
+Class Hierarchy
+Autodesk.AutoCAD.EditorInput.Editor
+Visual Basic
+Public sealed Class Editor
+Inherits MarshalByRefObject
+C#
+public sealed class Editor : MarshalByRefObject;
+Links
+Editor Fields, Editor Methods, Editor Properties, Editor Events, Editor Classes
+   Comments?  

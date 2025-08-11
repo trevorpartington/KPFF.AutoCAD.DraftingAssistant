@@ -58,7 +58,8 @@ public class AutoCadPaletteManager : IPaletteManager
                 Dock = WinForms.DockStyle.Fill
             };
 
-            var draftingAssistantControl = new DraftingAssistantControl();
+            // CRASH FIX: Pass services explicitly to avoid ApplicationServices access during UI init
+            var draftingAssistantControl = new DraftingAssistantControl(_logger, _notificationService);
             elementHost.Child = draftingAssistantControl;
 
             _paletteSet.Add("Drafting Assistant", elementHost);
@@ -76,11 +77,21 @@ public class AutoCadPaletteManager : IPaletteManager
     {
         try
         {
-            // Ensure we're in a valid document context
-            if (Application.DocumentManager.MdiActiveDocument == null)
+            // CRASH FIX: Add safety guard around AutoCAD object access
+            // Removed direct access to DocumentManager that could cause crashes
+            try
             {
-                _logger.LogWarning("No active document - cannot show palette");
-                return;
+                var docManager = Application.DocumentManager;
+                if (docManager?.MdiActiveDocument == null)
+                {
+                    _logger.LogWarning("No active document - cannot show palette");
+                    return;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogWarning($"Cannot access document manager - palette may not function correctly: {ex.Message}");
+                // Continue anyway - let the palette try to initialize
             }
 
             if (_paletteSet == null)

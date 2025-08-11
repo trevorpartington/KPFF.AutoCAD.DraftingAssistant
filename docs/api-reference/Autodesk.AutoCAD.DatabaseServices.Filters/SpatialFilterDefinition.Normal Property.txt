@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties > Normal Property
+SpatialFilterDefinition.Normal PropertyDescription
+ 
+
+Accesses the positive extrusion direction vector
+
+Visual Basic
+Public Property Normal() As Vector3d
+C#
+public Vector3d Normal;
+Conditions
+Read-only
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

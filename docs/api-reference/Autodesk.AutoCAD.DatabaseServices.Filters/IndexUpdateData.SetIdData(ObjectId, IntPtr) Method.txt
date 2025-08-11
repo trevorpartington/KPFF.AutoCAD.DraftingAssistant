@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods > SetIdData Method > SetIdData(ObjectId, IntPtr) Method
+IndexUpdateData.SetIdData(ObjectId, IntPtr) MethodDescription
+ 
+
+Sets the ID data.
+
+Visual Basic
+Public Function SetIdData(
+    id As ObjectId, 
+    data As IntPtr
+) As void
+C#
+public void SetIdData(
+    ObjectId id, 
+    IntPtr data
+);
+Parameters
+Parameters  Description  
+ObjectId id  Object ID that data is associated with  
+IntPtr data  32-bit data value associated with id  
+
+Links
+IndexUpdateData Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

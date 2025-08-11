@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods
+IndexUpdateData MethodsMethods
+Method  Description  
+ AddId  
+This method does not check to see if the ObjectId corresponds to the same database as the one whose indexes... more  
+ GetIdData  Obsolete - Use the GetIdDataPtr property instead.
+Returns the 32-bit data associated with id.  
+ GetIdDataPtr  
+Returns the 32-bit data value associated with id  
+ GetIdFlags  
+Returns the 8-bit flag value associated with id  
+ SetIdData    
+ SetIdFlags  
+Sets the ID flags.  
+
+   Comments?  

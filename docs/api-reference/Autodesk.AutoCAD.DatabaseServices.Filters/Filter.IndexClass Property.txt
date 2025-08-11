@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Filter Class > Filter Properties > IndexClass Property
+Filter.IndexClass PropertyDescription
+ 
+
+Accesses the class descriptor for the Index for this filter
+
+Visual Basic
+Public virtual Property IndexClass() As RXClass
+C#
+public virtual RXClass IndexClass;
+Conditions
+Read-only
+
+Links
+Filter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

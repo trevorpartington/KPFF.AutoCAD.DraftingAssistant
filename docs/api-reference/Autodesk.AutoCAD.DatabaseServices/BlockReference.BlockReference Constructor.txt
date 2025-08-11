@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Constructor
+BlockReference.BlockReference ConstructorDescription
+ 
+
+This constructor initializes the block reference to use position (in WCS) as the position point; blockTableRecord as the object ID of the block table record to reference; the X, Y, and Z scale factors to 1.0; the rotation to 0.0; and the normal vector to (0,0,1).
+
+Visual Basic
+Public Sub New(
+    position As Point3d, 
+    blockTableRecord As ObjectId
+)
+C#
+public BlockReference(
+    Point3d position, 
+    ObjectId blockTableRecord
+);
+Parameters
+Parameters  Description  
+Point3d position  Input Autodesk.AutoCAD.Geometry.Point3d object, the position point  
+ObjectId blockTableRecord  Input Autodesk.AutoCAD.DatabaseServices.ObjectId object, the object ID of BlockTableRecord to reference  
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

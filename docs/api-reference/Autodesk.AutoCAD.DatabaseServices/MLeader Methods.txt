@@ -1,0 +1,81 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Methods
+MLeader MethodsMethods
+Method  Description  
+ AddFirstVertex  
+Inserts a vertex to the leader line with specified index as new leader head.  
+ AddLastVertex  
+Appends a vertex to the specified leader line as the new leader tail.  
+ AddLeader  
+Adds a new leader cluster to this MLeader object. A leader cluster is made up by a dog-leg and some... more  
+ AddLeaderLine    
+ ConnectionPoint    
+ GetArrowSymbolId  
+Returns the object id of the arrow head symbol of the specific leaderline.  
+ GetBlockAttribute  
+Gets attribute in block content determined by attribute definition id.  
+ GetContentGeomExtents  
+Gets the extents of content in this MLeader object.  
+ getContextDataManager  
+Returns the context data manager in MLeader.  
+ GetDogleg  
+Gets the dog-leg in the leader cluster specified by leaderIndex.  
+ GetDoglegLength  
+Gets the length of doglegs in the leader cluster specified by leaderIndex.  
+ GetFirstVertex  
+Gets head point of specified leader line.  
+ MoveMLeader  
+Moves MLeader according to the vector.  
+ GetLastVertex  
+Gets the tail vertex position of specified leader line.  
+ GetLeaderIndex  
+Gets the index of leader cluster which the specified leader line is in.  
+ GetLeaderIndexes  
+Gets the indexes of leaders.  
+ GetLeaderLineIndexes  
+Gets the indexes of leaderlines of the specific leader.  
+ getOverridedMLeaderStyle  
+Gets the current MLeader's properties, include override properties.  
+ GetPlane  
+Return the WCS plane which the MLeader resides on.  
+ GetVertex  
+Gets position of the vertex with specified index in the leader line with a new position specified by point.  
+ HasContent  
+Returns true if MLeader has content; otherwise, returns false.  
+ PostMLeaderToDb  
+Adds current MLeader object to the modal space of input database.  
+ recomputeBreakPoints  
+Recalculates the dim break point.  
+ RemoveFirstVertex  
+Removes the head of the leader line with specified index. The second vertex in this leader line becomes the new... more  
+ RemoveLastVertex  
+Removes the leader tail of specified leader line.  
+ RemoveLeader  
+Removes the leader cluster with specified index.  
+ RemoveLeaderLine  
+Removes the leader line with specified index.  
+ SetArrowSymbolId  
+Sets the arrow head symbol id for the specific leaderline.  
+ SetBlockAttribute  
+Set attribute in block content with attribute definition id.  
+ SetContextDataManager  
+Sets the context data manager to MLeader.  
+ SetDogleg  
+Sets the dog-leg in the leader cluster specified by leaderIndex with vector.  
+ SetDoglegLength  
+Set the length of doglegs in the leader cluster specified by leaderIndex.  
+ SetFirstVertex  
+Sets the leader head with specified point.  
+ SetLastVertex  
+Sets leader tail with specified point.  
+ SetPlane  
+Sets the plane that will contain the MLeader object. This leader's data members will be updated to reflect the change... more  
+ SetVertex  
+Sets the vertex with specified index in the leader line with a new position specified by point.  
+ VerticesCount  
+Returns the number of vertices on a leader line.  
+ GetTextAttachmentType  
+Returns text attachment type of MText in MLeader content.  
+ SetTextAttachmentType  
+Sets text attachment type of MText content to a specific direction leader.  
+
+   Comments?  

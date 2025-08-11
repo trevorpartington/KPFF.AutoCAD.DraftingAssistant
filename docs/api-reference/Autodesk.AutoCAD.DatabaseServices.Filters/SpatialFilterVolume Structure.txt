@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterVolume Structure
+SpatialFilterVolume StructureDescription
+ 
+
+This class encapsulates the data required to describe a spatial filter's volume. Properties of this class correlate to the arguments used by the SpatialFilter.getVolume ObjectARX function.
+
+Visual Basic
+Public Structure SpatialFilterVolume
+End Structure
+C#
+public struct SpatialFilterVolume {
+}
+Links
+SpatialFilterVolume Properties
+   Comments?  

@@ -1,0 +1,12 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods
+SpatialFilter MethodsMethods
+Method  Description  
+ ClipVolumeIntersectsExtents  
+This function is used to determine whether an object with extents ext intersects this SpatialFilter object's clipping volume.  
+ GetQueryBounds    
+ GetVolume  
+Transforms the SpatialFilter object's clip boundary definition into the coordinate space of the associated block or xref.  
+ SetPerspectiveCamera  
+Sets the perspective camera position to the location specified by fromPoint.  
+
+   Comments?  

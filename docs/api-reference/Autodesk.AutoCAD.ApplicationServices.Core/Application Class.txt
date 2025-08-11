@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class
+Application ClassDescription
+This is class Autodesk.AutoCAD.ApplicationServices.Core.Application.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.Core.Application
+Visual Basic
+Public abstract Class Application
+C#
+public abstract class Application;
+Links
+Application Fields, Application Methods, Application Properties, Application Events
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > LayoutName Property
+Layout.LayoutName PropertyDescription
+ 
+
+Accesses the user-friendly layout name that is displayed in the tab control.
+
+Visual Basic
+Public Property LayoutName() As string
+C#
+public string LayoutName;
+Conditions
+Read / Write
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

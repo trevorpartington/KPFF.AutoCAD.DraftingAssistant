@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Properties > Next Property
+FilteredBlockIterator.Next PropertyDescription
+ 
+
+Accesses the cursor and returns the next ObjectId
+
+Visual Basic
+Public Property Next() As ObjectId
+C#
+public ObjectId Next;
+Conditions
+Read-only
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

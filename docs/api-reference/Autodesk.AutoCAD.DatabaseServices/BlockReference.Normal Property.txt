@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > Normal Property
+BlockReference.Normal PropertyDescription
+ 
+
+Accesses the normal vector (in WCS coordinates) of the plane containing the block reference.
+
+Visual Basic
+Public Property Normal() As Vector3d
+C#
+public Vector3d Normal;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

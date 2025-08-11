@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > Name Property
+BlockReference.Name PropertyDescription
+ 
+
+Returns the name of the associated BlockTableRecord.
+
+Visual Basic
+Public Property Name() As string
+C#
+public string Name;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

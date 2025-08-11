@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > IsDynamicBlock Property
+BlockReference.IsDynamicBlock PropertyDescription
+ 
+
+Determines whether the BlockReference passed to the class constructor contains dynamic block information.
+
+Visual Basic
+Public Property IsDynamicBlock() As bool
+C#
+public bool IsDynamicBlock;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

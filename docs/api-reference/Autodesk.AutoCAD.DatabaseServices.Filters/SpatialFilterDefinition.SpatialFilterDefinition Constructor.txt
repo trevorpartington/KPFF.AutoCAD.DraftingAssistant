@@ -1,0 +1,36 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Constructor
+SpatialFilterDefinition.SpatialFilterDefinition ConstructorDescription
+ 
+
+This is the constructor for the SpatialFilterDefinition object.
+
+Visual Basic
+Public Sub New(
+    pts As Point2dCollection, 
+    normal As Vector3d, 
+    elevation As double, 
+    frontClip As double, 
+    backClip As double, 
+    enabled As [MarshalAs(UnmanagedType.U1)] bool
+)
+C#
+public SpatialFilterDefinition(
+    Point2dCollection pts, 
+    Vector3d normal, 
+    double elevation, 
+    double frontClip, 
+    double backClip, 
+    [MarshalAs(UnmanagedType.U1)] bool enabled
+);
+Parameters
+Parameters  Description  
+Point2dCollection pts  Input boundary definition. If the number of points is 2, they are diagonal points of a rectangle. Otherwise, they are vertices of a polygon. The polygon should be non self intersecting.  
+Vector3d normal  Input positive extrusion direction vector  
+double elevation  Input elevation; along with the normal, this will define an ECS in which the polygon points are defined  
+double frontClip  Input front clip distance in the positive extrusion direction  
+double backClip  Input back clip distance in the negative extrusion direction  
+[MarshalAs(UnmanagedType.U1)] bool enabled  Input Boolean to make the clip volume effective, or alternatively, be all of 3D space  
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

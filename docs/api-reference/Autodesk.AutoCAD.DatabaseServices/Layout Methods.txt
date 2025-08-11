@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Methods
+Layout MethodsMethods
+Method  Description  
+ AddToLayoutDictionary  
+This method adds the layout to the specified database's layout dictionary, and specifies the block table record to use.  
+ GetViewports  
+This function returns a collection of ObjectIds of all the Viewports that exist in the Layout's paperspace.... more  
+ Initialize  
+This method will do the behind the scenes work to establish a Paper Space viewport for the layout. This allows... more  
+
+   Comments?  

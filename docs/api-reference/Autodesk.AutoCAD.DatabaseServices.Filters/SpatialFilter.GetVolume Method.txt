@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods > GetVolume Method
+SpatialFilter.GetVolume MethodDescription
+ 
+
+Transforms the SpatialFilter object's clip boundary definition into the coordinate space of the associated block or xref.
+
+Visual Basic
+Public Function GetVolume() As SpatialFilterVolume
+C#
+public SpatialFilterVolume GetVolume();
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

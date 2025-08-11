@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Filter Class > Filter Properties
+Filter PropertiesProperties
+Property  Description  
+ IndexClass  
+Accesses the class descriptor for the Index for this filter  
+
+   Comments?  

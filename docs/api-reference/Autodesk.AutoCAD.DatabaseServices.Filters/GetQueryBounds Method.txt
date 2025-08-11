@@ -1,0 +1,10 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods > GetQueryBounds Method
+GetQueryBounds MethodOverload List
+Method  Description  
+ SpatialFilter.GetQueryBounds ()  
+This function is used to get the boundary area of this SpatialFilter object.
+Returns the extents that define the query... more  
+ SpatialFilter.GetQueryBounds (BlockReference)  
+This function has been deprecated and will be removed in a future release.  
+
+   Comments?  

@@ -1,0 +1,789 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Properties
+Database PropertiesProperties
+Property  Description  
+ AcadDatabase  
+Returns the current database.  
+ AllowExtendedNames  
+Set to true if extended names are permitted.  
+ Angbase  
+Accesses the current ANGBASE value for the database.  
+ Angdir  
+Accesses the current ANGDIR value for the database. The value of false is 0. The value of true is 1.... more  
+ AnnoAllVisible  
+Accesses the current ANNOALLVISIBLE value for the database
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ AnnotativeDwg  
+Controls whether the drawing is treated as an annotative block when it is inserted into other drawings.
+True to treat... more  
+ ApproxNumObjects  
+Returns a value that is at least as large as the number of objects in the database.
+The purpose of... more  
+ Attmode  
+Accesses the current ATTMODE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Aunits  
+Accesses the current AUNITS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Auprec  
+Accesses the current AUPREC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ BlockTableId  
+Returns the object ID of the database's BlockTable.  
+ ByBlockLinetype  
+Returns the object ID of the BYBLOCK LinetypeTableRecord for the database.  
+ ByLayerLinetype  
+Returns the object ID of the BYLAYER LinetypeTableRecord for the database.  
+ CameraDisplay  
+Accesses the value of the CAMERADISPLAY sysvar to display or hide cameras.  
+ CameraHeight  
+Accesses the value of CAMERAHEIGHT system variable.This value is used as the default when creating new cameras.  
+ Cannoscale  
+Accesses a AnnotationScale object which will be the CANNOSCALE value for the database when model space is current.
+See the... more  
+ Cecolor  
+Accesses the current CECOLOR value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Celtscale  
+Accesses the current CELTSCALE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Celtype  
+Accesses the object ID of the linetype specified by the current CELTYPE value of the database.
+See the System Variables... more  
+ Celweight  
+Accesses the LineWeight value indicating what the current line weight is for the database. See the System Variables section of... more  
+ Cetransparency  Gets and sets the current CETRANSPARENCY value for the database.  
+ Chamfera  
+Accesses the current CHAMFERA value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Chamferb  
+Accesses the current CHAMFERB value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Chamferc  
+Accesses the current CHAMFERC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Chamferd  
+Accesses the current CHAMFERD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Clayer  
+Accesses the object ID of the LAYER specified by the current CLAYER value of the database.
+See the System Variables... more  
+ Cmaterial  
+Accesses the object ID of the layer material.  
+ Cmljust  
+Accesses the current CMLJUST value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Cmlscale  
+Accesses the current CMLSCALE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ CmlstyleID  
+Accesses the object ID of the MlineStyle specified by the current CMLSTYLEID value of the database.
+See the System Variables... more  
+ ColorDictionaryId  
+Accesses the object ID of the database's color dictionary.  
+ ContinuousLinetype  
+Accesses the object ID of the continuous linetype LinetypeTableRecord for the database.  
+ Cshadow  
+Accesses the value of the CSHADOW system variable.  
+ CurrentSpaceId  
+Accesses the object ID of the BlockTableRecord of the current space (e.g., model space or paper space.)  
+ CurrentViewportTableRecordId  This .NET property wraps the acdbGetCurVportTableRecordId() ObjectARX function.
+
+Accesses the current ViewportTableRecord ID for this Database.  
+ DataLinkDictionaryId  
+Accesses the data link's dictionary ID.  
+ DataLinkManager  
+Returns the ID of the data link manager.  
+ DetailViewStyle  The Object ID of the current detail view style.  
+ DetailViewStyleDictionaryId  The Object ID of the detail view style dictionary.  
+ DgnFrame  
+Reserved for future use.  
+ Dimadec  
+Accesses the current DIMADEC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimalt  
+Accesses the current DIMALT value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimaltd  
+Accesses the current DIMALTD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimaltf  
+Accesses the current DIMALTF value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimaltrnd  
+Accesses the current DIMALTRND value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimalttd  
+Accesses the current DIMALTTD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimalttz  
+Accesses the current DIMALTTZ value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimaltu  
+Accesses the current DIMALTU value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimaltz  
+Accesses the current DIMALTZ value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimapost  
+Accesses the current DIMAPOST value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimarcsym  
+Accesses the arc length placement value.  
+ Dimaso  
+Accesses the current DIMASO value for the database. The value of false is 0. The value of true is 1.... more  
+ DimAssoc  
+Accesses the current DIMASSOC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimasz  
+Accesses the current DIMASZ value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimatfit  
+Accesses the current DIMATFIT value for the database.  
+ Dimaunit  
+Accesses the current DIMAUNIT value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimazin  
+Accesses the current DIMAZIN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimblk  
+Accesses the current DIMBLK value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimblk1  
+Accesses the current DIMBLK1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimblk2  
+Accesses the current DIMBLK2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimcen  
+Accesses the current DIMCEN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimclrd  
+Accesses the current DIMCLRD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimclre  
+Accesses the current DIMCLRE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimclrt  
+Accesses the current DIMCLRT value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimdec  
+Accesses the current DIMDEC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimdle  
+Accesses the current DIMDLE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimdli  
+Accesses the current DIMDLI value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimdsep  
+Accesses the current DIMDSEP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimexe  
+Accesses the current DIMEXE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimexo  
+Accesses the current DIMEXO value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimfrac  
+Accesses the current DIMFRAC value for the database.  
+ Dimfxlen  
+Accesses the fixed extension lines value.  
+ DimfxlenOn  
+Accesses a value that indicates whether the fixed extension lines are on.  
+ Dimgap  
+Accesses the current DIMGAP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimjogang  
+Accesses the current large radial angle.  
+ Dimjust  
+Accesses the current DIMJUST value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimldrblk  
+Accesses the object ID of the block reference specified by the current DIMLDRBLK value of the database.
+See the System... more  
+ Dimlfac  
+Accesses the current DIMLFAC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimlim  
+Accesses the current DIMLIM value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimltex1  
+Accesses the object ID of the linetype of extension line 1.  
+ Dimltex2  
+Accesses the object ID of the linetype of extension line 2.  
+ Dimltype  
+Accesses the dimension linetype.  
+ Dimlunit  
+Accesses the current DIMLUNIT value for the dimension.  
+ Dimlwd  
+Accesses the current DIMLWD value for the dimension.
+See the System Variables section of the AutoCAD Command Reference manual for... more  
+ Dimlwe  
+Accesses the current DIMLWE value for the dimension.
+See the System Variables section of the AutoCAD Command Reference manual for... more  
+ Dimpost  
+Accesses the character string that is the current DIMPOST value for the datatbase.
+See the System Variables section of the... more  
+ Dimrnd  
+Accesses the current DIMRND value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimsah  
+Accesses current DIMSAH value for the database. The value of false is 0. The value of true is 1.
+See... more  
+ Dimscale  
+Accesses the current DIMSCALE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimsd1  
+Accesses the current DIMSD1 value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimsd2  
+Accesses the current DIMSD2 value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimse1  
+Accesses the current DIMSD1 value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimse2  
+Accesses the current DIMSD2 value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimsho  
+Accesses the current DIMSHO value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimsoxd  
+Accesses the current DIMSOXD value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimstyle  
+Accesses the object ID of the dimstyle specified by the current DIMSTYLE value of the database.
+See the System Variables... more  
+ DimStyleTableId  
+Accesses the object ID of the database's DimStyleTable.  
+ Dimtad  
+Accesses the current DIMTAD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtdec  
+Accesses the current DIMTDEC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtfac  
+Accesses the current DIMTFAC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtfill  
+Accesses the dimension background color state, which can be one of the following values:
+0 means the background color is... more  
+ Dimtfillclr  
+Accesses the current dimension background color (if dimtfill is set to 1).  
+ Dimtih  
+Accesses the current DIMTIH value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimtix  
+Accesses the current DIMTIX value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimtm  
+Accesses the current DIMTM value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtmove  
+Accesses the current DIMTMOVE value for the database.  
+ Dimtofl  
+Accesses the current DIMTOFL value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimtoh  
+Accesses the current DIMTOH value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimtol  
+Accesses the current DIMTOL value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimtolj  
+Accesses the current DIMTOLJ value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtp  
+Accesses the current DIMTP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtsz  
+Accesses the current DIMTSZ value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtvp  
+Accesses the current DIMTVP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtxsty  
+Accesses the object ID of the TextStyle specified by the current DIMTXSTY value of the database.
+See the System Variables... more  
+ Dimtxt  
+Accesses the current DIMTXT value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimtzin  
+Accesses the current DIMTZIN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Dimupt  
+Accesses the current DIMUPT value for the database. The value of false is 0. The value of true is 1.... more  
+ Dimzin  
+Accesses the current DIMZIN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ DispSilh  
+Accesses the current DISPSILH value for the database. The value of false is 0. The value of true is 1.... more  
+ dragvs  
+Accesses the visual style set in the DRAGVS system variable.
+See the System Variables section of the AutoCAD Command Reference... more  
+ DrawOrderCtl  
+Returns the value of the DRAWORDERCTL system variable, which enables users to revert to legacy draw order mode if required.... more  
+ DwfFrame  
+Accesses the current DWFFRAME value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ DwgFileWasSavedByAutodeskSoftware  
+Returns true if it determines that the database was last saved by Autodesk software (such as AutoCAD or AutoCAD LT).... more  
+ DxEval  
+Accesses the DX Eval value.  
+ Elevation  
+Accesses the Model Space ELEVATION value for the database.
+See the System Variables section of the AutoCAD Command Reference for... more  
+ EndCaps  
+Accesses the database's endCaps header variable value.  
+ Extmax  
+Accesses the current Model Space EXTMAX value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Extmin  
+Accesses the current Model Space EXTMIN value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Facetres  
+Accesses the current Model Space FACETRES value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Filename  
+Accesses the filename associated with the database.  
+ Filletrad  
+Accesses the current FILLETRAD value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Fillmode  
+Accesses the current FILLMODE value for the database. The value of false is 0. The value of true is 1.... more  
+ FingerprintGuid  
+Accesses the database's fingerprintguid header variable.  
+ GeoDataObject  Accesses the Geo data object ID for this database.  
+ GroupDictionaryId  
+Accesses the object ID of the database's Group dictionary.  
+ HaloGap  
+Accesses the current HALOGAP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Handseed  
+Accesses the current HANDSEED value for the database. The HANDSEED is a counter which maintains the next available handle number.... more  
+ HideText  
+Accesses the current HIDETEXT value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ HomeView  Accesses the navigation home view associated with the database.  
+ HpInherit  
+Accesses a bool indicating the current HPINHERIT value for the database.
+See the System Variables section of the AutoCAD Command... more  
+ HpOrigin  
+Accesses a 2D point that is the current HPORIGIN value for the database.
+See the System Variables section of the... more  
+ HyperlinkBase  
+Accesses the database to use a copy of path as the new value for the HYPERLINKBASE header variable.
+See the... more  
+ Indexctl  Accesses the INDEXCTL header variable value.  
+ Insbase  
+Accesses the current Model Space INSBASE value for the database. The point is in WCS coordinates.
+See the System Variables... more  
+ Insunits  
+Accesses the current INSUNITS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Interferecolor  
+Accesses the color for interference objects as defined by the INTERFERECOLOR system variable.
+See the System Variables section of the... more  
+ Interfereobjvs  
+Accesses the visual style for interference objects as defined by the INTERFEREOBJVS system variable.
+See the System Variables section of... more  
+ Interferevpvs  
+Accesses the visual style for interference objects as defined by the INTERFEREVPVS system variable.
+See the System Variables section of... more  
+ IntersectColor  
+Accesses the INTERSECTIONCOLOR header variable value for the database.
+See the System Variables section of the AutoCAD Command Reference for... more  
+ IntersectDisplay  
+Accesses the INTERSECTIONDISPLAY header variable value for the database.
+See the System Variables section of the AutoCAD Command Reference for... more  
+ IsBeingDestroyed  This is IsBeingDestroyed, a member of class Database.  
+ IsEmr  Returns the EMR flag for the database. The EMR flag gets set when a drawing is saved by an EMR... more  
+ Isolines  
+Accesses the current ISOLINES value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ IsPartiallyOpened  
+Returns true if the database is in a partially opened state; false otherwise.  
+ JoinStyle  
+Accesses the database's joinstyle header variable value  
+ LastSavedAsMaintenanceVersion  
+Accesses the maintenance version that the current drawing was last saved as in the current session. If the current session... more  
+ LastSavedAsVersion  
+Accesses the version that the current drawing was last saved as in the current session. If the current session has... more  
+ Latitude  
+Accesses the latitude for the location of the model, in decimal degrees. Allowable values are -90 to +90 degrees, where... more  
+ LayerEval  Accesses the LAYEREVAL header variable value.  
+ LayerFilters  
+Accesses the layer filters.  
+ LayerNotify  Accesses the value of the LAYEREVAL header variable.  
+ LayerStateManager  
+Accesses Class the layer state manager  
+ LayerTableId  
+Accesses the object ID of the database's LayerTable.  
+ LayerZero  
+Accesses the object ID of the layer 0 LayerTableRecord for the database.  
+ LayoutDictionaryId  
+Accesses the object ID of the ACAD_LAYOUT dictionary, which contains objects of type Layout. The Layout dictionary stores characteristics... more  
+ LensLength  
+Accesses the value of LENSLENGTH system variable.  
+ LightGlyphDisplay  
+Accesses whether light objects are displayed in the viewport.
+Returns 1 if light objects are displayed, 0 if not.  
+ LightingUnits  
+Accesses the lighting units for the drawing, where 0 = Generic, 1 = International, and 2 = American... more  
+ LightsInBlocks  
+Accesses if blocks are ignored and do not contribute lighting to the scene.  
+ Limcheck  
+Accesses the current Model Space LIMCHECK value for the database. The value of false is 0. The value of true... more  
+ Limmax  
+Accesses the current Model Space LIMMAX value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Limmin  
+Accesses the current Model Space LIMMIN value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ LinetypeTableId  
+Accesses the object ID of the database's LinetypeTable
+.  
+ LineWeightDisplay  
+Accesses the line weight display status.
+See the System Variables section of the AutoCAD Command Reference for information on LWDISPLAY... more  
+ LoftAng1  
+Accesses the current LOFTANG1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ LoftAng2  
+Accesses the current LOFTANG2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ LoftMag1  
+Accesses the current LOFTMAG1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ LoftMag2  
+Accesses the current LOFTMAG2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ LoftNormals  
+Accesses the current LOFTNORMALS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ LoftParam  
+Accesses the current LOFTPARAM value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Longitude  
+Accesses the longitude for the location of the model, in decimal degrees. Allowable values are -180 to +180 degrees, where... more  
+ Ltscale  
+Accesses the current LTSCALE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Lunits  
+Accesses the current LUNITS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Luprec  
+Accesses the current LUPREC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ MaintenanceReleaseVersion  Determines which point release of AutoCAD created this database.  
+ MaterialDictionaryId  
+Accesses the object ID of the ACAD_MATERIAL dictionary, which contains objects of type Material.  
+ Maxactvp  
+Accesses the current MAXACTVP value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Measurement  
+Accesses the current MEASUREMENT value for the database.  
+ Menu  Accesses the menu display text  
+ Mirrtext  Accesses the current MIRRTEXT value for the database. The value of false is 0. The value of true is 1.... more  
+ MLeaderscale  Accesses the current value of the MLEADERSCALE system variable for the database.  
+ MLeaderstyle  Accesses the object ID of the MLeader style specified by the current CMLEADERSTYLE value of the database.  
+ MLeaderStyleDictionaryId  
+For the ACAD_MLEADERSTYLE dictionary  
+ MLStyleDictionaryId  
+Accesses the object ID of the database's MLStyle dictionary.  
+ MsLtScale  
+Accesses the current MSLTSCALE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ MsOleScale  Accesses the value of the LAYERNOTIFY header variable.  
+ NamedObjectsDictionaryId  Accesses the object ID of the database's NamedObjects dictionary.  
+ NeedsRecovery  Returns true if the database was read from a drawing file and there were read errors, but the errors were... more  
+ NorthDirection  
+Accesses an angle representing a direction towards North, based on the orientation of the drawing model in the WCS.  
+ NumberOfSaves  
+Accesses the number of times the database has been saved in the current session, or zero if it has not... more  
+ ObjectContextManager  
+Accesses the object context manager.  
+ ObscuredColor  
+Accesses the current OBSCUREDCOLOR value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ ObscuredLineType  
+Accesses the current OBSCUREDLINETYPE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ OleStartUp  
+Accesses the database's OLESTARTUP header variable value.
+See the system variables documentation in the AutoCAD Command Reference for information on... more  
+ OriginalFileMaintenanceVersion  
+Accesses the maintenance version value that the database file had when it was first opened.  
+ OriginalFileName  
+Accesses the file name that the database was originally opened under. May return a null pointer if the database was... more  
+ OriginalFileSavedByMaintenanceVersion  
+Accesses the maintenance version value of the last AutoCAD product which saved the drawing file, not counting the current session.... more  
+ OriginalFileSavedByVersion  
+Accesses the version value of the last AutoCAD product which saved the drawing file, not counting the current session.  
+ OriginalFileVersion  
+Accesses the version value that the database file had when it was first opened.  
+ Orthomode  
+Accesses the current ORTHOMODE value for the database. The value of false is 0. The value of true is 1.... more  
+ PaperSpaceVportId  
+Accesses the object ID of the paperspace Viewport for the database.  
+ PdfFrame  This .NET property wraps the ObjectARX functions AcDbDatabase::pdfframe and AcDbDatabase::setPdfframe.  
+ Pdmode  
+Accesses the current PDMODE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pdsize  
+Accesses the current PDSIZE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pelevation  
+Accesses the current ELEVATION value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pextmax  
+Accesses the current EXTMAX value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pextmin  
+Accesses the current EXTMIN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pinsbase  
+Accesses the current INSBASE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Plimcheck  
+Accesses the current Paper Space LIMCHECK value for the database. The value of false is 0. The value of true... more  
+ Plimmax  
+Accesses the current LIMMAX value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Plimmin  
+Accesses the current LIMMIN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ PlineEllipse  
+Accesses the current PELLIPSE value for the database. The value of false is 0. The value of true is 1.... more  
+ Plinegen  
+Accesses the current PLINEGEN value for the database. The value of false is 0. The value of true is 1.... more  
+ Plinewid  
+Accesses the current PLINEWID value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ PlotSettingsDictionaryId  
+Accesses the object ID of the ACAD_PLOTSETTINGS dictionary.  
+ PlotStyleMode  
+Returns true when this database is using color-dependent plot styles, and false for named plot styles. See the AutoCAD User's... more  
+ PlotStyleNameDictionaryId  
+Accesses the object ID of the database's plot style name dictionary.  
+ PlotStyleNameId  
+Accesses the objectId of the entry in the PlotStyleName dictionary for the plotStyleName of the layer table record.  
+ ProjectName  Accesses the database's PROJECTNAME header variable string.  
+ Psltscale  
+Accesses the current PSLTSCALE value for the database. The value of false is 0. The value of true is 1.... more  
+ PsolHeight  
+Accesses the current PSOLHEIGHT value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ PsolWidth  Accesses the current PSOLWIDTH value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Pucs  Sets the Paper Space UCS. The Pucsorg(), Pucsxdir(), and Pucsydir() are the query properties for this UCS.  
+ PucsBase  
+Accesses the object ID of the UcsTableRecord that defines the origin and orientation of orthographic UCS settings for the database's... more  
+ Pucsname  
+Accesses the object ID of the UCS table entry that is currently in use in the Paper Space of the... more  
+ Pucsorg  
+Accesses the current Paper Space UCSORG value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ PucsOrthographic  
+Returns false if the database's paper space UCS does not have an orthographic view whose reference UCS matches the database's... more  
+ Pucsxdir  
+Accesses the current Paper Space UCSXDIR value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Pucsydir  
+Accesses the current Paper Space UCSYDIR value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Qtextmode  
+Accesses the current QTEXTMODE value for the database. The value of false is 0. The value of true is 1.... more  
+ RegAppTableId  
+Accesses the object ID of the database's RegAppTable  
+ Regenmode  
+Accesses the current REGENMODE value for the database. The value of false is 0. The value of true is 1.... more  
+ RetainOriginalThumbnailBitmap  
+Accesses the status of the thumbnail bitmap toggle flag. The status is FALSE by default. If it is toggled to... more  
+ Saveproxygraphics  
+Accesses the current PROXYGRAPHICS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ SectionManagerId  
+Accesses the section manager associated with this database.  
+ SectionViewStyle  The Object ID of the current section view style.  
+ SectionViewStyleDictionaryId  The Object ID of the section view style dictionary.  
+ SecurityParameters  
+Accesses the security parameters associated with this database.  
+ Shadedge  
+Accesses the current SHADEDGE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Shadedif  
+Accesses the current SHADEDIF value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ ShadowPlaneLocation  
+Accesses the current ground plane z position in world coordinates. The ground plane is always parallel to the X-Y world... more  
+ ShowHist  
+Accesses the current SHOWHIST value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Sketchinc  
+Accesses the current SKETCHINC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Skpoly  
+Accesses the current SKPOLY value for the database. The value of false is 0. The value of true is 1.... more  
+ SolidHist  
+Accesses the current SOLIDHIST value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ SortEnts  
+Accesses the current SORTENTS value for the database.  
+ Splframe  
+Accesses the current SPLFRAME value for the database. The value of false is 0. The value of true is 1.... more  
+ Splinesegs  
+Accesses the current SPLINESEGS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Splinetype  
+Accesses the current SPLINETYPE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ StepSize  
+Accesses the current STEPSIZE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ StepsPerSec  
+Accesses the current STEPSPERSEC value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ StyleSheet  
+Accesses the database's current plot style sheet.  
+ SummaryInfo  
+Accesses the database's summary info.  
+ Surftab1  
+Accesses the current SURFTAB1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Surftab2  
+Accesses the current SURFTAB2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Surftype  
+Accesses the current SURFTYPE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Surfu  
+Accesses the current SURFU value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Surfv  
+Accesses the current SURFV value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tablestyle  
+Accesses object ID of the table style specified by the current CTABLESTYLE value for the database.
+See the System Variables... more  
+ TableStyleDictionaryId  
+Accesses the object ID of the table style dictionary in named object dictionary.  
+ Tdcreate  
+Accesses the current TDCREATE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tdindwg  
+Accesses the current TDINDWG value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tducreate  
+Accesses the current TDUCREATE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tdupdate  
+Accesses the current TDUPDATE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tdusrtimer  
+Accesses the current TDUSRTIMER value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Tduupdate  
+Accesses the current TDUUPDATE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Textsize  
+Accesses the current TEXTSIZE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Textstyle  
+Accesses the current TEXTSTYLE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ TextStyleTableId  
+Accesses the object ID of the database's TextStyleTable  
+ Thickness  
+Accesses the current THICKNESS value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ ThumbnailBitmap  
+Accesses the thumbnail bitmap image.  
+ TileMode  
+Accesses the current TILEMODE value for the database. The value of false is 0. The value of true is 1.... more  
+ TileModeLightSynch  
+For internal use only.  
+ TimeZone  
+Accesses the current time zone for the drawing, an enumerated value.  
+ Tracewid  
+Accesses the current TRACEWID value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ TransactionManager  
+Accesses the TransactionManager for the database.  
+ Treedepth  
+Accesses the current TREEDEPTH value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ TStackAlign  
+Accesses the current TSTACKALIGN value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ TstackSize  
+Accesses the current TSTACKSIZE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Ucs  
+Sets the Model Space UCS. The Ucsorg(), Ucsxdir(), and Ucsydir() are the query properties for this UCS.  
+ UcsBase  
+Accesses the object ID of the UcsTableRecord that defines the origin and orientation of orthographic UCS settings for the database's... more  
+ Ucsname  
+Accesses the object ID of the UCS table entry that is currently in use in the Model Space of the... more  
+ Ucsorg  
+Accesses the current Model Space UCSORG value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ UcsOrthographic  
+Accesses the current orthographic view.  
+ UcsTableId  
+Accesses the object ID of the database's UCSTable.  
+ Ucsxdir  
+Accesses the current Model Space UCSXDIR value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ Ucsydir  
+Accesses the current Model Space UCSYDIR value for the database.
+See the System Variables section of the AutoCAD Command Reference... more  
+ UndoRecording  
+Returns true if undo recording is enabled for the database.  
+ Unitmode  
+Returns the current UNITMODE value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ UpdateThumbnail  Accesses the UPDATETHUMBNAIL header variable value.  
+ Useri1  
+Returns the current USERI1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Useri2  
+Returns the current USERI2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Useri3  
+Returns the current USERI3 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Useri4  
+Returns the current USERI4 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Useri5  
+Returns the current USERI5 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Userr1  
+Returns the current USERR1 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Userr2  
+Returns the current USERR2 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Userr3  
+Returns the current USERR3 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Userr4  
+Returns the current USERR4 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Userr5  
+Returns the current USERR5 value for the database.
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ Usrtimer  
+Returns the current USRTIMER value for the database. A value of false is off. A value of true is on.... more  
+ VersionGuid  
+Accesses the database's Version GUID string  
+ ViewportScaleDefault  
+Accesses the database's default value for viewport scale.  
+ ViewportTableId  
+Accesses the object ID of the database's ViewportTable.  
+ ViewTableId  
+Accesses the object ID of the database's ViewTable.  
+ Visretain  
+Accesses the current VISRETAIN value for the database. The value of false is 0. The value of true is 1.... more  
+ VisualStyleDictionaryId  
+Accesses the object ID of the ACAD_VISUALSTYLE dictionary, which contains objects of type VisualStyle.  
+ Worldview  
+Accesses the current WORLDVIEW value for the database. The value of false is 0. The value of true is 1.... more  
+ XclipFrame  
+Accesses the value of the XCLIPFRAME header variable.
+This .NET property wraps the ObjectARX methods AcDbDatabase::xclipFrame() and AcDbDatabase::setXclipFrame.  
+ XrefBlockId  
+Accesses the object ID of the BlockTableRecord which refers to this database as an xref.  
+ XrefEditEnabled  
+Accesses the database's XEDIT value. A return value of true is the same as an XEDIT value of 1.
+See... more  
+
+   Comments?  

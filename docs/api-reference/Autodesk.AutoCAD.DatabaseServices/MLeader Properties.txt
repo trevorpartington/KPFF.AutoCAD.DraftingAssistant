@@ -1,0 +1,72 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Properties
+MLeader PropertiesProperties
+Property  Description  
+ ArrowSize  
+Accesses the arrow size.  
+ ArrowSymbolId  
+Accesses the objectId of current arrow symbol.  
+ BlockColor  
+Accesses the block color in block content.  
+ BlockConnectionType  
+Accesses how the block is connected with leader lines.  
+ BlockContentId  
+Accesses the id of referenced block.  
+ BlockPosition  
+Accesses the position of MLeader block content.  
+ BlockRotation  
+Accesses the rotation of referenced block.  
+ BlockScale  
+Accesses the scale of referenced block.  
+ ContentType  
+Accesses the content type of MLeader object.  
+ DoglegLength  
+Accesses the length of dog-leg leader line.  
+ EnableAnnotationScale  
+Assesses if annotation scale is enabled  
+ EnableDogleg  
+Assesses if dog-leg leader line is enabled  
+ EnableFrameText  
+Assesses if text frame of MText is visible  
+ EnableLanding  
+Assesses whether landing of leader line is enabled  
+ ExtendLeaderToText  Gets and Sets the value indicating whether horizontal leader lines are automatically extended to text.  
+ LandingGap  
+Accesses the gap between leader tail and MText.  
+ LeaderCount  
+Accesses the number of leaders.  
+ LeaderLineColor  
+Accesses the color of leader lines.  
+ LeaderLineCount  
+Accesses the number of leader lines.  
+ LeaderLineType  
+Accesses the leader line type.  
+ LeaderLineTypeId  
+Accesses the objectId of leader line type.  
+ LeaderLineWeight  
+Accesses the line weight of leader lines.  
+ MLeaderStyle  
+Accesses the object ID of current MLeader style.  
+ MText  
+Accesses the cloned MText.  
+ Normal  
+Accesses the unit normal vector (in WCS coordinates) of the plane that contains the leader.  
+ Scale  Gets or sets the scale for the MLeader.  
+ TextAlignmentType  
+Accesses the text alignment type of Mtext in MLeader content.  
+ TextAngleType  
+Accesses the angle type of text with respect to the last leader line segment.  
+ TextAttachmentDirection  Accesses the value of the text attachment Direction of MText content.  
+ TextAttachmentType  
+Accesses the text attachment type of MText in MLeader content.  
+ TextColor  
+Accesses the text color of Mtext in MLeader content.  
+ TextHeight  
+Accesses the text height of MText in MLeader content.  
+ TextLocation  
+Accesses the location of MLeader MText content.  
+ TextStyleId  
+Accesses the objectId of current text style.  
+ ToleranceLocation  
+Accesses the location of MLeader tolerance content.  
+
+   Comments?  

@@ -1,0 +1,127 @@
+<Window x:Class="KPFF.AutoCAD.DraftingAssistant.UI.Dialogs.ProjectSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Select Project Configuration"
+        Height="600"
+        Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="#2E3440">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/DarkTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" 
+                   Text="Project Configuration" 
+                   Style="{StaticResource DarkTextBlockStyle}"
+                   FontSize="16" 
+                   FontWeight="Bold" 
+                   Margin="0,0,0,20"/>
+        
+        <!-- File Selection -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" 
+                       Text="Config File:" 
+                       Style="{StaticResource DarkTextBlockStyle}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            
+            <TextBox Grid.Column="1" 
+                     Name="ConfigFilePathTextBox"
+                     Style="{StaticResource DarkTextBoxStyle}"
+                     IsReadOnly="True"
+                     Margin="0,0,10,0"/>
+            
+            <Button Grid.Column="2" 
+                    Name="BrowseButton" 
+                    Content="Browse..." 
+                    Width="80" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="BrowseButton_Click"/>
+        </Grid>
+        
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,20">
+            <Button Name="LoadProjectButton" 
+                    Content="Load Project" 
+                    Width="100" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="LoadProjectButton_Click"
+                    Margin="0,0,10,0"/>
+            <Button Name="ConfigureProjectButton" 
+                    Content="Configure Project" 
+                    Width="120" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="ConfigureProjectButton_Click"
+                    IsEnabled="False"/>
+        </StackPanel>
+        
+        <!-- Project Details -->
+        <Border Grid.Row="3" 
+                Style="{StaticResource DarkBorderStyle}"
+                BorderThickness="1" 
+                CornerRadius="5"
+                Background="{StaticResource DarkSurfaceBrush}">
+            <ScrollViewer Margin="15" VerticalScrollBarVisibility="Auto">
+                <TextBlock Name="ProjectDetailsTextBlock"
+                          Text="Select a project configuration file to view details."
+                          Style="{StaticResource DarkTextBlockStyle}"
+                          TextWrapping="Wrap"
+                          FontFamily="Consolas"
+                          FontSize="12"
+                          LineHeight="18"/>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Dialog Buttons -->
+        <StackPanel Grid.Row="4" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,15,0,0">
+            <Button Name="OkButton" 
+                    Content="OK" 
+                    Width="80" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="OkButton_Click"
+                    IsDefault="True"
+                    IsEnabled="False"
+                    Margin="0,0,10,0"/>
+            <Button Name="CancelButton" 
+                    Content="Cancel" 
+                    Width="80" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="CancelButton_Click"
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

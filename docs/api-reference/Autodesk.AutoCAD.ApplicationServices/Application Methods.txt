@@ -1,0 +1,27 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Application Class > Application Methods
+Application MethodsMethods
+Method  Description  
+ AddDefaultContextMenuExtension  Adds a default mode context (shortcut) menu.  
+ AddObjectContextMenuExtension  Adds a context (shortcut) menu for a given class.  
+ CommitModalWindow  Dismisses the modal HTML dialog.  
+ DoDragDrop  Carries out an OLE drag and drop operation.  
+ InvokeContextHelp  Calls the context help.  
+ InvokeHelp  Calls the help document with a specific topic.  
+ InvokeHelpForExternal  This .NET method wraps the ObjectARX acedHelpForExternal function.  
+ LoadMainMenu  Changes the currently loaded main menu.  
+ LoadPartialMenu  Adds (loads) a partial menu to the current main menu.  
+ ReloadAllMenus  Updates the User Interface in AutoCAD to reflect any changes made to the currently loaded menus.  
+ RemoveDefaultContextMenuExtension  Removes a mode context (shortcut) menu for a given class.  
+ RemoveObjectContextMenuExtension  Removes a mode context (shortcut) menu for a given class.  
+ SetCurrentWorkspace  Sets the current workspace.  
+ ShowModalDialog  Shows a modal dialog.  
+ ShowModalWindow  Launches a modal dialog with the specified URI.  
+ ShowModelessDialog  Shows a modeless dialog.  
+ ShowModelessWindow  Launches a modeless dialog with the specified URI.  
+ ToSystemDrawingPoint  This is ToSystemDrawingPoint, a member of class Application.  
+ ToSystemDrawingSize  This is ToSystemDrawingSize, a member of class Application.  
+ ToSystemWindowsPoint  This is ToSystemWindowsPoint, a member of class Application.  
+ ToSystemWindowsSize  This is ToSystemWindowsSize, a member of class Application.  
+ UnloadPartialMenu  Removes (unloads) a partial menu from the current main menu.  
+
+   Comments?  

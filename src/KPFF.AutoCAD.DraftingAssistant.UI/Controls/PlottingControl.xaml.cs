@@ -1,10 +1,18 @@
 using System.Windows;
+using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
 public partial class PlottingControl : BaseUserControl
 {
-    public PlottingControl()
+    public PlottingControl() : this(null, null)
+    {
+    }
+
+    public PlottingControl(
+        ILogger? logger,
+        INotificationService? notificationService) 
+        : base(logger, notificationService)
     {
         InitializeComponent();
     }

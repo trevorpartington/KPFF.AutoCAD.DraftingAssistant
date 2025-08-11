@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Fields
+Editor FieldsFields
+Field  Description  
+ PauseToken  
+Default definition is as a backslash ("\\").
+This token can be passed to the RunCommand() method in order to pause... more  
+
+   Comments?  

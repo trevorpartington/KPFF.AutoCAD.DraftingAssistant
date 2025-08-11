@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Methods > RebuildFull Method
+Index.RebuildFull MethodDescription
+ 
+
+This function completely rebuilds the index from the entities in the associated block table record. Implementation is needed at the concrete class. The concrete class should supermessage the base class.
+
+Visual Basic
+Public virtual Function RebuildFull(
+    indexData As IndexUpdateData
+) As void
+C#
+public virtual void RebuildFull(
+    IndexUpdateData indexData
+);
+Parameters
+Parameters  Description  
+IndexUpdateData indexData  Input IndexUpdateData object for use during the index rebuild  
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

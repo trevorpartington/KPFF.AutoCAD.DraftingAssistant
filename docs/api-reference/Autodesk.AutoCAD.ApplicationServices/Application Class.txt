@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Application Class
+Application ClassDescription
+The Application object is the root object of the AutoCAD .NET API. 
+
+From the Application object, you can access the main application window as well as any drawing open in memory. Once a drawing has been referenced, access the objects in the drawing can be accessed.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.Application
+Visual Basic
+Public abstract Class Application
+Inherits Autodesk.AutoCAD.ApplicationServices.Core.Application
+C#
+public abstract class Application : Autodesk.AutoCAD.ApplicationServices.Core.Application;
+Links
+Application Methods, Application Properties
+   Comments?  
