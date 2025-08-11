@@ -1,0 +1,58 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Methods
+Editor MethodsMethods
+Method  Description  
+ ApplyCurDwgLayerTableChanges  Updates the cached layer data for the current document in the editor.  
+ Command  This is Command, a member of class Editor.  
+ CommandAsync  This is CommandAsync, a member of class Editor.  
+ DoPrompt  Carries out a prompt with the specified options. Returns the result of the prompt operation.  
+ Drag    
+ DrawVector  Draws a vector from a specified beginning and ending points. Its color and highlight values may also be chosen.  
+ DrawVectors  Draws a set of vectors that are transformed by the given matrix.  
+ GetAngle    
+ GetCommandVersion  This function is used to query the requested version of the command in progress in the current document. It does... more  
+ GetCorner    
+ GetCurrentView  Gets the current view from ViewTableRecord.  
+ GetDistance    
+ GetDouble    
+ GetEntity    
+ GetFileNameForOpen    
+ GetFileNameForSave    
+ GetInteger    
+ GetKeywords    
+ GetNestedEntity    
+ GetPoint    
+ GetSelection    
+ GetString    
+ GetViewportNumber  Returns the viewport number.  
+ InitCommandVersion  This function sets a variable in the current document establishing the version requested for the next command to be run.... more  
+ PointToScreen  Returns the 3D point pt on the screen with the viewport number.  
+ PointToWorld    
+ PostCommandPrompt  This function causes AutoCAD to repost the last command prompt message.  
+ Regen  Regenerates the drawing.  
+ SelectAll    
+ SelectCrossingPolygon    
+ SelectCrossingWindow    
+ SelectFence    
+ SelectImplied  Selects the firstpick set.  
+ SelectLast  Selects last result from the prompt.  
+ SelectPrevious  Selects previous result from the prompt.  
+ SelectWindow    
+ SelectWindowPolygon    
+ SetCurrentView  Sets the current view of ViewTableRecord.  
+ SetImpliedSelection    
+ Snap  Changes the snap mode for the point at input.  
+ StartUserInteraction    
+ SwitchToModelSpace  Switches the current view to model space.  
+ SwitchToPaperSpace  Switches the current view to paper space.  
+ TraceBoundary  Returns the resulting boundary set in a DBObjectCollection.  
+ TurnForcedPickOff  This function decrements the forced pick counter, and if the counter hits 0, disables forced picking, which means entity picking... more  
+ TurnForcedPickOn  This function will cause the AutoCAD input event mechanism to do a pick under the prevailing pick aperture on all... more  
+ TurnSubentityWindowSelectionOff  Using this function decrements a reference counter which, when zero, turns off subentity window selection.When subentity window selection is enabled,... more  
+ TurnSubentityWindowSelectionOn  Using this function increments a reference counter which, when non-zero, causes any form of a window selection (such as _W... more  
+ UpdateScreen  Refreshes the screen.  
+ UpdateTiledViewportsFromDatabase  Updates the tiled viewports from the database.  
+ UpdateTiledViewportsInDatabase  Updates the tiled viewports in the database.  
+ ViewportIdFromNumber  Returns the object ID of the viewport from its number.  
+ WriteMessage    
+
+   Comments?  

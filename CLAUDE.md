@@ -196,3 +196,80 @@ The system has been simplified to remove worksheet dependencies:
 - Automated construction note block creation for new sheets
 - Enhanced viewport geometry support for complex layouts
 - Template-based note management system
+
+## Documentation References
+
+### Overview
+This project includes comprehensive documentation and reference materials in the `docs/` folder to assist with development and understanding of the AutoCAD plugin architecture.
+
+### AutoCAD .NET API Reference
+The `docs/api-reference/` folder contains extracted documentation from the Autodesk ObjectARX for AutoCAD 2025: Managed .NET Reference Guide, organized by namespace:
+
+#### Available Namespaces
+- **Autodesk.AutoCAD.ApplicationServices**: Core application classes (Application, Document)
+- **Autodesk.AutoCAD.ApplicationServices.Core**: Application management and events
+- **Autodesk.AutoCAD.DatabaseServices**: Database objects (BlockReference, Layout, MLeader, Viewport, Transaction, Database)
+- **Autodesk.AutoCAD.DatabaseServices.Filters**: Spatial and layer filtering (SpatialFilter, LayerFilter, Index classes)
+- **Autodesk.AutoCAD.EditorInput**: Editor interaction and input handling
+- **Autodesk.AutoCAD.Geometry**: Geometric primitives and transformations
+
+#### Key Classes Documented
+- **BlockReference**: Dynamic block handling, attributes, transformations
+- **Layout**: Paper space layouts, viewport management
+- **MLeader**: Multileader creation and manipulation
+- **Viewport**: Viewport properties and model space mapping
+- **Transaction/TransactionManager**: Database transaction handling
+- **SpatialFilter**: Spatial querying and filtering
+- **Editor**: User input and selection
+
+**Note**: If you need documentation for any AutoCAD API methods, properties, or classes not currently in the reference folder, please request them specifically and they can be extracted from the CHM documentation.
+
+### LISP Reference Implementation
+The `docs/lisp/` folder contains the original LISP implementation of the construction notes system, which serves as an algorithmic reference for the C# implementation:
+
+#### Files
+- **DBRT_UNB_DWG.lsp**: Auto Notes implementation
+  - Uses COGO points to define viewport boundaries (naming pattern: `{layoutNum}-{index}`, e.g., "101-1", "101-2")
+  - Implements ray-casting algorithm for point-in-polygon detection
+  - Filters multileaders by style "Arw-Straight-Hex_Anno_WSDOT"
+  - Exports results to CSV files
+- **DBRT_UNB_EXCEL.lsp**: Excel Notes implementation
+  - Reads construction notes from CSV files at hardcoded paths
+  - Uses blocks with "HEX" in naming convention (`{layoutNum}-HEX-NT##`)
+  - Updates block visibility states and attributes
+- **_DBRT_NOTES_FROM_DWG.scr**: AutoCAD script to load and execute Auto Notes
+- **_DBRT_NOTES_FROM_EXCEL.scr**: AutoCAD script to load and execute Excel Notes
+
+#### Key Differences from C# Implementation
+| Aspect | LISP Implementation | C# Implementation |
+|--------|-------------------|-------------------|
+| **Viewport Detection** | Manual COGO points setup | Direct viewport geometry calculation |
+| **Block Naming** | `{layoutNum}-HEX-NT##` | `{layoutNum}-NT##` |
+| **Multileader Style** | Hardcoded "Arw-Straight-Hex_Anno_WSDOT" | Configurable via ProjectConfig.json |
+| **Data Source** | CSV files at fixed paths | Excel files with EPPlus library |
+| **Polygon Detection** | Ray-casting with COGO points | Viewport boundary calculation |
+
+### Developer Guidance
+
+#### Requesting Additional API Documentation
+When working with AutoCAD API methods or properties not documented in the reference folder:
+1. Identify the specific class, method, or property needed
+2. Request extraction from the CHM documentation
+3. The content will be added as a text file in the appropriate namespace folder
+
+#### Using the LISP Reference
+The LISP files demonstrate working algorithms for:
+- Point-in-polygon detection using ray-casting
+- Dynamic block visibility state manipulation
+- Multileader content extraction
+- Construction note block attribute updates
+
+While the algorithmic approaches are valuable references, the C# implementation uses more modern .NET patterns and AutoCAD API features for improved maintainability and performance.
+
+#### API Documentation Format
+Each API reference file contains:
+- Class hierarchy and inheritance
+- Method signatures in C# and VB.NET
+- Parameter descriptions
+- Property accessor information
+- Links to related classes and namespaces

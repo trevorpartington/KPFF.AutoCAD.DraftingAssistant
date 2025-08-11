@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Document Class > Document Methods
+Document MethodsMethods
+Method  Description  
+ Create  Creates a new managed object from an unmanaged pointer.  
+ DowngradeDocOpen  Converts the document status from writeable to read only.
+If bPromptForSave is true and the drawing is modified (based on... more  
+ GetLispSymbol  This is GetLispSymbol, a member of class Document.  
+ LockDocument  Locks the document.  
+ LockMode  Provides a way for an application to determine if it could have permission to set a lock on a document.... more  
+ SendStringToExecute  Executes a particular string.  
+ SetLispSymbol  This is SetLispSymbol, a member of class Document.  
+ UpgradeDocOpen  Converts the document status from read only to write, if possible.  
+
+   Comments?  

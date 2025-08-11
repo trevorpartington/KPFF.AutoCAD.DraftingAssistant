@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > Rotation Property
+BlockReference.Rotation PropertyDescription
+ 
+
+Accesses the rotation value (in radians) of the block reference. The rotation value is relative to the X axis of a coordinate system that is parallel to the OCS of the block reference, but has its origin at the position point of the block reference. The rotation axis is the Z axis of this coordinate system with positive rotations going counterclockwise when looking down the Z axis towards the origin.
+
+Visual Basic
+Public Property Rotation() As double
+C#
+public double Rotation;
+Conditions
+Read / Write
+
+Notes
+The rotation value is used for DXF group code 50.
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

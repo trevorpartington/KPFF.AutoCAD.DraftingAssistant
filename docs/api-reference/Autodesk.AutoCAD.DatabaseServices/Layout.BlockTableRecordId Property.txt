@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > BlockTableRecordId Property
+Layout.BlockTableRecordId PropertyDescription
+ 
+
+Accesses the Layout's associated BlockTableRecord. Corresponding methods in BlockTableRecord implement a forward pointer to the Layout.
+
+Visual Basic
+Public Property BlockTableRecordId() As ObjectId
+C#
+public ObjectId BlockTableRecordId;
+Conditions
+Read / Write
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

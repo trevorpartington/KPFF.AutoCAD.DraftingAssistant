@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > Thumbnail Property
+Layout.Thumbnail PropertyDescription
+ 
+
+Accesses the thumbnail argument to point to a newly-allocated buffer that contains this layout's thumbnail bitmap.
+
+Visual Basic
+Public Property Thumbnail() As Bitmap
+C#
+public Bitmap Thumbnail;
+Conditions
+Read / Write
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

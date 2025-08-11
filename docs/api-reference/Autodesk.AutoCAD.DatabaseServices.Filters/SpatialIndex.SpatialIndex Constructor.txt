@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialIndex Class > SpatialIndex Constructor
+SpatialIndex.SpatialIndex ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public SpatialIndex();
+Links
+SpatialIndex Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Methods
+SpatialFilterDefinition MethodsMethods
+Method  Description  
+ GetPoints  
+Returns the points that define the boundary.  
+
+   Comments?  

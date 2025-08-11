@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Methods
+Index MethodsMethods
+Method  Description  
+ GetIterator  This function will create a new FilteredBlockIterator object. The index and filter classes should be compatible. The returned index iterator... more  
+ RebuildFull  
+This function completely rebuilds the index from the entities in the associated block table record. Implementation is needed at the... more  
+
+   Comments?  

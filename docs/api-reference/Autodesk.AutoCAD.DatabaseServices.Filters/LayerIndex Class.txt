@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerIndex Class
+LayerIndex ClassDescription
+ 
+
+This .NET class wraps the AcDbLayerIndex ObjectARX class. 
+
+This class is an index implementation especially for layers.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Filters.Index
+        Autodesk.AutoCAD.DatabaseServices.Filters.LayerIndex
+Visual Basic
+Public Class LayerIndex
+Inherits Index
+C#
+public class LayerIndex : Index;
+Notes
+When using AutoCAD indexes, the INDEXCTL system variable must be set to the appropriate value. For example, INDEXCTL must be either 1 or 3 for the AutoCAD layer index. See the System Variables section of the AutoCAD Command Reference for information on INDEXCTL.
+
+Links
+LayerIndex Methods
+   Comments?  

@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class
+TransactionManager ClassDescription
+ 
+
+This .NET class wraps the AcDbTransactionManager ObjectARX class. 
+
+ 
+
+There is a single object of class TransactionManager created by the ObjectARX system when AutoCAD first starts up. This TransactionManager object is globally available to all ObjectARX applications. 
+
+The system TransactionManager object is used to start, end, or terminate transactions. In addition, it provides functionality to manage transactions and the objects within them. 
+
+For more information on the transaction mechanism, see the transaction section in the ObjectARX Developer's Guide.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.TransactionManager
+Visual Basic
+Public Class TransactionManager
+Inherits RXObject
+C#
+public class TransactionManager : RXObject;
+Links
+TransactionManager Methods, TransactionManager Properties
+   Comments?  

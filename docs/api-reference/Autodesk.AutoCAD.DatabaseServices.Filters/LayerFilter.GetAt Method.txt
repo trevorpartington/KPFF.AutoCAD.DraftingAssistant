@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Methods > GetAt Method
+LayerFilter.GetAt MethodDescription
+ 
+
+This function finds the layer whose index is index and sets name to point to that layer's name.
+
+Visual Basic
+Public Function GetAt(
+    index As Integer, 
+    name As string
+) As void
+C#
+public void GetAt(
+    int index, 
+    string name
+);
+Parameters
+Parameters  Description  
+int index  Input index of layer to get  
+string name  Input name of layer at index index  
+
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

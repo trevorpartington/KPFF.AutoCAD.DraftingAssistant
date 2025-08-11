@@ -1,0 +1,29 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Methods > AddToBuffer Method
+FilteredBlockIterator.AddToBuffer MethodDescription
+ 
+
+This method adds the Id to an internal buffer maintained by an index iterator. This method can be expected to return true only if the BuffersForComposition property returns true. 
+
+If BuffersForComposition property returns true, then composition of a FilteredBlockIterator objects will be done through buffering. This means that the output of one iterator will be added to the buffering iterator with the least EstimatedHitFraction property, then the next one, and so on. The final buffered iterator's output will be fed to the accepts() method of the subsequent non-buffering iterators. 
+
+An example of a custom index iterator that would need buffering could be an index-filter scheme that returns data based on a proximity query. For example, return circles at least a distance of 10 units from polylines on layers 'Roads.' So all the polylines would need to be available before the query can be processed. 
+
+After all the IDs from the previous index iterator have been added to the buffer, the normal Start() method will be used, along with the Next and Id properties. 
+
+It is up to the filtered block iterator implementation to iterate the buffered data as opposed to the original block data.
+
+Visual Basic
+Public Function AddToBuffer(
+    id As ObjectId
+) As void
+C#
+public void AddToBuffer(
+    ObjectId id
+);
+Parameters
+Parameters  Description  
+ObjectId id  Object ID that is being composed, typically output of a previous iterator's Accepts() method or Id property  
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

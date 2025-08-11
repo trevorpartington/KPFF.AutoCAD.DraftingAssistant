@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class
+FilteredBlockIterator ClassDescription
+ 
+
+This .NET class wraps the AcDbFilteredBlockIterator ObjectARX class. 
+
+This class provides a method to process a query on an index. Used by the CompositeFilteredBlockIterator class.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Filters.FilteredBlockIterator
+Visual Basic
+Public sealed Class FilteredBlockIterator
+Inherits DisposableWrapper
+C#
+public sealed class FilteredBlockIterator : DisposableWrapper;
+Links
+FilteredBlockIterator Methods, FilteredBlockIterator Properties
+   Comments?  

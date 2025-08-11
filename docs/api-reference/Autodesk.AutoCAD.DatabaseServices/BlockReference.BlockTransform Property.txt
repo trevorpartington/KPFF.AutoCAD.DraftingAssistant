@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > BlockTransform Property
+BlockReference.BlockTransform PropertyDescription
+ 
+
+Accesses the block reference’s position (insertion point), normal vector, scale factors, and rotation so that the resulting MCS-to-drawing-WCS transform is the same as the transform matrix. MCS is the WCS within the block table record’s microspace.
+
+Visual Basic
+Public Property BlockTransform() As Matrix3d
+C#
+public Matrix3d BlockTransform;
+Conditions
+Read / Write
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

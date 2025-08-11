@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > IndexUpdateData Class > IndexUpdateData Methods > SetIdData Method
+SetIdData MethodOverload List
+Method  Description  
+ IndexUpdateData.SetIdData (ObjectId, int)  
+Sets the ID data.  
+ IndexUpdateData.SetIdData (ObjectId, IntPtr)  
+Sets the ID data.  
+
+   Comments?  

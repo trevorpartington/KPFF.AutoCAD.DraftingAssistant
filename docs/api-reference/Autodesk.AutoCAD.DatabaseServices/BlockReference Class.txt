@@ -1,0 +1,47 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class
+BlockReference ClassDescription
+This .NET class wraps the AcDbBlockReference ObjectARX class. 
+
+ 
+
+The BlockReference class represents the INSERT entity within AutoCAD. A block reference is used to place, size, and display an instance of the collection of entities within the BlockTableRecord that it references. In addition, block references can be the owner of Attribute entities (the list of which is automatically terminated by an SequenceEnd entity). 
+
+ 
+
+Classes Derived from AcDbBlockReference
+Classes derived from BlockReference must supermessage the base class's WorldDraw() function and allow it to do the work of drawing the entities in the block table record. This allows the osnap code to distinguish the graphics for each entity in the block table record and automatically get each entity's osnap points without having to iterate through the block reference.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Entity
+        Autodesk.AutoCAD.DatabaseServices.BlockReference
+            Autodesk.AutoCAD.DatabaseServices.MInsertBlock
+            Autodesk.AutoCAD.DatabaseServices.Table
+            Autodesk.AutoCAD.DatabaseServices.ViewRepBlockReference
+Visual Basic
+Public Class BlockReference
+Inherits Entity
+C#
+public class BlockReference : Entity;
+Notes
+The controlling application must explicitly delete the subentities of any complex entity that is not database resident. Otherwise, a small memory leak will result. 
+
+ 
+
+When the entities within the BlockTableRecord referenced by the block reference are resolved for display, the WCS for the entities within the block table record is mapped onto a coordinate system, which is essentially the OCS of the block reference. The origin is translated to the block reference's position point and the X and Y axes are rotated around the Z axis by the amount of the block reference's rotation value. The rotation value is in radians with positive going counterclockwise when looking down the Z axis towards the origin. 
+
+ 
+
+Any X, Y, Z scaling of the block reference is applied to the entities relative to their perceived WCS coordinate axes. This makes it possible to orient a scaled version of the entities in any way desired. 
+
+ 
+
+The BlockTransform property will return a matrix that represents the coordinate system mapping (including the scaling) described above. 
+
+ 
+
+Classes derived from BlockReference cannot append attributes. This is by design.
+
+Links
+BlockReference Methods, BlockReference Properties
+   Comments?  

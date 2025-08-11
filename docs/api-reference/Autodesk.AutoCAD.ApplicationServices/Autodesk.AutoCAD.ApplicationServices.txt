@@ -1,0 +1,105 @@
+Autodesk.AutoCAD.ApplicationServices Namespace
+Autodesk.AutoCAD.ApplicationServices NamespaceDescription
+This is namespace Autodesk.AutoCAD.ApplicationServices.
+
+Dynamic-Link Library (DLL)
+AcCoreMgd.dll and AcMgd.dll
+
+Classes
+Class  Description  
+ Application  The Application object is the root object of the AutoCAD .NET API.
+From the Application object, you can access the... more  
+ BeginCloseAllEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.BeginCloseAllEventArgs.  
+ BeginExtractionEventArgs  This class provides data for the BeginExtraction event of the Application.Core class.
+Note: For APS Design Automation Use only.  
+ BeginQuitEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.BeginQuitEventArgs.  
+ CommandEventArgs  
+This class provides data for various events of a Document.  
+ ConfigurationSectionNameAttribute  
+This class defines an attribute that is used to define and retrieve a configuration section name.  
+ DatabaseExtension  
+This is an extension class for Database.  
+ Document  
+This class wraps the AcApDocument ObjectARX class.
+
+Each open drawing will have an associated Document object. The Document object contains... more  
+ DocumentActivationChangedEventArgs  
+This class provides data for the DocumentActivationChanged event of the DocumentCollection class.  
+ DocumentBeginCloseEventArgs  
+This class provides data for the BeginDocumentClose event of a Document.  
+ DocumentClosedEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.DocumentClosedEventArgs.  
+ DocumentCollection  This .NET class wraps the AcApDocManager ObjectARX class.
+The DocumentManager object is the container for all the document objects (there... more  
+ DocumentCollectionEventArgs  This class provides data for various events of the DocumentCollection class.  
+ DocumentCollectionExtension  
+  
+ DocumentDestroyedEventArgs  This class provides data for the DocumentDestroyed event of the DocumentCollection class.  
+ DocumentExtension  
+  
+ DocumentLock  This class represents a locked document. Objects of this class are created and returned to an application when it calls... more  
+ DocumentLockModeChangedEventArgs  This class provides data for the DocumentLockModeChanged event of the DocumentCollection class.  
+ DocumentLockModeChangeVetoedEventArgs  This class provides data for the DocumentLockModeChangeVetoed event of the DocumentCollection class.  
+ DocumentLockModeWillChangeEventArgs  This class provides data for the DocumentLockModeWillChange event of the DocumentCollection class.  
+ DocumentPinStateChangedEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.DocumentPinStateChangedEventArgs.  
+ DocumentWindowActivatedEventArgs  Used in DocumentWindowActivated event as event args.  
+ DocumentWindowCollection  Wrapper (wraps AcApDocWindowManager)  
+ DocumentWindowDockedEventArgs  This class provides data for the DocumentWindowDocked event of the DocumentWindowCollection class.  
+ DocumentWindowFloatedEventArgs  This class provides data for the DocumentWindowFloated event of the DocumentWindowCollection class.  
+ DocumentWindowFloatedOrDockedEventArgs  This is the base class for the DocumentWindowDockedEventArgs, DocumentWindowFloatedEventArgs, and DocumentWindowToBeDockedEventArgs classes.  
+ DocumentWindowToBeDockedEventArgs  This class provides data for the DocumentWindowToBeDocked event of the DocumentWindowCollection class.  
+ EndExtractionEventArgs  This class provides data for the EndExtraction event of the Application.Core class.
+Note: For APS Design Automation Use only.  
+ InplaceTextEditor  This .NET class wraps the ObjectARX AcEdInplaceTextEditor class.  
+ InplaceTextEditorSettings  This wraps the ObjectARX AcEdInplaceTextEditorSettings class.  
+ LayoutSwitchedEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.LayoutSwitchedEventArgs.  
+ LayoutSwitchingEventArgs  This is class Autodesk.AutoCAD.ApplicationServices.LayoutSwitchingEventArgs.  
+ LispWillStartEventArgs  
+Provides data for the LispWillStart event of the Document.  
+ LongTransactionManager  This wraps the ObjectARX AcApLongTransactionManager class  
+ ModelessOperationEventArgs  Provides data for the ModelessOperationEnded and ModelessOperationWillStart events.  
+ RecentDocument  Class represents a recently opened document or drawing.  
+ RecentDocumentCollection  This is class Autodesk.AutoCAD.ApplicationServices.RecentDocumentCollection.  
+ RecentDocumentIterator  This is class Autodesk.AutoCAD.ApplicationServices.RecentDocumentIterator.  
+ SystemVariableChangedEventArgs  
+Contains parameters related to system variable events.  
+ SystemVariableChangingEventArgs  
+Contains parameters related to system variable events.  
+ TabbedDialogEventArgs  This class contains parameters and operations related to tabbed dialog related events.  
+ TabbedDialogExtension  
+This class contains information necessary to extend a tabbed dialog.  
+ UnknownCommandEventArgs  
+Provides data for the UnknownCommand event of the Document.  
+ UserConfigurationManager  
+This class manages global, user profile, and dialog sections of the Windows registry for AutoCAD host applications.  
+ XrefFileLock  
+This .NET class is a wrapper for the ObjectARX AcEdXrefFileLock class.  
+
+Enumerations
+Enumeration  Description  
+ DocumentLockMode  This .NET enumeration wraps the AcAp::DocLockMode ObjectARX enum.
+Only a very small percentage of developers should be actively setting these... more  
+ DocumentSaveFormat  Save formats possible for documents. Wraps the AcApDocument::SaveFormat enum.  
+
+Interfaces
+Interface  Description  
+ IConfigurationSection  This interface can be implemented to create, store, and manage application configuration data in whatever format the application requires.  
+
+Structures
+Structure  Description  
+ DocWindowManagerReactor  This is record Autodesk.AutoCAD.ApplicationServices.DocWindowManagerReactor.  
+ WhoHasInfo  
+This value class containing information returned from Application.GetWhoHasInfo().  
+
+Types
+Type  Description  
+BeginExtractionEventHandler  A delegate implemented by observers that are interested in when the DwgExtractor begins.
+Note: For APS Design Automation Use only.... more  
+DocumentWindowDockedEventHandler  A delegate implemented by observers that are interested in document window docked events.  
+DocumentWindowFloatedEventHandler  A delegate implemented by observers that are interested in document window floated events.  
+DocumentWindowToBeDockedEventHandler  A delegate implemented by observers that are interested in document window to be docked events.  
+EndExtractionEventHandler  A delegate implemented by observers that are interested in when the DwgExtractor ends.
+Note: For APS Design Automation Use only.... more  
+
+Links
+Types
+   Comments?  

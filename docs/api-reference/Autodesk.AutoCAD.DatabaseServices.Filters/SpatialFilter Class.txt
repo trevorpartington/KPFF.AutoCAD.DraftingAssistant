@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class
+SpatialFilter ClassDescription
+ 
+
+This .NET class wraps the AcDbSpatialFilter ObjectARX class. 
+
+This class defines an extruded volume based on a 2D boundary definition, local coordinate system, and the front and back clipping planes.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Filters.SpatialFilter
+Visual Basic
+Public Class SpatialFilter
+Inherits Autodesk.AutoCAD.DatabaseServices.Filters.Filter
+C#
+public class SpatialFilter : Autodesk.AutoCAD.DatabaseServices.Filters.Filter;
+Links
+SpatialFilter Methods, SpatialFilter Properties
+   Comments?  

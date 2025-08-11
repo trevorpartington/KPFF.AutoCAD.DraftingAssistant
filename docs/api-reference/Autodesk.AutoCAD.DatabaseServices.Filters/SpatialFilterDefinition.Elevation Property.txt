@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties > Elevation Property
+SpatialFilterDefinition.Elevation PropertyDescription
+ 
+
+Accesses the elevation; along with the normal, this will define an ECS in which the polygon points are defined
+
+Visual Basic
+Public Property Elevation() As double
+C#
+public double Elevation;
+Conditions
+Read-only
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialIndex Class
+SpatialIndex ClassDescription
+ 
+
+This .NET class wraps the AcDbSpatialIndex ObjectARX class. This class is an index implementation especially for the spatial index.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Filters.Index
+        Autodesk.AutoCAD.DatabaseServices.Filters.SpatialIndex
+Visual Basic
+Public Class SpatialIndex
+Inherits Index
+C#
+public class SpatialIndex : Index;
+Notes
+When using AutoCAD indexes, the INDEXCTL system variable must be set to the appropriate value. For example, INDEXCTL must be either 2 or 3 for the AutoCAD spatial index. See the System Variables section of the AutoCAD Command Reference for information on INDEXCTL.
+
+   Comments?  

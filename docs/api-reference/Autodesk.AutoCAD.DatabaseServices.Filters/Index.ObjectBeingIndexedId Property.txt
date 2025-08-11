@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Properties > ObjectBeingIndexedId Property
+Index.ObjectBeingIndexedId PropertyDescription
+ 
+
+Accesses Index objects are associated with Block Table Records, and indirectly owned by them. This function returns the parent block table record ID. This method has a concrete implementation.
+
+Visual Basic
+Public virtual Property ObjectBeingIndexedId() As ObjectId
+C#
+public virtual ObjectId ObjectBeingIndexedId;
+Conditions
+Read-only
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

@@ -1,0 +1,261 @@
+Autodesk.AutoCAD.Geometry Namespace
+Autodesk.AutoCAD.Geometry NamespaceDescription
+This is namespace Autodesk.AutoCAD.Geometry.
+
+Dynamic-Link Library (DLL)
+AcDbMgd.dll
+
+Classes
+Class  Description  
+ AugmentedPolylineCurve3d  
+This .NET class wraps the AcGeAugPolyline3d ObjectARX class. It represents a mathematical entity used to support different types of spline... more  
+ BoundBlock2d  
+This .NET class wraps the AcGeBoundBlock2d ObjectARX class.
+
+This class provides a two-dimensional bounding volume implementation.
+
+Bounding blocks may exist... more  
+ BoundBlock3d  
+This .NET class wraps the AcGeBoundBlock3d ObjectARX class.
+
+This class provides spatial dimensional bounding volume implementation.
+
+Bounding blocks may exist... more  
+ BoundedPlane  
+This .NET class wraps the AcGeBoundedPlane ObjectARX class. It represents a bounded planar parametric surface.  
+ CircularArc2d  
+This .NET class wraps the AcGeCircArc2d ObjectARX class. It represents both full circles and circular arcs in 2D space.  
+ CircularArc3d  
+This .NET class wraps the AcGeCircArc3d ObjectARX class. It represents both full circles and circular arcs in 3D space.  
+ ClipBoundary2d  
+This .NET class wraps the AcGeClipBoundary2d ObjectARX class.
+
+This class defines a planar clipping object for clipping arbitrary 2D polygons... more  
+ CompositeCurve2d  
+This .NET class wraps the AcGeCompositeCurve2d ObjectARX class.
+
+This class represents a composite curve, which is a single curve that... more  
+ CompositeCurve3d  
+This .NET class wraps the AcGeCompositeCurve3d ObjectARX class.
+
+Represents a composite curve, which is a single curve that consists of... more  
+ Cone  
+This .NET class wraps the AcGeCone ObjectARX class.
+
+This class represents a bounded right circular cone.
+
+Note that this class... more  
+ CubicSplineCurve2d  
+This .NET class wraps the AcGeCubicSplineCurve2d ObjectARX class. This class represent an interpolation cubic spline in 2D space.  
+ CubicSplineCurve3d  
+This .NET class wraps the AcGeCubicSplineCurve3d ObjectARX class. This class represents an interpolation cubic spline in 3D space.  
+ Curve2d  
+This .NET class wraps the AcGeCurve2d ObjectARX class. It's an abstract base class for all 2D curves. Any class that... more  
+ Curve2dCollection  This class represents a collection of Curve2d objects.  
+ Curve3d  
+This .NET class wraps the AcGeCurve3d ObjectARX class. This ia an abstract base class for all 3D curves. Any class... more  
+ Curve3dCollection  
+This class represents a collection of Curve3d objects.  
+ CurveBoundary  
+This .NET class wraps the AcGeCurveBoundary ObjectARX class.
+
+CurveBoundary is a class that is used to communicate boundary geometry that... more  
+ CurveCurveIntersector2d  
+This .Net class wraps AcGeCurveCurveInt2d ObjectARX class.
+
+CurveCurveInt2d represents the intersection set of two curves. There are special case IntersectWith()... more  
+ CurveCurveIntersector3d  
+This .Net class wraps AcGeCurveCurveInt3d
+ObjectARX class.
+
+Represents the intersection set of two curves. There are special case IntersectWith() functions... more  
+ Cylinder  This .NET class wraps the AcGeCylinder ObjectARX class.
+
+It represents a bounded cylinder surface.  
+ EllipticalArc2d  
+This .NET class wraps the AcGeEllipArc2d ObjectARX class. It represents both full ellipses and elliptical arcs in 2D space.  
+ EllipticalArc3d  
+This .NET class wraps the AcGeEllipArc3d ObjectARX class. It represents both full ellipses and elliptical arcs in 3D space.  
+ Entity2d  
+This .NET class wraps the AcGeEntity2d ObjectARX class. This is an abstract base class for all point set classes. Any... more  
+ Entity3d  
+This .NET class wraps the AcGeEntity3d ObjectARX class. It's an abstract base class for all point set classes. Any class... more  
+ ExternalBoundedSurface  
+This .NET class wraps the AcGeExternalBoundedSurface ObjectARX class.
+
+ExternalBoundedSurface class is a representation of a bounded surface defined outside of... more  
+ ExternalCurve2d  
+This .NET class wraps the AcGeExternalCurve2d ObjectARX class.
+
+ExternalCurve2d class is a representation for a 2D curve geometry that has... more  
+ ExternalCurve3d  
+This .NET class wraps the AcGeExternalCurve3d ObjectARX class.
+
+ExternalCurve3d class is a representation for a 3D curve geometry that has... more  
+ ExternalSurface  
+This .NET class wraps the AcGeExternalSurface ObjectARX class.
+
+ExternalSurface class is a representation for an unbounded (other than by the... more  
+ Interval  
+This .NET class wraps the AcGeInterval ObjectARX class. It represents a finite or semi-infinite interval as the real axis whose... more  
+ KnotCollection  
+Represents a collection of Knots.  
+ Line2d  
+This .NET class wraps the AcGeLine2d ObjectARX class. It represents an unbounded line in 2D space.  
+ Line2dCollection  
+This class provides a container for Autodesk.AutoCAD.Geometry.Line2d objects.  
+ Line3d  
+This .NET class wraps the AcGeLine3d ObjectARX class. It represents an unbounded line in 3D space.  
+ LinearEntity2d  
+This .NET class wraps the AcGeLinearEnt2d ObjectARX class. It's an abstract base class for all 2D line classes.  
+ LinearEntity3d  
+This .NET class wraps the AcGeLinearEnt3d ObjectARX class. This is an abstract base class for all 3D line classes.  
+ LineSegment2d  
+This .NET class wraps the AcGeLineSeg2d ObjectARX class. It represents a bounded line segment in 2D space.  
+ LineSegment3d  
+This .NET class wraps the AcGeLineSeg3d ObjectARX class. It represents a bounded line segment in 3D space.  
+ Matrix2dBuilder  
+This class is required to build instances of Autodesk.AutoCAD.Geometry.Matrix2d , which is an immutable value type.  
+ Matrix3dBuilder  
+This class is required to build instances of Autodesk.AutoCAD.Geometry.Matrix3d , which is an immutable value type.  
+ NurbCurve2d  
+This .Net class wraps AcGeNurbCurve2d ObjectARX class. This class represents non-uniform rational B-spline in 2D space.  
+ NurbCurve3d  
+This class represents non-uniform rational B-spline in 3D space.  
+ NurbSurface  
+This .NET class wraps the AcGeNurbSurface ObjectARX class. It represents generic NURB parametric surface.  
+ OffsetCurve2d  
+This .NET class wraps the AcGeOffsetCurve2d ObjectARX class.
+
+Represents a curve that is an exact offset of another curve (base... more  
+ OffsetCurve3d  
+This .NET class wraps the AcGeOffsetCurve3d ObjectARX class.
+
+Represents a curve that is an exact offset of another curve (base... more  
+ OffsetSurface  
+This .NET class wraps the AcGeOffsetSurface ObjectARX class. It represents an offset object.  
+ PlanarEntity  
+This .NET class wraps the AcGePlanarEnt ObjectARX class.
+
+The class PlanarEnt is an abstract base class for all planar surfaces.... more  
+ Plane  
+This .NET class wraps the AcGePlane ObjectARX class. Plane represents a parameterized infinite plane in 3D space.  
+ Point3dCollection  This .NET class wraps the AcGePoint3dArray ObjectARX class. Point3dArray is a template class that uses the AcArray class template.  
+ PointEntity2d  
+This .NET class wraps the AcGePointEnt2d ObjectARX class. It's an abstract base class for 2D point classes.  
+ PointEntity3d  
+This .NET class wraps the AcGePointEnt3d ObjectARX class. It's an abstract base class for 3D point classes.  
+ PointOnCurve2d  
+This .NET class wraps the AcGePointOnCurve2d ObjectARX class.
+
+It represents a point on a 2D parametric curve. This class encapsulates... more  
+ PointOnCurve3d  
+This .NET class wraps the AcGePointOnCurve3d ObjectARX class.
+
+It represents a point on a 3D parametric curve. This class encapsulates... more  
+ PointOnSurface  
+This .NET class wraps the AcGePointOnSurface ObjectARX class. It represents a point on a surface. This class encapsulates all of... more  
+ PolylineCurve2d  
+This .NET class wraps the AcGePolyline2d ObjectARX class. It's represents a piecewise linear spline entity in 2D space.  
+ PolylineCurve3d  
+This .NET class wraps the AcGePolyline3d ObjectARX class. It's represents a piecewise linear spline entity in 3D space.  
+ Position2d  
+This .NET class wraps the AcGePosition2d ObjectARX class. It represents a point in 2D space.  
+ Position3d  
+This .NET class wraps the AcGePosition3d ObjectARX class. It represents a point in 3D space.  
+ Ray2d  
+This .NET class wraps the AcGeRay2d ObjectARX class. It represents a half-bounded line in 2D space. A Ray2d object either... more  
+ Ray3d  
+This .NET class wraps the AcGeRay3d ObjectARX class. It represents a half-bounded line in 3D space. A Ray3d object either... more  
+ Sphere  
+This .NET class wraps the AcGeSphere ObjectARX class. It represents a spherical surface.  
+ SplineEntity2d  
+This .NET class wraps the AcGeSplineEnt2d ObjectARX class. It represents different spline entities in 2D space.  
+ SplineEntity3d  
+This .Net class wraps AcGeSplineEnt3d ObjectARX class. It represents different spline entities in 3D space.  
+ Surface  
+This .NET class wraps the AcGeSurface ObjectARX class. Surface class is an abstract base class for all other parametric surfaces.... more  
+ SurfaceSurfaceIntersector  
+This .NET class wraps the AcGeSurfSurfInt ObjectARX class. This class holds data for intersections of two surfaces.  
+ Torus  
+This .NET class wraps the AcGeTorus ObjectARX class. It represents toroidal segment.  
+
+Enumerations
+Enumeration  Description  
+ ClipCondition  
+This .NET enum wraps the AcGe::ClipCondition ObjectARX enum. It gives information about the spatial relationship between the input polygon and the... more  
+ ClipError  
+This .NET enum wraps the AcGe::ClipError ObjectARX enum.  
+ ErrorCondition  
+This .NET class wraps the AcGe::ErrorCondition ObjectARX class.  
+ ExternalEntityKind  
+This .NET enum wraps the AcGe::ExternalEntityKind ObjectARX enum. This defines the type of external entity that can be accessed through GeLib... more  
+ KnotParameterizationEnum  This wraps the ObjectARX KnotParameterization enumeration.  
+ OffsetCurveExtensionType  
+This enum gives the type of extension used in offset curve.  
+ SurfaceSurfaceIntersectorConfiguration  
+This .NET enum wraps the AcGe::ssiConfig ObjectARX enum.
+
+These values categorize the neighborhood of a surface just to the left... more  
+ SurfaceSurfaceIntersectorType  
+This .NET enum wraps the AcGe::ssiType ObjectARX enum. These values categorize the surface/surface intersection component.  
+
+Structures
+Structure  Description  
+ ClipBoundary2dData  
+This class contains data used by various ClipBoundary2d operations.  
+ CompositeParameter  
+This value type encapsulates the data that defines the parameter of a point on a composite curve. This data includes... more  
+ CoordinateSystem2d  
+This struct encapsulates the origin point and X- and Y-axis vectors that define a 2D coordinate system.  
+ CoordinateSystem3d  
+This struct encapsulates the origin point, and X-, Y-, and Z-axis vectors that define a 3D coordinate system.  
+ CurveBoundaryData  
+This class contains data that defines a CurveBoundary object.  
+ Matrix2d  
+This .NET class wraps the AcGeMatrix2d ObjectARX class.
+
+Class Matrix2d represents an affine transformation of 3D space, including translation. Each... more  
+ Matrix2dInfo  
+This value type encapsulates the data returned by the Matrix2d.IsConformal() ObjectARX function.  
+ Matrix3d  
+This .Net class wraps AcGeMatrix3d ObjectARX class.
+
+Class Matrix3d represents an affine transformation of 3D space, including translation. Each matrix... more  
+ NurbCurve2dData  
+This class contains data that defines a NurbCurve2d object.
+If the NurbCurve2d is not periodic, the length of knot vector... more  
+ NurbCurve2dFitData  
+This class contains the data returned by the NurbCurve2d.FitData property.  
+ NurbCurve3dData  
+This class contains data that defines a NurbCurve3d object.
+If the NurbCurve3d is not periodic, the length of the knot... more  
+ NurbCurve3dFitData  This class contains the data returned by the NurbCurve3.FitData property.  
+ NurbSurfaceDefinition  
+This class contains the data returned by the NurbSurface.GetDefinition method.
+If the surface is not periodic in u direction, the... more  
+ PlanarEquationCoefficients  
+This class encapsulates the data returned by the PlanarEnt.getCoefficients() ObjectARX function.  
+ Point2d  
+This class wraps AcGePoint2d ObjectARX class. It represents a point in 2-dimensional space. It can be viewed as a structure... more  
+ Point3d  
+This class wraps AcGePoint3d ObjectARX class. It represents a point in 3D space. It can be viewed as a structure... more  
+ Scale2d  This .NET class wraps AcGeScale2d ObjectARX class.
+The class Scale2d is called "scale vector 2D." This class is used to... more  
+ Scale3d  
+This .NET class wraps the AcGeScale3d ObjectARX class.
+
+The class Scale3d is called "scale vector 3D." This class is used... more  
+ SurfaceSurfaceIntersectorConfigurations  
+This class contains SurfaceSurfaceIntersectorConfiguration objects that describe the left and right surface configuration data for each of two intersecting surfaces.... more  
+ Tolerance  This .NET class wraps AcGeTol ObjectARX class.
+
+This is an instantiable class that is by default initialized to the default... more  
+ Vector2d  
+This .NET class wraps the AcGeVector2d ObjectARX class.
+
+Vector2d represents a vector in 2D space. It can be viewed as... more  
+ Vector3d  
+This .NET class wraps the AcGeVector3d ObjectARX class. Vector3d represents a vector in 3D space. It can be viewed as... more  
+
+   Comments?  

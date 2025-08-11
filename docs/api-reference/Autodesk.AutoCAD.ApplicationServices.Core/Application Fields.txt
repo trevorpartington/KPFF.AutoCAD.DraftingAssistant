@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Fields
+Application FieldsFields
+Field  Description  
+ Idle  This event is fired when the application goes idle.  
+
+   Comments?  

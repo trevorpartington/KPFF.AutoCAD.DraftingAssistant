@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods > SetPerspectiveCamera Method
+SpatialFilter.SetPerspectiveCamera MethodDescription
+ 
+
+Sets the perspective camera position to the location specified by fromPoint.
+
+Visual Basic
+Public Function SetPerspectiveCamera(
+    fromPoint As Point3d
+) As void
+C#
+public void SetPerspectiveCamera(
+    Point3d fromPoint
+);
+Parameters
+Parameters  Description  
+Point3d fromPoint  Input new base point for the camera  
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

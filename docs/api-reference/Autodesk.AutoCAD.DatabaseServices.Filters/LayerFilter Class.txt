@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class
+LayerFilter ClassDescription
+ 
+
+This .NET class wraps the AcDbLayerFilter ObjectARX class. 
+
+ 
+
+This class is a list of layers that need to have their corresponding entity lists traversed during filtered block traversal.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Filters.LayerFilter
+Visual Basic
+Public Class LayerFilter
+Inherits Autodesk.AutoCAD.DatabaseServices.Filters.Filter
+C#
+public class LayerFilter : Autodesk.AutoCAD.DatabaseServices.Filters.Filter;
+Links
+LayerFilter Methods, LayerFilter Properties
+   Comments?  

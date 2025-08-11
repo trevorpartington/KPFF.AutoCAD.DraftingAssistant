@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Constructor
+Layout.Layout ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public Layout();
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Methods
+BlockReference MethodsMethods
+Method  Description  
+ ConvertToStaticBlock    
+ ExplodeToOwnerSpace  
+Explodes the block reference into individual components. It appends the resulting entities to the BlockTableRecord that owns the BlockReference on... more  
+ GeometryExtentsBestFit    
+ ResetBlock  
+Resets the BlockReference to the default state of the dynamic block.  
+
+   Comments?  

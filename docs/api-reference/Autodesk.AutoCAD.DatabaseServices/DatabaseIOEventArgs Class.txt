@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DatabaseIOEventArgs Class
+DatabaseIOEventArgs ClassDescription
+ 
+
+This class provides data for the DwgFileOpened, BeginSave and SaveComplete events of the database.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DatabaseIOEventArgs
+Visual Basic
+Public sealed Class DatabaseIOEventArgs
+Inherits EventArgs
+C#
+public sealed class DatabaseIOEventArgs : EventArgs;
+Links
+DatabaseIOEventArgs Properties
+   Comments?  

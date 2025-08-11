@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Properties
+LayerFilter PropertiesProperties
+Property  Description  
+ IsValid  
+Assesses whether all the layers exist in the layer table of the database the object is associated with.  
+ LayerCount  
+Assesses the number of layers in the filter.  
+
+   Comments?  

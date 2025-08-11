@@ -1,0 +1,21 @@
+Viewport ClassDescription
+This .NET class wraps the AcGiViewport ObjectARX class. 
+
+This class is used to pass back information to the user about the viewing characteristics of the current viewport. These characteristics are useful for generating an optimal graphics representation of the user's object, given the specific viewing configuration of the viewport. 
+
+ 
+
+For an explanation of coordinate systems, see the ObjectARX Developer’s Guide.
+
+Class Hierarchy
+Autodesk.AutoCAD.GraphicsInterface.Viewport
+Visual Basic
+Public abstract Class Viewport
+Inherits RXObject
+C#
+public abstract class Viewport : RXObject;
+Links
+Viewport Constructor, Viewport Methods, Viewport Properties
+See Also
+ViewportDraw, ViewportGeometry
+

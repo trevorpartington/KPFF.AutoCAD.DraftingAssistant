@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Properties > LastUpdatedAtU Property
+Index.LastUpdatedAtU PropertyDescription
+ 
+
+Accesses the Universal time that the index was last updated.
+
+Visual Basic
+Public Property LastUpdatedAtU() As DateTime
+C#
+public DateTime LastUpdatedAtU;
+Conditions
+Read / Write
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

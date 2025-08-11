@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class
+Transaction ClassDescription
+This .NET class wraps the AcTransaction ObjectARX class. 
+
+ 
+
+Transactions provide a way to extend the boundary of operation on an object beyond open and close, and avoid those vexing open conflict errors. They also improve performance by being lenient on multiple open requests while postponing all the opened objects close-time work to the end of the transaction.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Transaction
+    Autodesk.AutoCAD.DatabaseServices.OpenCloseTransaction
+Visual Basic
+Public Class Transaction
+Inherits RXObject
+C#
+public class Transaction : RXObject;
+Links
+Transaction Methods, Transaction Properties
+   Comments?  

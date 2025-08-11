@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods > ClipVolumeIntersectsExtents Method
+SpatialFilter.ClipVolumeIntersectsExtents MethodDescription
+ 
+
+This function is used to determine whether an object with extents ext intersects this SpatialFilter object's clipping volume.
+
+Visual Basic
+Public Function ClipVolumeIntersectsExtents(
+    ext As Extents3d
+) As bool
+C#
+public bool ClipVolumeIntersectsExtents(
+    Extents3d ext
+);
+Parameters
+Parameters  Description  
+Extents3d ext  Input extents  
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

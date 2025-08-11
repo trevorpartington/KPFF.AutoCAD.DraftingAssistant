@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Constructor
+LayerFilter.LayerFilter ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public LayerFilter();
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

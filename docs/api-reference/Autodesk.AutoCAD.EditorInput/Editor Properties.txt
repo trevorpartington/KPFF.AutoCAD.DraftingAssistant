@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Properties
+Editor PropertiesProperties
+Property  Description  
+ ActiveViewportId  Accesses the active viewport ID.  
+ CurrentUserCoordinateSystem  Returns the current user coordinate system points.  
+ CurrentViewportObjectId  Returns the object id of current viewport.  
+ Document  The document that this editor belongs to.  
+ IsDragging  Assesses if the screen is dragging.  
+ IsQuiescent  Returns the isQuiescent property value.  
+ IsQuiescentForTransparentCommand  Assesses if the editor is ready for transparent commands.  
+ MouseHasMoved  This property provides a way for input point monitors and filters to check for mouse movement and be able to... more  
+ UseCommandLineInterface  Returns UseCommandLineInterface property value.  
+
+   Comments?  

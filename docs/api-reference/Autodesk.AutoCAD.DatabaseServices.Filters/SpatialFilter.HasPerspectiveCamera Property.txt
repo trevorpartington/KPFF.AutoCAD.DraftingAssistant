@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties > HasPerspectiveCamera Property
+SpatialFilter.HasPerspectiveCamera PropertyDescription
+ 
+
+Assesses if a perspective camera is currently defined for this SpatialFilter object.
+
+Visual Basic
+Public Property HasPerspectiveCamera() As bool
+C#
+public bool HasPerspectiveCamera;
+Conditions
+Read-only
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

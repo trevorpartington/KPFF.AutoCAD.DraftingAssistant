@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Properties
+Transaction PropertiesProperties
+Property  Description  
+ NumberOfOpenedObjects  Returns the number of objects opened by the transaction.  
+ TransactionManager  Accesses the associated transaction manager.  
+
+   Comments?  

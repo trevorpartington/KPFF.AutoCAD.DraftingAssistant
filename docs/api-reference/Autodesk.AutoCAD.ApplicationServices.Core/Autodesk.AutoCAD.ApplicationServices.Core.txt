@@ -1,0 +1,12 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace
+Autodesk.AutoCAD.ApplicationServices.Core NamespaceDescription
+This is namespace Autodesk.AutoCAD.ApplicationServices.Core.
+
+Dynamic-Link Library (DLL)
+AcCoreMgd.dll
+
+Classes
+Class  Description  
+ Application  This is class Autodesk.AutoCAD.ApplicationServices.Core.Application.  
+
+   Comments?  

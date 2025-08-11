@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Properties > BuffersForComposition Property
+FilteredBlockIterator.BuffersForComposition PropertyDescription
+ 
+
+During use by CompositeFilteredBlockIterator, the way multiple index/filter pairs are handled is through allocating corresponding FilteredBlockIterator objects, and prioritizing their use through the EstimatedHitFraction property. As a result, only the first index iterator does a 'true' index traversal. The remaining are queried for acceptance or rejection of individual Ids through the Accepts() method in most cases. 
+
+In some cases, however, a custom index may require that acceptance or rejection require all the Ids to be supplied to it. In that case, BuffersForComposition returns true, and the Accepts() method is not used as a means for composing indexes. Instead, the AddToBuffer() method and the normal iterator properties of Next and Id are used to visit the output. 
+
+Returns true if the index iterator needs to buffer output if it is not used as the primary index iterator. Default is false.
+
+Visual Basic
+Public Property BuffersForComposition() As bool
+C#
+public bool BuffersForComposition;
+Conditions
+Read-only
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

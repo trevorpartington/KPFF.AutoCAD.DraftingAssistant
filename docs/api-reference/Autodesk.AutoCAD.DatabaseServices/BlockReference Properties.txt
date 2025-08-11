@@ -1,0 +1,35 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties
+BlockReference PropertiesProperties
+Property  Description  
+ AnonymousBlockTableRecord  
+Returns the anonymous block definition used to draw the dynamic block.  
+ AttributeCollection  
+Returns the AttributeCollection property value.  
+ BlockTableRecord  
+Accesses the object ID of the BlockTableRecord referenced by the block reference.  
+ BlockTransform  
+Accesses the block reference’s position (insertion point), normal vector, scale factors, and rotation so that the resulting MCS-to-drawing-WCS transform is... more  
+ BlockUnit  
+Accesses the units associated with block.  
+ DynamicBlockReferencePropertyCollection  
+Returns the collection the dynamic block (a BlockTableRecord) is a part of, if the block reference is a dynamic... more  
+ DynamicBlockTableRecord  
+Returns the object ID of the dynamic block definition (a BlockTableRecord) if the block reference is a dynamic block.... more  
+ IsDynamicBlock  
+Determines whether the BlockReference passed to the class constructor contains dynamic block information.  
+ Name  
+Returns the name of the associated BlockTableRecord.  
+ Normal  
+Accesses the normal vector (in WCS coordinates) of the plane containing the block reference.  
+ Position  
+Accesses the position value (often referred to as the insertion point), in WCS coordinates.  
+ Rotation  
+Accesses the rotation value (in radians) of the block reference. The rotation value is relative to the X axis of... more  
+ ScaleFactors  
+Accesses the block reference to use the X, Y, and Z scale factors contained in scale.  
+ TreatAsBlockRefForExplode  
+Called by the AutoCAD EXPLODE command to determine how the entity should be exploded.  
+ UnitFactor  
+Returns the unit factor.  
+
+   Comments?  

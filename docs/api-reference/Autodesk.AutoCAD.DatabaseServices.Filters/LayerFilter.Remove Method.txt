@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Methods > Remove Method
+LayerFilter.Remove MethodDescription
+ 
+
+This function will remove the input layer from the filter. This will mean entities NOT on this layer are considered NOT to pass the filtered test.
+
+Visual Basic
+Public Function Remove(
+    layer As string
+) As void
+C#
+public void Remove(
+    string layer
+);
+Parameters
+Parameters  Description  
+string layer  Input layer name to remove  
+
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

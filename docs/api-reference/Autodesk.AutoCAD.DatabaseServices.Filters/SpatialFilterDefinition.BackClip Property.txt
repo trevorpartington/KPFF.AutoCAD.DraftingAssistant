@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure > SpatialFilterDefinition Properties > BackClip Property
+SpatialFilterDefinition.BackClip PropertyDescription
+ 
+
+Accesses the back clip distance in the negative extrusion direction.
+
+Visual Basic
+Public Property BackClip() As double
+C#
+public double BackClip;
+Conditions
+Read-only
+
+Links
+SpatialFilterDefinition Structure, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

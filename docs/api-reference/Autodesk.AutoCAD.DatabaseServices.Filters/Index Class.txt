@@ -1,0 +1,28 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class
+Index ClassDescription
+ 
+
+This .NET class wraps the AcDbIndex ObjectARX class. 
+
+This is the base class for Index objects. SpatialIndex and LayerIndex derive from this class. 
+
+Keeping the index up-to-date is achieved through the IndexFilterManager.UpdateIndexes() call explicitly invoked (either by an application or AutoCAD) 
+
+The FilteredBlockIterator will serve as the means to visit all the ObjectIds that are "hits" from the query defined by the Filter passed to its constructor. For example, in the Spatial index case, the SpatialFilter object instance passed to the GetIterator() method will define a query region. The SpatialIndex object, through its GetIterator() method, will provide an SpatialIndexIterator that will return IDs that correspond to entities that fit within the query volume.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Filters.Index
+        Autodesk.AutoCAD.DatabaseServices.Filters.LayerIndex
+        Autodesk.AutoCAD.DatabaseServices.Filters.SpatialIndex
+Visual Basic
+Public abstract Class Index
+Inherits DBObject
+C#
+public abstract class Index : DBObject;
+Notes
+When using indexes, make sure the INDEXCTL system variable is set to the appropriate value. See the System Variables section of the AutoCAD Command Reference for information on INDEXCTL.
+
+Links
+Index Methods, Index Properties
+   Comments?  

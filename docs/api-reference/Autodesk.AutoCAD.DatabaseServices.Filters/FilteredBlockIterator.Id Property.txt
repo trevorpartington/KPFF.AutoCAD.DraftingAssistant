@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Properties > Id Property
+FilteredBlockIterator.Id PropertyDescription
+ 
+
+Accesses the ObjectId at the current iterator position
+
+Visual Basic
+Public Property Id() As ObjectId
+C#
+public ObjectId Id;
+Conditions
+Read-only
+
+Links
+FilteredBlockIterator Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

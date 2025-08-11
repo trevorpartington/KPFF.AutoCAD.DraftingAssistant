@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > BlockUnit Property
+BlockReference.BlockUnit PropertyDescription
+ 
+
+Accesses the units associated with block.
+
+Visual Basic
+Public Property BlockUnit() As Autodesk.AutoCAD.DatabaseServices.UnitsValue
+C#
+public Autodesk.AutoCAD.DatabaseServices.UnitsValue BlockUnit;
+Conditions
+Read / Write
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Methods > GetIterator Method
+Index.GetIterator MethodDescription
+This function will create a new FilteredBlockIterator object. The index and filter classes should be compatible. The returned index iterator will essentially be the method by which the results of the query posted to the index object is traversed. It is up to the concrete class implementation to verify whether or not the index is up-to-date and valid. 
+
+Returns a FilteredBlockIterator abstract base class or NULL if unsuccessful. It is up to the concrete class to perform a timestamp validity check if desired.
+
+Visual Basic
+Public virtual Function GetIterator(
+    filter As Autodesk.AutoCAD.DatabaseServices.Filters.Filter
+) As FilteredBlockIterator
+C#
+public virtual FilteredBlockIterator GetIterator(
+    Autodesk.AutoCAD.DatabaseServices.Filters.Filter filter
+);
+Parameters
+Parameters  Description  
+Autodesk.AutoCAD.DatabaseServices.Filters.Filter filter  Input filter (query) to be applied to the index for the iterator based traversal  
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

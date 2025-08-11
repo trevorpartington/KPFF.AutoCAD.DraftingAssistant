@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > Position Property
+BlockReference.Position PropertyDescription
+ 
+
+Accesses the position value (often referred to as the insertion point), in WCS coordinates.
+
+Visual Basic
+Public Property Position() As Point3d
+C#
+public Point3d Position;
+Conditions
+Read / Write
+
+Notes
+The position value is the WCS equivalent of the DXF group code 10.
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

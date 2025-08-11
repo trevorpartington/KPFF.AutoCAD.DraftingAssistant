@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > Extents Property
+Layout.Extents PropertyDescription
+ 
+
+Accesses the current extents setting of the layout. This value may not be the actual extents of the geometry in the layout, it is just the value last saved in the layout.
+
+Visual Basic
+Public Property Extents() As Extents3d
+C#
+public Extents3d Extents;
+Conditions
+Read-only
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

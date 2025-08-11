@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > BlockTableRecord Property
+BlockReference.BlockTableRecord PropertyDescription
+ 
+
+Accesses the object ID of the BlockTableRecord referenced by the block reference.
+
+Visual Basic
+Public Property BlockTableRecord() As ObjectId
+C#
+public ObjectId BlockTableRecord;
+Conditions
+Read / Write
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > MLeader Class > MLeader Properties > BlockContentId Property
+MLeader.BlockContentId PropertyDescription
+ 
+
+Accesses the id of referenced block.
+
+Visual Basic
+Public Property BlockContentId() As ObjectId
+C#
+public ObjectId BlockContentId;
+Conditions
+Read / Write
+
+Links
+MLeader Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

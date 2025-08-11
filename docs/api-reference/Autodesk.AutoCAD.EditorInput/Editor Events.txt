@@ -1,0 +1,39 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Events
+Editor EventsEvents
+Event  Description  
+ Dragging  Occurs when a dragging operation is performed in a drawing.  
+ DraggingEnded  Occurs when the user ends the dragging operation.  
+ EnteringQuiescentState  Occurs when the user enters a quiescent state.  
+ LeavingQuiescentState  This event provides notification for the end of an AutoCAD quiescent state.  
+ PointFilter  Occurs when the mouse is moved within the AutoCAD editor window.  
+ PointMonitor  Occurs when the mouse is moved within the AutoCAD editor window.  
+ PromptedForAngle  This function provides notification for the end of an AutoCAD angle acquisition operation.  
+ PromptedForCorner  This function provides notification for the end of an AutoCAD corner acquisition operation.  
+ PromptedForDistance  This function provides notification for the end of an AutoCAD distance acquisition operation.  
+ PromptedForDouble  This function provides notification for the end of an AutoCAD floating point value acquisition operation.  
+ PromptedForEntity  This function provides notification for the end of an AutoCAD entity selection operation.  
+ PromptedForInteger  This function provides notification for the end of an AutoCAD integer acquisition operation.  
+ PromptedForKeyword  This function provides notification for the end of an AutoCAD key word acquisition operation.  
+ PromptedForNestedEntity  This function provides notification for the end of an AutoCAD nentsel acquisition operation.  
+ PromptedForPoint  This function provides notification for the end of an AutoCAD point acquisition operation.  
+ PromptedForSelection  This function provides notification for the end of an AutoCAD selection set acquisition operation.  
+ PromptedForString  This function provides notification for the end of an AutoCAD string acquisition operation.  
+ PromptForEntityEnding  This function provides notification for the end of an AutoCAD entity selection operation.  
+ PromptForSelectionEnding  This function provides notification for the end of an AutoCAD selection set acquisition operation.  
+ PromptingForAngle  This function provides notification for the start of an AutoCAD angle acquisition operation.  
+ PromptingForCorner  This function provides notification for the start of an AutoCAD corner acquisition operation.  
+ PromptingForDistance  This function provides notification for the start of an AutoCAD distance acquisition operation.  
+ PromptingForDouble  This function provides notification for the start of an AutoCAD floating point acquisition operation.  
+ PromptingForEntity  This function provides notification for the start of an AutoCAD entity selection operation.  
+ PromptingForInteger  This function provides notification for the start of an AutoCAD integer acquisition operation.  
+ PromptingForKeyword  This function provides notification for the start of an AutoCAD keyword acquisition.  
+ PromptingForNestedEntity  This function provides notification for the start of an AutoCAD nentsel acquisition operation.  
+ PromptingForPoint  This function provides notification for the start of an AutoCAD point acquisition operation.  
+ PromptingForSelection  This function provides notification for the start of an AutoCAD selection set acquisition operation.  
+ PromptingForString  This function provides notification for the start of an AutoCAD string acquisition operation.  
+ Rollover  This function provides notification for rollovers.  
+ SelectionAdded  This callback provides notification of a subselection.
+A subselection occurs when entities are going to be added to a selection... more  
+ SelectionRemoved  This callback provides notification of the removal of some entities from the selection set.  
+
+   Comments?  

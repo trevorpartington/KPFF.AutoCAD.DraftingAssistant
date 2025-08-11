@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Properties
+Application PropertiesProperties
+Property  Description  
+ DocumentManager  Accesses the DocumentManager object.  
+ HasPickFirst  This is HasPickFirst, a member of class Application.  
+ IsAdpDisabled  Checks whether ADP instrumentation is disabled.  
+ IsInBackgroundMode  Accesses the IsInBackgroundMode property. TRUE indicates AutoCAD is running as a background plot
+server.  
+ IsInPlaceServer  Accesses the IsInPlaceServer property. TRUE indicates AutoCAD is running as an in-place server.  
+ IsQuiescent  
+Assesses if there is a command, LISP script, or ARX command active.  
+ LongTransactionManager  Accesses the LongTransactionManager object.  
+ MainWindow  
+Accesses the main window.  
+ Publisher  
+Accesses the publisher.  
+ UserConfigurationManager  
+Accesses the user configuration manager.  
+ Version  
+
+Accesses the version of the currently running instance.  
+
+   Comments?  

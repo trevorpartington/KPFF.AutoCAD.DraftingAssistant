@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class > Layout Properties > TabOrder Property
+Layout.TabOrder PropertyDescription
+ 
+
+Accesses the tab order field, which controls the order in which the layouts are displayed in the tab control that is docked to the bottom of the viewport. The tab order should be unique and sequential for each layout in the database.
+
+Visual Basic
+Public Property TabOrder() As Integer
+C#
+public int TabOrder;
+Conditions
+Read / Write
+
+Links
+Layout Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

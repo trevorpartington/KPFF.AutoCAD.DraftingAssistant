@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties > ClipSpaceToWorldCoordinateSystemTransform Property
+SpatialFilter.ClipSpaceToWorldCoordinateSystemTransform PropertyDescription
+ 
+
+Transforms the clip boundary points from their coordinate system (whatever it may be) to WCS
+
+Visual Basic
+Public Property ClipSpaceToWorldCoordinateSystemTransform() As Matrix3d
+C#
+public Matrix3d ClipSpaceToWorldCoordinateSystemTransform;
+Conditions
+Read-only
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

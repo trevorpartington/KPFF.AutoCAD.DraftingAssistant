@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Constructor
+Database ConstructorOverload List
+Method  Description  
+ Database.Database ()  
+Default constructor.  
+ Database.Database ([MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool)  
+Constructor with additional options.  
+
+   Comments?  

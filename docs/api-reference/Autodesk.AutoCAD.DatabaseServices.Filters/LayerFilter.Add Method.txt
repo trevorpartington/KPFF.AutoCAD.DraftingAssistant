@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Methods > Add Method
+LayerFilter.Add MethodDescription
+ 
+
+This function will add the input layer to the set of layers within the filter object that define those entities that pass the filter test. Once layer is added, all entities on layer will be accepted.
+
+Visual Basic
+Public Function Add(
+    layer As string
+) As void
+C#
+public void Add(
+    string layer
+);
+Parameters
+Parameters  Description  
+string layer  Input layer name to add  
+
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

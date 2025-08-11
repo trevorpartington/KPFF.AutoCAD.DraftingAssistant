@@ -1,0 +1,31 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > ScaleFactors Property
+BlockReference.ScaleFactors PropertyDescription
+ 
+
+Accesses the block reference to use the X, Y, and Z scale factors contained in scale.
+
+Visual Basic
+Public Property ScaleFactors() As Scale3d
+C#
+public Scale3d ScaleFactors;
+Conditions
+Read / Write
+
+Notes
+The X, Y, and Z scaling of the block reference is applied to the entities in the referenced block table record relative to their perceived WCS coordinate axes, which may or may not be the same as the drawing’s WCS axes. 
+
+ 
+
+The X scale factor value is used for DXF group code 41. 
+
+ 
+
+The Y scale factor value is used for DXF group code 42. 
+
+ 
+
+The Z scale factor value is used for DXF group code 43.
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

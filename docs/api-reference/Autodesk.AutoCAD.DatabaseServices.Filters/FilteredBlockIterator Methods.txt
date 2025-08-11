@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > FilteredBlockIterator Class > FilteredBlockIterator Methods
+FilteredBlockIterator MethodsMethods
+Method  Description  
+ Accepts  
+Returns true if the id is accepted (that is, if it can be output)  
+ AddToBuffer  
+This method adds the Id to an internal buffer maintained by an index iterator. This method can be expected to... more  
+ Seek  
+The Seek() method is only provided to implement legacy behavior.
+This is a somewhat awkward method for generalized index traversal.... more  
+ Start  
+Initiates iteration.  
+
+   Comments?  

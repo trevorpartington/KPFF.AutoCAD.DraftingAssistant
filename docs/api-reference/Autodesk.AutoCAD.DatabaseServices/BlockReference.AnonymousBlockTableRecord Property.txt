@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > AnonymousBlockTableRecord Property
+BlockReference.AnonymousBlockTableRecord PropertyDescription
+ 
+
+Returns the anonymous block definition used to draw the dynamic block.
+
+Visual Basic
+Public Property AnonymousBlockTableRecord() As ObjectId
+C#
+public ObjectId AnonymousBlockTableRecord;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

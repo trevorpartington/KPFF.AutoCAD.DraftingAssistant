@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Layout Class
+Layout ClassDescription
+ 
+
+This .NET class wraps the AcDbLayout ObjectARX class. 
+
+An Layout object stores characteristics of each paperspace layout. Layout objects are stored in an Dictionary object with an ACAD_LAYOUT key, allowing easy iteration and indexing.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.PlotSettings
+        Autodesk.AutoCAD.DatabaseServices.Layout
+Visual Basic
+Public Class Layout
+Inherits PlotSettings
+C#
+public class Layout : PlotSettings;
+Links
+Layout Methods, Layout Properties
+   Comments?  

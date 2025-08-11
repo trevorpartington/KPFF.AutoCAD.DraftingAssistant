@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Properties > Inverted Property
+SpatialFilter.Inverted Property    Description
+This property controls whether or not the SpatialFilter filters out the contents outside of the clip boundary (not inverted) or inside the clip boundary (inverted). 
+
+Returns true when the SpatialFilter is inverted, otherwise false.
+
+Visual Basic
+Public Property Inverted() As bool
+C#
+public bool Inverted;
+Conditions
+Read / Write
+
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

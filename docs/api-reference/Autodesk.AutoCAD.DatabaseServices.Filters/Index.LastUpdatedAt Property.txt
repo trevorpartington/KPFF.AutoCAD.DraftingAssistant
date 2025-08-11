@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Index Class > Index Properties > LastUpdatedAt Property
+Index.LastUpdatedAt PropertyDescription
+ 
+
+Accesses the TDUPDATE value of the Database when the index was last updated. This is particularly useful when using index objects in saved drawings. For example, if the TDUPDATE value is not equal to the LastUpdatedAt timestamp, the index is stale. This has a concrete implementation.
+
+Visual Basic
+Public Property LastUpdatedAt() As DateTime
+C#
+public DateTime LastUpdatedAt;
+Conditions
+Read / Write
+
+Links
+Index Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

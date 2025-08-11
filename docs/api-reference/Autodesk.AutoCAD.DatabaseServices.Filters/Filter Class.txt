@@ -1,0 +1,31 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > Filter Class
+Filter ClassDescription
+ 
+
+This .NET class wraps the AcDbFilter ObjectARX class. 
+
+ 
+
+This class defines a "query." It provides the "key" to the CompositeFilteredBlockIterator, for which the corresponding index is obtained through the IndexClass property. 
+
+The AcDbSpatialFilter.IndexClass property will return SpatialIndex.Desc. 
+
+ 
+
+Applications that need to provide their own indexing scheme need to provide versions of these three classes: 
+
+Index 
+Filter 
+FilteredBlockIterator 
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Filters.Filter
+Visual Basic
+Public abstract Class Filter
+Inherits DBObject
+C#
+public abstract class Filter : DBObject;
+Links
+Filter Properties
+   Comments?  

@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilterDefinition Structure
+SpatialFilterDefinition StructureDescription
+ 
+
+This class encapsulates the data required to define a spatial filter. Properties of this class correlate to the arguments used by the SpatialFilter.setDefinition and AcDbSpatialFilter.getDefinition ObjectARX functions.
+
+Visual Basic
+Public Structure SpatialFilterDefinition
+End Structure
+C#
+public struct SpatialFilterDefinition {
+}
+Links
+SpatialFilterDefinition Methods, SpatialFilterDefinition Properties
+   Comments?  

@@ -1,0 +1,110 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Events
+Database EventsEvents
+Event  Description  
+ AbortDxfIn  
+Wraps AcRxEventReactor::abortDxfIn. The event indicates that the drawing database being operated on was modified by a DXF input operation,... more  
+ AbortDxfOut  
+Wraps AcRxEventReactor::abortDxfOut. The event indicates that the drawing database being operated on was modified by a DXF output operation,... more  
+ AbortSave  
+Wraps AcRxEventReactor::abortSave. The event indicates that the drawing database being operated on was not saved, and the save operation... more  
+ BeginDeepClone  
+Wraps AcRxEventReactor::beginDeepClone. This event indicates that a deep clone operation is starting on the drawing database.  
+ BeginDeepCloneTranslation  
+Wraps AcRxEventReactor::beginDeepCloneTranslation. A deep clone operation has two stages. First, each object and any owned objects are cloned. Second,... more  
+ BeginDxfIn  
+Wraps AcRxEventReactor::beginDxfIn. The event indicates that the drawing database being operated on is about to be altered by a... more  
+ BeginDxfOut  
+Wraps AcRxEventReactor::beginDxfOut. The event indicates that the drawing database being operated on is about to be output in a... more  
+ BeginInsert  
+Wraps AcRxEventReactor::beginInsert. The event indicates that the drawing database being operated on is being added to the drawing database.... more  
+ BeginSave  
+Wraps AcRxEventReactor::beginSave. The event indicates that the drawing database being operated on is about to be saved.  
+ BeginWblockBlock  
+Wraps AcRxEventReactor::beginWblock. The event indicates that a wblock operation is being performed.  
+ BeginWblockEntireDatabase  
+Wraps AcRxEventReactor::beginWblock. The event indicates that a wblock operation is being performed on the drawing database.  
+ BeginWblockObjects  
+Wraps AcRxEventReactor::beginWblockObjects. The event is made once for the database during each wblock clone execution.  
+ BeginWblockSelectedObjects  
+Wraps AcRxEventReactor::beginWblock. The event indicates that a wblock operation is being performed on a set of entities within the... more  
+ DatabaseConstructed  
+Wraps AcRxEventReactor::databaseConstructed. The event indicates that the Database constructor has finished.  
+ DatabaseToBeDestroyed  
+Wraps AcRxEventReactor::databaseToBeDestroyed. The event indicates that the drawing database is about to be destroyed.  
+ DeepCloneAborted  
+Wraps AcRxEventReactor::abortDeepClone. The event indicates that the deep clone operation terminated.  
+ DeepCloneEnded  
+Wraps AcRxEventReactor::endDeepClone. The event indicates that the deep clone operation concluded successfully.  
+ Disposed  
+Wraps AcDbDatabaseReactor::goodbye. The event indicates that the DWG database is about to be deleted.  
+ DwgFileOpened  
+Wraps AcRxEventReactor::dwgFileOpened. The event indicates that the drawing file is being read and stored in the drawing database.  
+ DxfInComplete  
+Wraps AcRxEventReactor::dxfInComplete. The event indicates that the drawing database was successfully modified by a DXF input operation.  
+ DxfOutComplete  
+Wraps AcRxEventReactor::dxfOutComplete. The event indicates that the output operation taking place on the drawing database was successful.  
+ InitialDwgFileOpenComplete  
+Wraps AcRxEventReactor::initialDwgFileOpenComplete. The event is sent at the completion of the initial load of a drawing database.  
+ InsertAborted  
+Wraps AcRxEventReactor::abortInsert. The event indicates that an insert operation on the drawing database was terminated and did not complete.... more  
+ InsertEnded  
+Wraps AcRxEventReactor::endInsert. The event indicates that an insert operation on the drawing database is complete.  
+ InsertMappingAvailable  
+Wraps AcRxEventReactor::otherInsert. The event is sent right before beginDeepCloneTranslation is sent.  
+ ObjectAppended  
+Wraps AcDbDatabaseReactor::objectAppended. The event indicates that an object has been added to the database.  
+ ObjectErased  
+Wraps AcDbDatabaseReactor::objectErased. The event indicates that an object is being erased or unerased from the database.  
+ ObjectModified  
+Wraps AcDbDatabaseReactor::objectModified. The event indicates that an object has been modified.  
+ ObjectOpenedForModify  
+Wraps AcDbDatabaseReactor::objectModified. The event is invoked before the object has been modified.  
+ ObjectReappended  
+Wraps AcDbDatabaseReactor::objectReAppended. The event is invoked when an object has had its addition to the database dwg undone during... more  
+ ObjectUnappended  
+Wraps AcDbDatabaseReactor::objectUnAppended. The event is invoked when an object has had its addition to the database dwg undone during... more  
+ PartialOpenNotice  
+Wraps AcRxEventReactor::partialOpenNotice. The event is invoked just before an attempt to partially open a database.  
+ ProxyResurrectionCompleted  
+Wraps AcDbDatabaseReactor::proxyResurrectionCompleted. The event is invoked when the loading of an ObjectARX or ObjectDBX module resurrects proxy objects in... more  
+ SaveComplete  
+Wraps AcRxEventReactor::saveComplete. The event indicates that the drawing database was saved to a file.  
+ SystemVariableChanged  
+Wraps AcDbDatabaseReactor::headerSysVarChanged. The event indicates that an attempt was made to change the 'name' system variable.  
+ SystemVariableWillChange  
+Wraps AcDbDatabaseReactor::headerSysVarWillChange. The event indicates that an attempt is being made to change the 'name' system variable.  
+ WblockAborted  
+Wraps AcRxEventReactor::abortWblock. The event indicates that a wblock being performed to the drawing was terminated and did not complete.... more  
+ WblockEnded  
+Wraps AcRxEventReactor::endWblock. The event indicates that a wblock being performed to the drawing completed successfully.  
+ WblockMappingAvailable  
+Wraps AcRxEventReactor::otherWblock. The event indicates that a wblock is being performed on the drawing database.  
+ WblockNotice  
+Wraps AcRxEventReactor::wblockNotice. The event indicates that a wblock operation is about to start.  
+ XrefAttachAborted  
+Wraps AcEditorReactor::abortAttach. The event indicates that an that an external reference attach operation has been performed to the drawing, but... more  
+ XrefAttachEnded  
+Wraps AcEditorReactor::endAttach. The event indicates that an that an external reference attach operation has been performed to the drawing,... more  
+ XrefBeginAttached  
+Wraps AcEditorReactor::beginAttach. The event indicates that an that an external reference database is to be attached to the database.... more  
+ XrefBeginOtherAttached  
+Wraps AcEditorReactor::otherAttach. The event is sent just after beginDeepCloneTranslation notification, but only occurs for the xref attach process.  
+ XrefBeginRestore  
+Wraps AcEditorReactor::beginRestore. The event indicates that the Xref was previously unloaded, and now is to be reloaded, but its... more  
+ XrefComandeered  
+Wraps AcEditorReactor::commandeered. The event indicates that an object is commandeered, meaning that the objectId of the object is appended... more  
+ XrefPreXrefLockFile  
+Wraps AcEditorReactor::preXrefLockFile. The event is sent just before an Xref is locked.  
+ XrefRedirected  
+Wraps AcEditorReactor::redirected. The event indicates that an objectId is redirected, meaning that an objectId in the xref drawing is... more  
+ XrefRestoreAborted  
+Wraps AcEditorReactor::abortRestore. The event indicates that a restore operation on the drawing database was terminated and did not complete.... more  
+ XrefRestoreEnded  
+Wraps AcEditorReactor::endRestore. The event indicates that that the Xref was previously unloaded, and now has been reloaded, but its... more  
+ XrefSubCommandAborted  
+Wraps AcRxEventReactor::xrefSubCommandAborted. This notification is sent if the xref subcommand is aborted during the xrefSubCommandStart() call.  
+ XrefSubCommandEnd  This is XrefSubCommandEnd, a member of class Database.  
+ XrefSubCommandStart  
+Wraps AcRxEventReactor::xrefSubCommandStart. This notification is sent on the start of an xref subcommand.  
+
+   Comments?  

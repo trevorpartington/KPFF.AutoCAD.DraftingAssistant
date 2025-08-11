@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerIndex Class > LayerIndex Constructor
+LayerIndex.LayerIndex ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public LayerIndex();
+Links
+LayerIndex Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockReference Class > BlockReference Properties > DynamicBlockReferencePropertyCollection Property
+BlockReference.DynamicBlockReferencePropertyCollection PropertyDescription
+ 
+
+Returns the collection the dynamic block (a BlockTableRecord) is a part of, if the block reference is a dynamic block.
+
+Visual Basic
+Public Property DynamicBlockReferencePropertyCollection() As Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferencePropertyCollection
+C#
+public Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferencePropertyCollection DynamicBlockReferencePropertyCollection;
+Conditions
+Read-only
+
+Links
+BlockReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

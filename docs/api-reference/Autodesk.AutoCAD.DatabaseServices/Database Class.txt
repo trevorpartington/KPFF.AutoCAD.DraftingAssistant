@@ -1,0 +1,39 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class
+Database ClassDescription
+This .NET class wraps the AcDbDatabase ObjectARX class. 
+
+The Database class represents the AutoCAD drawing file. Each Database object contains the various header variables, symbol tables, table records, entities, and objects that make up the drawing. 
+
+The Database class has member functions to allow access to all the symbol tables, to read and write to DWG files, to get or set database defaults, to execute various database-level operations such as Wblock and DeepCloneObjects, and to get or set all header variables.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.Database
+Visual Basic
+Public sealed Class Database
+Inherits RXObject
+Inherits IDynamicMetaObjectProvider
+C#
+public sealed class Database : RXObject, IDynamicMetaObjectProvider;
+Notes
+
+When a new Database is created, it has Undo recording turned off. In order to enable Undo, you must call Database.DisableUndoRecording(false). This is what AutoCAD itself does for the Database object used in the AutoCAD editor. 
+A DWG which is created or modified as an external database (not the current DWG) and then saved using Database.SaveAs(), loses its preview image. Examples of creating new external databases include an Database.Wblock() of a set of entities and Database.ReadDwgFile(). 
+When using the following form of wblock: 
+ 
+
+void Wblock(
+    Database outputDataBase,
+    ObjectIdCollection outObjIds,
+    Point3d basePoint,
+    DuplicateRecordCloning cloning
+);
+ 
+
+the ObjectIdCollection must contain only IDs for Entities. To WblockClone DBObjects, you must add them to the ObjectIdCollection only during the BeginDeepCloneTranslation() callback. If a particular wblock operation is intended for only DBObject entities, and not Entities, it is acceptable to pass an empty ObjectIdCollection to Wblock(), which can be filled with ObjectId entities during the BeginDeepCloneTranslation callback. Wblock() on a set of entities to a new database and then a SaveAs() on the database will not cause the preview image to appear when opening the DWG file.
+
+Links
+Database Constructor, Database Methods, Database Properties, Database Events
+See Also
+SymbolTable, DBObject, Entity, Color, Point2d, Point3d, Handle
+
+   Comments?  

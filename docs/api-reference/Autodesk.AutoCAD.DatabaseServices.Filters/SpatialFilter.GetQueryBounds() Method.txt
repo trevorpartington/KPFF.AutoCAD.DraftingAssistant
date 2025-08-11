@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > SpatialFilter Class > SpatialFilter Methods > GetQueryBounds Method > GetQueryBounds() Method
+SpatialFilter.GetQueryBounds() MethodDescription
+ 
+
+This function is used to get the boundary area of this SpatialFilter object. 
+
+Returns the extents that define the query volume
+
+Visual Basic
+Public Function GetQueryBounds() As Extents3d
+C#
+public Extents3d GetQueryBounds();
+Links
+SpatialFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  

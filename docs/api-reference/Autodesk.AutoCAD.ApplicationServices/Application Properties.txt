@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > Application Class > Application Properties
+Application PropertiesProperties
+Property  Description  
+ AcadApplication  Accesses the AcadApplication.  
+ DocumentWindowCollection  Accesses the collection of DocumentWindow objects.  
+ InfoCenter  Accesses the InfoCenter property.  
+ MenuBar  Accesses the menu bar.  
+ MenuGroups  Returns the menu groups.  
+ NonInPlaceMainWindow  Accesses the 'real' AutoCAD main window even when it is running as an in-place server. Note that in in-place server... more  
+ Preferences  Accesses the preferences.  
+ StatusBar  Accesses the status bar.  
+
+   Comments?  

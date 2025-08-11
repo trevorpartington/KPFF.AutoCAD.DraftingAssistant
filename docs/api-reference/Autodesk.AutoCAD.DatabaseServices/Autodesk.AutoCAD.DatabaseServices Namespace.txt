@@ -1,0 +1,1458 @@
+Autodesk.AutoCAD.DatabaseServices Namespace
+Autodesk.AutoCAD.DatabaseServices NamespaceDescription
+This is namespace Autodesk.AutoCAD.DatabaseServices.
+
+Dynamic-Link Library (DLL)
+AcDbMgd.dll
+
+Classes
+Class  Description  
+ AbstractViewTable  This .NET class wraps the AcDbAbstractViewTable ObjectARX class.
+
+AbstractViewTable is the base class for the two symbol table classes, ViewTable... more  
+ AbstractViewTableRecord  
+This .NET class wraps the AcDbAbstractViewTableRecord
+ObjectARX class.
+
+AbstractViewTableRecord is the base class for the ViewTableRecord and ViewportTableRecord classes.  
+ ActionsToEvaluateCallback  AcDbActionsToEvaluateCallback Wrapper This callback is used by AssocAction::getDependentActionsToEvaluate() method to inform about other actions, dependencies or arbitrary objects that should... more  
+ AlignedDimension  
+This .NET class wraps the AcDbAlignedDimension ObjectARX class.
+
+The AlignedDimension class is used to represent the dimension type that dimensions... more  
+ AngularConstraint  This class represents an angle constraint node in the owning Assoc2dConstraintGroup. It can be applied between two constrained lines.  
+ AnnotationScale  
+This .NET class wraps the AcDbAnnotationScale ObjectARX class.
+
+That class represents a single annotation scale defined in a drawing in... more  
+ Arc  
+This .NET class wraps the AcDbArc ObjectARX class.
+
+The Arc class represents the arc entity within AutoCAD.  
+ ArcDimension  
+This .NET class wraps the AcDbArcDimension ObjectARX class.
+
+That class represents an arc length dimension.  
+ Assoc2dConstraintCallback  Client code can register callbacks derived from Assoc2dConstraintCallback that are then called when some events happen with Assoc2dConstraintGroup.  
+ Assoc2dConstraintGroup  The Assoc2dConstraintGroup class represents a set of geometric constraint relations between subentities of geometric entities. All the geometries must lie... more  
+ AssocAction  Any object that wants to exhibit associative behavior, i.e. be automatically evaluated by the associative mechanism when objects it depends... more  
+ AssocActionBody  Abstract base class for deriving custom action body classes that implement functionality of custom actions.
+An object of a class... more  
+ AssocActionParam  
+Abstract base class for all derived AcDbAssocXxxActionParam classes. Action parameters are owned by AcDbAssocParamBasedActionBody, either directly or via an AcDbAssocCompoundActionParam... more  
+ AssocArray  AssocArray wraps the ObjectARX class AcDbAssocArrayActionBody. It has the object Id of the ID of an associative array (rectangular, polar... more  
+ AssocArrayCommonParameters  AssocArrayCommonParameters wraps the ObjectARX AcDbAssocArrayCommonParameters class.
+This class provides an interface for manipulating array parameters that are common to Rectangular, Path... more  
+ AssocArrayParameters  AssocArrayParameters wraps the ObjectARX AcDbAssocArrayParameters class.
+This class provides an interface for manipulating array parameters. Its derived classes implement logic for... more  
+ AssocArrayPathParameters  AssocArrayPathParameters wraps the ObjectARX AcDbAssocArrayPathParameters class.
+This class provides and interface for manipulating path array parameters.  
+ AssocArrayPolarParameters  AssocArrayPolarParameters wraps the ObjectARX AcDbAssocArrayPolarParameters class.
+This class provides an interface for manipulating polar array parameters.  
+ AssocArrayRectangularParameters  AssocArrayRectangularParameters wraps the ObjectARX AcDbAssocArrayRectangularParameters class.
+This class provides an interface for manipulating rectangular array parameters.  
+ AssocAsmBodyActionParam  This is class Autodesk.AutoCAD.DatabaseServices.AssocAsmBodyActionParam.  
+ AssocBlendSurfaceActionBody  This is class Autodesk.AutoCAD.DatabaseServices.AssocBlendSurfaceActionBody.  
+ AssocCompoundActionParam  This is class Autodesk.AutoCAD.DatabaseServices.AssocCompoundActionParam.  
+ AssocDependency  AssocDependencies represent information about which AssocActions depend on or modify which DBObjects. This is how the associativity in the drawing... more  
+ AssocDependencyBody  Abstract base class for deriving custom dependency body classes that implement functionality of custom dependencies.
+An object of a class... more  
+ AssocDependencyPE  Wrapper AcRx protocol extension base class that allows objects and entities to control whether they allow AssocDependencies to be attached... more  
+ AssocDimDependencyBody  Wrapper AssocDimDependencyBody manages a Dimension entity that serves as the graphical representation of a dimensional constraint. It inherits common functionality... more  
+ AssocDimDependencyBodyBase  AssocDimDependencyBodyBase ties together the following objects that define a dimensional constraint:
+AssocVariable Keeps dimensional constraint name and expression. Assoc2dConstraintGroup Keeps... more  
+ AssocEdgeActionParam  
+This wraps the ObjectARX AcDbAssocEdgeActionParam class.  
+ AssocEdgeChamferActionBody  
+This wraps the ObjectARX AcDbAssocEdgeChamferActionBody class.  
+ AssocEdgeFilletActionBody  
+This wraps the ObjectARX AcDbAssocEdgeFilletActionBody class.  
+ AssocEvaluationCallback  This wraps the ObjectARX AcDbAssocEvaluationCallback class.
+A mechanism for AssocActions to notify about the progress of evaluation, to report success... more  
+ AssocExtendSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocExtendSurfaceActionBody class.  
+ AssocExtrudedSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocExtrudedSurfaceActionBody class.  
+ AssocFaceActionParam  
+This wraps the ObjectARX AcDbAssocFaceActionParam class.  
+ AssocFilletSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocFilletSurfaceActionBody class.  
+ AssocGeomDependency  This class represents a dependency on a subentity (face/edge/vertex) of a geometric entity. It keeps an AssocPersSubentId that persistently identitfies... more  
+ AssocGlobalUtility  A Utility class to wrap all global utility methods  
+ AssocLoftedSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocLoftedSurfaceActionBody class.  
+ AssocManager  This wraps the ObjectARX AcDbAssocManager class.
+This class currently just contains static methods to evaluate the top-level network of a given... more  
+ AssocNetwork  The AssocNetwork class keeps a network of AssocActions. Notice that it is derived from AssocAction, therefore it also behaves as... more  
+ AssocNetworkSurfaceActionBody  This wraps the ObjectARX AcDbAssocNetworkSurfaceActionBody class.  
+ AssocObjectTransaction  This wraps the ObjectARX AcDbAssocObjectPointer template.  
+ AssocOffsetSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocOffsetSurfaceActionBody class.  
+ AssocParamBasedActionBody  This wraps the ObjectARX AcDbAssocParamBasedActionBody class.  
+ AssocPatchSurfaceActionBody  This wraps AcDbAssocPatchSurfaceActionBody class.  
+ AssocPathActionParam  
+This wraps the ObjectARX AcDbAssocPathActionParam class.  
+ AssocPathBasedSurfaceActionBody  This wraps AcDbAssocPathBasedSurfaceActionBody class.  
+ AssocPersSubentityId  Abstract base class used to persistently identify an SubentityId of an Entity. Unlike SubentityId that is transient and may change... more  
+ AssocPersSubentityIdPE  This wraps the ObjectARX AcDbAssocPersSubentIdPE class.
+This is a AcRx protocol extension base class that defines protocol to obtain a persistent... more  
+ AssocPlaneSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocPlaneSurfaceActionBody class.  
+ AssocRevolvedSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocRevolvedSurfaceActionBody class.  
+ AssocSimplePersSubentId  The concrete derived AssocPersSubentityId class that simply keeps the SubentityId when it is persistent and does not change.  
+ AssocSingleEdgePersSubentId  The concrete derived AssocPersSubentId class that identifies an edge subentity if the entity has only a single edge subentity (such... more  
+ AssocSurfaceActionBody  This wraps the ObjectARX AcDbAssocSurfaceActionBody class.  
+ AssocSweptSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocSweptSurfaceActionBody class.  
+ AssocTrimSurfaceActionBody  
+This wraps the ObjectARX AcDbAssocTrimSurfaceActionBody class.  
+ AssocValueDependency  A concrete dependency class that represents a dependency on a scalar value, such as on a numerical variable. The dependent-on... more  
+ AssocValueProviderPE  AcRx protocol extension pure virtual base class that defines protocol to get and set arbitrary simple scalar values of DBObjects.... more  
+ AssocVariable  AssocVariable keeps a name, value and expression. The name is an arbitrary non-empty string but the client code sets rules... more  
+ AssocVariableCallback  This wraps the ObjectARX AcDbAssocVariableCallback class.
+Client code can register callback(s) derived from AssocVariableCallback that are then called when some events... more  
+ AssocVertexActionParam  
+This wraps the ObjectARX AcDbAssocVertexActionParam class.  
+ AttributeCollection  
+This collection class provides a container for block reference attributes.  
+ AttributeDefinition  
+This .NET class wraps the AcDbAttributeDefinition ObjectARX class.
+
+The AttributeDefinition class represents the ATTDEF entity within AutoCAD. ATTDEF entities are... more  
+ AttributeReference  
+This .NET class wraps the AcDbAttribute ObjectARX class.
+
+The Attribute class represents the ATTRIB entity within AutoCAD. ATTRIB entities are... more  
+ AuditInfo  
+This .NET class wraps the AcDbAuditInfo ObjectARX class.
+
+This class tracks the basic audit information during a database Audit operation.... more  
+ AutoConstrainEvaluationCallback  Client needs to implement this callback to provide constraint priorities and priority override for autconstraint evaluation.  
+ Background  This .NET class wraps the AcDbBackground ObjectARX class.
+
+Background is the base class of all background objects that describe a... more  
+ BeginInsertEventArgs  
+This class provides data for the BeginInsert event of the database.  
+ BeginWblockBlockEventArgs  
+This class provides data for the BeginWblockBlock event of the database.  
+ BeginWblockEntireDatabaseEventArgs  
+This class provides data for the BeginWblockEntireDatabase event of the database.  
+ BeginWblockObjectsEventArgs  
+This class provides data for the BeginWblockObjects event of the database.  
+ BeginWblockSelectedObjectsEventArgs  
+This class provides data for the BeginWblockSelectedObjects event of the database.  
+ BlendOptions  
+The wraps the ObjectARX AcDbBlendOptions class.  
+ BlendOptionsBuilder  Used to build the BlendOptions.  
+ BlockBegin  
+This .NET class wraps the AcDbBlockBegin ObjectARX class.
+
+The BlockBegin class represents the block header portion of a block definition... more  
+ BlockEnd  
+This .NET class wraps the AcDbBlockEnd ObjectARX class.
+
+The BlockEnd class represents the ENDBLK object within AutoCAD. Objects of this... more  
+ BlockInsertionPointsEventArgs  
+This class provides data for the BlockInsertionPoints event of the database.  
+ BlockReference  This .NET class wraps the AcDbBlockReference ObjectARX class.
+
+The BlockReference class represents the INSERT entity within AutoCAD. A block reference... more  
+ BlockTable  
+This .NET class wraps the AcDbBlockTable ObjectARX class, which is the symbol table for BlockTableRecords, which represent block definitions... more  
+ BlockTableRecord  This .NET class wraps the AcDbBlockTableRecord ObjectARX class.
+
+Objects of the BlockTableRecord class are used as containers for entities within... more  
+ BlockTableRecordEnumerator  This .NET class wraps the AcDbBlockTableRecordIterator ObjectARX class.
+That iterator is used to iterate through an BlockTableRecord.  
+ Body  This .NET class wraps the AcDbBody ObjectARX class.
+
+The Body class is used to represent non-manifold solids and other ShapeManager... more  
+ BulgeVertex  
+This class contains a bulge value and the 2D coordinates of the associated vertex.  
+ BulgeVertexCollection  This collection provides a container for Autodesk.AutoCAD.DatabaseServices.BulgeVertex
+objects.  
+ CallerMustCloseAttribute  This is class Autodesk.AutoCAD.DatabaseServices.CallerMustCloseAttribute.  
+ Cell  
+This class represents table cells.  
+ CellRange  
+This class represents ranges of table cells.
+Autodesk.AutoCAD.DatabaseServices.CellRange.CellRange 
+Default constructor.  
+ CenterPointConstraint  This class represents a Concentric constraint node in the owning Assoc2dConstraintGroup. It can be applied between a point and a... more  
+ Circle  This .NET class wraps the AcDbCircle ObjectARX class. The Circle class represents the circle entity within AutoCAD.  
+ ColinearConstraint  This class represents a Colinear (coincident) constraint node in the owning Assoc2dConstraintGroup. It can be applied between two constrained line.... more  
+ CompositeConstraint  This class represents a composite constraint node in the owning Assoc2dConstraintGroup. It is the base class for all the kind... more  
+ CompoundObjectId  Class used to identify an Object in an Database when the object is references via a path of BlockReferences, and... more  
+ ConcentricConstraint  This class represents a Concentric constraint node in the owning Assoc2dConstraintGroup. It can be applied between two circles, arcs or... more  
+ Constrained2PointsConstructionLine  This class represents a constrained unbounded construction line node in the owning Assoc2dConstraintGroup. Internally it is made coincident to two... more  
+ ConstrainedArc  This class represents a constrained arc node in the owning Assoc2dConstraintGroup.  
+ ConstrainedBoundedEllipse  This class represents a constrained ellipse arc node in the owning Assoc2dConstraintGroup.  
+ ConstrainedBoundedLine  This class represents a constrained bounded line node in the owning Assoc2dConstraintGroup.  
+ ConstrainedCircle  This class represents a constrained circle node in the owning Assoc2dConstraintGroup.  
+ ConstrainedConstructionLine  This class represents a constrained unbounded construction line node in the owning Assoc2dConstraintGroup.
+It does not take any initial value... more  
+ ConstrainedCurve  This class represents a constrained curve node in the owning Assoc2dConstraintGroup.  
+ ConstrainedDatumLine  This class represents a constrained datum unbounded line node in the owning Assoc2dConstraintGroup.
+It is read-only and for reference as... more  
+ ConstrainedEllipse  This class represents a constrained ellipse node in the owning Assoc2dConstraintGroup.  
+ ConstrainedGeometry  This class represents a constrained geometry node in the owning Assoc2dConstraintGroup.
+It is the base class for all the kind... more  
+ ConstrainedImplicitPoint  This class represents a constrained implicit point node in the owning Assoc2dConstraintGroup.
+A constrained implicit point is always associated with... more  
+ ConstrainedLine  This class represents a constrained unbounded line node in the owning Assoc2dConstraintGroup.  
+ ConstrainedPoint  This class represents a constrained point node in the owning Assoc2dConstraintGroup.
+Usually It holds a reference to a AssocGeomDependency object... more  
+ ConstrainedRigidSet  This class represents a constrained rigid set node in the owning Assoc2dConstraintGroup.  
+ ConstrainedSpline  This class represents a constrained NURBS spline node in the owning Assoc2dConstraintGroup.  
+ ConstraintGroupNode  This class represents a node owned by Assoc2dConstraintGroup. Usually a node is connected with multiple other nodes and the connection... more  
+ Curve  
+This .NET class wraps the AcDbCurve ObjectARX class.
+The Curve class is the base class for all the entity classes... more  
+ CustomObjectSnapMode  
+This .NET class wraps the AcDbCustomOsnapMode and AcDbCustomOsnapManager ObjectARX classes.
+Whenever a keyword representing a built-in OSNAP mode can be... more  
+ DataAdapterProvider  
+This .NET class wraps the AcDbDataAdapterProvider ObjectARX class.  
+ Database  This .NET class wraps the AcDbDatabase ObjectARX class.
+The Database class represents the AutoCAD drawing file. Each Database object contains... more  
+ DatabaseIOEventArgs  
+This class provides data for the DwgFileOpened, BeginSave and SaveComplete events of the database.  
+ DatabaseSummaryInfoBuilder  
+This class is required to build instances of Autodesk.AutoCAD.DatabaseServices.DatabaseSummaryInfo, which is an immutable value type.  
+ DataCell  
+This .NET class wraps the AcDbDataCell ObjectARX class.
+The DataCell class provides a way to represent the following data types... more  
+ DataCellCollection  This .NET class is a wrapper for the typedef AcArray<AcDbDataCell> ObjectARX class.
+An DataCellArray is used as an argument to... more  
+ DataColumn  
+This .NET class wraps the AcDbDataColumn ObjectARX class. It represents a single column of a DataTable.  
+ DataLink  
+This .NET class wraps the AcDbDataLink ObjectARX class.
+It manages the connection information for establishing a data link between a... more  
+ DataLinkManager  This .NET class wraps the AcDbDataLinkManager ObjectARX class.
+This class is used to manage the data links in a database.... more  
+ DataTable  
+This .NET class wraps the AcDbDataTable ObjectARX class.
+The DataTable class provides a general-purpose repository for simple numeric, character, 3D... more  
+ DBDictionary  This .NET class wraps the AcDbDictionary ObjectARX class.
+DBDictionary is a database-resident object dictionary, which maintains a map between text... more  
+ DbDictionaryEnumerator  
+This .NET class wraps the AcDbDictionaryIterator ObjectARX class.
+It provides the ability to iterate through an Dictionary.  
+ DbHomeView  
+This .NET class wraps the AcDbHomeView ObjectARX class.
+
+This class objectifies the navigation home view.
+  
+ DBObject  
+This .NET class wraps the AcDbObject ObjectARX class.
+The DBObject class is the base class for all objects that reside... more  
+ DBObjectCollection  An interface to a collection of DBObjects.  
+ DBObjectReferenceCollection  
+This class provides a container for Autodesk.AutoCAD.DatabaseServices.DBObjectReference objects.  
+ DBPoint  
+This .NET class wraps the AcDbPoint ObjectARX class.
+It represents the point entity within AutoCAD. A point entity has a... more  
+ DBText  
+This .NET class wraps the AcDbText ObjectARX class.
+It is the representation for the TEXT entity within AutoCAD.  
+ DBVisualStyle  
+This is a .NET wrapper for the AcDbVisualStyle ObjectARX class.
+
+This class describes the visual style database object, which contains... more  
+ DetailSymbol  
+The DetailSymbol class represents the detail view symbol entity used by model documentation views in association with a Viewport entity.... more  
+ DetailViewStyle  
+The wrapper class for the AcDbDetailViewStyle class.  
+ DgnDefinition  
+This .NET class wraps the AcDbDgnDefinition ObjectARX class.
+Represents DGN underlays in the drawing. Underlays are similar to raster images... more  
+ DgnReference  
+This .NET class wraps the AcDbDgnReference ObjectARX class.
+Represents DGN underlays in the drawing. Underlays are similar to raster images... more  
+ DgnUnderlayItem  
+This .NET class wraps the AcDbDgnUnderlayItem ObjectARX class. It represents underlay items.  
+ DiametricDimension  
+This .NET class wraps the AcDbDiametricDimension ObjectARX class. It represents the diameter dimension type in AutoCAD.
+This dimension type requires... more  
+ DictionaryWithDefaultDictionary  
+This .NET class wraps the AcDbDictionaryWithDefault ObjectARX class.
+
+This class enhances the Dictionary class by adding the concept of a... more  
+ Dimension  
+This .NET class wraps the AcDbDimension ObjectARX class.
+The Dimension class is the base class for the classes that represent... more  
+ DimensionStyleOverrule  This .NET class wraps ObjectARX class AcDbDimensionStyleOverrule. it overrules a subset of dimension style related operations that Dimension (AcDbDimension) class... more  
+ DimStyleTable  
+This .NET class wraps the AcDbDimStyleTable ObjectARX class.
+It is the symbol table for DimStyleTableRecords, which represents dimension styles... more  
+ DimStyleTableRecord  
+This .NET class wraps the AcDbDimStyleTableRecord ObjectARX class.
+Objects of this class represent the records found in the DimStyleTable.... more  
+ DistanceConstraint  This class represents a distance constraint node in the owning Assoc2dConstraintGroup. It can be applied between two constrained geometries (normally... more  
+ DrawOrderTable  
+This .NET class wraps the AcDbSortentsTable ObjectARX class.
+DrawOrderTable is the persistent container for draw order information. It resides in... more  
+ DwfDefinition  
+This .NET class wraps the AcDbDwfDefinition ObjectARX class.
+Represents DWF underlays in the drawing. Underlays are similar to raster images... more  
+ DwfReference  
+This .NET class wraps the AcDbDwfReference ObjectARX class.
+Represents DWF underlays in the drawing. Underlays are similar to raster images... more  
+ DwgFiler  
+This abstract class provides the interface for derived classes that are used for I/O operations that work with the DWG... more  
+ DxfFiler  
+This .NET class wraps the AcDbDxfFiler ObjectARX class.
+This abstract class provides the interface for derived classes that are used... more  
+ DynamicBlockReferenceProperty  
+This .NET class wraps the AcDbDynBlockReferenceProperty ObjectARX class.
+This class encapsulates a property on a dynamic block reference, and provides... more  
+ DynamicBlockReferencePropertyCollection  
+This class provides a container for Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferenceProperty objects.  
+ DynamicBlockReferencePropertyCollectionEnumerator  
+This class enumerates the properties in a DynamicBlockReferencePropertyCollection.  
+ DynamicDimensionChangedEventArgs  
+This class provides data for the OnDimensionValueChanged function of the Jig class.  
+ DynamicDimensionData  
+This .NET class wraps the AcDbDimData ObjectARX class.
+The DynamicDimensionData class supports dynamic dimensions for objects derived from Entity.... more  
+ DynamicDimensionDataCollection  This class represents a collection of DynamicDimenionData objects.  
+ EdgeRef  This wraps the ObjectARX AcDbEdgeRef class.  
+ Ellipse  
+This .NET class wraps the AcDbEllipse ObjectARX class.
+It represents the ELLIPSE entity in AutoCAD. It contains the methods to... more  
+ Entity  This .NET class wraps the AcDbEntity ObjectARX class. It is the base class for all database objects having a graphical... more  
+ EntityAlignmentEventArgs  
+This class provides data for the EntityAlignment event.  
+ EqualCurvatureConstraint  This class represents a EqualCurvature constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between a bounded spline and... more  
+ EqualDistanceConstraint  This class represents a EqualDistance constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two pairs of points.... more  
+ EqualHelpParameterConstraint  This class represents a EqualHelpParameter constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two HelpParameter objects which... more  
+ EqualLengthConstraint  This class represents a EqualLength constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two constrained bounded lines... more  
+ EqualRadiusConstraint  This class represents a EqualRadius constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two constrained circles (arcs).... more  
+ ExplicitConstraint  This class represents a dimensional constraint node in the owning Assoc2dConstraintGroup.
+It is the base class for all the kind... more  
+ ExtrudedSurface  
+This class represents an extruded surface entity. It provides methods to create and manipulate ASM surfaces.  
+ Face  
+This .NET class wraps the AcDbFace ObjectARX class.
+It represents the 3dface entity within AutoCAD.  
+ FaceRecord  
+This .NET class wraps the AcDbFaceRecord ObjectARX class.
+The FaceRecord class is a special class of vertex that is used... more  
+ FaceRef  This wraps the ObjectARX AcDbFaceRef class.  
+ FeatureControlFrame  
+This .NET class wraps the AcDbFcf ObjectARX class.
+Feature Control Frames for Geometric Dimensioning and Tolerancing are the entity type... more  
+ Field  
+This .NET class wraps the AcDbField ObjectARX class.
+It represents a field. The field can evaluate to one of the... more  
+ FieldCodeWithChildren  
+This class contains a field code plus its embedded or nested (child) fields. See the Field.getFieldCode() function in the ObjectARX... more  
+ FixedConstraint  This class represents a Fixed constraint node in the owning Assoc2dConstraintGroup.
+It can be applied on any constrained geometry.  
+ FormattedTableData  
+This .NET class wraps the AcDbFormattedTableData ObjectARX class.
+This class derives from LinkedTableData and adds formatting support for the cells,... more  
+ G2SmoothConstraint  This class represents a G2Smooth composite constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between a constrained bounded... more  
+ GeoCoordinateCategory  This is class Autodesk.AutoCAD.DatabaseServices.GeoCoordinateCategory.  
+ GeoCoordinateSystem  The GeoCoordinate class represents a coordinate reference system (CRS) definition. A CRS is also being referred to as a spatial... more  
+ GeoCoordinateTransformer  This is class Autodesk.AutoCAD.DatabaseServices.GeoCoordinateTransformer.  
+ GeoLocationData  
+This .NET class wraps the AcDbGeoData ObjectARX class.
+
+This class maintains geo-location data, including DwgPoint, UpDirection, NorthDirection in... more  
+ GeomapImage  The GeomapImage class represents an embedded raster image which is captured from a portion of LiveMap.  
+ GeometricalConstraint  This class represents a constraint node in the owning Assoc2dConstraintGroup.
+It is the base class for all kinds of constraints,... more  
+ GeometryOverrule  This .NET class wraps the ObjectARX class AcDbGeometryOverrule.  
+ GeomRef  This wraps the ObjectARX AcDbGeomRef class  
+ GeoPositionMarker  
+The GeoPositionMarker class represents a Geographical location aware marker object with label.  
+ GradientBackground  
+This .NET class wraps the AcDbGradientBackground ObjectARX class. This class represents a gradient background.  
+ Graph  
+This .NET class wraps the AcDbGraph ObjectARX class.
+This class provides a generic graph container implementation. One other class is... more  
+ GraphNode  
+This .NET class wraps the AcDbGraphNode ObjectARX class.
+This class provides a generic graph node implementation. One other class is... more  
+ GraphNodeCollection  
+This class contains a collection of graph nodes.  
+ GripData  
+This .NET class wraps the ObjectARX class GripData class.
+This class describes a specific grip for a specific entity. It... more  
+ GripMode  The type that contains all information to present a single mode.  
+ GripModeCollection  The collection that wraps AcArray of AcDbMultiModesGripPE::GripMode  
+ GripOverrule  
+This .NET class wraps the ObjectARX class AcDbGripOverrule.  
+ GroundPlaneBackground  
+This .NET class wraps the AcDbGroundPlaneBackground ObjectARX class.
+This class represents a ground plane background.  
+ Group  
+This .NET class wraps the AcDbGroup ObjectARX class.
+The Group class represents a collection of entities referred to by a... more  
+ Hatch  
+This .NET class wraps the Hatch ObjectARX class.
+
+Hatch is a planar entity that can be created and placed in... more  
+ HatchLoop  
+This class encapsulates data for defining a hatch boundary loop. See the Hatch.appendLoop(Adesk.Int32 loopType, const Point2dArray vertices, const AcGeDoubleArray bulges)... more  
+ Helix  
+This .NET class wraps the AcDbHelix
+ObjectARX class.
+This class implements the AutoCAD helix entity. Helix derives from Spline,... more  
+ HelpParameter  This class represents a help parameter node in the owning Assoc2dConstraintGroup.
+Help parameters are only applicable for splines and ellipses... more  
+ HighlightOverrule  This .NET class wraps the ObjectARX class AcDbHighlightOverrule.  
+ HighlightStateOverrule  This wraps the ObjectARX AcDbHighlightStateOverrule class.  
+ HorizontalConstraint  This class represents a Horizontal constraint node in the owning Assoc2dConstraintGroup.
+It can be applied on one constrained line.  
+ HostApplicationServices  
+This .NET class wraps the AcDbHostApplicationServices ObjectARX class.
+The HostApplicationServices class provides various services to host applications at runtime. These... more  
+ HyperLink  This .NET class wraps the AcDbHyperlink ObjectARX class.
+
+A Hyperlink object contains the hyperlink name (for example, http://www.autodesk.com), a... more  
+ HyperLinkCollection  This .NET class wraps the AcDbHyperlinkCollection ObjectARX class.
+This class is a collection of Hyperlink objects. The HyperlinkCollection deletes its... more  
+ IBLBackground  
+Image based lighting background.  
+ IdMapping  
+IdMapping is used by the deep clone operation to map ObjectIds between original objects and their clones (using IdPairs).... more  
+ IdMappingEventArgs  
+This class provides data for the various events of the database.  
+ Image  
+This .NET class wraps the AcDbImage ObjectARX class.
+Abstract base class for immediate mode raster-based entities, including RasterImage. Every... more  
+ ImageBackground  
+This .NET class wraps the AcDbImageBackground ObjectARX class.
+This class represents a background image.  
+ InterferenceProtocolExtension  
+This .NET class wraps the AcDbInterferencePE ObjectARX class.
+It is the protocol extension abstract base class.  
+ LayerStateManager  
+This .NET class wraps the AcDbLayerStateManager ObjectARX class.
+The LayerStateManager class is used to access and manipulate individual layer states... more  
+ LayerTable  
+This .NET class wraps the AcDbLayerTable ObjectARX class.
+This class is the symbol table for layers.  
+ LayerTableRecord  
+This .NET class wraps the AcDbLayerTableRecord ObjectARX class.
+Objects of this class represent records in the LayerTable. Each of... more  
+ LayerViewportProperties  
+Defines further properties of the layer viewports in LayerTableRecord.  
+ Layout  
+This .NET class wraps the AcDbLayout ObjectARX class.
+An Layout object stores characteristics of each paperspace layout. Layout objects are... more  
+ LayoutCopiedEventArgs  
+This class provides data for LayoutCopied event of the LayoutManager class.  
+ LayoutEventArgs  
+This class provides data for various events of the LayoutManager class.  
+ LayoutManager  
+This .NET class wraps the AcDbLayoutManager ObjectARX class.
+This is an interface class for database-specific routines that manipulate and access... more  
+ LayoutRenamedEventArgs  
+This class provides data for LayoutRenamed event of the LayoutManager class.  
+ Leader  
+This .NET class wraps the AcDbLeader ObjectARX class.
+The Leader class represents the LEADER entity within AutoCAD. Leaders are considered... more  
+ Light  
+This .NET class wraps the AcDbLight ObjectARX class.
+This is a container for all properties relating to a generic light.... more  
+ Line  
+This .NET class wraps the AcDbLine ObjectARX class.
+This class represents the line entity in AutoCAD. A line object is... more  
+ LineAngularDimension2  
+This .NET class wraps the AcDb2LineAngularDimension ObjectARX class.
+This class represents the angular dimension defined by two lines (as opposed... more  
+ LinetypeTable  
+This .NET class wraps the AcDbLinetypeTable ObjectARX class.
+This class is the symbol table for LinetypeTableRecords, which represent the... more  
+ LinetypeTableRecord  
+This .NET class wraps the AcDbLinetypeTableRecord ObjectARX class.
+Objects of this class represent records in the LinetypeTable. Each of... more  
+ LineWeightConverter  
+This class is used to convert lineweights.  
+ LinkedData  
+This .NET class wraps the AcDbLinkedData ObjectARX class.
+This class is used to support data linking.  
+ LinkedTableData  
+This .NET class wraps the AcDbLinkedTableData ObjectARX class.
+This class is used to store and manage data in a tabular... more  
+ LoftedSurface  
+This .NET class wraps the AcDbLoftedSurface ObjectARX class.
+This class represents a lofted surface entity. It provides methods to create... more  
+ LoftOptions  
+This .NET class wraps the AcDbLoftOptions ObjectARX class.
+Utility class for setting options used by LoftedSurface.CreateLoftedSurface() . These options can... more  
+ LoftOptionsBuilder  
+This is a helper class that is used to populate a DatabaseServices.LoftOptions object from the loft options sysvars.  
+ LoftOptionsCheckCurvesOut  
+This class is a container for the Boolean values output by the LoftOptions.checkLoftCurves() ObjectARX function.  
+ LoftProfile  This wraps the ObjectARX AcDbLoftProfile class.  
+ LongTransaction  This wraps the ObjectARX AcDbLongTransaction class  
+ MatchProperties  
+This .NET class wraps the AcDbMatchProperties ObjectARX class.  
+ Material  
+This .NET class wraps the AcDbMaterial ObjectARX class.
+The Material class is used to define, store, and display material properties... more  
+ MidPointConstraint  This class represents a MidPoint constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between a point and a... more  
+ MInsertBlock  
+This .NET class wraps the AcDbMInsertBlock ObjectARX class.
+The MInsertBlock class represents a special form of the INSERT entity in... more  
+ MLeader  
+This .NET class wraps the AcDbMLeader ObjectARX class.
+The MLeader class represents the multi-leader object.  
+ MLeaderStyle  
+This .NET class wraps the AcDbMLeaderStyle ObjectARX class.
+This class is the main class used for the multiple leader style... more  
+ Mline  
+This .NET class wraps the Mline ObjectARX class.
+The Mline class represents the AutoCAD MLINE entity. This multi-line entity allows... more  
+ MlineStyle  
+This .NET class wraps the AcDbMlineStyle ObjectARX class.
+MlineStyle class objects are used to store the information about the number,... more  
+ MlineStyleElementCollection  This collection class provides a container for MlineStyleElement objects.  
+ MlineStyleElementCollectionEnumerator  This class enumerates the contents of MlineStyleElementCollection objects.  
+ MText  
+This .NET class wraps the AcDbMText ObjectARX class.
+The MText class represents the MTEXT entity type within AutoCAD.
+An MTEXT... more  
+ MTextFragment  
+This .NET class wraps the AcDbMTextFragment ObjectARX struct.
+This class is used to describe a fragment of text as extracted... more  
+ MultiModesGripPE  When implemented and registered as a protocol extension to an Autodesk.AutoCAD.DatabaseServices.Entity-derived class, this protocol extension interface specifies the communication with... more  
+ NormalConstraint  This class represents a Normal constraint node in the owning Assoc2dConstraintGroup.
+Currently it can only be applied between a line... more  
+ Notifier  This is class Autodesk.AutoCAD.DatabaseServices.Notifier.  
+ NurbSurface  
+This wraps the ObjectARX AcDbNurbSurface class.  
+ ObjectClosedEventArgs  This is class Autodesk.AutoCAD.DatabaseServices.ObjectClosedEventArgs.  
+ ObjectContext  
+This .NET class wraps the AcDbObjectContext ObjectARX class.
+An abstract base class for representing a particular context which may affect... more  
+ ObjectContextCollection  This .NET class wraps the AcDbObjectContextCollection ObjectARX class.
+An interface to an application-defined collection of ObjectContext objects.
+Applications implement this... more  
+ ObjectContextCollectionEnumerator  This .NET class wraps the AcDbObjectContextCollectionIterator ObjectARX class.
+An iterator interface for ObjectContext objects stored in an ObjectContextCollection.
+Applications... more  
+ ObjectContextManager  
+This .NET class wraps the AcDbObjectContextManager ObjectARX class.
+Exposes the collection of context types supported by the drawing.
+Each Database... more  
+ ObjectErasedEventArgs  
+This class provides data for the ObjectErased
+event of the Database class.  
+ ObjectEventArgs  
+This class provides data for various object-related events of the database.  
+ ObjectIdCollection  
+This class contains a collection of Object IDs.  
+ ObjectIdGraph  
+This .NET class wraps the AcDbObjectIdGraph ObjectARX class.
+ObjectIdGraph is derived from Graph and is used to represent the relationship... more  
+ ObjectIdGraphNode  Wraps the ObjectARX AcDbObjectIdGraphNode class.  
+ ObjectOverrule  
+This .NET class wraps the ObjectARX class AcDbObjectOverrule.  
+ ObjectSnapContext  
+This class represents the input parameters of the CustomOsnapInfo.getOsnapInfo() ObjectARX function.  
+ ObjectSnapInfo  
+This class represents the output parameters of CustomOsnapInfo.getOsnapInfo() ObjectARX function.  
+ ObjectTypeAttribute  
+This class reports the type of an object.  
+ Ole2Frame  
+This .NET class wraps the AcDbOle2Frame ObjectARX class.
+This class provides support for OLE 2 objects in AutoCAD drawings. Essentially... more  
+ OpenCloseTransaction  
+This class may be used instead of the transaction class in certain scenarios.. It wraps the ObjectId.Open/Close functions,... more  
+ OpenModeAttribute  
+Reports the open mode. See the OpenMode enum documentation for more information.  
+ OrdinateDimension  This is class Autodesk.AutoCAD.DatabaseServices.OrdinateDimension.  
+ OsnapOverrule  
+This .NET class wraps the ObjectARX class AcDbOsnapOverrule.  
+ ParallelConstraint  This class represents a Parallel constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two constrained lines.  
+ PathRef  This wraps the ObjectARX AcDbPathRef class.  
+ PdfDefinition  
+This .NET class wraps the ObjectARX class AcDbPdfDefinition.  
+ PdfReference  
+This .NET class wraps the ObjectARX class AcDbPdfReference.  
+ PerpendicularConstraint  This class represents a Perpendicular constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two lines.  
+ PlaceHolder  
+This .NET class wraps the AcDbPlaceHolder ObjectARX class.
+This class provides a way to instantiate what is essentially just an... more  
+ PlaneSurface  
+This .NET class wraps the AcDbPlaneSurface ObjectARX class.
+This class represents a plane surface entity. It provides methods to create... more  
+ PlotSettings  
+This .NET class wraps the AcDbPlotSettings ObjectARX class.
+The PlotSettings object stores "what-to-plot" settings as a named plot setup description.... more  
+ PlotSettingsValidator  
+This .NET class wraps the AcDbPlotSettingsValidator ObjectARX class.
+This class exports access methods that validate data on an PlotSettings object... more  
+ PlotStyleTableChangedEventArgs  
+This class provides data for PlotStyleTableChanged event of the LayoutManager class.  
+ Point3AngularDimension  
+This .NET class wraps the AcDb3PointAngularDimension ObjectARX class.
+The Point3AngularDimension class represents the angular dimension defined by three points (as... more  
+ PointCloud  This is class Autodesk.AutoCAD.DatabaseServices.PointCloud.  
+ PointCloudClassificationColorRamp  This is class Autodesk.AutoCAD.DatabaseServices.PointCloudClassificationColorRamp.  
+ PointCloudColorMap  This is class Autodesk.AutoCAD.DatabaseServices.PointCloudColorMap.  
+ PointCloudColorRamp  This is class Autodesk.AutoCAD.DatabaseServices.PointCloudColorRamp.  
+ PointCloudCrop  
+This class defines a cropping boundary for the PointCloudEx entity. Each cropping boundary contains a plane which locates the boundary,... more  
+ PointCloudDefEx  The PointCloudDefEx object (or "point cloud extension definition object") controls the actual point cloud data associated with one or more... more  
+ PointCloudEx  
+The PointCloudEx entity (or "point cloud extension entity") works with the AcDbPointCloudDefEx object (or "point cloud extension definition object") to... more  
+ PointCloudItem  
+Class point cloud item, which presents different type of point cloud elements, for example project, scan, region, etc.  
+ PointCoincidenceConstraint  This class represents a PointCoincidence (coincident) constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two constrained point.... more  
+ PointCurveConstraint  This class represents a PointCurve (coincident) constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between a constrained point... more  
+ PolyFaceMesh  
+This .NET class wraps the AcDbPolyFaceMesh ObjectARX class.
+The PolyFaceMesh class represents the PolyFaceMesh special polyline entity type within AutoCAD.... more  
+ PolyFaceMeshVertex  
+This .NET class wraps the AcDbPolyFaceMeshVertex ObjectARX class.
+The PolyFaceMeshVertex class represents the vertices within PolyFaceMesh entities in AutoCAD drawings.... more  
+ PolygonMesh  
+This .NET class wraps the AcDbPolygonMesh ObjectARX class.
+The PolygonMesh class represents the polygon mesh entity within AutoCAD.
+A PolygonMesh... more  
+ PolygonMeshVertex  
+This .NET class wraps the AcDbPolygonMeshVertex
+ObjectARX class.
+The PolygonMeshVertex class represents vertices within polygon meshes in AutoCAD.  
+ Polyline  
+This .NET class wraps the AcDbPolyline ObjectARX class.
+Polyline is often called a lightweight polyline because of its efficient use... more  
+ Polyline2d  
+This .NET class wraps the AcDb2dPolyline ObjectARX class.
+The Polyline2d class represents the 2D polyline entity within AutoCAD.  
+ Polyline3d  
+This .NET class wraps the AcDb3dPolyline ObjectARX class.
+The Polyline3d class represents the 3D polyline entity within AutoCAD.  
+ PolylineVertex3d  
+This .NET class wraps the AcDb3dPolylineVertex ObjectARX class.
+The PolylineVertex3d class represents the vertices within 3D polylines in AutoCAD.  
+ Profile3d  This wraps the ObjectARX AcDb3dProfile class.  
+ PropertiesOverrule  This .NET class wraps the ObjectARX class AcDbPropertiesOverrule.  
+ ProxyEntity  
+This .NET class wraps the AcDbProxyEntity ObjectARX class.
+This abstract class provides an interface to the description data for the... more  
+ ProxyObject  
+This .NET class wraps the AcDbProxyObject ObjectARX class.
+This abstract class provides an interface to the description data for the... more  
+ ProxyResurrectionCompletedEventArgs  
+This class provides data for the ProxyResurrectionCompleted event of the database.  
+ RadialDimension  
+This .NET class wraps the AcDbRadialDimension ObjectARX class.
+The RadialDimension class represents the radius dimension type in AutoCAD.
+This dimension... more  
+ RadialDimensionLarge  
+This .NET class wraps the AcDbRadialDimensionLarge ObjectARX class.
+This class represents a large radial dimension, also known as a jogged... more  
+ RadiusDiameterConstraint  This class represents a radius or diameter constraint node in the owning Assoc2dConstraintGroup.
+It can be applied on one circle(arc)... more  
+ RapidRTRenderSettings  
+Container for all properties relating to the rapid RT renderer. See the base class RenderSettings for more information.  
+ RasterImage  
+This .NET class wraps the AcDbRasterImage ObjectARX class.
+The RasterImage entity (or "image entity") works with the RasterImageDef object (or... more  
+ RasterImageDef  
+This .NET class wraps the AcDbRasterImageDef ObjectARX class.
+The RasterImageDef object (or "image definition object") works with the RasterImage entity... more  
+ RasterVariables  
+This .NET class wraps the AcDbRasterVariables ObjectARX class.
+The RasterVariables object carries all drawing-scope persistent variables associated with AutoCAD raster... more  
+ Ray  
+This .NET class wraps the AcDbRay ObjectARX class.
+The Ray class represents the RAY entity type within AutoCAD.
+A ray... more  
+ RegAppTable  
+This .NET class wraps the AcDbRegAppTable ObjectARX class.  
+ RegAppTableRecord  
+This .NET class wraps the AcDbRegAppTableRecord ObjectARX class.
+Objects of this class represent records in the RegAppTable (known as the... more  
+ Region  This .NET class wraps the AcDbRegion ObjectARX class.
+Objects of this class represent region entities in AutoCAD.
+An Region entity... more  
+ RenderEnvironment  
+This .NET class wraps the AcDbRenderEnvironment ObjectARX class.
+This is a container class for environment-related properties, including fog / depth... more  
+ RenderGlobal  
+This .NET class wraps the AcDbRenderGlobal ObjectARX class.
+Container for all global rendering properties. One and only one of these... more  
+ RenderSettings  
+This .NET class wraps the AcDbRenderSettings ObjectARX class.
+This class is a container for all properties relating to a generic... more  
+ ResultBuffer  
+This .NET class wraps the resbuf ObjectARX struct.
+Result buffer structure that handles all AutoCAD basic data types. See ObjectARX... more  
+ ResultBufferEnumerator  This enumerator walks the linked list of an underlying resbuf ObjectARX structure.  
+ RevolvedSurface  
+This .NET class wraps the AcDbRevolvedSurface ObjectARX class.
+This class represents a revolved surface entity. It provides methods to create... more  
+ RevolveOptions  
+This .NET class wraps the AcDbRevolveOptions ObjectARX class.
+Utility class for setting options used by CreateRevolvedSurface() and CreateRevolvedSolid(). These... more  
+ RevolveOptionsBuilder  
+This class is used to edit the properties of the RevolveOptions class, which is an immutable value type.  
+ RevolveOptionsCheckRevolveCurveOut  
+This class encapsulates the values output by the RevolveOptions.CheckRevolveCurve() method.  
+ RotatedDimension  
+This class wraps the AcDbRotatedDimension ObjectARX class.
+The RotatedDimension class represents the dimension type that dimensions the distance between two... more  
+ Section  
+This .NET class wraps the AcDbSection ObjectARX class. It represents the section plane entity in AutoCAD.  
+ SectionManager  
+This .NET class wraps the AcDbSectionManager ObjectARX class.
+
+This class is used to manage the section planes in a database.... more  
+ SectionSettings  
+This .NET class wraps the AcDbSectionSettings ObjectARX class. This class stores section geometry settings.  
+ SectionSymbol  The SectionSymbol class represents the section view symbol entity used by model documentation views in association with a Viewport entity.... more  
+ SectionViewStyle    
+ SecurityParameters  
+This .NET class wraps the SecurityParams ObjectARX struct.
+It stores information for security operations requested during DWG file I/O.  
+ SequenceEnd  
+This .NET class wraps the AcDbSequenceEnd ObjectARX class.
+
+The SequenceEnd class represents the SEQEND entity within AutoCAD. Objects of this... more  
+ Shape  
+This .NET class wraps the AcDbShape ObjectARX class. It represents the SHAPE entity within AutoCAD.  
+ Solid  
+This .Net class wraps AcDbSolid ObjectARX class.
+
+The Solid class is the representation for the SOLID entity within AutoCAD. The... more  
+ Solid3d  This .Net class wraps the ObjectARX class AcDbSolid3d.  
+ SolidBackground  
+This .NET class wraps the AcDbSolidBackground ObjectARX class. This class represents a solid background.  
+ Spline  
+This class implements the AutoCAD SPLINE entity.
+
+Objects of the Spline class use an embedded gelib object to maintain the... more  
+ SubDMesh  This .NET class wraps the ObjectARX AcDbSubDMesh Class.  
+ SubentityGeometry  A simple class that just keeps geometry of a vertex or edge subentity.  
+ SubentityOverrule  This .NET class wraps the ObjectARX class AcDbSubentityOverrule.  
+ SubentRef  This wraps the ObjectARX AcDbSubentRef class  
+ Sun  
+This .NET class wraps the AcDbSun ObjectARX class.
+
+Sun class is a container for all properties relating to a sun... more  
+ Surface  This .Net class wraps the ObjectARX class AcDbSurface.  
+ SurfaceTrimInfo  This wraps the ObjectARX AcDbSurfaceTrimInfo class.  
+ SweepOptions  This .NET class wrap the ObjectARX AcDbSweepOptions class.
+Use SweepOptionsBuilder class to set sweep options.  
+ SweepOptionsBuilder  
+Allows SweepOptions to be set.  
+ SweptSurface  
+This .NET class wraps the AcDbSweptSurface ObjectARX class. This class represents a swept surface entity. It provides methods to create... more  
+ SymbolTable  
+This .NET class wraps the AcDbSymbolTable ObjectARX class.
+
+SymbolTable is the base class for all of the classes used to... more  
+ SymbolTableEnumerator  
+This .NET class wraps the AcDbSymbolTableIterator ObjectARX class. This class is a base class for iterator classes that are used... more  
+ SymbolTableRecord  
+This .NET class wraps the AcDbSymbolTableRecord ObjectARX class. This is the base class for each type of record corresponding to... more  
+ SymbolUtilityServices  
+This .NET class wraps the Services ObjectARX class within the AcDbSymbolUtilities namespace.  
+ SymmetricConstraint  This class represents a Symmetric constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two same type of... more  
+ Table  This .NET class wraps the AcDbTable ObjectARX class.
+Table is a planar entity that can be created and placed in... more  
+ TableContent  
+This .NET class wraps the AcDbTableContent ObjectARX class.
+
+TableContent derives from AcDbFormattedTableData and supports formatting of table using table style... more  
+ TableEnumerator  This .NET class wraps the AcDbTableIterator ObjectARX class. It creates an iterator to traverse table rows, columns, and cells.  
+ TableStyle  
+This .NET class wraps the AcDbTableStyle ObjectARX class.
+
+TableStyle class objects are used to store the table formatting properties (for... more  
+ TableTemplate  
+This .NET class wraps the AcDbTableTemplate ObjectARX class.
+
+This class is used to capture, store, and manage templates of AutoCAD... more  
+ TangentConstraint  This class represents a Tangent constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between two constrained curve.  
+ TextEditor  This wraps the ObjectARX AcDbTextEditor class.  
+ TextEditorColumn  This wraps the ObjectARX AcDbTextEditorColumn class.  
+ TextEditorColumns  This wraps the ObjectARX AcDbTextEditorColumns class.  
+ TextEditorCursor  This wraps the ObjectARX AcDbTextEditorCursor class.  
+ TextEditorLocation  This wraps the ObjectARX AcDbTextEditorLocation class.  
+ TextEditorParagraph  This wraps the ObjectARX AcDbTextEditorParagraph class.  
+ TextEditorSelection  This wraps the ObjectARX AcDbTextEditorSelection class.  
+ TextEditorSelectionbase  This wraps the ObjectARX AcDbTextEditorSelectionBase class.  
+ TextEditorWipeout  This wraps the ObjectARX AcDbTextEditorWipeout class.  
+ TextStyleTable  
+This .NET class wraps the AcDbTextStyleTable ObjectARX class. This class is the symbol table for TextStyleTableRecords which represent text styles.... more  
+ TextStyleTableRecord  
+This .NET class wraps the AcDbTextStyleTableRecord ObjectARX class.
+
+Objects of this class represent the records that are found in the... more  
+ ThreePointAngleConstraint  This class represents an angle constraint node in the owning Assoc2dConstraintGroup.
+It can be applied between 3 constrained points.  
+ Transaction  This .NET class wraps the AcTransaction ObjectARX class.
+
+Transactions provide a way to extend the boundary of operation on an... more  
+ TransactionManager  
+This .NET class wraps the AcDbTransactionManager ObjectARX class.
+
+There is a single object of class TransactionManager created by the ObjectARX... more  
+ TransformOverrule  
+This .NET class wraps the ObjectARX class AcDbTransformOverrule.  
+ UcsTable  
+This .NET class wraps the AcDbUCSTable ObjectARX class.
+
+This class is the symbol table for AcDbUCSTableRecord, which represents stored... more  
+ UcsTableRecord  
+This .NET class wraps the AcDbUCSTableRecord ObjectARX class.
+
+Objects of this class represent records in the UcsTable. Each of... more  
+ UnderlayDefinition  
+This .NET class wraps the AcDbUnderlayDefinition ObjectARX class.
+
+UnderlayDefinition is an abstract class that handles the linkage to external underlay... more  
+ UnderlayFile  
+This .NET class wraps the AcDbUnderlayFile ObjectARX class.
+
+This interface is implemented by host applications that wish to support underlays.... more  
+ UnderlayHost  
+This .NET class wraps the AcDbUnderlayHost ObjectARX class.
+
+This interface is implemented by host applications that wish to support underlays.... more  
+ UnderlayItem  
+This .NET class wraps the AcDbUnderlayItem ObjectARX class.
+
+This interface is implemented by host applications that wish to support underlays.... more  
+ UnderlayItemCollection  This class provides a collection for UnderlayItem objects.  
+ UnderlayLayer  
+This .NET class wraps the AcUnderlayLayer ObjectARX class.
+
+UnderlayLayer is an abstract class that represents underlay layers in the drawing.
+
+Underlays... more  
+ UnderlayLayerCollection  This class provides a collection for UnderlayLayer objects.  
+ UnderlayReference  
+This .Net class wraps AcDbUnderlayReference ObjectARX class.
+
+UnderlayReference is an abstract class that represents underlays in the drawing. Underlays are... more  
+ UnitsConverter  
+This class implements the System.ComponentModel.TypeConverter interface.  
+ Vertex  
+This .NET class wraps the AcDbVertex ObjectARX class.
+
+The Vertex class is the base class for all the vertex types... more  
+ Vertex2d  
+This .NET class wraps the AcDb2dVertex ObjectARX class.
+
+The 2dVertex class represents the vertices in 2D polylines. It is the... more  
+ VertexRef  This wraps the ObjectARX AcDbVertexRef class  
+ VerticalConstraint  This class represents a Vertical constraint node in the owning Assoc2dConstraintGroup.
+It can be applied on one constrained line.  
+ ViewBorder  The ViewBorder class represents the border entity used by model documentation views in association with a Viewport entity.  
+ Viewport  
+This .NET class wraps the AcDbViewport ObjectARX class.
+
+The Viewport class represents the VIEWPORT entity within AutoCAD.  
+ ViewportTable  
+This .NET class wraps the AcDbViewportTable ObjectARX class.
+
+ViewportTable is the symbol table for ViewportTableRecords, which represent viewport configurations... more  
+ ViewportTableRecord  
+This .NET class wraps the AcDbViewportTableRecord ObjectARX class.
+
+Objects of this class represent viewport arrangements when TILEMODE == 1 within... more  
+ ViewRepBlockReference  
+The ViewRepBlockReference class represents the AcDbViewRepBlockReference entity used by model documentation views in association with a Viewport entity.
+  
+ ViewTable  
+This .NET class wraps the AcDbViewTable ObjectARX class.
+
+ViewTable is the symbol table for ViewTableRecords, which represent stored views... more  
+ ViewTableRecord  
+This .NET class wraps the AcDbViewTableRecord ObjectARX class.
+
+Objects of this class represent stored views within AutoCAD. The ViewTable object... more  
+ VisibilityOverrule  Wraps the ObjectARX AcDbVisibilityOverrule class.  
+ WblockNoticeEventArgs  This class provides data for the WblockNotice event of the database.  
+ Wipeout  
+This .NET class wraps the AcDbWipeout ObjectARX class.
+
+Objects of the Wipeout class are polygonally clipped raster entities that are... more  
+ Xline  
+This .NET class wraps the AcDbXline ObjectARX class.
+
+The Xline class represents the XLINE entity type within AutoCAD. An xline... more  
+ Xrecord  
+This .NET class wraps the AcDbXrecord ObjectARX class.
+
+The Xrecord class is a data storage class that was implemented primarily... more  
+ XrecordEnumerator  This is class Autodesk.AutoCAD.DatabaseServices.XrecordEnumerator.  
+ XrefBeginOperationEventArgs  
+This class provides data for the XrefBeginRestore, XrefBeginAttached and XrefBeginOtherAttached events of the database.  
+ XrefComandeeredEventArgs  
+This class provides data for the XrefComandeered event of the database.  
+ XrefGraph  
+This .NET class wraps the AcDbXrefGraph ObjectARX class.
+
+XrefGraph is a derived class for representing xrefs, using the XrefGraphNode class... more  
+ XrefGraphNode  
+This .NET class wraps the AcDbXrefGraphNode ObjectARX class.
+
+XrefGraph is a derived class for representing an xref. Each XrefGraphNode represents... more  
+ XrefPreXrefLockFileEventArgs  
+This class provides data for the XrefPreXrefLockFile event.  
+ XrefRedirectedEventArgs  
+This class provides data for the XrefRedirected event of the database.  
+ XrefSubCommandEventArgs  
+This class provides data for the XrefSubCommand event.  
+ XrefVetoableSubCommandEventArgs  
+This class provides data for the XrefVetoableSubCommand event.  
+
+Enumerations
+Enumeration  Description  
+ AngleConstraint  
+This .NET enum wraps the AcDbMLeaderStyle::SegmentAngleType ObjectARX enum.
+This is an enum of the segment angle types.  
+ AnnotationType  
+This .NET class wraps the AcDbLeader::AnnoType ObjectARX enum.
+
+This enum describes the type of the annotation.  
+ AnnotativeStates  This class determines the state of the annotation (whether it exists or not).  
+ ApplicationLoadReasons  This .NET class wraps the AcadApp::LoadReasons ObjectARX enum.
+
+That enumerated type contains reasons to demand load an application.  
+ AssocConstraintType  This enum describes dimensional constraint type.  
+ AssocDraggingState  While in the middle of evaluation, the action may inquire the client code whether the evaluation is happening from inside... more  
+ AssocEvaluationMode  At the beginning of AssocActionBody.EvaluateOverride() implementation, the custom code needs to query the mode in which it should evaluate itself.... more  
+ AssocEvaluationPriority  Negative numbers mean that an AssocAction cannot be evaluated at this time, positive numbers mean that the action can now... more  
+ AssocStatus  The status of AssocActions and AssocDependencies. In case of an action it relates to the action itself, in case of... more  
+ AssocTransformationType  Information about what type of transformation (which AutoCAD command) has been performed with the entities before the actions that have... more  
+ AttachmentPoint  
+This .NET class wraps the AttachmentPoint ObjectARX enum. It represents the attachment point positions of an MText object.  
+ AuditPass  
+This .NET class wraps the AcDbAuditInfo::AuditPass ObjectARX enumeration, which keeps track of which pass the command is on.  
+ BlockConnectionType  
+This .NET class wraps the AcDbMLeaderStyle::BlockConnectionType ObjectARX enumeration.
+This enum describes the types of block connection type.  
+ BlockScaling  
+This .NET class wraps the AcDbBlockTableRecord::BlockScaling ObjectARX enumeration.
+
+It is an enum whose values control whether block references associated with... more  
+ BooleanOperationType  
+This .NET class wraps the AcDb::BoolOperType ObjectARX enum.  
+ CellAlignment  
+This .NET class wraps the CellAlignment ObjectARX enum.
+These values specify how text will be aligned in a table cell and... more  
+ CellClass  This .NET class wraps the CellClass ObjectARX enum.
+These values define the cell class types.  
+ CellContentLayout  
+This .NET class wraps the CellContentLayout ObjectARX enum.
+These values define the content cell layout options.  
+ CellContentTypes  
+This .NET class wraps the CellContentType ObjectARX enum.
+These values define the content cell types.  
+ CellEdgeMasks  
+This .NET class wraps the CellEdgeMasks ObjectARX enum.
+These values specify the cell edge of a table cell.  
+ CellMargins  
+This .NET class wraps the CellMargins ObjectARX enum.
+These values specify the margin types.  
+ CellOption  
+This .NET class wraps the CellOption ObjectARX enum.
+For internal use only.  
+ CellProperties  
+This .NET class wraps the CellProperty ObjectARX enum.
+These values specify the cell properties.  
+ CellStates  
+This .NET class wraps the CellState ObjectARX enum.
+These values specify the various states of the data in a cell.  
+ CellType  
+This .NET class wraps the AcDbDataCell::CellType ObjectARX enum.
+These values specify the data types that can be represented by an DataCell... more  
+ ClipBoundaryType  
+This .NET class wraps the AcDbRasterImage::ClipBoundaryType
+ObjectARX ebum.  
+ CollisionType  
+This .NET class wraps the AcDbEntity::collisionType ObjectARX enum.  
+ ColumnType  
+This .NET enum wraps the AcDbMText::ColumnType ObjectARX enum.
+It defines the types of columns.  
+ ConstrainType  
+This .NET class wraps the AcDbHelix::ConstrainType ObjectARX enum. A constraint is used to make a variable constant. When using the height... more  
+ ContentType  
+This .NET class wraps the AcDbMLeaderStyle::ContentType ObjectARX enum. This enum describes the types of content type for MLeader.  
+ DataLinkGetSourceContext  
+Describes where the data link source is contexted.  
+ DataLinkOption  
+This .NET class wraps the DataLinkOption ObjectARX class.
+It provides options for data links.  
+ DataType  This .NET class wraps the DataType ObjectARX class.  
+ DeepCloneType  
+This .NET class wraps the AcDb::DeepCloneType ObjectARX enum.
+It defines the types of deep cloning.  
+ DefaultLightingType  
+This .NET enum wraps the AcGiViewportTraits.DefaultLightingType ObjectARX enum.
+Enumerates the types of default lights available for viewports and full renders. One... more  
+ DetailSymbolBoundaryType  
+An enum defining the type of the detail symbol boundary.  
+ DetailSymbolOverriddenProperty  
+An enum to indicate which property of the style is overridden.  
+ DetailViewIdentifierPlacement  The type of detail view identifier placement.  
+ DetailViewModelEdge  The type of the detail view model edge.  
+ DimArrowFlag  
+This .NET class wraps the AcDb::DimArrowFlags ObjectARX enum.  
+ DimensionCenterMarkType  
+Describes the type of dimension center mark.  
+ DragStatus  
+This .NET class wraps the AcDb::DragStat ObjectARX enum.
+It provides status values concerning a drag operation.  
+ DrawLeaderOrderType  
+This .NET class wraps the AcDbMLeaderStyle::DrawLeaderOrderType ObjectARX enum.
+This enum describes the types of the order of creating MLeader object's... more  
+ DrawMLeaderOrderType  
+This .NET class wraps the AcDbMLeaderStyle::DrawMLeaderOrderType ObjectARX class.
+This enum describes the types of the order of creating MLeader object.... more  
+ DuplicateRecordCloning  
+This .NET class wraps the DuplicateRecordCloning ObjectARX enum.  
+ DwgVersion  This .NET class wraps the AcDb::AcDbDwgVersion ObjectARX enum.
+It contains values for the DWG versions.  
+ DxfCode  
+This .NET class wraps the AcDb::DxfCode ObjectARX enum.
+This enumerated type contains all the primary DXF group code values.
+Ranges... more  
+ DynamicBlockReferencePropertyUnitsType  
+This .NET class wraps the AcDbDynBlockReferenceProperty::UnitsType ObjectARX enum.
+Describes the units (if any) of the property. Clients can use this... more  
+ EndCap  
+This .NET class wraps the AcDb::EndCaps ObjectARX enum.  
+ FieldCodeFlags  
+This .NET class wraps the AcDbField::FieldCodeFlag ObjectARX enum. It represents the field code flags.  
+ FieldEvaluationContext  
+This .NET enum wraps the AcDbField::EvalContext ObjectARX enum. These values specify the context in which the field is evaluated.  
+ FieldEvaluationOptions  
+This .NET enum wraps the AcDbField::EvalOption ObjectARX enum. These values specify the evaluation option for the field.  
+ FieldEvaluationStatus  
+This .NET enum wraps the AcDbField::EvalStatus ObjectARX enum. These values specify the evaluation status of the field.  
+ FieldFilingOptions  
+This .NET enum wraps the AcDbField::FilingOption ObjectARX enum. This value specifies the filing option set by the field evaluators.  
+ FieldState  
+This .NET enum wraps the AcDbField::State ObjectARX enum. These values specify the state of the field.  
+ FileOpenMode  
+This .NET enum wraps the AcDbDatabase::OpenMode ObjectARX enum.
+This enumerated type provides the mode values used to specify how a database... more  
+ FilerType  
+This .NET class wraps the FilerType ObjectARX enum. This enum defines the types of filers.  
+ FilletTrimMode  
+This wraps the ObjectARX AcDb::FilletTrimMode enum.  
+ FindFileHint  
+This .NET class wraps the AcDbHostApplicationServices::FindFileHint ObjectARX enum.  
+ FlowDirection  
+This .NET class wraps the AcDbMText::FlowDirection ObjectARX class.  
+ FormatOption  
+This .NET class wraps the FormatOption ObjectARX class.
+For internal use only.  
+ FrameSetting  
+This .NET class wraps the AcDbRasterVariables::FrameSettings ObjectARX class.  
+ GeoCSProjectionCode  This is record Autodesk.AutoCAD.DatabaseServices.GeoCSProjectionCode.  
+ GeoCSType  This is record Autodesk.AutoCAD.DatabaseServices.GeoCSType.  
+ GeoCSUnit  This is record Autodesk.AutoCAD.DatabaseServices.GeoCSUnit.  
+ GeomapType  GeoMapType enum is used by both LiveMap and GeomapImage which is a snapshot of the LiveMap.  
+ GradientPatternType  
+This .NET class wraps the AcDbHatch::GradientPatternType ObjectARX enum.
+Values in this enum indicate the source of the gradient pattern.  
+ GraphicsMetafileType  
+This .NET class wraps the AcDbProxyEntity::GraphicsMetafileType ObjectARX enum.  
+ GridLineStyle  
+This .NET class wraps the AcDb::GridLineStyle ObjectARX enum.  
+ GridLineType  
+This .NET class wraps the AcDb::GridLineType ObjectARX enum. These values describe the grid lines of a table.  
+ GridProperties  
+This .NET class wraps the AcDb::GridProperty ObjectARX enum. These values describe the grid lines of a table.  
+ GripStatus  
+This .NET class wraps the AcDb::GripStat ObjectARX enum.
+This enumeration provides status values concerning a grip operation.  
+ GsMarkType  
+This .NET class wraps the AcDbMLeader::gsMarkType ObjectARX enum.  
+ HatchEdgeType  
+This .NET class wraps the AcDbHatch::HatchEdgeType ObjectARX enum.
+The HatchEdgeType enumeration lists the geometry types used in hatch boundary edges.... more  
+ HatchLoopTypes  
+This .NET class wraps the AcDbHatch::HatchLoopType ObjectARX enum.
+The HatchLoopTypes enumeration is used to define the different types of bounding... more  
+ HatchObjectType  
+This .NET class wraps the AcDbHatch::HatchObjectType ObjectARX enum.
+Values in this enum describe the type of a hatch object.  
+ HatchPatternType  
+This .NET class wraps the AcDbHatch::HatchPatternType ObjectARX class.
+AutoCAD hatch pattern types: User-defined, Predefined, and Custom. For more detailed information about... more  
+ HatchStyle  
+This .NET class wraps the AcDbHatch::HatchStyle ObjectARX enum.
+AutoCAD currently supports three hatch styles, which are Normal, Outer, and Ignore.... more  
+ ImageDisplayOptions  
+This .NET class wraps the AcDbRasterImage::ImageDisplayOpt ObjectARX enum.
+The ImageDisplayOptions types specify display options.  
+ ImageQuality  
+This .NET class wraps the AcDbRasterVariables::ImageQuality ObjectARX enum.  
+ ImplicitPointType  
+The type of a constrained implicit point.  
+ IndexCreation  
+This .NET enum wraps the AcDb::IndexCreation ObjectARX enumeration.
+
+This enum supports the INDEXCTL header variable. Fields are bit-coded and can... more  
+ Intersect  
+This .NET class wraps the AcDb::Intersect ObjectARX class.  
+ JoinStyle  
+This .NET class wraps the AcDb::JoinStyle ObjectARX class.
+This enum describes the styles of join.  
+ LampColorPreset  
+This .NET class wraps the AcDbLight::LampColorPreset ObjectARX enum.  
+ LampColorType  
+This .NET class wraps the AcDbLight::LampColorType ObjectARX class.  
+ LayerEvaluation  
+This .NET enum wraps the ObjectARX AcDb::LayerEvaluation enumeration.
+
+This enum supports the new API exposure of the LAYEREVAL header variable.... more  
+ LayerStateMasks  
+This .NET class wraps the AcDbLayerStateManager::LayerStateMask ObjectARX class.
+The LayerStateMasks enumeration defines the bits used to specify the layer attributes.... more  
+ LeaderDirectionType  
+This .NET class wraps the AcDbMLeaderStyle::LeaderDirectionType ObjectARX enum.
+This enum is the leader direction type.  
+ LeaderType  
+This .NET class wraps the AcDbMLeaderStyle::LeaderType ObjectARX enum.
+This enum describes the types of the type of leaderline.  
+ LightingUnits  
+This .NET enum wraps the ObjectARX AcDb.LightingUnits enum.
+Accesses the lighting units for a drawing.  
+ LineSpacingStyle  
+This .NET class wraps the AcDb::LineSpacingStyle ObjectARX enum.
+The LineSpacingStyle values are used by the MText property LineSpacingStyle to select the... more  
+ LineWeight  This .NET class wraps the AcDb::LineWeight ObjectARX enumerated type.
+This enumerated type provides the line weight (thickness) values used to... more  
+ LoftOptionsNormalOption  
+This .NET class wraps the AcDbLoftOptions::NormalOption ObjectARX enum.
+It is an enumerated type for specifying plane normal lofting.  
+ LongTransactionType  This wraps the ObjectARX AcDb::LongTransactionType class  
+ MaintenanceReleaseVersion  This .NET class wraps the AcDb::MaintenanceReleaseVersion ObjectARX enumerated type.
+This is an entity containing information about the release versions.  
+ MeasurementValue  
+This .NET class wraps the AcDb::MeasurementValue ObjectARX class.  
+ MergeCellStyleOption  
+This .NET class wraps the MergeCellStyleOption ObjectARX enum.
+It contains options for merging cell styles.  
+ MlineJustification  
+This .NET class wraps the Mline::Justification ObjectARX enum.
+This enum defines the type of justifications an mline can have.  
+ ModelDocViewLabelAlignmentType  The type of alignment for the section view label text.  
+ ModelDocViewLabelAttachmentPoint  The type of attachment for the model documentation view label text.  
+ ModelerFlavor  
+This .NET class wraps the AcDbHostApplicationServices::ModelerFlavor ObjectARX enum.
+It enumerates the possible levels of geometric modeler support available from the... more  
+ MoveType  
+This .NET class wraps the AcDbMLeader::MoveType ObjectARX enum.
+It describes the way in which MLeaders can be moved.  
+ MTextFragmentCallbackStatus  
+This enumeration is used to return the result of an MTextFragmentCallback callback function.  
+ NewLayerNotification  
+This .NET enum wraps the AcDb::NewLayerNotification ObjectARX enumeration.
+
+This enum supports the LAYERNOTIFY header variable. Fields are bit-coded and can... more  
+ ObjectSnapModes  
+This .NET class wraps the AcDb::OsnapMode ObjectARX enum.
+It describes the way objects can snap.  
+ OpenMode  
+This .NET class wraps the AcDb::OpenMode ObjectARX enum.
+This enumerated type provides the mode values used to specify how a... more  
+ OrthographicView  
+This .NET class wraps the AcDb::OrthographicView ObjectARX enum.  
+ PaperOrientationStates  
+An enum which retrieves the current value of the paper orientation property on an annotative object.  
+ ParseOption  
+This .NET class wraps the AcValue::ParseOption ObjectARX enum.
+This enumeration describes the parsing options for the value.  
+ PasswordOptions  
+This .NET class wraps the AcDbHostApplicationServices::PasswordOptions ObjectARX enum.  
+ PathOption  
+This .NET class wraps the AcDb::PathOption ObjectARX class.
+It represents path options.  
+ PhysicalIntensityMethod  
+This .NET class wraps the AcDbLight::PhysicalIntensityMethod ObjectARX enum.  
+ Planarity  
+This .NET class wraps the AcDb::Planarity ObjectARX enum.  
+ PlotPaperUnit  
+This .NET class wraps the AcDbPlotSettings::PlotPaperUnits ObjectARX enum.  
+ PlotRotation  
+This .NET class wraps the AcDb::PlotRotation ObjectARX class.  
+ PlotSettingsShadePlotType  
+This .NET class wraps the AcDbPlotSettings::ShadePlotType ObjectARX enum.
+This enumerated type defines the shade plot mode of the current PlotSettings... more  
+ PlotStyleNameType  
+This .NET class wraps the AcDb::PlotStyleNameType
+ObjectARX enum.  
+ PlotType  
+This .NET class wraps the PlotType ObjectARX class. It specifies the type of plot generated.  
+ PointCloudCropType  Defines the crop type. The crop type is the shape of the cropping region.  
+ PointCloudDispOptionOutOfRange  
+Defines the display options for the points which are out of intensity/elevation range.  
+ PointCloudItemType  
+Describes the type of point cloud item.  
+ PointCloudProperty  
+Defines the properties of point cloud data.  
+ PointCloudPropertyState  Defines the current state of supported properties in the point cloud data.  
+ PointCloudStylizationType  
+Defines colorization mode of the point cloud.  
+ Poly2dType  
+This .NET class wraps the AcDb::Poly2dType ObjectARX enum.  
+ Poly3dType  
+This .NET class wraps the AcDb::Poly3dType ObjectARX enum.  
+ PolyMeshType  
+This .NET class wraps the AcDb::PolyMeshType ObjectARX enum.  
+ RapidRTRenderTarget  
+This is record RapidRTRenderSettings::RenderTarget.  
+ RigidSetTypeInfo  Rigid set type.  
+ RotationAngle  
+This .NET class wraps the AcDb::RotationAngle ObjectARX enum.
+It specifies the text rotation angle within table cells.  
+ RowType  
+This .NET enum wraps the AcDb::RowType ObjectARX enum. This value represents all row types for a table.  
+ SaveType  This .NET enum wraps the AcDb::SaveType ObjectARX enum.  
+ SectionGeneration  
+This .NET class wraps the AcDbSectionSettings::Generation ObjectARX enum.
+Generation flags to control section creation. There are two groups of flags: source... more  
+ SectionGeometry  
+This .NET enum wraps the AcDbSectionSettings::Geometry ObjectARX enum. It gives options for section generation. This enum is used to get... more  
+ SectionHeight  
+This .NET class wraps the AcDbSection::Height ObjectARX enum.
+
+It gives the height of the section plane above or below the... more  
+ SectionState  
+This .NET class wraps the AcDbSection::State ObjectARX class. It gives the type of section plane.  
+ SectionSubItem  
+This .NET class wraps the AcDbSection::SubItem ObjectARX class.
+
+It gives the hit flags for section plane. This enum value is... more  
+ SectionType  
+This .NET enum wraps the AcDbSectionSettings::SectionType ObjectARX enum.
+
+It gives options for section generation. This enum is used to get... more  
+ SectionViewArrowDirection  The type defining section view symbol arrowhead direction.  
+ SectionViewIdentifierPosition  
+The type of identifier positioning.  
+ SecurityActions  
+This enumeration encapsulates a corresponding ObjectARX enum that is used by the SecurityParams ObjectARX struct. SecurityParams stores information for security... more  
+ SecurityAlgorithm  
+This enumeration lists the available security algorithms for use in AutoCAD drawings.  
+ SegmentType  
+This .NET class wraps the AcDbPolyline::SegType ObjectARX class. This enumeration identifies the different types of line segments that can make... more  
+ SelectType  
+This .NET class wraps the AcDb::SelectType ObjectARX class. It gives the selection type for a table cell.  
+ ShadePlotResLevel  
+This .NET class wraps the AcDbPlotSettings::ShadePlotResLevel ObjectARX class.
+
+This enumerated type defines the shade plot resolution level of the current... more  
+ ShadePlotType  
+This .NET class wraps the AcDbViewport::ShadePlotType ObjectARX class. This enumerated type defines the shade plot mode of the current viewport.... more  
+ SourceType  
+The type of the source of the data for the model documentation view.  
+ SplineType  This wraps AcDbSpline::SplineType enumeration.  
+ StandardScaleType  
+This .NET class wraps the AcDbPlotSettings::stdScaleType ObjectARX class.
+
+The stdScaleType property stores the "standard" print scale selection, including scale-to-fit, for... more  
+ StdScaleType  
+This .NET enum wraps AcDbPlotSettings::stdScaleType> ObjectARX enum.
+
+The stdScaleType property stores the "standard" print scale selection, including scale-to-fit, for the... more  
+ SubentityType  
+This .NET enum wraps the AcDb::SubentType ObjectARX enum.
+
+An entity can be composed of many graphic subentities, such as arcs, lines,... more  
+ SweepOptionsAlignOption  
+This .NET class wraps the AcDbSweepOptions::AlignOption ObjectARX enum.
+Enumerates the alignment options for swept objects.  
+ TableBreakFlowDirection  
+This .NET class wraps the AcDb::TableBreakFlowDirection ObjectARX class. It gives the table breaking flow direction options.  
+ TableBreakOptions  
+This .NET class wraps the AcDb::TableBreakOptions ObjectARX class. It gives the table break options.  
+ TableCellType  
+This enumeration defines the types of cells in a table.  
+ TableCopyOptions  
+This .NET enum wraps AcDb::TableCopyOption ObjectARX enum. It gives the table copy options.  
+ TableEnumeratorOption  
+This .NET class wraps the AcDb::TableIteratorOption ObjectARX class. It gives the table iterator options.  
+ TableFillOptions  
+This .NET enum wraps AcDb::TableFillOption ObjectARX enum. It gives the table fill options.  
+ TableHitTestType  
+This enumeration lists the possible results of a Table hit test.  
+ TableStyleFlags  
+This .NET class wraps the AcDb::TableStyleFlags ObjectARX class.
+For internal use only.  
+ TableStyleOverride  
+This .NET class wraps the AcDbTable::TableStyleOverrides ObjectARX class. It enumerates the table style overrides for a table object.  
+ TextAlignment  This is record Autodesk.AutoCAD.DatabaseServices.TextAlignment.  
+ TextAlignmentType  
+This .NET enum wraps the AcDbMLeaderStyle::TextAlignmentType ObjectARX enum. This enum describes the types of text alignment type.  
+ TextAngleType  
+This .NET class wraps the AcDbMLeaderStyle::TextAngleType ObjectARX class.
+
+This enum describes the types of text angle type.  
+ TextAttachmentDirection  
+This .NET enum wraps the ObjectARX enum AcDbMLeaderStyle::TextAttachmentDirection.  
+ TextAttachmentType  
+This .NET class wraps the AcDbMLeaderStyle::TextAttachmentType ObjectARX enum.
+
+This enum describes the types of text attachment type.  
+ TextHorizontalMode  
+This .NET enum wraps the AcDb::TextHorzMode ObjectARX enum. This enum gives the horizontal mode of the text.  
+ TextVerticalMode  
+This .NET class wraps the AcDb::TextVertMode ObjectARX class.
+
+It gives the vertical modes of the text.
+
+If vertical mode is... more  
+ UnderlayLayerState  
+State of underlay layer, whether it's enabled or disabled.  
+ Unit  
+This .NET class wraps the AcDbRasterImageDef::Units ObjectARX class. It gives the real-world unit representing one AutoCAD drawing unit.  
+ UnitsValue  
+This .NET class wraps AcDb::UnitsValue ObjectARX class. It indicates the type of units of length measure used by the drawing.  
+ UnitType  
+This .NET class wraps the AcValue::UnitType ObjectARX class.  
+ UpdateDirection  
+This .NET enum wraps AcDb::UpdateDirection ObjectARX enum. It gives the enumerations for updating the data source and target data.  
+ UpdateOption  
+This .NET enum wraps AcDb::UpdateOption ObjectARX enum. It gives the options for updating adapters.  
+ Vertex2dType  
+This .NET enum wraps the AcDb::Vertex2dType ObjectARX enum.
+
+It lists the type of vertex 2D polylines.  
+ Vertex3dType  
+This .NET class wraps the AcDb::Vertex3dType ObjectARX class.
+
+It lists the type of vertex 3D polylines.  
+ ViewStyleType  
+The type of the view style.  
+ Visibility  This .NET class wraps the AcDb::Visibility ObjectARX class.  
+ XrefNotificationStatus  
+This .NET class wraps the AcDb::XrefNotificationStatus ObjectARX class.
+
+XrefNotificationStatus defines statuses for xref resolution notifications.  
+ XrefOperation  
+This class enumerates the XREF subcommands.  
+ XrefStatus  
+This .NET enum wraps the AcDb::XrefStatus ObjectARX enum.  
+
+Interfaces
+Interface  Description  
+ ITextEditorSelectable  This wraps the ObjectARX ITextEditorSelectable interface.  
+
+Structures
+Structure  Description  
+ CustomScale  
+This class encapsulates the numerator and denominator values that define a custom print scale.  
+ DatabaseSummaryInfo  
+This .NET class wraps the AcDbDatabaseSummaryInfo ObjectARX class.
+That class is a pure virtual class for encapsulating a set of character... more  
+ DBDictionaryEntry  
+This lightweight class represents an entry in a DatabaseServices.DBDictionary object. It contains the key and object ID of the entry,... more  
+ DBObjectReference  
+This class contains an object's ID and the DXF group code that represents the object's type.  
+ DecomposeForSaveReplacementRecord  
+This class encapsulates the three output parameters used by the Object.decomposeForSave() ObjectARX function. These values represent the replacement object if... more  
+ Extents2d  
+This class encapsulates values of simple 2D extents used in layouts and plot settings.  
+ Extents3d  
+This .NET class wraps the AcDbExtents ObjectARX class.
+It class was designed to be used with the GetSubentityGeometricExtents() function of... more  
+ FieldEvaluationResult  This is class Autodesk.AutoCAD.DatabaseServices.FieldEvaluationResult.  
+ FieldEvaluationStatusResult  
+This class is used to return the codes that describe the results of a field evaluation. These results are the... more  
+ FitData  
+This class encapsulates the data returned by the Spline.getFitData() ObjectARX function.
+If the spline has fit data, then this struct... more  
+ Font  This structure represent the font information needed in the text editor. When the user sets the font, the editor needs... more  
+ FullDwgVersion  This class encapsulates major and minor DWG versions.  
+ FullSubentityPath  
+This .NET class wraps the AcDbFullSubentPath ObjectARX class.
+This class is used for uniquely identifying a subentity within a particular... more  
+ GradientColor  
+This class is a container for the gradient colors used by the Hatch object  
+ GridPropertyParameter  
+This .NET class wraps the AcGridProp ObjectARX struct, which stores grid line properties..  
+ Handle  
+This .NET class wraps the AcDbHandle ObjectARX class.
+The Handle class is the ObjectARX class designed to encapsulate the 64-bit... more  
+ IdPair  
+This .NET class wraps the AcDbIdPair ObjectARX class.
+IdPair is the element class for IdMapping, which is used in... more  
+ ItemLocator  ItemLocator wraps the ObjectARX class AcDbItemLocator.
+ItemLocator represents spatial index of an item in a 3D array, that is, an... more  
+ MeshDataCollection  MeshDataCollection is the output of the SubDMesh.GetObjectMesh() method. It is the mesh representation that contains the following mesh data:
+Point3dCollection... more  
+ MeshFaceterData  Faceter settings to be used with the SubDMesh.GetObjectMesh Method.  
+ MeshPointMaps  
+This class acts as a wrapper for a GeoMesh.  
+ MlineStyleElement  
+This class encapsulates the color, offset, and linetype ID values that define an element in the ACAD_MLINESTYLE dictionary.  
+ NurbsData  Replaces any existing spline data with the data passed in via NurbsData parameters.
+If the spline is not periodic, the... more  
+ ObjectId  This .NET struct wraps the AcDbObjectId ObjectARX class.
+
+Since the Release of AutoCAD R13, there has been a mechanism for... more  
+ PatternDefinition  
+This class encapsulates the data returned by the Hatch.getPatternDefinitionAt() ObjectARX function.
+That function gets the pattern definition line data from... more  
+ PCAdsName  This is record Autodesk.AutoCAD.DatabaseServices.PCAdsName.  
+ PlotStyleDescriptor  
+This class encapsulates a PlotStyleNameType ObjectARX enum value, and the object ID of the associated plot style name dictionary entry.... more  
+ Rectangle3d  
+This .NET class loosely wraps the CRectangle3d ObjectARX class.
+This class provides a container for the points that define a... more  
+ RegionAreaProperties  
+This class encapsulates the data returned by the AcDbRegion::getAreaProp()ObjectARX function.  
+ SectionHitTestInfo  
+This class is a container for the hit test information returned by DatabaseServices.Section.HitTest()> .  
+ Solid3dMassProperties  
+This class encapsulates the data returned by the 3dSolid.getMassProp()ObjectARX function.
+
+This is used for getting the volume properties of... more  
+ TableHitTestInfo  
+This class encapsulates the data returned in the output parameters of the Table.hitTest() ObjectARX function. It performs a hit test... more  
+ TextEditorParagraphTab  This wraps the ObjectARX AcDbTextEditorParagraphTab class.  
+ TextEditorStack  This wraps the ObjectARX AcDbTextEditorStack class.  
+ TypedValue  This value type may contain objects of various types. The type of the value is indicated by this object's TypeCode... more  
+ UnmanagedPointCloudColorSchemeCollectionReactor  This is record Autodesk.AutoCAD.DatabaseServices.UnmanagedPointCloudColorSchemeCollectionReactor.  
+ XrefObjectId  
+This .NET class wraps the AcDbXrefObjectId
+ObjectARX class.
+
+The purpose of XrefObjectId is to provide a convenient way to refer... more  
+
+Types
+Type  Description  
+LayoutCopiedEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.LayoutCopiedEventHandler.  
+LayoutEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.LayoutEventHandler.  
+LayoutRenamedEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.LayoutRenamedEventHandler.  
+MTextFragmentCallback  This is type Autodesk.AutoCAD.DatabaseServices.MTextFragmentCallback.  
+ObjectClosedEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.ObjectClosedEventHandler.  
+ObjectErasedEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.ObjectErasedEventHandler.  
+ObjectEventHandler  This is type Autodesk.AutoCAD.DatabaseServices.ObjectEventHandler.  
+
+Links
+Types
+   Comments?  

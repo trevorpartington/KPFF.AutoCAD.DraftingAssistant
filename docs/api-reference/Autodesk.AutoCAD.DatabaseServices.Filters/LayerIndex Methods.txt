@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerIndex Class > LayerIndex Methods
+LayerIndex MethodsMethods
+Method  Description  
+ Compute  
+This function uses the layer table pointed to by pLT and the block table record pointed to by pBTR to... more  
+
+   Comments?  

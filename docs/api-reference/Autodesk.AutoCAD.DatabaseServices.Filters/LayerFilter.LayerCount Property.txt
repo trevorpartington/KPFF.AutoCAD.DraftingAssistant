@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices.Filters Namespace > LayerFilter Class > LayerFilter Properties > LayerCount Property
+LayerFilter.LayerCount PropertyDescription
+ 
+
+Assesses the number of layers in the filter.
+
+Visual Basic
+Public Property LayerCount() As Integer
+C#
+public int LayerCount;
+Conditions
+Read-only
+
+Links
+LayerFilter Class, Autodesk.AutoCAD.DatabaseServices.Filters Namespace
+   Comments?  
