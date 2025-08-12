@@ -404,6 +404,7 @@ public class CurrentDrawingBlockManager
 
                     // Find the target block
                     BlockReference targetBlockRef = null;
+                    ObjectId targetBlockId = ObjectId.Null;
                     foreach (ObjectId objId in layoutBtr)
                     {
                         Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
@@ -413,17 +414,20 @@ public class CurrentDrawingBlockManager
                             string currentBlockName = GetEffectiveBlockName(blockRef, tr);
                             if (currentBlockName.Equals(blockName, StringComparison.OrdinalIgnoreCase))
                             {
-                                targetBlockRef = blockRef;
+                                targetBlockId = objId;
                                 break;
                             }
                         }
                     }
 
-                    if (targetBlockRef == null)
+                    if (targetBlockId.IsNull)
                     {
                         _logger.LogWarning($"Block '{blockName}' not found in layout '{layoutName}'");
                         return false;
                     }
+
+                    // Now open the block for write
+                    targetBlockRef = tr.GetObject(targetBlockId, OpenMode.ForWrite) as BlockReference;
 
                     _logger.LogDebug($"Found target block {blockName}, updating attributes and visibility");
 

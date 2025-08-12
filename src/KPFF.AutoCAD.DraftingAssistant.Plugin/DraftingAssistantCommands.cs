@@ -6,6 +6,9 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
+using KPFF.AutoCAD.DraftingAssistant.Plugin.Models;
+using System.IO;
+using System.Text.Json;
 using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
@@ -642,6 +645,365 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage($"\nERROR: {ex.Message}\n");
             ed.WriteMessage($"Stack Trace:\n{ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Phase 3 Test: Out-of-Process Excel Integration 
+    /// Reads Excel data via external process - eliminates EPPlus freezing issues
+    /// </summary>
+    [CommandMethod("TESTPHASE3")]
+    public void TestPhase3ExcelIntegration()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== PHASE 3 TEST: OUT-OF-PROCESS EXCEL INTEGRATION ===\n");
+            ed.WriteMessage("Reading Excel data via external process - NO EPPlus in AutoCAD!\n");
+            ed.WriteMessage($"Current Drawing: {doc.Name}\n\n");
+
+            // Use dependency injection instead of manual service creation
+            ed.WriteMessage("Initializing services via dependency injection...\n");
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not available. Services may not be registered.\n");
+                return;
+            }
+
+            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var appLogger = serviceProvider.GetService<Core.Interfaces.IApplicationLogger>();
+            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            var blockManager = new CurrentDrawingBlockManager(logger ?? new DebugLogger());
+
+            if (excelReader == null)
+            {
+                ed.WriteMessage("ERROR: Excel reader service not available. Check service registration.\n");
+                return;
+            }
+
+            ed.WriteMessage("✓ Services initialized successfully\n");
+
+            // Get sheet/layout name from user
+            PromptResult sheetResult = ed.GetString("\nEnter sheet/layout name (e.g., ABC-101): ");
+            if (sheetResult.Status != PromptStatus.OK)
+                return;
+                
+            string sheetName = sheetResult.StringResult;
+            string layoutName = sheetName; // Layout and sheet name are the same
+
+            // Read real Excel data via out-of-process reader
+            string excelPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectIndex.xlsx";
+            
+            if (!File.Exists(excelPath))
+            {
+                ed.WriteMessage($"ERROR: Excel file not found: {excelPath}\n");
+                return;
+            }
+
+            ed.WriteMessage($"Reading Excel data from: {Path.GetFileName(excelPath)}\n");
+            ed.WriteMessage("This uses external Excel reader process to prevent AutoCAD freezing!\n\n");
+
+            // Test Excel reader connection first
+            ed.WriteMessage("Testing Excel reader connection...\n");
+            try
+            {
+                // Try to read a small amount of data to test connection
+                var config = new Core.Models.ProjectConfiguration(); // Default config
+                
+                ed.WriteMessage("Phase 1: Reading ABC construction notes...\n");
+                // Use Task.Run to avoid blocking AutoCAD's UI thread
+                var constructionNotes = Task.Run(async () => 
+                    await excelReader.ReadConstructionNotesAsync(excelPath, "ABC", config)).GetAwaiter().GetResult();
+                ed.WriteMessage($"✓ Loaded {constructionNotes.Count} construction notes from ABC_NOTES table\n");
+
+                // Read Excel notes mappings
+                ed.WriteMessage("Phase 2: Reading Excel notes mappings...\n");  
+                // Use Task.Run to avoid blocking AutoCAD's UI thread
+                var excelMappings = Task.Run(async () => 
+                    await excelReader.ReadExcelNotesAsync(excelPath, config)).GetAwaiter().GetResult();
+                ed.WriteMessage($"✓ Loaded mappings for {excelMappings.Count} sheets from EXCEL_NOTES table\n");
+
+                if (excelMappings.Count == 0)
+                {
+                    ed.WriteMessage("WARNING: No Excel mappings found. This may indicate a connection issue.\n");
+                    ed.WriteMessage("Available sheets in Excel: Check if EXCEL_NOTES table exists and has data.\n");
+                    return;
+                }
+
+                // DEBUG: Show all loaded sheet names
+                ed.WriteMessage($"DEBUG: Loaded sheet names: [{string.Join(", ", excelMappings.Select(m => $"'{m.SheetName}'"))}]\n");
+                ed.WriteMessage($"DEBUG: User entered sheet name: '{sheetName}'\n");
+                ed.WriteMessage($"DEBUG: Sheet name length: {sheetName.Length}, Contains whitespace: {sheetName.Any(c => char.IsWhiteSpace(c))}\n");
+
+                // Find sheet mapping
+                var sheetMapping = excelMappings.FirstOrDefault(m => m.SheetName.Equals(sheetName, StringComparison.OrdinalIgnoreCase));
+                if (sheetMapping == null)
+                {
+                    ed.WriteMessage($"Sheet '{sheetName}' not found in Excel notes mappings\n");
+                    ed.WriteMessage($"Available sheets: {string.Join(", ", excelMappings.Select(m => m.SheetName))}\n");
+                    
+                    // DEBUG: Show detailed comparison
+                    ed.WriteMessage("\nDEBUG: Detailed sheet name comparison:\n");
+                    foreach (var mapping in excelMappings)
+                    {
+                        var exactMatch = mapping.SheetName.Equals(sheetName);
+                        var ignoreCaseMatch = mapping.SheetName.Equals(sheetName, StringComparison.OrdinalIgnoreCase);
+                        var trimmedMatch = mapping.SheetName.Trim().Equals(sheetName.Trim(), StringComparison.OrdinalIgnoreCase);
+                        
+                        ed.WriteMessage($"  '{mapping.SheetName}' vs '{sheetName}': Exact={exactMatch}, IgnoreCase={ignoreCaseMatch}, Trimmed={trimmedMatch}\n");
+                    }
+                    return;
+                }
+
+                ed.WriteMessage($"✓ Found sheet '{sheetName}' with {sheetMapping.NoteNumbers.Count} note(s)\n");
+
+                // DEBUG: Show construction notes details
+                ed.WriteMessage("\nDEBUG: Construction notes details:\n");
+                foreach (var note in constructionNotes)
+                {
+                    ed.WriteMessage($"  Note #{note.Number}: '{TruncateString(note.Text, 40)}'\n");
+                }
+
+                // Create lookup for notes - handle duplicates gracefully
+                var noteLookup = new Dictionary<int, Core.Models.ConstructionNote>();
+                foreach (var note in constructionNotes)
+                {
+                    if (note.Number > 0) // Skip invalid note numbers
+                    {
+                        if (noteLookup.ContainsKey(note.Number))
+                        {
+                            ed.WriteMessage($"WARNING: Duplicate note number {note.Number} found - using first occurrence\n");
+                        }
+                        else
+                        {
+                            noteLookup[note.Number] = note;
+                        }
+                    }
+                    else
+                    {
+                        ed.WriteMessage($"WARNING: Skipping note with invalid number: {note.Number}\n");
+                    }
+                }
+
+                ed.WriteMessage($"Created lookup dictionary with {noteLookup.Count} unique notes\n");
+
+                // Phase 3: Update blocks with note data sequentially
+                ed.WriteMessage("\nPhase 3: Updating AutoCAD blocks with real Excel data...\n");
+                ed.WriteMessage("=======================================================\n");
+                
+                int successCount = 0;
+                int blockIndex = 1;
+                
+                foreach (var noteNumber in sheetMapping.NoteNumbers)
+                {
+                    string blockName = $"NT{blockIndex:D2}";
+                    
+                    if (!noteLookup.TryGetValue(noteNumber, out Core.Models.ConstructionNote? note))
+                    {
+                        ed.WriteMessage($"✗ Note {noteNumber} not found in ABC_NOTES table\n");
+                        blockIndex++;
+                        continue;
+                    }
+                    
+                    ed.WriteMessage($"Updating {blockName} with note {noteNumber}: '{TruncateString(note.Text, 30)}...'\n");
+                    
+                    bool updated = blockManager.UpdateConstructionNoteBlock(
+                        layoutName, blockName, noteNumber, note.Text, makeVisible: true);
+                    
+                    if (updated)
+                    {
+                        successCount++;
+                        ed.WriteMessage($"  ✓ Updated successfully with real Excel data!\n");
+                    }
+                    else
+                    {
+                        ed.WriteMessage($"  ✗ Failed to update block\n");
+                    }
+                    
+                    blockIndex++;
+                }
+                
+                ed.WriteMessage($"\n=== PHASE 3 COMPLETE ===\n");
+                ed.WriteMessage($"Successfully updated {successCount} blocks with Excel data\n");
+                ed.WriteMessage($"Sheet: {sheetName}, Layout: {layoutName}\n");
+                ed.WriteMessage($"Excel file: {Path.GetFileName(excelPath)}\n");
+            }
+                    catch (System.Exception ex)
+        {
+            ed.WriteMessage($"ERROR during Excel reading: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+                
+                // Try to provide helpful debugging information
+                if (ex.Message.Contains("Excel reader executable not found"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING: Excel reader executable not found\n");
+                    ed.WriteMessage("1. Check if KPFF.AutoCAD.ExcelReader.exe exists in the plugin directory\n");
+                    ed.WriteMessage("2. Verify the executable path in the error logs\n");
+                    ed.WriteMessage("3. Try restarting AutoCAD to reload the plugin\n");
+                }
+                else if (ex.Message.Contains("named pipe"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING: Named pipe communication failed\n");
+                    ed.WriteMessage("1. Check if Excel reader process is running\n");
+                    ed.WriteMessage("2. Verify no firewall is blocking local connections\n");
+                    ed.WriteMessage("3. Try manually starting the Excel reader process\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"FATAL ERROR in TESTPHASE3: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Simple ping test to verify Excel reader connection
+    /// </summary>
+    [CommandMethod("PING")]
+    public void PingExcelReader()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== PING TEST: EXCEL READER CONNECTION ===\n");
+            
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not available.\n");
+                return;
+            }
+
+            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            if (excelReader == null)
+            {
+                ed.WriteMessage("ERROR: Excel reader service not available.\n");
+                return;
+            }
+
+            ed.WriteMessage("✓ Excel reader service found\n");
+            ed.WriteMessage("Testing connection...\n");
+
+            // Try to read a small amount of data to test connection
+            var config = new Core.Models.ProjectConfiguration();
+            string excelPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectIndex.xlsx";
+            
+            if (!File.Exists(excelPath))
+            {
+                ed.WriteMessage($"ERROR: Excel file not found: {excelPath}\n");
+                return;
+            }
+
+            try
+            {
+                // Use Task.Run to avoid blocking AutoCAD's UI thread
+                var notes = Task.Run(async () => 
+                    await excelReader.ReadConstructionNotesAsync(excelPath, "ABC", config)).GetAwaiter().GetResult();
+                ed.WriteMessage($"✓ PING SUCCESSFUL! Read {notes.Count} construction notes\n");
+                ed.WriteMessage("Excel reader process is running and communicating properly.\n");
+            }
+            catch (System.Exception ex)
+            {
+                ed.WriteMessage($"✗ PING FAILED: {ex.Message}\n");
+                
+                if (ex.Message.Contains("Excel reader executable not found"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING:\n");
+                    ed.WriteMessage("1. Check if KPFF.AutoCAD.ExcelReader.exe exists in the plugin directory\n");
+                    ed.WriteMessage("2. Verify the executable path in the error logs\n");
+                    ed.WriteMessage("3. Try restarting AutoCAD to reload the plugin\n");
+                }
+                else if (ex.Message.Contains("named pipe"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING:\n");
+                    ed.WriteMessage("1. Check if Excel reader process is running\n");
+                    ed.WriteMessage("2. Verify no firewall is blocking local connections\n");
+                    ed.WriteMessage("3. Try manually starting the Excel reader process\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"FATAL ERROR in PING: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Manually start the Excel reader process for debugging
+    /// </summary>
+    [CommandMethod("STARTEXCEL")]
+    public void StartExcelReader()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== MANUAL EXCEL READER START ===\n");
+            
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not available.\n");
+                return;
+            }
+
+            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            if (excelReader == null)
+            {
+                ed.WriteMessage("ERROR: Excel reader service not available.\n");
+                return;
+            }
+
+            ed.WriteMessage("✓ Excel reader service found\n");
+            ed.WriteMessage("Attempting to start Excel reader process...\n");
+
+            // Force a connection attempt to trigger process startup
+            try
+            {
+                var config = new Core.Models.ProjectConfiguration();
+                string excelPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectIndex.xlsx";
+                
+                if (!File.Exists(excelPath))
+                {
+                    ed.WriteMessage($"ERROR: Excel file not found: {excelPath}\n");
+                    return;
+                }
+
+                // This will trigger the Excel reader process to start
+                ed.WriteMessage("Triggering Excel reader process startup...\n");
+                var notes = excelReader.ReadConstructionNotesAsync(excelPath, "ABC", config).Result;
+                ed.WriteMessage($"✓ Excel reader process started successfully! Read {notes.Count} notes\n");
+            }
+            catch (System.Exception ex)
+            {
+                ed.WriteMessage($"✗ Failed to start Excel reader: {ex.Message}\n");
+                
+                if (ex.Message.Contains("Excel reader executable not found"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING:\n");
+                    ed.WriteMessage("1. Check if KPFF.AutoCAD.ExcelReader.exe exists in the plugin directory\n");
+                    ed.WriteMessage("2. Verify the executable path in the error logs\n");
+                    ed.WriteMessage("3. Try restarting AutoCAD to reload the plugin\n");
+                }
+                else if (ex.Message.Contains("named pipe"))
+                {
+                    ed.WriteMessage("\nTROUBLESHOOTING:\n");
+                    ed.WriteMessage("1. Check if Excel reader process is running\n");
+                    ed.WriteMessage("2. Verify no firewall is blocking local connections\n");
+                    ed.WriteMessage("3. Try manually starting the Excel reader process\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"FATAL ERROR in STARTEXCEL: {ex.Message}\n");
         }
     }
 
