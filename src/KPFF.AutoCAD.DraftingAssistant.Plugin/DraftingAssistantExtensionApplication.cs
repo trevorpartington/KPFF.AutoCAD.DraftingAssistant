@@ -87,6 +87,9 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
         _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
         _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
 
+        // Register Excel services
+        _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
+
         // Register notification service with logger dependency
         _serviceProvider.RegisterSingleton<INotificationService, AutoCadNotificationService>();
         

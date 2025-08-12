@@ -11,6 +11,15 @@
       "environmentVariables": {
         "ACAD_NETLOAD_DEBUG": "1"
       }
+    },
+    "Debug Plain AutoCAD 2025": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
+      "commandLineArgs": "/t \"C:\\Users\\Public\\Documents\\Autodesk\\AutoCAD 2025\\Template\\acadiso.dwt\" /b \"C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\start.scr\"",
+      "workingDirectory": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant",
+      "environmentVariables": {
+        "ACAD_NETLOAD_DEBUG": "1"
+      }
     }
   }
 }

@@ -24,7 +24,7 @@ public class AutoCadPaletteManager : IPaletteManager
     }
 
     public bool IsVisible => _paletteSet?.Visible ?? false;
-    public bool IsInitialized => _paletteSet != null;
+    public bool IsInitialized => true; // CRASH FIX: Always return true since we're just preparing the manager
 
     public void Initialize()
     {
@@ -36,7 +36,34 @@ public class AutoCadPaletteManager : IPaletteManager
 
         try
         {
-            _logger.LogInformation("Initializing palette set");
+            _logger.LogInformation("Preparing palette manager (deferred initialization)");
+            
+            // CRASH FIX: Don't create the actual palette during plugin initialization
+            // This prevents crashes when AutoCAD isn't fully ready
+            // The palette will be created when Show() is called
+            _logger.LogInformation("Palette manager prepared - palette will be created on first use");
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError("Failed to prepare palette manager", ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates the actual palette set when needed
+    /// CRASH FIX: Moved from Initialize() to prevent startup crashes
+    /// </summary>
+    private void CreatePaletteSet()
+    {
+        if (_paletteSet != null)
+        {
+            return; // Already created
+        }
+
+        try
+        {
+            _logger.LogInformation("Creating palette set");
             
             var paletteSetId = new Guid(ApplicationConstants.PaletteSetId);
             _paletteSet = new PaletteSet(ApplicationConstants.ApplicationName, paletteSetId)
@@ -63,12 +90,12 @@ public class AutoCadPaletteManager : IPaletteManager
             elementHost.Child = draftingAssistantControl;
 
             _paletteSet.Add("Drafting Assistant", elementHost);
-            _logger.LogInformation("Palette set initialized successfully");
+            _logger.LogInformation("Palette set created successfully");
         }
         catch (System.Exception ex)
         {
-            _logger.LogError("Failed to initialize palette", ex);
-            _notificationService.ShowError("Initialization Error", $"Failed to create interface: {ex.Message}");
+            _logger.LogError("Failed to create palette set", ex);
+            _notificationService.ShowError("Palette Error", $"Failed to create interface: {ex.Message}");
             throw;
         }
     }
@@ -77,6 +104,13 @@ public class AutoCadPaletteManager : IPaletteManager
     {
         try
         {
+            // CRASH FIX: Ensure AutoCAD is fully ready before creating palette
+            if (!IsAutoCadReady())
+            {
+                _logger.LogWarning("AutoCAD not ready - deferring palette creation");
+                return;
+            }
+
             // CRASH FIX: Add safety guard around AutoCAD object access
             // Removed direct access to DocumentManager that could cause crashes
             try
@@ -96,7 +130,7 @@ public class AutoCadPaletteManager : IPaletteManager
 
             if (_paletteSet == null)
             {
-                Initialize();
+                CreatePaletteSet(); // Use the new method
             }
 
             if (_paletteSet != null)
@@ -108,6 +142,24 @@ public class AutoCadPaletteManager : IPaletteManager
         catch (System.Exception ex)
         {
             _logger.LogError("Error showing palette", ex);
+        }
+    }
+
+    /// <summary>
+    /// Checks if AutoCAD is ready for palette creation
+    /// CRASH FIX: Prevents palette creation when AutoCAD isn't fully initialized
+    /// </summary>
+    private bool IsAutoCadReady()
+    {
+        try
+        {
+            // Simple check - if we can access the application version, AutoCAD is minimally ready
+            var _ = Autodesk.AutoCAD.ApplicationServices.Core.Application.Version;
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 

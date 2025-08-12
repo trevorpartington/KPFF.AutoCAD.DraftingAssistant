@@ -209,10 +209,23 @@ The system has been simplified to remove worksheet dependencies:
 - Test commands: TESTPHASE2, TESTPHASE2RESET
 - **Verified Results**: Block NT02 updated to Number=55, Note="AGAIN", Visible=True
 
-#### 🔄 Phase 3 Planned: Excel Integration
-- Integrate with ExcelReaderService to read note definitions from Excel tables
-- Map note numbers to note text using series-specific tables (ABC_NOTES, etc.)
-- Batch processing for multiple blocks in a layout
+#### 🔄 Phase 3 Planned: Out-of-Process Excel Integration
+**Problem**: EPPlus library causes AutoCAD to freeze during debugging due to COM/OLE conflicts, but production requires real-time Excel reading for user updates.
+
+**Solution**: Out-of-Process Excel Reading Architecture
+- **Phase 3A**: Create separate console application for Excel reading (eliminates EPPlus from AutoCAD process)
+- **Phase 3B**: AutoCAD plugin communicates with external process via named pipes or file-based communication  
+- **Phase 3C**: Modify existing `ExcelReaderService` to use process communication instead of direct EPPlus
+- **Benefits**: Eliminates freezing, maintains real-time Excel updates, preserves existing code interfaces
+
+**Technical Approach**:
+1. External Excel reader process handles all EPPlus operations outside AutoCAD
+2. Inter-process communication bridge connects AutoCAD plugin to Excel reader
+3. Same `IExcelReader` interface maintained for backwards compatibility
+4. Robust fallback to JSON approach if external process fails
+5. Automatic process lifecycle management with AutoCAD startup/shutdown
+
+**Current Status**: Pure JSON approach working as temporary solution, ready to implement out-of-process architecture
 
 #### 🔄 Phase 4 Needed: Closed Drawing Operations
 **Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
