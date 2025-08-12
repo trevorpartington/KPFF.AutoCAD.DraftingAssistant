@@ -790,10 +790,17 @@ public class DraftingAssistantCommands
 
                 ed.WriteMessage($"Created lookup dictionary with {noteLookup.Count} unique notes\n");
 
-                // Phase 3: Update blocks with note data sequentially
+                // Phase 3: Clear all blocks first, then update with new data
                 ed.WriteMessage("\nPhase 3: Updating AutoCAD blocks with real Excel data...\n");
                 ed.WriteMessage("=======================================================\n");
                 
+                // Clear all construction note blocks first to ensure removed notes don't persist
+                ed.WriteMessage("Clearing all construction note blocks first...\n");
+                int clearedCount = blockManager.ClearAllConstructionNoteBlocks(layoutName);
+                ed.WriteMessage($"✓ Cleared {clearedCount} blocks (set visibility OFF and cleared attributes)\n\n");
+                
+                // Now update blocks with current note data
+                ed.WriteMessage("Updating blocks with current note data...\n");
                 int successCount = 0;
                 int blockIndex = 1;
                 
@@ -857,6 +864,57 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage($"FATAL ERROR in TESTPHASE3: {ex.Message}\n");
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Test command to clear all construction note blocks in a layout
+    /// </summary>
+    [CommandMethod("CLEARBLOCKS")]
+    public void ClearConstructionNoteBlocks()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== CLEAR CONSTRUCTION NOTE BLOCKS ===\n");
+            
+            // Get layout name from user
+            PromptResult layoutResult = ed.GetString("\nEnter layout name (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+                
+            string layoutName = layoutResult.StringResult;
+            
+            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+            if (serviceProvider == null)
+            {
+                ed.WriteMessage("ERROR: Service provider not available.\n");
+                return;
+            }
+
+            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var blockManager = new CurrentDrawingBlockManager(logger ?? new DebugLogger());
+            
+            ed.WriteMessage($"Clearing all construction note blocks in layout '{layoutName}'...\n");
+            int clearedCount = blockManager.ClearAllConstructionNoteBlocks(layoutName);
+            
+            if (clearedCount > 0)
+            {
+                ed.WriteMessage($"✓ Successfully cleared {clearedCount} blocks\n");
+                ed.WriteMessage("All NT## blocks now have:\n");
+                ed.WriteMessage("  - Visibility set to OFF\n");
+                ed.WriteMessage("  - NUMBER and NOTE attributes cleared\n");
+            }
+            else
+            {
+                ed.WriteMessage("No blocks were cleared. Check if the layout exists and contains NT## blocks.\n");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"ERROR: {ex.Message}\n");
         }
     }
 

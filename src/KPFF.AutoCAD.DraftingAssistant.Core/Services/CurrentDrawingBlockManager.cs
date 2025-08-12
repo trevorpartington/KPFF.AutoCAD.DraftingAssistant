@@ -348,6 +348,128 @@ public class CurrentDrawingBlockManager
     }
 
     /// <summary>
+    /// Clears all construction note blocks in a layout (sets visibility OFF and clears attributes)
+    /// This should be called before updating blocks to ensure removed notes don't persist
+    /// </summary>
+    /// <param name="layoutName">Layout containing the blocks</param>
+    /// <returns>Number of blocks cleared</returns>
+    public int ClearAllConstructionNoteBlocks(string layoutName)
+    {
+        _logger.LogInformation($"Clearing all construction note blocks in layout {layoutName}");
+        int clearedCount = 0;
+        
+        try
+        {
+            Document? doc = null;
+            try
+            {
+                doc = Application.DocumentManager?.MdiActiveDocument;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
+                return 0;
+            }
+
+            if (doc == null)
+            {
+                _logger.LogWarning("No active document found");
+                return 0;
+            }
+
+            Database db = doc.Database;
+
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Get the layout
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                        return 0;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                    // Find all NT## blocks
+                    foreach (ObjectId objId in layoutBtr)
+                    {
+                        Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                        
+                        if (entity is BlockReference blockRef)
+                        {
+                            string currentBlockName = GetEffectiveBlockName(blockRef, tr);
+                            
+                            // Check if this is an NT## block
+                            if (System.Text.RegularExpressions.Regex.IsMatch(currentBlockName, @"^NT\d{2}$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                            {
+                                // Open for write
+                                BlockReference writeBlockRef = tr.GetObject(objId, OpenMode.ForWrite) as BlockReference;
+                                
+                                // Clear attributes
+                                AttributeCollection attCol = writeBlockRef.AttributeCollection;
+                                foreach (ObjectId attId in attCol)
+                                {
+                                    AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
+                                    if (attRef != null)
+                                    {
+                                        string tag = attRef.Tag.ToUpper();
+                                        if (tag == "NUMBER" || tag == "NOTE")
+                                        {
+                                            attRef.TextString = "";
+                                        }
+                                    }
+                                }
+                                
+                                // Set visibility to OFF
+                                if (writeBlockRef.IsDynamicBlock)
+                                {
+                                    DynamicBlockReferencePropertyCollection props = writeBlockRef.DynamicBlockReferencePropertyCollection;
+                                    foreach (DynamicBlockReferenceProperty prop in props)
+                                    {
+                                        if (prop.PropertyName.Equals("Visibility", StringComparison.OrdinalIgnoreCase) ||
+                                            prop.PropertyName.Equals("Visibility1", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            try
+                                            {
+                                                prop.Value = "OFF";
+                                                clearedCount++;
+                                                _logger.LogDebug($"Cleared block {currentBlockName}");
+                                                break;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                _logger.LogWarning($"Could not set visibility for {currentBlockName}: {ex.Message}");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    tr.Commit();
+                    _logger.LogInformation($"Successfully cleared {clearedCount} construction note blocks in layout {layoutName}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error clearing blocks: {ex.Message}", ex);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to clear construction note blocks: {ex.Message}", ex);
+        }
+
+        return clearedCount;
+    }
+
+    /// <summary>
     /// Phase 2: Updates a single construction note block with new data
     /// Safe modification method with proper transaction handling
     /// </summary>
