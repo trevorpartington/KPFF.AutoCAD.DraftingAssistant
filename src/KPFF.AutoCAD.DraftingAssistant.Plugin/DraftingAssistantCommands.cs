@@ -1078,4 +1078,88 @@ public class DraftingAssistantCommands
             
         return str.Substring(0, maxLength) + "...";
     }
+
+    /// <summary>
+    /// Test command to verify Excel reader shared process behavior
+    /// </summary>
+    [CommandMethod("TESTEXCELCLEANUP")]
+    public static void TestExcelCleanup()
+    {
+        var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+        var editor = Application.DocumentManager.MdiActiveDocument?.Editor;
+        
+        if (editor == null || serviceProvider == null)
+        {
+            return;
+        }
+        
+        try
+        {
+            editor.WriteMessage("\n=== Testing Excel Reader Shared Process Behavior ===");
+            
+            // Get first Excel reader service from DI container (transient)
+            editor.WriteMessage("\nGetting Excel reader service from DI container (first call)...");
+            var excelReader1 = serviceProvider.GetService<IExcelReader>();
+            
+            if (excelReader1 == null)
+            {
+                editor.WriteMessage("\nERROR: Excel reader service not available.");
+                return;
+            }
+            
+            // Do a simple operation to ensure process starts
+            editor.WriteMessage("\nTesting first instance - checking file existence...");
+            var fileExists1 = excelReader1.FileExistsAsync(@"C:\dummy1.xlsx").GetAwaiter().GetResult();
+            editor.WriteMessage($"\nFirst instance result: {fileExists1}");
+            
+            // Check shared process status
+            editor.WriteMessage($"\n\nShared Process Status:");
+            editor.WriteMessage($"\n  Process Running: {SharedExcelReaderProcess.IsRunning}");
+            editor.WriteMessage($"\n  Reference Count: {SharedExcelReaderProcess.ReferenceCount}");
+            
+            // Get another instance - should be different (transient) but share same process
+            editor.WriteMessage("\n\nGetting Excel reader service again (second call)...");
+            var excelReader2 = serviceProvider.GetService<IExcelReader>();
+            
+            // Test if they're different instances
+            var areSameInstance = ReferenceEquals(excelReader1, excelReader2);
+            editor.WriteMessage($"\nAre both references the same instance? {areSameInstance}");
+            
+            if (!areSameInstance)
+            {
+                editor.WriteMessage("\n✓ CORRECT: Services are transient (different instances)");
+                editor.WriteMessage("\n  But they share the SAME Excel reader process");
+            }
+            
+            // Test the second instance
+            editor.WriteMessage("\n\nTesting second instance - checking file existence...");
+            var fileExists2 = excelReader2.FileExistsAsync(@"C:\dummy2.xlsx").GetAwaiter().GetResult();
+            editor.WriteMessage($"\nSecond instance result: {fileExists2}");
+            
+            // Check shared process status again
+            editor.WriteMessage($"\n\nShared Process Status After Second Instance:");
+            editor.WriteMessage($"\n  Process Running: {SharedExcelReaderProcess.IsRunning}");
+            editor.WriteMessage($"\n  Reference Count: {SharedExcelReaderProcess.ReferenceCount}");
+            
+            // Dispose instances
+            editor.WriteMessage("\n\nDisposing first instance...");
+            excelReader1.Dispose();
+            editor.WriteMessage($"  Reference Count after dispose: {SharedExcelReaderProcess.ReferenceCount}");
+            
+            editor.WriteMessage("\nDisposing second instance...");
+            excelReader2.Dispose();
+            editor.WriteMessage($"  Reference Count after dispose: {SharedExcelReaderProcess.ReferenceCount}");
+            
+            editor.WriteMessage("\n\n=== Shared Process Behavior Summary ===");
+            editor.WriteMessage("\n- Excel reader services are TRANSIENT (new instance each time)");
+            editor.WriteMessage("\n- All instances share ONE Excel reader process");
+            editor.WriteMessage("\n- Process stays alive even with 0 references");
+            editor.WriteMessage("\n- Process will be terminated when AutoCAD shuts down");
+            editor.WriteMessage("\n- Check Task Manager: only one KPFF.AutoCAD.ExcelReader.exe should be running");
+        }
+        catch (System.Exception ex)
+        {
+            editor.WriteMessage($"\nError during shared process test: {ex.Message}");
+        }
+    }
 }

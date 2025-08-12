@@ -12,6 +12,7 @@ public class ExcelReaderService : IExcelReader
 {
     private readonly IApplicationLogger _logger;
     private readonly NamedPipeExcelClient _client;
+    private bool _disposed = false;
 
     public ExcelReaderService(IApplicationLogger logger)
     {
@@ -74,5 +75,24 @@ public class ExcelReaderService : IExcelReader
     public async Task<string[]> GetTableNamesAsync(string filePath, string worksheetName)
     {
         return await _client.GetTableNamesAsync(filePath, worksheetName);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _logger?.LogInformation("Disposing ExcelReaderService and terminating Excel reader process");
+                _client?.Dispose();
+            }
+            _disposed = true;
+        }
     }
 }

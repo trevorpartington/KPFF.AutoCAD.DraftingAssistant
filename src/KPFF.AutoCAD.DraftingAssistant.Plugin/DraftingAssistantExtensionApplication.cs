@@ -61,6 +61,10 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 _serviceProvider?.Dispose();
                 _serviceProvider = null;
                 
+                // Force terminate the Excel reader process
+                _logger?.LogInformation("Terminating Excel reader process...");
+                Core.Services.SharedExcelReaderProcess.ForceTerminate(msg => _logger?.LogInformation(msg));
+                
                 _logger?.LogInformation("KPFF Drafting Assistant Plugin terminated successfully");
             },
             logger: _logger ?? new DebugLogger(),
@@ -87,7 +91,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
         _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
         _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
 
-        // Register Excel services
+        // Register Excel services as transient - process lifecycle managed by SharedExcelReaderProcess
         _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
 
         // Register notification service with logger dependency

@@ -16,12 +16,17 @@ public class NamedPipeExcelClient : IExcelReader
 {
     private const string PIPE_NAME = "KPFF_AutoCAD_ExcelReader";
     private readonly IApplicationLogger _logger;
-    private Process? _excelReaderProcess;
-    private bool _isConnected;
+    private bool _disposed = false;
+    private bool _hasReference = false;
 
     public NamedPipeExcelClient(IApplicationLogger logger)
     {
         _logger = logger;
+    }
+
+    ~NamedPipeExcelClient()
+    {
+        Dispose(false);
     }
 
     public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config)
@@ -235,113 +240,41 @@ public class NamedPipeExcelClient : IExcelReader
 
     private async Task EnsureExcelReaderRunningAsync()
     {
-        if (_excelReaderProcess != null && !_excelReaderProcess.HasExited)
+        // Check if we already have a reference
+        if (_hasReference)
             return;
 
-        // CRASH FIX: Clean up any existing Excel reader processes to prevent accumulation
-        CleanupExistingExcelReaderProcesses();
-
-        await StartExcelReaderAsync();
-    }
-
-    /// <summary>
-    /// Cleans up any existing Excel reader processes to prevent accumulation
-    /// </summary>
-    private void CleanupExistingExcelReaderProcesses()
-    {
-        try
+        // Use the shared process manager
+        if (SharedExcelReaderProcess.IsRunning)
         {
-            var existingProcesses = Process.GetProcessesByName("KPFF.AutoCAD.ExcelReader");
-            if (existingProcesses.Length > 0)
-            {
-                _logger.LogInformation($"Found {existingProcesses.Length} existing Excel reader processes - cleaning up");
-                foreach (var process in existingProcesses)
-                {
-                    try
-                    {
-                        if (!process.HasExited)
-                        {
-                            process.Kill();
-                            process.WaitForExit(3000); // Wait up to 3 seconds
-                        }
-                        process.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning($"Error cleaning up process {process.Id}: {ex.Message}");
-                    }
-                }
-            }
+            // Process is already running, just increment the reference count
+            SharedExcelReaderProcess.IncrementReference(msg => _logger.LogInformation(msg));
+            _hasReference = true;
+            return;
         }
-        catch (Exception ex)
+
+        // Find and start the Excel reader using shared process manager
+        var excelReaderPath = FindExcelReaderExecutable();
+        if (string.IsNullOrEmpty(excelReaderPath))
         {
-            _logger.LogWarning($"Error during process cleanup: {ex.Message}");
+            _logger.LogError("Excel reader executable not found in any expected location");
+            throw new FileNotFoundException("Excel reader executable not found");
         }
-    }
 
-    private async Task StartExcelReaderAsync()
-    {
-        try
+        var process = SharedExcelReaderProcess.GetOrStartProcess(excelReaderPath, msg => _logger.LogInformation(msg));
+        if (process != null)
         {
-            // Try multiple possible locations for the Excel reader executable
-            var excelReaderPath = FindExcelReaderExecutable();
-            
-            if (string.IsNullOrEmpty(excelReaderPath))
-            {
-                _logger.LogError("Excel reader executable not found in any expected location");
-                throw new FileNotFoundException("Excel reader executable not found");
-            }
-
-            _logger.LogInformation($"Starting Excel reader: {excelReaderPath}");
-
-            _excelReaderProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = excelReaderPath,
-                    UseShellExecute = false,
-                    CreateNoWindow = true, // Hide console window - not needed for production
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
-            };
-
-            // CRASH FIX: Capture console output for debugging
-            _excelReaderProcess.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    _logger.LogInformation($"Excel Reader Console: {e.Data}");
-                }
-            };
-
-            _excelReaderProcess.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    _logger.LogError($"Excel Reader Error: {e.Data}");
-                }
-            };
-
-            _excelReaderProcess.Start();
-            
-            // Start reading output streams
-            _excelReaderProcess.BeginOutputReadLine();
-            _excelReaderProcess.BeginErrorReadLine();
+            _hasReference = true;
             
             // Wait a moment for the process to start
             await Task.Delay(2000);
-
-            // CRASH FIX: Don't test connection during startup to avoid circular dependency
-            // The connection will be tested when the first actual request is made
-            _logger.LogInformation("Excel reader started successfully - connection will be tested on first use");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to start Excel reader: {ex.Message}");
-            throw;
+            _logger.LogInformation("Excel reader started successfully using shared process manager");
         }
     }
+
+    // Removed CleanupExistingExcelReaderProcesses - now handled by SharedExcelReaderProcess
+
+    // Removed StartExcelReaderAsync - now handled by SharedExcelReaderProcess
 
     private string? FindExcelReaderExecutable()
     {
@@ -405,11 +338,10 @@ public class NamedPipeExcelClient : IExcelReader
     {
         try
         {
-            _excelReaderProcess?.Kill();
-            _excelReaderProcess?.Dispose();
-            _excelReaderProcess = null;
-            
-            await StartExcelReaderAsync();
+            // Force terminate and restart through shared manager
+            SharedExcelReaderProcess.ForceTerminate(msg => _logger.LogWarning(msg));
+            await Task.Delay(1000); // Brief delay before restart
+            await EnsureExcelReaderRunningAsync();
         }
         catch (Exception ex)
         {
@@ -447,20 +379,25 @@ public class NamedPipeExcelClient : IExcelReader
 
     public void Dispose()
     {
-        try
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            if (_excelReaderProcess != null && !_excelReaderProcess.HasExited)
+            if (disposing)
             {
-                _logger.LogInformation("Terminating Excel reader process");
-                _excelReaderProcess.Kill();
-                _excelReaderProcess.WaitForExit(5000); // Wait up to 5 seconds
+                // Release reference to shared process
+                if (_hasReference)
+                {
+                    SharedExcelReaderProcess.ReleaseReference(msg => _logger?.LogInformation(msg));
+                    _hasReference = false;
+                }
             }
-            _excelReaderProcess?.Dispose();
-            _excelReaderProcess = null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Error disposing Excel reader: {ex.Message}");
+            
+            _disposed = true;
         }
     }
 }
