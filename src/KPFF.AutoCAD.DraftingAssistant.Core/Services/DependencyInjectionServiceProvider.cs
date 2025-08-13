@@ -16,7 +16,8 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     public DependencyInjectionServiceProvider()
     {
         _services = new ServiceCollection();
-        _serviceProvider = _services.BuildServiceProvider();
+        // Don't build the service provider yet - keep container open for registrations
+        _serviceProvider = null!;
     }
 
     /// <summary>
@@ -95,7 +96,10 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     public T GetService<T>() where T : class
     {
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
-        EnsureBuilt();
+        if (!_isBuilt || _serviceProvider == null)
+        {
+            throw new InvalidOperationException("Service provider has not been built yet. Call BuildServiceProvider() first.");
+        }
         
         var service = _serviceProvider.GetService(typeof(T)) as T;
         if (service == null)
@@ -111,7 +115,10 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     public T? GetOptionalService<T>() where T : class
     {
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
-        EnsureBuilt();
+        if (!_isBuilt || _serviceProvider == null)
+        {
+            throw new InvalidOperationException("Service provider has not been built yet. Call BuildServiceProvider() first.");
+        }
         
         return _serviceProvider.GetService(typeof(T)) as T;
     }
@@ -122,7 +129,10 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     public bool IsServiceRegistered<T>() where T : class
     {
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
-        EnsureBuilt();
+        if (!_isBuilt || _serviceProvider == null)
+        {
+            throw new InvalidOperationException("Service provider has not been built yet. Call BuildServiceProvider() first.");
+        }
         
         return _serviceProvider.GetService(typeof(T)) != null;
     }
@@ -133,7 +143,10 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
     public IServiceScope CreateScope()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(DependencyInjectionServiceProvider));
-        EnsureBuilt();
+        if (!_isBuilt || _serviceProvider == null)
+        {
+            throw new InvalidOperationException("Service provider has not been built yet. Call BuildServiceProvider() first.");
+        }
         
         return _serviceProvider.CreateScope();
     }
@@ -146,13 +159,6 @@ public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, I
         }
     }
 
-    private void EnsureBuilt()
-    {
-        if (!_isBuilt)
-        {
-            BuildServiceProvider();
-        }
-    }
 
     public void Dispose()
     {

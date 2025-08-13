@@ -62,7 +62,8 @@ public class DraftingAssistantCommands
     private static void ExecuteCommand<T>() where T : class, ICommandHandler
     {
         var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-        var logger = serviceProvider?.GetOptionalService<ILogger>();
+        // Use a direct logger initially since services may not be built yet
+        var directLogger = new DebugLogger();
         
         ExceptionHandler.TryExecute(
             action: () =>
@@ -85,10 +86,14 @@ public class DraftingAssistantCommands
                     throw new InvalidOperationException("Service provider not available - plugin may not be initialized");
                 }
                 
+                // Now we can safely get the registered logger
+                var logger = serviceProvider.GetOptionalService<ILogger>() ?? directLogger;
+                logger.LogInformation($"Executing command: {typeof(T).Name}");
+                
                 var command = serviceProvider.GetService<T>();
                 command.Execute();
             },
-            logger: logger ?? new DebugLogger(),
+            logger: directLogger,
             context: $"Command Execution: {typeof(T).Name}",
             showUserMessage: true
         );

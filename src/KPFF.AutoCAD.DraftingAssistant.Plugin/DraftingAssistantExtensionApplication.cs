@@ -20,16 +20,19 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
     public void Initialize()
     {
+        // Use a direct logger to avoid triggering service provider build
+        var logger = new DebugLogger();
+        
         ExceptionHandler.TryExecute(
             action: () =>
             {
                 // Only setup basic dependency injection - no service initialization
                 SetupBasicDependencyInjection();
-                _logger = _serviceProvider!.GetService<ILogger>();
+                // Don't access services yet - this would trigger automatic build
                 
-                _logger.LogInformation("KPFF Drafting Assistant Plugin loaded - services will initialize on first command use");
+                logger.LogInformation("KPFF Drafting Assistant Plugin loaded - services will initialize on first command use");
             },
-            logger: _logger ?? new DebugLogger(),
+            logger: logger,
             context: "Plugin Loading",
             showUserMessage: false
         );
@@ -67,6 +70,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
     /// <summary>
     /// Sets up only basic dependency injection for logging - no UI or service initialization
+    /// Container is left "open" for additional service registration
     /// </summary>
     private static void SetupBasicDependencyInjection()
     {
@@ -82,8 +86,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
         _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
         _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
 
-        // Build the basic service provider
-        _serviceProvider.BuildServiceProvider();
+        // DON'T build the service provider yet - keep it open for additional registrations
     }
 
     /// <summary>
@@ -120,22 +123,28 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
             try
             {
-                var logger = _serviceProvider?.GetService<ILogger>();
-                logger?.LogInformation("Initializing KPFF Drafting Assistant services...");
+                // Use a direct logger since service provider hasn't been built yet
+                var logger = new DebugLogger();
+                logger.LogInformation("Initializing KPFF Drafting Assistant services...");
 
                 // Complete the service registration that was skipped during plugin load
                 SetupFullDependencyInjection();
                 
-                // Services are now registered and ready for use - no additional initialization needed
+                // Now we can safely get the registered logger from the built service provider
+                var registeredLogger = _serviceProvider?.GetService<ILogger>();
+                
+                // Initialize the palette manager after services are registered
+                InitializePaletteManager(registeredLogger);
 
                 _servicesInitialized = true;
-                logger?.LogInformation("KPFF Drafting Assistant services initialized successfully");
+                registeredLogger?.LogInformation("KPFF Drafting Assistant services initialized successfully");
                 return true;
             }
             catch (System.Exception ex)
             {
-                var logger = _serviceProvider?.GetService<ILogger>();
-                logger?.LogError($"Failed to initialize services: {ex.Message}");
+                // Use direct logger since service provider may not be built yet
+                var logger = new DebugLogger();
+                logger.LogError($"Failed to initialize services: {ex.Message}");
                 return false;
             }
         }
@@ -166,6 +175,44 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
         // Rebuild the service provider with new registrations
         _serviceProvider.BuildServiceProvider();
+    }
+
+    /// <summary>
+    /// Initializes the palette manager safely after service registration
+    /// </summary>
+    private static void InitializePaletteManager(ILogger? logger)
+    {
+        try
+        {
+            if (_serviceProvider == null)
+            {
+                logger?.LogError("Cannot initialize palette manager - service provider is null");
+                return;
+            }
+
+            var paletteManager = _serviceProvider.GetService<IPaletteManager>();
+            if (paletteManager == null)
+            {
+                logger?.LogError("Cannot initialize palette manager - service not registered");
+                return;
+            }
+
+            if (!paletteManager.IsInitialized)
+            {
+                logger?.LogInformation("Initializing palette manager...");
+                paletteManager.Initialize();
+                logger?.LogInformation("Palette manager initialized successfully");
+            }
+            else
+            {
+                logger?.LogDebug("Palette manager already initialized");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            logger?.LogError($"Failed to initialize palette manager: {ex.Message}");
+            // Don't throw - allow the plugin to continue working without palette
+        }
     }
 
     /// <summary>
