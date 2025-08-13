@@ -1,21 +1,9 @@
 {
   "profiles": {
-    "KPFF.AutoCAD.DraftingAssistant.Plugin": {
-      "commandName": "Project"
-    },
-    "Debug Civil 3D 2025": {
+    "Debug AutoCAD 2025": {
       "commandName": "Executable",
       "executablePath": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
-      "commandLineArgs": "/ld \"C:\\Program Files\\Autodesk\\AutoCAD 2025\\AecBase.dbx\" /p \"<<C3D_Imperial>>\" /product C3D /language en-US /b \"C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\start.scr\"",
-      "workingDirectory": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant",
-      "environmentVariables": {
-        "ACAD_NETLOAD_DEBUG": "1"
-      }
-    },
-    "Debug Plain AutoCAD 2025": {
-      "commandName": "Executable",
-      "executablePath": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
-      "commandLineArgs": "/t \"C:\\Users\\Public\\Documents\\Autodesk\\AutoCAD 2025\\Template\\acadiso.dwt\" /b \"C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\start.scr\"",
+      "commandLineArgs": "/ld \"C:\\Program Files\\Autodesk\\AutoCAD 2025\\AecBase.dbx\" /p \"<<C3D_Imperial>>\" /product C3D /language en-US /b \"C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\debug.scr\"",
       "workingDirectory": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant",
       "environmentVariables": {
         "ACAD_NETLOAD_DEBUG": "1"

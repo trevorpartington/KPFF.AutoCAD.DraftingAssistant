@@ -14,28 +14,23 @@ namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 public class DraftingAssistantExtensionApplication : IExtensionApplication
 {
     private static DependencyInjectionServiceProvider? _serviceProvider;
+    private static bool _servicesInitialized = false;
+    private static readonly object _initializationLock = new object();
     private ILogger? _logger;
-    private PluginStartupManager? _startupManager;
 
     public void Initialize()
     {
         ExceptionHandler.TryExecute(
             action: () =>
             {
-                SetupDependencyInjection();
+                // Only setup basic dependency injection - no service initialization
+                SetupBasicDependencyInjection();
                 _logger = _serviceProvider!.GetService<ILogger>();
-                var paletteManager = _serviceProvider.GetService<IPaletteManager>();
-
-                _logger.LogInformation("KPFF Drafting Assistant Plugin initializing...");
                 
-                // Use the startup manager for robust initialization
-                _startupManager = new PluginStartupManager(_logger, paletteManager);
-                _startupManager.BeginInitialization();
-                
-                _logger.LogInformation("KPFF Drafting Assistant Plugin setup completed - initialization in progress");
+                _logger.LogInformation("KPFF Drafting Assistant Plugin loaded - services will initialize on first command use");
             },
             logger: _logger ?? new DebugLogger(),
-            context: "Plugin Initialization",
+            context: "Plugin Loading",
             showUserMessage: false
         );
     }
@@ -46,9 +41,6 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
             action: () =>
             {
                 _logger?.LogInformation("KPFF Drafting Assistant Plugin terminating...");
-                
-                // Cleanup startup manager
-                _startupManager = null;
                 
                 // Cleanup services
                 if (_serviceProvider?.IsServiceRegistered<IPaletteManager>() == true)
@@ -74,10 +66,9 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
     }
 
     /// <summary>
-    /// Sets up the dependency injection container with all required services
-    /// CRASH FIX: Use isolated services that never access drawing context during initialization
+    /// Sets up only basic dependency injection for logging - no UI or service initialization
     /// </summary>
-    private static void SetupDependencyInjection()
+    private static void SetupBasicDependencyInjection()
     {
         if (_serviceProvider != null)
         {
@@ -86,10 +77,80 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
 
         _serviceProvider = new DependencyInjectionServiceProvider();
 
-        // Register core services - use isolated instances to avoid drawing context access
+        // Register only basic logger - no other services yet
         var debugLogger = new DebugLogger();
         _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
         _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
+
+        // Build the basic service provider
+        _serviceProvider.BuildServiceProvider();
+    }
+
+    /// <summary>
+    /// Ensures all services are initialized on first command use
+    /// THREAD-SAFE: Uses lock to prevent concurrent initialization
+    /// DOCUMENT-SAFE: Checks for valid document context before initialization
+    /// </summary>
+    public static bool EnsureServicesInitialized()
+    {
+        if (_servicesInitialized)
+        {
+            return true;
+        }
+
+        // Check document state first (per AutoCAD Developer's Guide)
+        if (Application.DocumentManager == null || Application.DocumentManager.Count == 0)
+        {
+            // No documents open - cannot initialize
+            return false;
+        }
+
+        if (Application.DocumentManager.MdiActiveDocument == null)
+        {
+            // No active document - cannot initialize
+            return false;
+        }
+
+        lock (_initializationLock)
+        {
+            if (_servicesInitialized)
+            {
+                return true; // Double-check pattern
+            }
+
+            try
+            {
+                var logger = _serviceProvider?.GetService<ILogger>();
+                logger?.LogInformation("Initializing KPFF Drafting Assistant services...");
+
+                // Complete the service registration that was skipped during plugin load
+                SetupFullDependencyInjection();
+                
+                // Services are now registered and ready for use - no additional initialization needed
+
+                _servicesInitialized = true;
+                logger?.LogInformation("KPFF Drafting Assistant services initialized successfully");
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                var logger = _serviceProvider?.GetService<ILogger>();
+                logger?.LogError($"Failed to initialize services: {ex.Message}");
+                return false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sets up the complete dependency injection container with all required services
+    /// Called lazily on first command use
+    /// </summary>
+    private static void SetupFullDependencyInjection()
+    {
+        if (_serviceProvider == null)
+        {
+            throw new InvalidOperationException("Basic service provider must be initialized first");
+        }
 
         // Register Excel services as transient - process lifecycle managed by SharedExcelReaderProcess
         _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
@@ -103,7 +164,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
         // Register command handlers
         RegisterCommandHandlers(_serviceProvider);
 
-        // Build the service provider
+        // Rebuild the service provider with new registrations
         _serviceProvider.BuildServiceProvider();
     }
 

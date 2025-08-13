@@ -36,6 +36,13 @@ public class DraftingAssistantCommands
         ExecuteCommand<TogglePaletteCommandHandler>();
     }
 
+    [CommandMethod("KPFF")]
+    public void MainDraftingAssistant()
+    {
+        // Main entry point command that triggers service initialization
+        ExecuteCommand<ShowPaletteCommandHandler>();
+    }
+
     [CommandMethod(CommandNames.KpffStart)]
     public void StartDraftingAssistant()
     {
@@ -60,8 +67,18 @@ public class DraftingAssistantCommands
         ExceptionHandler.TryExecute(
             action: () =>
             {
-                // Ensure plugin is initialized
-                EnsurePluginInitialized(serviceProvider, logger);
+                // Ensure services are fully initialized on first command use
+                bool servicesInitialized = DraftingAssistantExtensionApplication.EnsureServicesInitialized();
+                if (!servicesInitialized)
+                {
+                    // Check if it's a document issue
+                    if (Application.DocumentManager?.MdiActiveDocument == null)
+                    {
+                        Application.ShowAlertDialog("Please open a drawing before using KPFF commands.");
+                        return;
+                    }
+                    throw new InvalidOperationException("Failed to initialize KPFF Drafting Assistant services");
+                }
                 
                 if (serviceProvider == null)
                 {
@@ -77,75 +94,6 @@ public class DraftingAssistantCommands
         );
     }
 
-    /// <summary>
-    /// Ensures the plugin is properly initialized before executing commands
-    /// </summary>
-    private static void EnsurePluginInitialized(IServiceProvider? serviceProvider, ILogger? logger)
-    {
-        try
-        {
-            // First validate AutoCAD document context
-            ValidateDocumentContext();
-            
-            if (serviceProvider == null)
-            {
-                throw new InvalidOperationException("Service provider not available");
-            }
-            
-            // Check if services are registered
-            if (!serviceProvider.IsServiceRegistered<IPaletteManager>())
-            {
-                throw new InvalidOperationException("Plugin not properly initialized - services not registered");
-            }
-            
-            // Force initialization if needed
-            var paletteManager = serviceProvider.GetService<IPaletteManager>();
-            if (!paletteManager.IsInitialized)
-            {
-                logger?.LogWarning("Plugin not initialized - attempting to initialize now");
-                paletteManager.Initialize();
-            }
-        }
-        catch (System.Exception ex)
-        {
-            ExceptionHandler.HandleException(ex, logger ?? new DebugLogger(), null, "Plugin Initialization Check", false, true);
-        }
-    }
-
-    /// <summary>
-    /// Validates that AutoCAD is in a proper state for command execution
-    /// </summary>
-    private static void ValidateDocumentContext()
-    {
-        try
-        {
-            var docManager = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager;
-            if (docManager == null)
-            {
-                throw new InvalidOperationException("AutoCAD DocumentManager is not available");
-            }
-
-            // Check if we have at least one document
-            if (docManager.Count == 0)
-            {
-                throw new InvalidOperationException("No AutoCAD documents are open");
-            }
-
-            // Check if current document is accessible
-            var currentDoc = docManager.MdiActiveDocument;
-            if (currentDoc == null)
-            {
-                throw new InvalidOperationException("No active AutoCAD document");
-            }
-
-            // Validate document is in a usable state
-            var _ = currentDoc.Name; // This will throw if document is not ready
-        }
-        catch (System.Exception ex)
-        {
-            ExceptionHandler.HandleException(ex, new DebugLogger(), null, "Document Context Validation", false, true);
-        }
-    }
 
     /// <summary>
     /// Phase 1 Test: Construction Note Block Discovery
