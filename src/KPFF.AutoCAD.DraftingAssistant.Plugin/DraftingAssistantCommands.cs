@@ -6,7 +6,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
-using KPFF.AutoCAD.DraftingAssistant.Plugin.Models;
+using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
 using System.Text.Json;
 using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;

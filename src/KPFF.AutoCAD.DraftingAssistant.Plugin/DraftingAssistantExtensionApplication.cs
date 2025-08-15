@@ -30,6 +30,9 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 SetupBasicDependencyInjection();
                 // Don't access services yet - this would trigger automatic build
                 
+                // Hook into Application.Idle to trigger ProjectWise fix automatically
+                Application.Idle += OnApplicationIdleProjectWiseFix;
+                
                 logger.LogInformation("KPFF Drafting Assistant Plugin loaded - services will initialize on first command use");
             },
             logger: logger,
@@ -66,6 +69,30 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
             context: "Plugin Termination",
             showUserMessage: false
         );
+    }
+
+    /// <summary>
+    /// One-time Application.Idle handler to automatically trigger ProjectWise fix
+    /// Self-removes after first execution and includes robust error handling
+    /// </summary>
+    private static void OnApplicationIdleProjectWiseFix(object? sender, EventArgs e)
+    {
+        // Unregister immediately to ensure this only runs once
+        Application.Idle -= OnApplicationIdleProjectWiseFix;
+        
+        try 
+        {
+            System.Diagnostics.Debug.WriteLine("ProjectWise Auto-Fix: Starting from Application.Idle event");
+            
+            // Trigger the ProjectWise fix asynchronously - don't wait for completion
+            _ = ProjectWiseFix.TriggerProjectWiseInitialization();
+        }
+        catch (System.Exception ex)
+        {
+            // Catch any exceptions to prevent disrupting AutoCAD startup
+            System.Diagnostics.Debug.WriteLine($"ProjectWise Auto-Fix: Failed safely during Idle event - {ex.Message}");
+            // Continue silently - this is a best-effort fix
+        }
     }
 
     /// <summary>
