@@ -1,5 +1,3 @@
 ; AutoCAD startup script for KPFF Drafting Assistant Plugin
-; This script automatically loads the plugin and triggers ProjectWise compatibility
-; Load the plugin
+; This script automatically loads the plugin
 NETLOAD "C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\src\KPFF.AutoCAD.DraftingAssistant.Plugin\bin\Debug\KPFF.AutoCAD.DraftingAssistant.Plugin.dll"
-_CANCEL
