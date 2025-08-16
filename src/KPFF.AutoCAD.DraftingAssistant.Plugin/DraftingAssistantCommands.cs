@@ -9,7 +9,7 @@ using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
 using System.Text.Json;
-using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;
+using IServiceResolver = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceResolver;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 
@@ -61,7 +61,7 @@ public class DraftingAssistantCommands
     /// </summary>
     private static void ExecuteCommand<T>() where T : class, ICommandHandler
     {
-        var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+        var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
         // Use a direct logger initially since services may not be built yet
         var directLogger = new DebugLogger();
         
@@ -81,22 +81,46 @@ public class DraftingAssistantCommands
                     throw new InvalidOperationException("Failed to initialize KPFF Drafting Assistant services");
                 }
                 
-                if (serviceProvider == null)
+                if (compositionRoot == null)
                 {
-                    throw new InvalidOperationException("Service provider not available - plugin may not be initialized");
+                    throw new InvalidOperationException("Composition root not available - plugin may not be initialized");
                 }
                 
                 // Now we can safely get the registered logger
-                var logger = serviceProvider.GetOptionalService<ILogger>() ?? directLogger;
+                var logger = compositionRoot.GetOptionalService<ILogger>() ?? directLogger;
                 logger.LogInformation($"Executing command: {typeof(T).Name}");
                 
-                var command = serviceProvider.GetService<T>();
+                // Create command handler with dependency injection
+                var command = CreateCommandHandler<T>(compositionRoot);
                 command.Execute();
             },
             logger: directLogger,
             context: $"Command Execution: {typeof(T).Name}",
             showUserMessage: true
         );
+    }
+    
+    /// <summary>
+    /// Creates a command handler with dependency injection
+    /// </summary>
+    private static T CreateCommandHandler<T>(ServiceCompositionRoot compositionRoot) where T : class, ICommandHandler
+    {
+        // Manually create command handlers with dependency injection
+        return typeof(T).Name switch
+        {
+            nameof(ShowPaletteCommandHandler) => (T)(object)new ShowPaletteCommandHandler(
+                compositionRoot.GetService<IPaletteManager>(),
+                compositionRoot.GetService<ILogger>()),
+            nameof(HidePaletteCommandHandler) => (T)(object)new HidePaletteCommandHandler(
+                compositionRoot.GetService<IPaletteManager>(),
+                compositionRoot.GetService<ILogger>()),
+            nameof(TogglePaletteCommandHandler) => (T)(object)new TogglePaletteCommandHandler(
+                compositionRoot.GetService<IPaletteManager>(),
+                compositionRoot.GetService<ILogger>()),
+            nameof(HelpCommandHandler) => (T)(object)new HelpCommandHandler(
+                compositionRoot.GetService<ILogger>()),
+            _ => throw new InvalidOperationException($"Unknown command handler type: {typeof(T).Name}")
+        };
     }
 
 
@@ -122,16 +146,16 @@ public class DraftingAssistantCommands
                 return;
             }
 
-            // Get the service provider from the extension application
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            // Get the composition root from the extension application
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
-                ed.WriteMessage("ERROR: Service provider not initialized\n");
+                ed.WriteMessage("ERROR: Composition root not initialized\n");
                 return;
             }
 
             // Get the logger
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             
             // CRASH FIX: Manually create block manager instead of DI to avoid premature instantiation
             var blockManager = new CurrentDrawingBlockManager(logger);
@@ -282,8 +306,8 @@ public class DraftingAssistantCommands
             string targetBlock = blockResult.StringResult;
             ed.WriteMessage($"\nSearching for block: {targetBlock}\n");
 
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             
             // CRASH FIX: Manually create block manager instead of DI to avoid premature instantiation
             var blockManager = new CurrentDrawingBlockManager(logger);
@@ -358,14 +382,14 @@ public class DraftingAssistantCommands
                 return;
             }
 
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not initialized\n");
                 return;
             }
 
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             var blockManager = new CurrentDrawingBlockManager(logger);
 
             // Get user inputs
@@ -466,14 +490,14 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage("\n=== PHASE 2 RESET: Clear Block Data ===\n");
 
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not initialized\n");
                 return;
             }
 
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             var blockManager = new CurrentDrawingBlockManager(logger);
 
             // Get user inputs
@@ -556,8 +580,8 @@ public class DraftingAssistantCommands
                             // Check if this layout has construction note blocks
                             if (!isModelSpace)
                             {
-                                var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-                                var logger = serviceProvider?.GetService<Core.Interfaces.ILogger>();
+                                var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+                                var logger = compositionRoot?.GetService<Core.Interfaces.ILogger>();
                                 var blockManager = new CurrentDrawingBlockManager(logger);
                                 
                                 var blocks = blockManager.GetConstructionNoteBlocks(layoutName);
@@ -633,16 +657,16 @@ public class DraftingAssistantCommands
 
             // Use dependency injection instead of manual service creation
             ed.WriteMessage("Initializing services via dependency injection...\n");
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not available. Services may not be registered.\n");
                 return;
             }
 
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
-            var appLogger = serviceProvider.GetService<Core.Interfaces.IApplicationLogger>();
-            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
+            var appLogger = compositionRoot.GetService<Core.Interfaces.IApplicationLogger>();
+            var excelReader = compositionRoot.GetService<Core.Interfaces.IExcelReader>();
             var blockManager = new CurrentDrawingBlockManager(logger ?? new DebugLogger());
 
             if (excelReader == null)
@@ -854,14 +878,14 @@ public class DraftingAssistantCommands
                 
             string layoutName = layoutResult.StringResult;
             
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not available.\n");
                 return;
             }
 
-            var logger = serviceProvider.GetService<Core.Interfaces.ILogger>();
+            var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             var blockManager = new CurrentDrawingBlockManager(logger ?? new DebugLogger());
             
             ed.WriteMessage($"Clearing all construction note blocks in layout '{layoutName}'...\n");
@@ -898,14 +922,14 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage("\n=== PING TEST: EXCEL READER CONNECTION ===\n");
             
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not available.\n");
                 return;
             }
 
-            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            var excelReader = compositionRoot.GetService<Core.Interfaces.IExcelReader>();
             if (excelReader == null)
             {
                 ed.WriteMessage("ERROR: Excel reader service not available.\n");
@@ -972,14 +996,14 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage("\n=== MANUAL EXCEL READER START ===\n");
             
-            var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
-            if (serviceProvider == null)
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (compositionRoot == null)
             {
                 ed.WriteMessage("ERROR: Service provider not available.\n");
                 return;
             }
 
-            var excelReader = serviceProvider.GetService<Core.Interfaces.IExcelReader>();
+            var excelReader = compositionRoot.GetService<Core.Interfaces.IExcelReader>();
             if (excelReader == null)
             {
                 ed.WriteMessage("ERROR: Excel reader service not available.\n");
@@ -1052,10 +1076,10 @@ public class DraftingAssistantCommands
     [CommandMethod("TESTEXCELCLEANUP")]
     public static void TestExcelCleanup()
     {
-        var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
+        var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
         var editor = Application.DocumentManager.MdiActiveDocument?.Editor;
         
-        if (editor == null || serviceProvider == null)
+        if (editor == null || compositionRoot == null)
         {
             return;
         }
@@ -1066,7 +1090,7 @@ public class DraftingAssistantCommands
             
             // Get first Excel reader service from DI container (transient)
             editor.WriteMessage("\nGetting Excel reader service from DI container (first call)...");
-            var excelReader1 = serviceProvider.GetService<IExcelReader>();
+            var excelReader1 = compositionRoot.GetService<IExcelReader>();
             
             if (excelReader1 == null)
             {
@@ -1081,12 +1105,12 @@ public class DraftingAssistantCommands
             
             // Check shared process status
             editor.WriteMessage($"\n\nShared Process Status:");
-            editor.WriteMessage($"\n  Process Running: {SharedExcelReaderProcess.IsRunning}");
-            editor.WriteMessage($"\n  Reference Count: {SharedExcelReaderProcess.ReferenceCount}");
+            editor.WriteMessage($"\n  Process Running: false (placeholder implementation)");
+            editor.WriteMessage($"\n  Reference Count: 0 (placeholder implementation)");
             
             // Get another instance - should be different (transient) but share same process
             editor.WriteMessage("\n\nGetting Excel reader service again (second call)...");
-            var excelReader2 = serviceProvider.GetService<IExcelReader>();
+            var excelReader2 = compositionRoot.GetService<IExcelReader>();
             
             // Test if they're different instances
             var areSameInstance = ReferenceEquals(excelReader1, excelReader2);
@@ -1105,24 +1129,24 @@ public class DraftingAssistantCommands
             
             // Check shared process status again
             editor.WriteMessage($"\n\nShared Process Status After Second Instance:");
-            editor.WriteMessage($"\n  Process Running: {SharedExcelReaderProcess.IsRunning}");
-            editor.WriteMessage($"\n  Reference Count: {SharedExcelReaderProcess.ReferenceCount}");
+            editor.WriteMessage($"\n  Process Running: false (placeholder implementation)");
+            editor.WriteMessage($"\n  Reference Count: 0 (placeholder implementation)");
             
             // Dispose instances
             editor.WriteMessage("\n\nDisposing first instance...");
             excelReader1.Dispose();
-            editor.WriteMessage($"  Reference Count after dispose: {SharedExcelReaderProcess.ReferenceCount}");
+            editor.WriteMessage($"  Reference Count after dispose: 0 (placeholder implementation)");
             
             editor.WriteMessage("\nDisposing second instance...");
             excelReader2.Dispose();
-            editor.WriteMessage($"  Reference Count after dispose: {SharedExcelReaderProcess.ReferenceCount}");
+            editor.WriteMessage($"  Reference Count after dispose: 0 (placeholder implementation)");
             
-            editor.WriteMessage("\n\n=== Shared Process Behavior Summary ===");
+            editor.WriteMessage("\n\n=== Excel Reader Behavior Summary ===");
             editor.WriteMessage("\n- Excel reader services are TRANSIENT (new instance each time)");
-            editor.WriteMessage("\n- All instances share ONE Excel reader process");
-            editor.WriteMessage("\n- Process stays alive even with 0 references");
-            editor.WriteMessage("\n- Process will be terminated when AutoCAD shuts down");
-            editor.WriteMessage("\n- Check Task Manager: only one KPFF.AutoCAD.ExcelReader.exe should be running");
+            editor.WriteMessage("\n- Currently using PLACEHOLDER implementation");
+            editor.WriteMessage("\n- Excel functionality has been removed for Phase 1 & 2 refactoring");
+            editor.WriteMessage("\n- Excel reader process will be re-implemented in Phase 3");
+            editor.WriteMessage("\n- All Excel operations return empty results or false");
         }
         catch (System.Exception ex)
         {

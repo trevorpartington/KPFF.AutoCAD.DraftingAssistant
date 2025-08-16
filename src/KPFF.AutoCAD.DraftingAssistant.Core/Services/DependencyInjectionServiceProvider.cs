@@ -6,7 +6,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 /// <summary>
 /// Dependency injection based service provider using Microsoft.Extensions.DependencyInjection
 /// </summary>
-public class DependencyInjectionServiceProvider : Interfaces.IServiceProvider, IDisposable
+public class DependencyInjectionServiceProvider : IServiceResolver, IDisposable
 {
     private System.IServiceProvider _serviceProvider;
     private readonly ServiceCollection _services;

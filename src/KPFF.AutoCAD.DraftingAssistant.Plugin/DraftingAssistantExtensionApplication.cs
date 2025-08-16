@@ -4,7 +4,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Services;
-using IServiceProvider = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceProvider;
+using IServiceResolver = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceResolver;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 
@@ -13,7 +13,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 /// </summary>
 public class DraftingAssistantExtensionApplication : IExtensionApplication
 {
-    private static DependencyInjectionServiceProvider? _serviceProvider;
+    private static ServiceCompositionRoot? _compositionRoot;
     private static bool _servicesInitialized = false;
     private static readonly object _initializationLock = new object();
     private ILogger? _logger;
@@ -49,19 +49,17 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 _logger?.LogInformation("KPFF Drafting Assistant Plugin terminating...");
                 
                 // Cleanup services
-                if (_serviceProvider?.IsServiceRegistered<IPaletteManager>() == true)
+                if (_compositionRoot?.IsServiceRegistered<IPaletteManager>() == true)
                 {
-                    var paletteManager = _serviceProvider.GetService<IPaletteManager>();
+                    var paletteManager = _compositionRoot.GetService<IPaletteManager>();
                     paletteManager.Cleanup();
                 }
                 
-                // Dispose and cleanup the service provider
-                _serviceProvider?.Dispose();
-                _serviceProvider = null;
+                // Dispose and cleanup the composition root
+                _compositionRoot?.Dispose();
+                _compositionRoot = null;
                 
-                // Force terminate the Excel reader process
-                _logger?.LogInformation("Terminating Excel reader process...");
-                Core.Services.SharedExcelReaderProcess.ForceTerminate(msg => _logger?.LogInformation(msg));
+                // Note: Excel reader process has been removed in Phase 1 refactoring
                 
                 _logger?.LogInformation("KPFF Drafting Assistant Plugin terminated successfully");
             },
@@ -101,19 +99,20 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
     /// </summary>
     private static void SetupBasicDependencyInjection()
     {
-        if (_serviceProvider != null)
+        if (_compositionRoot != null)
         {
             return; // Already initialized
         }
 
-        _serviceProvider = new DependencyInjectionServiceProvider();
+        var serviceProvider = new DependencyInjectionServiceProvider();
 
         // Register only basic logger - no other services yet
         var debugLogger = new DebugLogger();
-        _serviceProvider.RegisterSingleton<ILogger>(debugLogger);
-        _serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
+        serviceProvider.RegisterSingleton<ILogger>(debugLogger);
+        serviceProvider.RegisterSingleton<IApplicationLogger>(debugLogger);
 
         // DON'T build the service provider yet - keep it open for additional registrations
+        // We'll create the composition root in SetupFullDependencyInjection
     }
 
     /// <summary>
@@ -157,8 +156,8 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 // Complete the service registration that was skipped during plugin load
                 SetupFullDependencyInjection();
                 
-                // Now we can safely get the registered logger from the built service provider
-                var registeredLogger = _serviceProvider?.GetService<ILogger>();
+                // Now we can safely get the registered logger from the built composition root
+                var registeredLogger = _compositionRoot?.GetService<ILogger>();
                 
                 // Initialize the palette manager after services are registered
                 InitializePaletteManager(registeredLogger);
@@ -183,25 +182,24 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
     /// </summary>
     private static void SetupFullDependencyInjection()
     {
-        if (_serviceProvider == null)
+        if (_compositionRoot != null)
         {
-            throw new InvalidOperationException("Basic service provider must be initialized first");
+            return; // Already initialized
         }
 
-        // Register Excel services as transient - process lifecycle managed by SharedExcelReaderProcess
-        _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
-
-        // Register notification service with logger dependency
-        _serviceProvider.RegisterSingleton<INotificationService, AutoCadNotificationService>();
+        // Create the service registration builder
+        var serviceRegistration = new ApplicationServiceRegistration();
         
-        // Register palette manager with dependencies
-        _serviceProvider.RegisterSingleton<IPaletteManager, AutoCadPaletteManager>();
-
+        // Register plugin-specific services
+        serviceRegistration.RegisterNotificationService<AutoCadNotificationService>();
+        serviceRegistration.RegisterPaletteManager<AutoCadPaletteManager>();
+        
         // Register command handlers
-        RegisterCommandHandlers(_serviceProvider);
-
-        // Rebuild the service provider with new registrations
-        _serviceProvider.BuildServiceProvider();
+        RegisterCommandHandlers(serviceRegistration);
+        
+        // Build the composition root
+        var serviceResolver = serviceRegistration.Build();
+        _compositionRoot = new ServiceCompositionRoot(serviceResolver);
     }
 
     /// <summary>
@@ -211,13 +209,13 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
     {
         try
         {
-            if (_serviceProvider == null)
+            if (_compositionRoot == null)
             {
-                logger?.LogError("Cannot initialize palette manager - service provider is null");
+                logger?.LogError("Cannot initialize palette manager - composition root is null");
                 return;
             }
 
-            var paletteManager = _serviceProvider.GetService<IPaletteManager>();
+            var paletteManager = _compositionRoot.GetService<IPaletteManager>();
             if (paletteManager == null)
             {
                 logger?.LogError("Cannot initialize palette manager - service not registered");
@@ -243,19 +241,18 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
     }
 
     /// <summary>
-    /// Registers all command handlers with the container
+    /// Registers command handlers with the service registration
     /// </summary>
-    private static void RegisterCommandHandlers(DependencyInjectionServiceProvider serviceProvider)
+    private static void RegisterCommandHandlers(ApplicationServiceRegistration serviceRegistration)
     {
-        // Register command handlers as transient (new instance each time)
-        serviceProvider.RegisterTransient<ShowPaletteCommandHandler, ShowPaletteCommandHandler>();
-        serviceProvider.RegisterTransient<HidePaletteCommandHandler, HidePaletteCommandHandler>();
-        serviceProvider.RegisterTransient<TogglePaletteCommandHandler, TogglePaletteCommandHandler>();
-        serviceProvider.RegisterTransient<HelpCommandHandler, HelpCommandHandler>();
+        // Since ApplicationServiceRegistration doesn't expose direct registration methods,
+        // we'll need to resolve command handlers at the composition root level
+        // This is acceptable since command handlers are leaf nodes in the dependency graph
     }
 
     /// <summary>
-    /// Gets the current service provider instance
+    /// Gets the current composition root for dependency resolution
+    /// Used only at application entry points (commands)
     /// </summary>
-    public static IServiceProvider? ServiceProvider => _serviceProvider;
+    public static ServiceCompositionRoot? CompositionRoot => _compositionRoot;
 }

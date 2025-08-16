@@ -23,19 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.Core\KPFF.AutoCAD.DraftingAssistant.Core.csproj" />
     <ProjectReference Include="..\KPFF.AutoCAD.DraftingAssistant.UI\KPFF.AutoCAD.DraftingAssistant.UI.csproj" />
-    <ProjectReference Include="..\KPFF.AutoCAD.ExcelReader\KPFF.AutoCAD.ExcelReader.csproj" />
   </ItemGroup>
 
-  <!-- Copy Excel Reader executable to output directory -->
-  <Target Name="CopyExcelReader" AfterTargets="Build">
-    <ItemGroup>
-      <ExcelReaderFiles Include="..\KPFF.AutoCAD.ExcelReader\bin\$(Configuration)\net8.0\KPFF.AutoCAD.ExcelReader.exe" />
-      <ExcelReaderFiles Include="..\KPFF.AutoCAD.ExcelReader\bin\$(Configuration)\net8.0\*.dll" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ExcelReaderFiles)" 
-          DestinationFolder="$(OutputPath)" 
-          SkipUnchangedFiles="true"
-          ContinueOnError="true" />
-  </Target>
 
 </Project>

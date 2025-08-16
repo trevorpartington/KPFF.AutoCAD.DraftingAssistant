@@ -12,6 +12,7 @@ public static class PluginServiceInitializer
 
     /// <summary>
     /// Initialize all application services for the plugin environment
+    /// Service initialization is now handled directly by DraftingAssistantExtensionApplication
     /// </summary>
     public static void Initialize()
     {
@@ -19,16 +20,8 @@ public static class PluginServiceInitializer
 
         try
         {
-            // Create and configure service registration
-            var serviceRegistration = new ApplicationServiceRegistration();
-            
-            // Register plugin-specific services
-            serviceRegistration.RegisterNotificationService<AutoCadNotificationService>();
-            serviceRegistration.RegisterPaletteManager<AutoCadPaletteManager>();
-            
-            // Initialize the application services
-            ApplicationServices.Initialize(serviceRegistration);
-            
+            // Service initialization is now handled by DraftingAssistantExtensionApplication
+            // This method is kept for backward compatibility but is essentially a no-op
             _isInitialized = true;
         }
         catch (Exception ex)
@@ -36,9 +29,6 @@ public static class PluginServiceInitializer
             // Log initialization failure using fallback logger
             var fallbackLogger = new DebugLogger();
             fallbackLogger.LogCritical($"Failed to initialize plugin services: {ex.Message}", ex);
-            
-            // Initialize with minimal services as fallback
-            ApplicationServices.Initialize();
             _isInitialized = true;
         }
     }
@@ -54,6 +44,6 @@ public static class PluginServiceInitializer
     internal static void Reset()
     {
         _isInitialized = false;
-        ApplicationServices.Reset();
+        // ApplicationServices has been removed - service initialization now handled by extension application
     }
 }

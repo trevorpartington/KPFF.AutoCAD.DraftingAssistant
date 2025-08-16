@@ -4,8 +4,9 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 /// <summary>
 /// Centralized service registration for the entire application
+/// Implements both builder and resolver to maintain backward compatibility
 /// </summary>
-public class ApplicationServiceRegistration : IServiceRegistration
+public class ApplicationServiceRegistration : IServiceContainerBuilder, IServiceResolver
 {
     private readonly DependencyInjectionServiceProvider _serviceProvider;
     private bool _servicesRegistered = false;
@@ -38,8 +39,8 @@ public class ApplicationServiceRegistration : IServiceRegistration
         // Configuration services
         _serviceProvider.RegisterTransient<IProjectConfigurationService, ProjectConfigurationService>();
         
-        // Excel services
-        _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
+        // Excel services (placeholder implementation for Phase 3)
+        _serviceProvider.RegisterTransient<IExcelReader, PlaceholderExcelReader>();
 
         // Construction Notes services (stub implementations to prevent crashes)
         _serviceProvider.RegisterTransient<IConstructionNotesService, ConstructionNotesService>();
@@ -49,6 +50,7 @@ public class ApplicationServiceRegistration : IServiceRegistration
         // It will be instantiated manually when needed to avoid premature AutoCAD access
         
         // Notification services - these will be registered by specific layers (UI/Plugin)
+        // Command handlers will be registered by Plugin layer
     }
 
     public void RegisterNotificationService<T>() where T : class, INotificationService
@@ -89,5 +91,14 @@ public class ApplicationServiceRegistration : IServiceRegistration
             return false;
         
         return _serviceProvider.IsServiceRegistered<T>();
+    }
+    
+    /// <summary>
+    /// Build the service container and return a resolver
+    /// </summary>
+    public IServiceResolver Build()
+    {
+        RegisterServices();
+        return this; // Return self as we implement both interfaces
     }
 }
