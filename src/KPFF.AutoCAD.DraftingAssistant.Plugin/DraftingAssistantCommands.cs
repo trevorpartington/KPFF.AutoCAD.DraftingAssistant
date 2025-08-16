@@ -115,6 +115,13 @@ public class DraftingAssistantCommands
             ed.WriteMessage("\n=== PHASE 1 TEST: Construction Note Block Discovery ===\n");
             ed.WriteMessage($"Current Drawing: {doc.Name}\n\n");
 
+            // Ensure services are initialized first
+            if (!DraftingAssistantExtensionApplication.EnsureServicesInitialized())
+            {
+                ed.WriteMessage("ERROR: Failed to initialize services\n");
+                return;
+            }
+
             // Get the service provider from the extension application
             var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
             if (serviceProvider == null)
@@ -343,6 +350,13 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage("\n=== PHASE 2 TEST: Single Block Update ===\n");
             ed.WriteMessage($"Current Drawing: {doc.Name}\n\n");
+
+            // Ensure services are initialized first
+            if (!DraftingAssistantExtensionApplication.EnsureServicesInitialized())
+            {
+                ed.WriteMessage("ERROR: Failed to initialize services\n");
+                return;
+            }
 
             var serviceProvider = DraftingAssistantExtensionApplication.ServiceProvider;
             if (serviceProvider == null)

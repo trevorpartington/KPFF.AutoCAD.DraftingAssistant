@@ -141,8 +141,9 @@ Projects use consistent naming patterns that are configurable:
 - Auto-detection with user validation fallback
 
 #### Construction Note Blocks
-Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX`
-- Examples: "101-NT01", "1-NT24"
+Each layout contains 24 dynamic blocks with simplified naming pattern: `NTXX`
+- Examples: "NT01", "NT02", "NT24"
+- Same blocks used across all layouts with different attribute values
 - Dynamic block attributes:
   - **Number**: Note number (1, 2, 4, etc.)
   - **Note**: Full note text from series-specific table
@@ -167,7 +168,7 @@ Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX
 - Sheet ABC-101 has entries in EXCEL_NOTES: column 1="ABC-101", column 2="1", column 3="1"
 - This means sheet ABC-101 has two instances of note 1
 - Note 1 definition comes from ABC_NOTES table: Number=1, Note="CONSTRUCT CURB"
-- System updates blocks 101-NT01 and 101-NT02 with Number="1", Note="CONSTRUCT CURB", Visibility="ON"
+- System updates blocks NT01 and NT02 with Number="1", Note="CONSTRUCT CURB", Visibility="ON"
 
 #### Dynamic Block Handling
 ```csharp
@@ -181,7 +182,7 @@ if (blockRef.IsDynamicBlock)
 ```
 
 ### Development Dependencies
-- **EPPlus**: Excel file reading (handles files open in Excel)
+- **ClosedXML**: Excel file reading (handles files open in Excel)
 - **AutoCAD .NET API**: Drawing analysis, block manipulation, viewport processing
 - **System.Text.Json**: Project configuration serialization
 
@@ -192,52 +193,9 @@ The system has been simplified to remove worksheet dependencies:
 - Configuration now only requires table names: SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES
 - More robust and works regardless of which worksheet contains the tables
 
-### Excel Notes Implementation Status
+### Excel Notes Implementation Strategy
 
-#### ✅ Phase 1 Complete: Read-Only Block Discovery
-- `CurrentDrawingBlockManager` successfully discovers NT## construction note blocks
-- Safe AutoCAD object access with crash prevention
-- Comprehensive logging and error handling
-- Test commands: TESTPHASE1, TESTPHASE1DETAIL, TESTLAYOUTS
-
-#### ✅ Phase 2 Complete: Single Block Update  
-- **Real-time block updates working for open drawings**
-- `UpdateConstructionNoteBlock()` method successfully updates:
-  - NUMBER and NOTE attributes
-  - Dynamic block visibility state (OFF → ON)
-  - Proper transaction handling with rollback on failure
-- Test commands: TESTPHASE2, TESTPHASE2RESET
-- **Verified Results**: Block NT02 updated to Number=55, Note="AGAIN", Visible=True
-
-#### 🔄 Phase 3 Planned: Out-of-Process Excel Integration
-**Problem**: EPPlus library causes AutoCAD to freeze during debugging due to COM/OLE conflicts, but production requires real-time Excel reading for user updates.
-
-**Solution**: Out-of-Process Excel Reading Architecture
-- **Phase 3A**: Create separate console application for Excel reading (eliminates EPPlus from AutoCAD process)
-- **Phase 3B**: AutoCAD plugin communicates with external process via named pipes or file-based communication  
-- **Phase 3C**: Modify existing `ExcelReaderService` to use process communication instead of direct EPPlus
-- **Benefits**: Eliminates freezing, maintains real-time Excel updates, preserves existing code interfaces
-
-**Technical Approach**:
-1. External Excel reader process handles all EPPlus operations outside AutoCAD
-2. Inter-process communication bridge connects AutoCAD plugin to Excel reader
-3. Same `IExcelReader` interface maintained for backwards compatibility
-4. Robust fallback to JSON approach if external process fails
-5. Automatic process lifecycle management with AutoCAD startup/shutdown
-
-**Current Status**: Pure JSON approach working as temporary solution, ready to implement out-of-process architecture
-
-#### 🔄 Phase 4 Needed: Closed Drawing Operations
-**Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
-
-**Required for Production Use**: 
-- **Side Database Pattern**: Use `Database.ReadDwgFile()` to access closed drawings
-- **External File Access**: Open external DWG files in memory without displaying them
-- **Batch Processing**: Update multiple drawings (both open and closed) in sequence  
-- **File Management**: Safe opening, updating, and closing of external files
-- **Advanced Error Handling**: File locking, permission issues, corrupted files
-
-This is critical for the user's workflow: "select any number of sheets and make updates to both drawings they have opened on their computer and drawings that are closed"
+The Excel Notes functionality uses a **safe, incremental approach** to avoid AutoCAD crashes and ensure reliable operation:
 
 ### Future Enhancements
 - Automated construction note block creation for new sheets
@@ -321,13 +279,7 @@ Each API reference file contains:
 - Property accessor information
 - Links to related classes and namespaces
 
-## Excel Notes Implementation Approach
-
-### Phase-Based Development Strategy
-
-The Excel Notes functionality is being implemented using a **safe, incremental approach** to avoid AutoCAD crashes and ensure reliable operation:
-
-#### **Phase 1: Read-Only Block Discovery (COMPLETED)**
+#### Phase 1: Read-Only Block Discovery
 - **Goal**: Safely find and read construction note blocks without modifications
 - **Implementation**: `CurrentDrawingBlockManager` with read-only operations
 - **Key Features**:
@@ -335,78 +287,83 @@ The Excel Notes functionality is being implemented using a **safe, incremental a
   - Safe AutoCAD object access with extensive error handling
   - Block attribute reading (Number, Note)
   - Dynamic block visibility state detection
-- **Testing**: `TESTPHASE1` and `TESTPHASE1DETAIL` commands
-- **Status**: ✅ **Complete and tested**
+- **Status**: ⚠️ **Service provider initialization issues**
 
-#### **Phase 2: Single Block Update (PLANNED)**
+#### Phase 2: Single Block Update
 - **Goal**: Safely modify one construction note block in active drawing
-- **Features**: Update block attributes and visibility state
-- **Testing**: Update specific block with hardcoded values
+- **Implementation**: `UpdateConstructionNoteBlock()` method updates:
+  - NUMBER and NOTE attributes
+  - Dynamic block visibility state (OFF → ON)
+  - Proper transaction handling with rollback on failure
+- **Status**: ⚠️ **Service provider initialization issues**
 
-#### **Phase 3: Excel-Driven Batch Updates (PLANNED)**  
-- **Goal**: Update multiple blocks based on Excel EXCEL_NOTES table
-- **Features**: Map Excel data to blocks for current layout
-- **Testing**: Process one sheet currently open in AutoCAD
+#### Phase 3: Out-of-Process Excel Integration
+**Problem**: ClosedXML library causes AutoCAD to freeze during debugging due to COM/OLE conflicts, but production requires real-time Excel reading for user updates.
 
-#### **Phase 4: Side Database Operations (PLANNED)**
-- **Goal**: Safely open external DWG files without crashes
-- **Features**: Database(false, true) pattern with proper file handling
-- **Testing**: Read blocks from closed DWG files
+**Solution**: Out-of-Process Excel Reading Architecture
+- **Phase 3A**: Create separate console application for Excel reading (eliminates ClosedXML from AutoCAD process)
+- **Phase 3B**: AutoCAD plugin communicates with external process via named pipes or file-based communication  
+- **Phase 3C**: Modify existing `ExcelReaderService` to use process communication instead of direct ClosedXML
+- **Benefits**: Eliminates freezing, maintains real-time Excel updates, preserves existing code interfaces
 
-### **Simplified Block Architecture (IMPLEMENTED)**
+**Technical Approach**:
+1. External Excel reader process handles all ClosedXML operations outside AutoCAD
+2. Inter-process communication bridge connects AutoCAD plugin to Excel reader
+3. Same `IExcelReader` interface maintained for backwards compatibility
+4. Robust fallback to JSON approach if external process fails
+5. Automatic process lifecycle management with AutoCAD startup/shutdown
 
-#### **Before (Redundant)**
-- Block names: `101-NT01`, `101-NT02`, `102-NT01`, `102-NT02`
-- Result: N layouts × 24 blocks = hundreds of definitions
+**Current Status**: Pure JSON approach working as temporary solution, ready to implement out-of-process architecture
 
-#### **After (Optimized)**  
+#### Phase 4: Closed Drawing Operations
+**Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
+
+**Required for Production Use**: 
+- **Side Database Pattern**: Use `Database.ReadDwgFile()` to access closed drawings
+- **External File Access**: Open external DWG files in memory without displaying them
+- **Batch Processing**: Update multiple drawings (both open and closed) in sequence  
+- **File Management**: Safe opening, updating, and closing of external files
+- **Advanced Error Handling**: File locking, permission issues, corrupted files
+
+This is critical for the user's workflow: "select any number of sheets and make updates to both drawings they have opened on their computer and drawings that are closed"
+
+### Implementation Architecture
+
+#### Simplified Block Architecture
 - Block names: `NT01`, `NT02`, ... `NT24`
 - Same blocks used across all layouts with different attribute values
-- Result: Only 24 total block definitions
+- Result: Only 24 total block definitions (vs N layouts × 24 blocks)
 
-### **Critical Safety Measures (IMPLEMENTED)**
-
-#### **AutoCAD Crash Prevention**
-The system includes extensive crash prevention for the access violation (0xc0000005) issues:
-
+#### Critical Safety Measures
+**AutoCAD Crash Prevention:**
 1. **Deferred Initialization**: No AutoCAD object access during plugin load
 2. **Safe Object Access**: All DocumentManager access wrapped in try-catch
 3. **Lazy Service Creation**: CurrentDrawingBlockManager not in DI container
 4. **Defensive Programming**: Null checks and graceful fallbacks throughout
 
-#### **Transaction Safety**
+**Transaction Safety:**
 - Read-only transactions for discovery operations
 - Proper transaction disposal and error handling
 - No premature commits that could corrupt drawings
 
-#### **Drawing State Protection**
+**Drawing State Protection:**
 - Never access viewports or other entities accidentally
 - Only target construction note blocks with precise pattern matching
 - Extensive logging for debugging and audit trails
 
-### **Excel Integration Strategy**
-
-#### **Data Flow**
-1. **Excel Reading**: EPPlus library reads EXCEL_NOTES table
+#### Excel Integration Data Flow
+1. **Excel Reading**: ClosedXML library reads EXCEL_NOTES table
 2. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES
 3. **Block Updates**: Update NT## blocks with mapped data per layout
 4. **Validation**: Verify all updates completed successfully
 
-#### **Error Handling**
-- Handle locked Excel files (EPPlus works with files open in Excel)  
-- Graceful handling of missing sheets, tables, or data
-- Rollback capability if updates fail mid-process
+#### Testing Commands
+- **TESTPHASE1**: Read-only block discovery test
+- **TESTPHASE1DETAIL**: Detailed block discovery with attribute display
+- **TESTPHASE2**: Single block update test
+- **TESTPHASE2RESET**: Reset test block to default state
+- **TESTLAYOUTS**: Layout enumeration test
 
-### **Testing Strategy**
-
-#### **Development Testing**
-- **Unit Tests**: Mock AutoCAD objects for safe testing
-- **Integration Commands**: Manual testing commands (TESTPHASE1, etc.)
-- **Incremental Validation**: Test each phase before proceeding
-
-#### **Production Readiness**
-- **Error Recovery**: Comprehensive exception handling
-- **Audit Logging**: Full operation logs for troubleshooting  
-- **User Feedback**: Clear progress reporting and error messages
+**Current Issue**: Service provider initialization error - commands fail with "Service provider has not been built yet. Call BuildServiceProvider() first."
 
 This approach ensures **reliable, crash-free operation** while maintaining **clean, maintainable code** that follows AutoCAD .NET API best practices.
