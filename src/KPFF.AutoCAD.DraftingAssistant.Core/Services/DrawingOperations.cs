@@ -33,64 +33,56 @@ public class DrawingOperations : IDrawingOperations
 
     public async Task<List<ConstructionNoteBlock>> GetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
-            {
-                _logger.LogDebug($"Getting construction note blocks for sheet {sheetName}");
-                var blockManager = GetBlockManager();
-                var blocks = blockManager.GetConstructionNoteBlocks(sheetName);
-                
-                _logger.LogInformation($"Found {blocks.Count} construction note blocks for sheet {sheetName}");
-                return blocks;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to get construction note blocks for sheet {sheetName}: {ex.Message}", ex);
-                return new List<ConstructionNoteBlock>();
-            }
-        });
+            _logger.LogDebug($"Getting construction note blocks for sheet {sheetName}");
+            var blockManager = GetBlockManager();
+            var blocks = blockManager.GetConstructionNoteBlocks(sheetName);
+            
+            _logger.LogInformation($"Found {blocks.Count} construction note blocks for sheet {sheetName}");
+            return await Task.FromResult(blocks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get construction note blocks for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(new List<ConstructionNoteBlock>());
+        }
     }
 
     public async Task<bool> UpdateConstructionNoteBlockAsync(string sheetName, int blockIndex, int noteNumber, string noteText, ProjectConfiguration config)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
+            _logger.LogDebug($"Updating construction note block {blockIndex} for sheet {sheetName} with note {noteNumber}");
+            var blockManager = GetBlockManager();
+            var blockName = $"NT{blockIndex:D2}";
+            var success = blockManager.UpdateConstructionNoteBlock(sheetName, blockName, noteNumber, noteText, noteNumber > 0);
+            
+            if (success)
             {
-                _logger.LogDebug($"Updating construction note block {blockIndex} for sheet {sheetName} with note {noteNumber}");
-                var blockManager = GetBlockManager();
-                var blockName = $"NT{blockIndex:D2}";
-                var success = blockManager.UpdateConstructionNoteBlock(sheetName, blockName, noteNumber, noteText, noteNumber > 0);
-                
-                if (success)
-                {
-                    _logger.LogDebug($"Successfully updated block {blockIndex} for sheet {sheetName}");
-                }
-                else
-                {
-                    _logger.LogWarning($"Failed to update block {blockIndex} for sheet {sheetName}");
-                }
-                
-                return success;
+                _logger.LogDebug($"Successfully updated block {blockIndex} for sheet {sheetName}");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError($"Exception updating construction note block {blockIndex} for sheet {sheetName}: {ex.Message}", ex);
-                return false;
+                _logger.LogWarning($"Failed to update block {blockIndex} for sheet {sheetName}");
             }
-        });
+            
+            return await Task.FromResult(success);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception updating construction note block {blockIndex} for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(false);
+        }
     }
 
     public async Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config)
     {
-        // Add immediate logging BEFORE Task.Run for debugging
+        // Add immediate logging for debugging
         _logger.LogInformation($"=== ENTRY: UpdateConstructionNoteBlocksAsync for sheet {sheetName} ====");
         
-        return await Task.Run(() =>
+        try
         {
-            try
-            {
                 _logger.LogInformation($"=== STARTING UpdateConstructionNoteBlocksAsync ====");
                 _logger.LogInformation($"Sheet: {sheetName}");
                 _logger.LogInformation($"Note numbers: [{string.Join(", ", noteNumbers)}]");
@@ -101,6 +93,20 @@ public class DrawingOperations : IDrawingOperations
                 _logger.LogDebug($"Creating CurrentDrawingBlockManager with logger type: {_logger.GetType().Name}");
                 var blockManager = GetBlockManager();
                 _logger.LogDebug($"Block manager created successfully");
+                
+                // Force initialization to ensure AutoCAD is ready before first block operations
+                _logger.LogDebug("Pre-initializing block manager to ensure AutoCAD readiness...");
+                try
+                {
+                    // Do a lightweight operation to force initialization
+                    var initTest = blockManager.GetConstructionNoteBlocks("__INIT_TEST__");
+                    _logger.LogDebug($"Block manager pre-initialization completed (found {initTest.Count} blocks in test layout as expected)");
+                }
+                catch (Exception initEx)
+                {
+                    _logger.LogDebug($"Block manager pre-initialization test completed with expected error: {initEx.Message}");
+                    // This is expected for a non-existent layout - it just forces initialization
+                }
                 
                 // Discover which blocks exist in this layout
                 _logger.LogInformation($"Discovering existing construction note blocks in layout '{sheetName}'...");
@@ -213,106 +219,86 @@ public class DrawingOperations : IDrawingOperations
                 }
                 
                 // Return true if we successfully updated at least some blocks
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"EXCEPTION in UpdateConstructionNoteBlocksAsync for sheet {sheetName}: {ex.Message}", ex);
-                _logger.LogError($"Exception type: {ex.GetType().Name}");
-                _logger.LogError($"Stack trace: {ex.StackTrace}");
-                return false;
-            }
-        })
-        .ContinueWith(task =>
+                return await Task.FromResult(true);
+        }
+        catch (Exception ex)
         {
-            // Ensure we always log the final result
-            if (task.IsFaulted)
-            {
-                _logger.LogError($"TASK FAULTED for sheet {sheetName}: {task.Exception?.GetBaseException().Message}");
-                return false;
-            }
-            
-            var result = task.Result;
-            _logger.LogInformation($"Final result for sheet {sheetName}: {(result ? "SUCCESS" : "FAILED")}");
-            return result;
-        });
+            _logger.LogError($"EXCEPTION in UpdateConstructionNoteBlocksAsync for sheet {sheetName}: {ex.Message}", ex);
+            _logger.LogError($"Exception type: {ex.GetType().Name}");
+            _logger.LogError($"Stack trace: {ex.StackTrace}");
+            return await Task.FromResult(false);
+        }
     }
 
     public async Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
-            {
-                _logger.LogDebug($"Validating construction note blocks exist for sheet {sheetName}");
-                var blockManager = GetBlockManager();
-                var blocks = blockManager.GetConstructionNoteBlocks(sheetName);
-                
-                var hasBlocks = blocks.Count >= config.ConstructionNotes.MaxNotesPerSheet;
-                _logger.LogDebug($"Sheet {sheetName} has {blocks.Count} blocks (expected: {config.ConstructionNotes.MaxNotesPerSheet})");
-                
-                return hasBlocks;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Exception validating construction note blocks for sheet {sheetName}: {ex.Message}", ex);
-                return false;
-            }
-        });
+            _logger.LogDebug($"Validating construction note blocks exist for sheet {sheetName}");
+            var blockManager = GetBlockManager();
+            var blocks = blockManager.GetConstructionNoteBlocks(sheetName);
+            
+            var hasBlocks = blocks.Count >= config.ConstructionNotes.MaxNotesPerSheet;
+            _logger.LogDebug($"Sheet {sheetName} has {blocks.Count} blocks (expected: {config.ConstructionNotes.MaxNotesPerSheet})");
+            
+            return await Task.FromResult(hasBlocks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception validating construction note blocks for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(false);
+        }
     }
 
     public async Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
+            _logger.LogInformation($"=== RESETTING construction note blocks for sheet {sheetName} ====");
+            var blockManager = GetBlockManager();
+            
+            // First, discover which NT## blocks actually exist in this layout
+            _logger.LogDebug($"Discovering existing construction note blocks in layout {sheetName}...");
+            var existingBlocks = blockManager.GetConstructionNoteBlocks(sheetName);
+            _logger.LogInformation($"Found {existingBlocks.Count} existing construction note blocks in layout {sheetName}");
+            
+            if (existingBlocks.Count == 0)
             {
-                _logger.LogInformation($"=== RESETTING construction note blocks for sheet {sheetName} ====");
-                var blockManager = GetBlockManager();
-                
-                // First, discover which NT## blocks actually exist in this layout
-                _logger.LogDebug($"Discovering existing construction note blocks in layout {sheetName}...");
-                var existingBlocks = blockManager.GetConstructionNoteBlocks(sheetName);
-                _logger.LogInformation($"Found {existingBlocks.Count} existing construction note blocks in layout {sheetName}");
-                
-                if (existingBlocks.Count == 0)
-                {
-                    _logger.LogWarning($"No construction note blocks found in layout {sheetName} - nothing to reset");
-                    return true; // Not an error - just means no blocks to work with
-                }
-                
-                // Log which blocks were found
-                var blockNames = existingBlocks.Select(b => b.BlockName).OrderBy(n => n).ToList();
-                _logger.LogInformation($"Existing blocks: [{string.Join(", ", blockNames)}]");
-                
-                // Reset only the blocks that actually exist
-                int successCount = 0;
-                foreach (var block in existingBlocks)
-                {
-                    _logger.LogDebug($"Resetting block {block.BlockName}...");
-                    var success = blockManager.UpdateConstructionNoteBlock(sheetName, block.BlockName, 0, "", false);
-                    if (success)
-                    {
-                        successCount++;
-                        _logger.LogDebug($"✓ Successfully reset {block.BlockName}");
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"✗ Failed to reset {block.BlockName}");
-                    }
-                }
-                
-                _logger.LogInformation($"Reset {successCount} of {existingBlocks.Count} construction note blocks for sheet {sheetName}");
-                
-                // Return true if we reset at least some blocks, or if there were no blocks to reset
-                return successCount > 0 || existingBlocks.Count == 0;
+                _logger.LogWarning($"No construction note blocks found in layout {sheetName} - nothing to reset");
+                return await Task.FromResult(true); // Not an error - just means no blocks to work with
             }
-            catch (Exception ex)
+            
+            // Log which blocks were found
+            var blockNames = existingBlocks.Select(b => b.BlockName).OrderBy(n => n).ToList();
+            _logger.LogInformation($"Existing blocks: [{string.Join(", ", blockNames)}]");
+            
+            // Reset only the blocks that actually exist
+            int successCount = 0;
+            foreach (var block in existingBlocks)
             {
-                _logger.LogError($"Exception resetting construction note blocks for sheet {sheetName}: {ex.Message}", ex);
-                return false;
+                _logger.LogDebug($"Resetting block {block.BlockName}...");
+                var success = blockManager.UpdateConstructionNoteBlock(sheetName, block.BlockName, 0, "", false);
+                if (success)
+                {
+                    successCount++;
+                    _logger.LogDebug($"✓ Successfully reset {block.BlockName}");
+                }
+                else
+                {
+                    _logger.LogWarning($"✗ Failed to reset {block.BlockName}");
+                }
             }
-        });
+            
+            _logger.LogInformation($"Reset {successCount} of {existingBlocks.Count} construction note blocks for sheet {sheetName}");
+            
+            // Return true if we reset at least some blocks, or if there were no blocks to reset
+            return await Task.FromResult(successCount > 0 || existingBlocks.Count == 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception resetting construction note blocks for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(false);
+        }
     }
 
     public void Dispose()

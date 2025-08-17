@@ -18,42 +18,11 @@ namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
 /// </summary>
 public class DraftingAssistantCommands
 {
-    [CommandMethod(CommandNames.DraftingAssistant)]
-    public void ShowDraftingAssistant()
-    {
-        ExecuteCommand<ShowPaletteCommandHandler>();
-    }
-
-    [CommandMethod(CommandNames.HideDraftingAssistant)]
-    public void HideDraftingAssistant()
-    {
-        ExecuteCommand<HidePaletteCommandHandler>();
-    }
-
-    [CommandMethod(CommandNames.ToggleDraftingAssistant)]
+    [CommandMethod(CommandNames.Kpff)]
     public void ToggleDraftingAssistant()
     {
+        // Single command that toggles palette visibility
         ExecuteCommand<TogglePaletteCommandHandler>();
-    }
-
-    [CommandMethod("KPFF")]
-    public void MainDraftingAssistant()
-    {
-        // Main entry point command that triggers service initialization
-        ExecuteCommand<ShowPaletteCommandHandler>();
-    }
-
-    [CommandMethod(CommandNames.KpffStart)]
-    public void StartDraftingAssistant()
-    {
-        // KPFFSTART is an alias for the main command
-        ExecuteCommand<ShowPaletteCommandHandler>();
-    }
-
-    [CommandMethod(CommandNames.KpffHelp)]
-    public void ShowHelp()
-    {
-        ExecuteCommand<HelpCommandHandler>();
     }
 
     /// <summary>
@@ -61,7 +30,6 @@ public class DraftingAssistantCommands
     /// </summary>
     private static void ExecuteCommand<T>() where T : class, ICommandHandler
     {
-        var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
         // Use a direct logger initially since services may not be built yet
         var directLogger = new DebugLogger();
         
@@ -81,6 +49,8 @@ public class DraftingAssistantCommands
                     throw new InvalidOperationException("Failed to initialize KPFF Drafting Assistant services");
                 }
                 
+                // Get the composition root AFTER services are initialized
+                var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
                 if (compositionRoot == null)
                 {
                     throw new InvalidOperationException("Composition root not available - plugin may not be initialized");
@@ -108,16 +78,8 @@ public class DraftingAssistantCommands
         // Manually create command handlers with dependency injection
         return typeof(T).Name switch
         {
-            nameof(ShowPaletteCommandHandler) => (T)(object)new ShowPaletteCommandHandler(
-                compositionRoot.GetService<IPaletteManager>(),
-                compositionRoot.GetService<ILogger>()),
-            nameof(HidePaletteCommandHandler) => (T)(object)new HidePaletteCommandHandler(
-                compositionRoot.GetService<IPaletteManager>(),
-                compositionRoot.GetService<ILogger>()),
             nameof(TogglePaletteCommandHandler) => (T)(object)new TogglePaletteCommandHandler(
                 compositionRoot.GetService<IPaletteManager>(),
-                compositionRoot.GetService<ILogger>()),
-            nameof(HelpCommandHandler) => (T)(object)new HelpCommandHandler(
                 compositionRoot.GetService<ILogger>()),
             _ => throw new InvalidOperationException($"Unknown command handler type: {typeof(T).Name}")
         };

@@ -104,13 +104,6 @@ public class AutoCadPaletteManager : IPaletteManager
     {
         try
         {
-            // CRASH FIX: Ensure AutoCAD is fully ready before creating palette
-            if (!IsAutoCadReady())
-            {
-                _logger.LogWarning("AutoCAD not ready - deferring palette creation");
-                return;
-            }
-
             // CRASH FIX: Add safety guard around AutoCAD object access
             // Removed direct access to DocumentManager that could cause crashes
             try
@@ -128,15 +121,21 @@ public class AutoCadPaletteManager : IPaletteManager
                 // Continue anyway - let the palette try to initialize
             }
 
+            // Create palette if it doesn't exist
             if (_paletteSet == null)
             {
-                CreatePaletteSet(); // Use the new method
+                CreatePaletteSet();
             }
 
+            // Show the palette
             if (_paletteSet != null)
             {
                 _paletteSet.Visible = true;
                 _logger.LogDebug("Palette shown");
+            }
+            else
+            {
+                _logger.LogError("Failed to create palette set");
             }
         }
         catch (System.Exception ex)
@@ -145,23 +144,6 @@ public class AutoCadPaletteManager : IPaletteManager
         }
     }
 
-    /// <summary>
-    /// Checks if AutoCAD is ready for palette creation
-    /// CRASH FIX: Prevents palette creation when AutoCAD isn't fully initialized
-    /// </summary>
-    private bool IsAutoCadReady()
-    {
-        try
-        {
-            // Simple check - if we can access the application version, AutoCAD is minimally ready
-            var _ = Autodesk.AutoCAD.ApplicationServices.Core.Application.Version;
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 
     public void Hide()
     {
@@ -185,12 +167,18 @@ public class AutoCadPaletteManager : IPaletteManager
         {
             if (_paletteSet == null)
             {
+                // First run - show the palette
                 Show();
+            }
+            else if (_paletteSet.Visible)
+            {
+                // Palette is visible - hide it
+                Hide();
             }
             else
             {
-                _paletteSet.Visible = !_paletteSet.Visible;
-                _logger.LogDebug($"Palette toggled to {(_paletteSet.Visible ? "visible" : "hidden")}");
+                // Palette exists but is hidden - show it
+                Show();
             }
         }
         catch (System.Exception ex)

@@ -16,10 +16,58 @@ public class CurrentDrawingBlockManager
 {
     private readonly ILogger _logger;
     private readonly Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+    private bool _isInitialized = false;
 
     public CurrentDrawingBlockManager(ILogger logger)
     {
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Ensures AutoCAD context is properly initialized before operations
+    /// </summary>
+    private bool EnsureInitialized()
+    {
+        if (_isInitialized)
+        {
+            return true;
+        }
+
+        try
+        {
+            _logger.LogDebug("Initializing CurrentDrawingBlockManager - verifying AutoCAD context");
+            
+            // Verify AutoCAD document access
+            var doc = Application.DocumentManager?.MdiActiveDocument;
+            if (doc == null)
+            {
+                _logger.LogError("No active AutoCAD document found during initialization");
+                return false;
+            }
+
+            // Verify database access
+            var db = doc.Database;
+            if (db == null)
+            {
+                _logger.LogError("AutoCAD database not accessible during initialization");
+                return false;
+            }
+
+            // Test basic transaction access
+            using (var testTrans = db.TransactionManager.StartTransaction())
+            {
+                testTrans.Commit();
+            }
+
+            _isInitialized = true;
+            _logger.LogDebug("CurrentDrawingBlockManager initialized successfully");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to initialize CurrentDrawingBlockManager: {ex.Message}", ex);
+            return false;
+        }
     }
 
     /// <summary>
@@ -31,6 +79,12 @@ public class CurrentDrawingBlockManager
     {
         var blocks = new List<ConstructionNoteBlock>();
         _logger.LogInformation($"Starting search for construction note blocks in layout: {layoutName}");
+
+        if (!EnsureInitialized())
+        {
+            _logger.LogError("Failed to initialize AutoCAD context for block operations");
+            return blocks;
+        }
 
         try
         {
@@ -485,6 +539,12 @@ public class CurrentDrawingBlockManager
         _logger.LogInformation($"Parameters: layoutName='{layoutName}', blockName='{blockName}', noteNumber={noteNumber}, noteText='{noteText?.Substring(0, Math.Min(noteText?.Length ?? 0, 30))}...', makeVisible={makeVisible}");
         _logger.LogInformation($"Logger type: {_logger.GetType().Name}");
         
+        if (!EnsureInitialized())
+        {
+            _logger.LogError("Failed to initialize AutoCAD context for block update operations");
+            return false;
+        }
+
         try
         {
             // CRASH FIX: Add safety guard around AutoCAD object access
@@ -715,65 +775,118 @@ public class CurrentDrawingBlockManager
     }
 
     /// <summary>
-    /// Updates the visibility state of a dynamic block
+    /// Updates the visibility state of a dynamic block with retry logic
     /// </summary>
     private bool UpdateDynamicBlockVisibility(BlockReference blockRef, bool makeVisible)
     {
-        try
-        {
-            DynamicBlockReferencePropertyCollection props = blockRef.DynamicBlockReferencePropertyCollection;
-            
-            foreach (DynamicBlockReferenceProperty prop in props)
-            {
-                if (prop.PropertyName.Equals("Visibility", StringComparison.OrdinalIgnoreCase) ||
-                    prop.PropertyName.Equals("Visibility1", StringComparison.OrdinalIgnoreCase))
-                {
-                    string targetState = makeVisible ? "ON" : "OFF";
-                    
-                    // Check if this visibility state exists in the allowed values
-                    var allowedValues = prop.GetAllowedValues();
-                    bool stateExists = false;
-                    
-                    foreach (object allowedValue in allowedValues)
-                    {
-                        string allowedState = allowedValue.ToString();
-                        if (allowedState.Equals(targetState, StringComparison.OrdinalIgnoreCase))
-                        {
-                            stateExists = true;
-                            break;
-                        }
-                        // Also check for alternative visibility states
-                        if (makeVisible && (allowedState.Equals("Visible", StringComparison.OrdinalIgnoreCase) ||
-                                          allowedState.Equals("Hex", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            targetState = allowedState;
-                            stateExists = true;
-                            break;
-                        }
-                    }
+        const int maxRetries = 3;
+        const int retryDelayMs = 50;
 
-                    if (stateExists)
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            try
+            {
+                _logger.LogDebug($"Updating dynamic block visibility (attempt {attempt + 1}/{maxRetries})");
+                
+                // Give AutoCAD time to initialize dynamic block properties on first attempt
+                if (attempt > 0)
+                {
+                    System.Threading.Thread.Sleep(retryDelayMs);
+                }
+
+                DynamicBlockReferencePropertyCollection props;
+                try
+                {
+                    props = blockRef.DynamicBlockReferencePropertyCollection;
+                    if (props == null)
                     {
-                        prop.Value = targetState;
-                        _logger.LogDebug($"Set visibility to: {targetState}");
-                        return true;
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"Visibility state '{targetState}' not found in allowed values: [{string.Join(", ", allowedValues)}]");
-                        return false;
+                        _logger.LogWarning($"Dynamic block properties not available (attempt {attempt + 1})");
+                        continue;
                     }
                 }
+                catch (Autodesk.AutoCAD.Runtime.Exception acadEx)
+                {
+                    _logger.LogWarning($"AutoCAD exception accessing dynamic properties (attempt {attempt + 1}): {acadEx.Message}");
+                    continue;
+                }
+                
+                foreach (DynamicBlockReferenceProperty prop in props)
+                {
+                    if (prop.PropertyName.Equals("Visibility", StringComparison.OrdinalIgnoreCase) ||
+                        prop.PropertyName.Equals("Visibility1", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string targetState = makeVisible ? "ON" : "OFF";
+                        
+                        // Check if this visibility state exists in the allowed values
+                        object[] allowedValues;
+                        try
+                        {
+                            allowedValues = prop.GetAllowedValues();
+                        }
+                        catch (Autodesk.AutoCAD.Runtime.Exception acadEx)
+                        {
+                            _logger.LogWarning($"AutoCAD exception getting allowed values (attempt {attempt + 1}): {acadEx.Message}");
+                            continue;
+                        }
+
+                        bool stateExists = false;
+                        
+                        foreach (object allowedValue in allowedValues)
+                        {
+                            string allowedState = allowedValue.ToString();
+                            if (allowedState.Equals(targetState, StringComparison.OrdinalIgnoreCase))
+                            {
+                                stateExists = true;
+                                break;
+                            }
+                            // Also check for alternative visibility states
+                            if (makeVisible && (allowedState.Equals("Visible", StringComparison.OrdinalIgnoreCase) ||
+                                              allowedState.Equals("Hex", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                targetState = allowedState;
+                                stateExists = true;
+                                break;
+                            }
+                        }
+
+                        if (stateExists)
+                        {
+                            try
+                            {
+                                prop.Value = targetState;
+                                _logger.LogDebug($"Successfully set visibility to: {targetState}");
+                                return true;
+                            }
+                            catch (Autodesk.AutoCAD.Runtime.Exception acadEx)
+                            {
+                                _logger.LogWarning($"AutoCAD exception setting visibility value (attempt {attempt + 1}): {acadEx.Message}");
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Visibility state '{targetState}' not found in allowed values: [{string.Join(", ", allowedValues)}]");
+                            return false;
+                        }
+                    }
+                }
+                
+                _logger.LogWarning("No visibility property found in dynamic block");
+                return false;
             }
-            
-            _logger.LogWarning("No visibility property found in dynamic block");
-            return false;
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Exception updating dynamic block visibility (attempt {attempt + 1}): {ex.Message}");
+                if (attempt == maxRetries - 1)
+                {
+                    _logger.LogError($"Failed to update dynamic block visibility after {maxRetries} attempts: {ex.Message}", ex);
+                    return false;
+                }
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to update dynamic block visibility: {ex.Message}", ex);
-            return false;
-        }
+
+        _logger.LogError($"Failed to update dynamic block visibility after {maxRetries} attempts");
+        return false;
     }
 
     /// <summary>
