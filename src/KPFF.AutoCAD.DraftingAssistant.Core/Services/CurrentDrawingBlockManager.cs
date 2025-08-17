@@ -481,7 +481,9 @@ public class CurrentDrawingBlockManager
     /// <returns>True if update was successful</returns>
     public bool UpdateConstructionNoteBlock(string layoutName, string blockName, int noteNumber, string noteText, bool makeVisible)
     {
-        _logger.LogInformation($"Attempting to update block {blockName} in layout {layoutName}");
+        _logger.LogInformation($"=== UpdateConstructionNoteBlock ENTRY ====");
+        _logger.LogInformation($"Parameters: layoutName='{layoutName}', blockName='{blockName}', noteNumber={noteNumber}, noteText='{noteText?.Substring(0, Math.Min(noteText?.Length ?? 0, 30))}...', makeVisible={makeVisible}");
+        _logger.LogInformation($"Logger type: {_logger.GetType().Name}");
         
         try
         {
@@ -489,7 +491,9 @@ public class CurrentDrawingBlockManager
             Document? doc = null;
             try
             {
+                _logger.LogDebug("Accessing AutoCAD DocumentManager...");
                 doc = Application.DocumentManager?.MdiActiveDocument;
+                _logger.LogDebug($"Document obtained: {doc?.Name ?? "null"}");
             }
             catch (System.Exception ex)
             {
@@ -499,34 +503,64 @@ public class CurrentDrawingBlockManager
 
             if (doc == null)
             {
-                _logger.LogWarning("No active document found");
+                _logger.LogError("CRITICAL: No active document found - cannot update blocks");
                 return false;
             }
 
+            _logger.LogDebug($"Active document: {doc.Name}");
             Database db = doc.Database;
+            _logger.LogDebug($"Database filename: {db.Filename}");
 
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 try
                 {
-                    // Get the layout
+                    _logger.LogDebug("Starting transaction for block update...");
+                    
+                    // Get the layout dictionary
+                    _logger.LogDebug("Getting layout dictionary...");
                     DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
-                    if (!layoutDict.Contains(layoutName))
+                    _logger.LogDebug($"Layout dictionary contains {layoutDict?.Count ?? 0} entries");
+                    
+                    // Check if our target layout exists
+                    _logger.LogInformation($"Checking if layout '{layoutName}' exists in dictionary...");
+                    bool layoutExists = layoutDict.Contains(layoutName);
+                    _logger.LogInformation($"Layout '{layoutName}' exists: {layoutExists}");
+                    
+                    if (!layoutExists)
                     {
-                        _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                        _logger.LogError($"LAYOUT NOT FOUND: Layout '{layoutName}' not found in drawing");
+                        _logger.LogInformation("Listing all available layouts for debugging:");
                         LogAvailableLayouts(layoutDict, tr);
                         return false;
                     }
 
+                    _logger.LogDebug($"Getting layout object for '{layoutName}'...");
                     ObjectId layoutId = layoutDict.GetAt(layoutName);
                     Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    _logger.LogDebug($"Layout object obtained: {layout?.LayoutName}");
 
                     // Get the block table record for this layout
+                    _logger.LogDebug("Getting layout block table record...");
                     BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                    
+                    // Count entities in the layout (BlockTableRecord implements IEnumerable<ObjectId>)
+                    int entityCount = 0;
+                    if (layoutBtr != null)
+                    {
+                        foreach (ObjectId objId in layoutBtr)
+                        {
+                            entityCount++;
+                        }
+                    }
+                    _logger.LogDebug($"Layout BTR contains {entityCount} entities");
 
                     // Find the target block
+                    _logger.LogInformation($"Searching for block '{blockName}' in layout '{layoutName}'...");
                     BlockReference targetBlockRef = null;
                     ObjectId targetBlockId = ObjectId.Null;
+                    int blocksFound = 0;
+                    
                     foreach (ObjectId objId in layoutBtr)
                     {
                         Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
@@ -534,44 +568,84 @@ public class CurrentDrawingBlockManager
                         if (entity is BlockReference blockRef)
                         {
                             string currentBlockName = GetEffectiveBlockName(blockRef, tr);
+                            _logger.LogDebug($"Found block reference: '{currentBlockName}'");
+                            blocksFound++;
+                            
                             if (currentBlockName.Equals(blockName, StringComparison.OrdinalIgnoreCase))
                             {
+                                _logger.LogInformation($"MATCH FOUND: Block '{blockName}' located in layout");
                                 targetBlockId = objId;
                                 break;
                             }
                         }
                     }
+                    
+                    _logger.LogInformation($"Block search complete: {blocksFound} total block references found in layout");
 
                     if (targetBlockId.IsNull)
                     {
-                        _logger.LogWarning($"Block '{blockName}' not found in layout '{layoutName}'");
+                        _logger.LogError($"BLOCK NOT FOUND: Block '{blockName}' not found in layout '{layoutName}'");
+                        _logger.LogError($"This means the block either doesn't exist or has a different name than expected");
+                        
+                        // List some of the blocks we did find for debugging
+                        _logger.LogInformation("First few blocks found in layout (for debugging):");
+                        int debugCount = 0;
+                        foreach (ObjectId objId in layoutBtr)
+                        {
+                            if (debugCount >= 10) break; // Limit debug output
+                            Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                            if (entity is BlockReference blockRef)
+                            {
+                                string currentBlockName = GetEffectiveBlockName(blockRef, tr);
+                                _logger.LogInformation($"  Debug block #{debugCount + 1}: '{currentBlockName}'");
+                                debugCount++;
+                            }
+                        }
+                        
                         return false;
                     }
 
                     // Now open the block for write
+                    _logger.LogDebug($"Opening block for write access...");
                     targetBlockRef = tr.GetObject(targetBlockId, OpenMode.ForWrite) as BlockReference;
+                    _logger.LogDebug($"Block opened for write: {targetBlockRef != null}");
 
-                    _logger.LogDebug($"Found target block {blockName}, updating attributes and visibility");
+                    _logger.LogInformation($"Found target block {blockName}, updating attributes and visibility");
 
                     // Update block attributes
+                    _logger.LogDebug($"Updating block attributes...");
                     bool attributesUpdated = UpdateBlockAttributes(targetBlockRef, noteNumber, noteText, tr);
+                    _logger.LogInformation($"Attributes updated: {attributesUpdated}");
                     
                     // Update visibility state if it's a dynamic block
+                    _logger.LogDebug($"Checking if block is dynamic: {targetBlockRef.IsDynamicBlock}");
                     bool visibilityUpdated = true;
                     if (targetBlockRef.IsDynamicBlock)
                     {
+                        _logger.LogDebug($"Updating dynamic block visibility...");
                         visibilityUpdated = UpdateDynamicBlockVisibility(targetBlockRef, makeVisible);
+                        _logger.LogInformation($"Visibility updated: {visibilityUpdated}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Block is not dynamic - skipping visibility update");
                     }
 
                     if (attributesUpdated && visibilityUpdated)
                     {
+                        _logger.LogDebug("Committing transaction...");
                         tr.Commit();
-                        _logger.LogInformation($"Successfully updated block {blockName}: Number={noteNumber}, Note='{noteText.Substring(0, Math.Min(noteText.Length, 30))}...', Visible={makeVisible}");
+                        _logger.LogInformation($"SUCCESS: Block {blockName} updated successfully!");
+                        _logger.LogInformation($"  Number: {noteNumber}");
+                        _logger.LogInformation($"  Note: '{noteText?.Substring(0, Math.Min(noteText?.Length ?? 0, 50))}...'");
+                        _logger.LogInformation($"  Visible: {makeVisible}");
                         return true;
                     }
                     else
                     {
-                        _logger.LogWarning("Block update failed - rolling back transaction");
+                        _logger.LogError($"TRANSACTION ROLLBACK: Block update failed");
+                        _logger.LogError($"  Attributes updated: {attributesUpdated}");
+                        _logger.LogError($"  Visibility updated: {visibilityUpdated}");
                         return false;
                     }
                 }

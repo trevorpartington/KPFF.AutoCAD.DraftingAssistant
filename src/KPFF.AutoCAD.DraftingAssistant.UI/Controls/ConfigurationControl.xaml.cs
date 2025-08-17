@@ -50,7 +50,7 @@ public partial class ConfigurationControl : BaseUserControl
         // CRASH FIX: Never access ApplicationServices during UI initialization
         // This prevents heap corruption from AutoCAD object disposal issues
         var logger = new DebugLogger();
-        return new PlaceholderExcelReader(logger);
+        return new ExcelReaderService(logger);
     }
 
     private async Task LoadDefaultProjectAsync()
