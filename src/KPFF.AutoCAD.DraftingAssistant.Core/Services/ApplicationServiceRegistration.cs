@@ -39,8 +39,8 @@ public class ApplicationServiceRegistration : IServiceContainerBuilder, IService
         // Configuration services
         _serviceProvider.RegisterTransient<IProjectConfigurationService, ProjectConfigurationService>();
         
-        // Excel services (placeholder implementation for Phase 3)
-        _serviceProvider.RegisterTransient<IExcelReader, PlaceholderExcelReader>();
+        // Excel services (Phase 3 ClosedXML implementation)
+        _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
 
         // Construction Notes services (stub implementations to prevent crashes)
         _serviceProvider.RegisterTransient<IConstructionNotesService, ConstructionNotesService>();

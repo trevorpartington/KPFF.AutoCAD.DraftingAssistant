@@ -297,23 +297,93 @@ Each API reference file contains:
   - Proper transaction handling with rollback on failure
 - **Status**: ⚠️ **Service provider initialization issues**
 
-#### Phase 3: Out-of-Process Excel Integration
-**Problem**: ClosedXML library causes AutoCAD to freeze during debugging due to COM/OLE conflicts, but production requires real-time Excel reading for user updates.
+## Excel Integration with ClosedXML
 
-**Solution**: Out-of-Process Excel Reading Architecture
-- **Phase 3A**: Create separate console application for Excel reading (eliminates ClosedXML from AutoCAD process)
-- **Phase 3B**: AutoCAD plugin communicates with external process via named pipes or file-based communication  
-- **Phase 3C**: Modify existing `ExcelReaderService` to use process communication instead of direct ClosedXML
-- **Benefits**: Eliminates freezing, maintains real-time Excel updates, preserves existing code interfaces
+### Overview
+Phase 3 implements comprehensive Excel integration using ClosedXML 0.104.0 for real-time reading of construction notes and sheet mappings. The implementation provides robust error handling and async processing to maintain AutoCAD stability.
 
-**Technical Approach**:
-1. External Excel reader process handles all ClosedXML operations outside AutoCAD
-2. Inter-process communication bridge connects AutoCAD plugin to Excel reader
-3. Same `IExcelReader` interface maintained for backwards compatibility
-4. Robust fallback to JSON approach if external process fails
-5. Automatic process lifecycle management with AutoCAD startup/shutdown
+### Technology Stack
+- **ClosedXML 0.104.0**: Excel file reading and table processing (latest stable version)
+- **.NET 8.0-windows**: Target framework for AutoCAD 2025 compatibility
+- **Task.Run() Pattern**: Background thread processing to avoid AutoCAD UI freezing
+- **Read-only Access**: Files opened in read-only mode to prevent conflicts
 
-**Current Status**: Pure JSON approach working as temporary solution, ready to implement out-of-process architecture
+### Implementation Architecture
+
+#### ExcelReaderService
+- **Location**: `Core/Services/ExcelReaderService.cs`
+- **Interface**: Implements `IExcelReader` with async methods
+- **Dependency**: Registered as transient service in DI container
+- **Thread Safety**: All Excel operations wrapped in `Task.Run()` for background execution
+
+#### Excel Table Structure
+The implementation expects specific named tables in the Excel workbook:
+
+1. **SHEET_INDEX**: Master sheet listing
+   - Columns: Sheet, File, Title
+   - Purpose: Complete drawing inventory with metadata
+
+2. **{SERIES}_NOTES**: Construction note definitions per series
+   - Pattern: `ABC_NOTES`, `PV_NOTES`, `C_NOTES` (configurable via `{0}_NOTES`)
+   - Columns: Number, Note
+   - Purpose: Note number to text mapping for each drawing series
+
+3. **EXCEL_NOTES**: Manual sheet-to-notes mapping
+   - Column 1: Sheet Name (e.g., "ABC-101")
+   - Columns 2-25: Note numbers (max 24 per `maxNotesPerSheet` config)
+   - Purpose: Defines which notes appear on each sheet
+
+#### Data Validation
+- **Column Count**: EXCEL_NOTES limited to 25 columns (1 sheet + 24 notes max)
+- **Note Range**: Note numbers validated within 1-24 range
+- **Duplicate Consolidation**: Duplicate note numbers automatically removed (e.g., [4, 4, 7] → [4, 7])
+- **Format Validation**: Number parsing with descriptive error messages for invalid data
+
+#### Error Handling Strategy
+- **Descriptive Errors**: Specific messages for missing tables, invalid formats, locked files
+- **Graceful Degradation**: Returns empty collections on failure (never null)
+- **No Retry Logic**: Single attempt with clear error reporting to user
+- **Comprehensive Logging**: All operations logged via `IApplicationLogger`
+
+#### Examples of Error Messages
+- `"Table 'SHEET_INDEX' not found in workbook"`
+- `"EXCEL_NOTES table has 30 columns but max is 25 (1 sheet + 24 notes)"`
+- `"Unable to open Excel file - may be locked by another process"`
+- `"Unable to parse note number from column 3: 'ABC' for sheet ABC-101"`
+
+### Async Processing Pattern
+```csharp
+public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config)
+{
+    return await Task.Run(() =>
+    {
+        using var workbook = new XLWorkbook(filePath);
+        // Excel processing logic here
+    });
+}
+```
+
+### Benefits Over Previous Approaches
+- **Real-time Updates**: Direct Excel file access when user clicks "Update Notes"
+- **No File Dependencies**: Eliminates need for intermediate CSV/JSON exports
+- **Rich Validation**: Comprehensive data validation with helpful error messages
+- **AutoCAD Stable**: Background processing prevents UI freezing
+- **Memory Efficient**: Files opened read-only with minimal tracking
+
+### Testing Strategy
+- **Unit Tests**: Mock `IExcelReader` for fast, reliable testing of plugin logic
+- **Integration Tests**: Real Excel file testing with `testdata/ProjectIndex.xlsx`
+- **Manual Testing**: TestConsole application validates full Excel reading pipeline
+- **Error Scenario Testing**: Corrupted files, missing tables, invalid data formats
+
+### Performance Considerations
+- **First Access Penalty**: ClosedXML builds DOM on first read (can be slow for large files)
+- **Memory Usage**: Entire workbook loaded into memory (not streaming)
+- **Optimization**: Files opened in read-only mode for faster processing
+- **Recommendation**: If files exceed 50MB, consider hybrid approach with ExcelDataReader for streaming
+
+### Future Considerations
+If AutoCAD freezing occurs during debugging (due to COM/OLE conflicts), the architecture supports migration to out-of-process Excel reading while maintaining the same `IExcelReader` interface.
 
 #### Phase 4: Closed Drawing Operations
 **Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
@@ -352,10 +422,14 @@ This is critical for the user's workflow: "select any number of sheets and make 
 - Extensive logging for debugging and audit trails
 
 #### Excel Integration Data Flow
-1. **Excel Reading**: ClosedXML library reads EXCEL_NOTES table
-2. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES
-3. **Block Updates**: Update NT## blocks with mapped data per layout
-4. **Validation**: Verify all updates completed successfully
+1. **File Validation**: Check Excel file exists and is accessible
+2. **Table Discovery**: Find named tables (SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES) across all worksheets
+3. **Data Validation**: Validate table structure, column counts, and data formats
+4. **Excel Reading**: ClosedXML reads table data with comprehensive error handling
+5. **Data Processing**: Parse note numbers, consolidate duplicates, validate ranges
+6. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES tables
+7. **Block Updates**: Update NT## blocks with mapped data per layout (Phase 4 implementation)
+8. **Result Validation**: Verify all updates completed successfully with detailed logging
 
 #### Testing Commands
 - **TESTPHASE1**: Read-only block discovery test
