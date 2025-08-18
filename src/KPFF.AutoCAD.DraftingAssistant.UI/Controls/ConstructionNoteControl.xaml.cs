@@ -195,13 +195,21 @@ public partial class ConstructionNoteControl : BaseUserControl
     {
         try
         {
-            // For testing, load from the default test location
+            // First try to get shared configuration from ConfigurationControl sibling
+            var sharedConfig = GetSharedConfigurationFromSibling();
+            if (sharedConfig != null)
+            {
+                Logger.LogDebug($"Using shared configuration with {sharedConfig.SelectedSheets.Count} selected sheets: {sharedConfig.ProjectName}");
+                return sharedConfig;
+            }
+            
+            // Fall back to loading from the default test location
             var testConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectConfig.json";
             
             if (File.Exists(testConfigPath))
             {
                 var config = await _configService.LoadConfigurationAsync(testConfigPath);
-                Logger.LogDebug($"Loaded test configuration: {config?.ProjectName}");
+                Logger.LogDebug($"Loaded test configuration from file: {config?.ProjectName}");
                 return config;
             }
             else
@@ -217,16 +225,61 @@ public partial class ConstructionNoteControl : BaseUserControl
         }
     }
 
+    private ProjectConfiguration? GetSharedConfigurationFromSibling()
+    {
+        try
+        {
+            // Find the parent DraftingAssistantControl
+            var parent = this.Parent;
+            while (parent != null && !(parent is DraftingAssistantControl))
+            {
+                parent = parent is FrameworkElement fe ? fe.Parent : null;
+            }
+
+            if (parent is DraftingAssistantControl draftingAssistantControl)
+            {
+                // Find ConfigurationControl sibling by name
+                var configControl = draftingAssistantControl.FindName("ConfigurationControl") as ConfigurationControl;
+                if (configControl != null)
+                {
+                    Logger.LogDebug("Found ConfigurationControl sibling, getting shared configuration");
+                    return configControl.CurrentConfiguration;
+                }
+                else
+                {
+                    Logger.LogDebug("ConfigurationControl sibling not found by name");
+                }
+            }
+            else
+            {
+                Logger.LogDebug("DraftingAssistantControl parent not found");
+            }
+            
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning($"Failed to get shared configuration from sibling: {ex.Message}");
+            return null;
+        }
+    }
+
     private async Task<List<SheetInfo>> GetSelectedSheetsAsync(ProjectConfiguration config)
     {
         try
         {
-            // For testing, get all sheets from SHEET_INDEX
-            // Later this will be replaced with selected sheets from ConfigurationControl
+            // Use selected sheets from ProjectConfiguration if available
+            if (config.SelectedSheets.Count > 0)
+            {
+                Logger.LogDebug($"Using {config.SelectedSheets.Count} selected sheets from configuration");
+                return config.SelectedSheets;
+            }
+            
+            // Fall back to all sheets if no selection is made
             var excelReader = new ExcelReaderService((IApplicationLogger)Logger);
             var allSheets = await excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
             
-            Logger.LogDebug($"Found {allSheets.Count} sheets in index, using all for testing");
+            Logger.LogDebug($"No sheets selected, using all {allSheets.Count} sheets from index");
             return allSheets;
         }
         catch (Exception ex)
