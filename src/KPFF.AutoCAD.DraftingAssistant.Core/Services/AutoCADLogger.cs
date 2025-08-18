@@ -90,7 +90,7 @@ public class AutoCADLogger : ILogger, IApplicationLogger
                 return false;
 
             // Write to AutoCAD command line
-            editor.WriteMessage($"\n{message}");
+            editor.WriteMessage($"\n{message}\n");
             return true;
         }
         catch
