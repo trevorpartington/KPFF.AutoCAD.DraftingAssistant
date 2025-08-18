@@ -33,7 +33,8 @@ public class ExcelReaderService : IExcelReader
                     return new List<SheetInfo>();
                 }
 
-                using var workbook = new XLWorkbook(filePath);
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
                 
                 // Find SHEET_INDEX table across all worksheets
                 var sheetIndexTable = FindTableByName(workbook, config.Tables.SheetIndex);
@@ -107,7 +108,8 @@ public class ExcelReaderService : IExcelReader
                     return new List<ConstructionNote>();
                 }
 
-                using var workbook = new XLWorkbook(filePath);
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
                 
                 // Build table name dynamically: e.g., "ABC_NOTES"
                 var tableName = string.Format(config.Tables.NotesPattern, series);
@@ -186,7 +188,8 @@ public class ExcelReaderService : IExcelReader
                     return new List<SheetNoteMapping>();
                 }
 
-                using var workbook = new XLWorkbook(filePath);
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
                 
                 // Find EXCEL_NOTES table
                 var excelNotesTable = FindTableByName(workbook, config.Tables.ExcelNotes);
@@ -310,7 +313,8 @@ public class ExcelReaderService : IExcelReader
                     return Array.Empty<string>();
                 }
 
-                using var workbook = new XLWorkbook(filePath);
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
                 var worksheetNames = workbook.Worksheets.Select(ws => ws.Name).ToArray();
                 
                 _logger.LogDebug($"Found {worksheetNames.Length} worksheets: {string.Join(", ", worksheetNames)}");
@@ -338,7 +342,8 @@ public class ExcelReaderService : IExcelReader
                     return Array.Empty<string>();
                 }
 
-                using var workbook = new XLWorkbook(filePath);
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
                 
                 if (!workbook.Worksheets.TryGetWorksheet(worksheetName, out var worksheet))
                 {
