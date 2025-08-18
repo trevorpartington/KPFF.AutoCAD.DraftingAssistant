@@ -71,10 +71,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             // This should integrate with Phase 1 & 2 working functionality
             // For now, show a placeholder message indicating it would work
             
-            NotificationService.ShowInformation(
-                "Auto Notes", 
-                "Auto Notes functionality would execute here.\n\n" +
-                "This will be connected to the working Phase 1 & 2 implementation.");
+            // Auto Notes functionality placeholder - no popup needed
                 
             NotesTextBlock.Text = "Auto Notes Update Executed!\n\n" +
                                  "This feature is working and will:\n" +
@@ -87,7 +84,7 @@ public partial class ConstructionNoteControl : BaseUserControl
         catch (Exception ex)
         {
             Logger.LogError($"Error executing Auto Notes update: {ex.Message}", ex);
-            NotificationService.ShowError("Auto Notes Error", $"Failed to execute Auto Notes update: {ex.Message}");
+            NotesTextBlock.Text = $"ERROR: Failed to execute Auto Notes update: {ex.Message}";
         }
     }
 
@@ -185,17 +182,12 @@ public partial class ConstructionNoteControl : BaseUserControl
             UpdateStatus(statusText);
             
             autocadLogger.LogInformation($"Excel Notes update completed. Processed {selectedSheets.Count} sheets. Successful: {successes.Count}, Errors: {errors.Count}");
-            
-            NotificationService.ShowInformation("Excel Notes Update", 
-                $"Processed {selectedSheets.Count} sheets. " +
-                $"Successful: {successes.Count}, Errors: {errors.Count}");
         }
         catch (Exception ex)
         {
             var errorMsg = $"Error executing Excel Notes update: {ex.Message}";
             Logger.LogError(errorMsg, ex);
             UpdateStatus($"ERROR: {errorMsg}");
-            NotificationService.ShowError("Excel Notes Error", errorMsg);
         }
     }
 
