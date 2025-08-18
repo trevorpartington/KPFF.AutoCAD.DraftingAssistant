@@ -10,7 +10,6 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 public class DrawingOperations : IDrawingOperations
 {
     private readonly ILogger _logger;
-    private CurrentDrawingBlockManager? _blockManager;
     private bool _disposed = false;
 
     public DrawingOperations(ILogger logger)
@@ -19,16 +18,12 @@ public class DrawingOperations : IDrawingOperations
     }
 
     /// <summary>
-    /// Lazy initialization of block manager to avoid AutoCAD access during service creation
+    /// Creates a fresh CurrentDrawingBlockManager to ensure current drawing state
     /// </summary>
     private CurrentDrawingBlockManager GetBlockManager()
     {
-        if (_blockManager == null)
-        {
-            _logger.LogDebug("Initializing CurrentDrawingBlockManager");
-            _blockManager = new CurrentDrawingBlockManager(_logger);
-        }
-        return _blockManager;
+        _logger.LogDebug("Creating fresh CurrentDrawingBlockManager");
+        return new CurrentDrawingBlockManager(_logger);
     }
 
     public async Task<List<ConstructionNoteBlock>> GetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config)
@@ -94,19 +89,6 @@ public class DrawingOperations : IDrawingOperations
                 var blockManager = GetBlockManager();
                 _logger.LogDebug($"Block manager created successfully");
                 
-                // Force initialization to ensure AutoCAD is ready before first block operations
-                _logger.LogDebug("Pre-initializing block manager to ensure AutoCAD readiness...");
-                try
-                {
-                    // Do a lightweight operation to force initialization
-                    var initTest = blockManager.GetConstructionNoteBlocks("__INIT_TEST__");
-                    _logger.LogDebug($"Block manager pre-initialization completed (found {initTest.Count} blocks in test layout as expected)");
-                }
-                catch (Exception initEx)
-                {
-                    _logger.LogDebug($"Block manager pre-initialization test completed with expected error: {initEx.Message}");
-                    // This is expected for a non-existent layout - it just forces initialization
-                }
                 
                 // Discover which blocks exist in this layout
                 _logger.LogInformation($"Discovering existing construction note blocks in layout '{sheetName}'...");
@@ -134,7 +116,7 @@ public class DrawingOperations : IDrawingOperations
                 
                 // First reset all available blocks to invisible state
                 _logger.LogInformation($"Resetting construction note blocks in layout '{sheetName}'...");
-                var resetSuccess = ResetConstructionNoteBlocksAsync(sheetName, config).Result;
+                var resetSuccess = ResetConstructionNoteBlocksAsync(sheetName, config, blockManager).Result;
                 if (!resetSuccess)
                 {
                     _logger.LogWarning($"Warning: Reset operation had issues for sheet {sheetName}, but continuing...");
@@ -250,12 +232,12 @@ public class DrawingOperations : IDrawingOperations
         }
     }
 
-    public async Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config)
+    public async Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null)
     {
         try
         {
             _logger.LogInformation($"=== RESETTING construction note blocks for sheet {sheetName} ====");
-            var blockManager = GetBlockManager();
+            blockManager ??= GetBlockManager();
             
             // First, discover which NT## blocks actually exist in this layout
             _logger.LogDebug($"Discovering existing construction note blocks in layout {sheetName}...");
@@ -313,8 +295,7 @@ public class DrawingOperations : IDrawingOperations
         {
             if (disposing)
             {
-                // CurrentDrawingBlockManager doesn't implement IDisposable
-                _blockManager = null;
+                // No resources to dispose - CurrentDrawingBlockManager is created fresh each time
                 _logger?.LogDebug("DrawingOperations disposed");
             }
             _disposed = true;

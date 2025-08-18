@@ -571,6 +571,8 @@ public class CurrentDrawingBlockManager
             Database db = doc.Database;
             _logger.LogDebug($"Database filename: {db.Filename}");
 
+            // Lock document for write access (required for modeless palette operations)
+            using (doc.LockDocument())
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 try

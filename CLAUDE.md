@@ -492,7 +492,7 @@ If AutoCAD freezing occurs during debugging (due to COM/OLE conflicts), the arch
 - **TESTPHASE1**: Read-only block discovery test ✅
 - **TESTPHASE1DETAIL**: Detailed block discovery with attribute display ✅
 - **TESTPHASE2**: Single block update test ✅
-- **TESTPHASE2RESET**: Reset test block to default state ✅
+- **CLEARNOTES**: Clear all construction note blocks in all layouts ✅
 - **TESTLAYOUTS**: Layout enumeration test ✅
 
 #### Production Commands ✅ **WORKING**

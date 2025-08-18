@@ -1,4 +1,5 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 
@@ -32,5 +33,5 @@ public interface IDrawingOperations : IDisposable
     /// <summary>
     /// Resets all construction note blocks for a sheet to invisible/empty state
     /// </summary>
-    Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config);
+    Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null);
 }

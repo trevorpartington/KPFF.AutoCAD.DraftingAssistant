@@ -439,18 +439,19 @@ public class DraftingAssistantCommands
     }
 
     /// <summary>
-    /// Phase 2 Reset Test: Resets a block back to empty state
-    /// Useful for testing multiple iterations
+    /// Clear all construction note blocks in all layouts of the active drawing
+    /// Resets all NT## blocks to empty state (hidden, cleared attributes)
     /// </summary>
-    [CommandMethod("TESTPHASE2RESET")]
-    public void TestPhase2BlockReset()
+    [CommandMethod("CLEARNOTES")]
+    public void ClearNotes()
     {
         Document doc = Application.DocumentManager.MdiActiveDocument;
         Editor ed = doc.Editor;
 
         try
         {
-            ed.WriteMessage("\n=== PHASE 2 RESET: Clear Block Data ===\n");
+            ed.WriteMessage("\n=== CLEAR ALL CONSTRUCTION NOTES ===\n");
+            ed.WriteMessage($"Current Drawing: {doc.Name}\n");
 
             var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
             if (compositionRoot == null)
@@ -462,34 +463,68 @@ public class DraftingAssistantCommands
             var logger = compositionRoot.GetService<Core.Interfaces.ILogger>();
             var blockManager = new CurrentDrawingBlockManager(logger);
 
-            // Get user inputs
-            PromptResult layoutResult = ed.GetString("\nEnter layout name (e.g., ABC-101): ");
-            if (layoutResult.Status != PromptStatus.OK)
-                return;
-            string layoutName = layoutResult.StringResult;
+            ed.WriteMessage("\nScanning all layouts for construction note blocks...\n");
 
-            PromptResult blockResult = ed.GetString("\nEnter block name to reset (e.g., NT01): ");
-            if (blockResult.Status != PromptStatus.OK)
-                return;
-            string blockName = blockResult.StringResult;
-
-            ed.WriteMessage($"\nResetting block {blockName} in layout {layoutName}...\n");
-
-            // Reset the block (empty values, hidden)
-            bool success = blockManager.UpdateConstructionNoteBlock(layoutName, blockName, 0, "", false);
-
-            if (success)
+            // Get all layouts (excluding Model space)
+            Database db = doc.Database;
+            var layoutNames = new List<string>();
+            
+            using (Transaction tr = db.TransactionManager.StartTransaction())
             {
-                ed.WriteMessage("✓ RESET SUCCESSFUL! Block is now empty and hidden.\n");
+                DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                
+                foreach (DBDictionaryEntry entry in layoutDict)
+                {
+                    if (!entry.Key.Equals("Model", StringComparison.OrdinalIgnoreCase))
+                    {
+                        layoutNames.Add(entry.Key);
+                    }
+                }
+                tr.Commit();
+            }
+
+            ed.WriteMessage($"Found {layoutNames.Count} paper space layouts\n");
+
+            int totalClearedBlocks = 0;
+            int processedLayouts = 0;
+
+            foreach (string layoutName in layoutNames)
+            {
+                ed.WriteMessage($"\nProcessing layout: {layoutName}\n");
+                
+                int clearedCount = blockManager.ClearAllConstructionNoteBlocks(layoutName);
+                
+                if (clearedCount > 0)
+                {
+                    ed.WriteMessage($"  ✓ Cleared {clearedCount} blocks\n");
+                    totalClearedBlocks += clearedCount;
+                    processedLayouts++;
+                }
+                else
+                {
+                    ed.WriteMessage($"  - No construction note blocks found\n");
+                }
+            }
+
+            ed.WriteMessage($"\n=== CLEAR OPERATION COMPLETE ===\n");
+            ed.WriteMessage($"Processed layouts: {processedLayouts}/{layoutNames.Count}\n");
+            ed.WriteMessage($"Total blocks cleared: {totalClearedBlocks}\n");
+            
+            if (totalClearedBlocks > 0)
+            {
+                ed.WriteMessage("All NT## blocks now have:\n");
+                ed.WriteMessage("  - Visibility set to OFF\n");
+                ed.WriteMessage("  - NUMBER and NOTE attributes cleared\n");
             }
             else
             {
-                ed.WriteMessage("✗ RESET FAILED!\n");
+                ed.WriteMessage("No construction note blocks were found in any layout.\n");
             }
         }
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nERROR: {ex.Message}\n");
+            ed.WriteMessage($"Stack Trace:\n{ex.StackTrace}\n");
         }
     }
 
