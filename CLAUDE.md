@@ -388,3 +388,60 @@ public static Point3dCollection GetViewportFootprint(Viewport vp)
 - **Faster Development**: Proven library eliminates trial-and-error coordinate calculations
 - **All Viewport Types**: Support for rectangular, rotated, and polygonal viewports
 - **Production Ready**: Library used by many AutoCAD developers in production
+
+## Auto Notes Phase 5A Implementation ✅ **COMPLETE**
+
+### ViewportBoundaryCalculator Success
+The viewport boundary calculation has been successfully implemented and tested with the `TESTVIEWPORT` command:
+
+#### Key Implementation Details ✅
+- **GeometryExtensions Integration**: Successfully integrated `Gile.AutoCAD.R25.Geometry` namespace
+- **Manual Scale Calculation**: Uses `ViewCenter` property for accurate model space center detection
+- **Robust Error Handling**: Graceful fallback to empty results on transformation errors
+- **Direct Coordinate Math**: Applied `1.0 / viewport.CustomScale` for scale factor calculation
+
+#### Test Results Validation ✅
+**ABC-101 Layout**: 
+- ViewCenter: (80, 50), Scale: 1:20 (0.05), Size: 160×100 paper units
+- **Calculated Area**: (0,0) to (160,100) model space ✅
+- Formula: Center ± (PaperSize × ScaleFactor) / 2
+
+**ABC-102 Layout**:
+- ViewCenter: (240, 50), Scale: 1:20 (0.05), Size: 160×100 paper units  
+- **Calculated Area**: (160,0) to (320,100) model space ✅
+- Formula: Center ± (PaperSize × ScaleFactor) / 2
+
+#### Core Implementation (ViewportBoundaryCalculator.cs)
+```csharp
+double scaleFactor = 1.0 / viewport.CustomScale; // 0.05 -> 20
+double halfWidth = (viewport.Width * scaleFactor) / 2.0;
+double halfHeight = (viewport.Height * scaleFactor) / 2.0;
+
+// ViewCenter is the center of displayed model space area
+Point3d modelSpaceCenter = new Point3d(viewport.ViewCenter.X, viewport.ViewCenter.Y, 0);
+
+var modelCorners = new[]
+{
+    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y - halfHeight, 0),
+    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y + halfHeight, 0),
+    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y + halfHeight, 0),
+    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y - halfHeight, 0)
+};
+```
+
+#### Project Configuration Updates ✅
+- **Core Project**: Added GeometryExtensions DLL reference to `libs/GeometryExtensionsR25.dll`
+- **PlatformTarget**: Set to x64 to match DLL architecture
+- **BlockTableRecord Access**: Uses `layout.BlockTableRecordId` to access viewports without layout switching
+
+#### Development Dependencies
+- **GeometryExtensions R25**: Viewport transformation library (Gilles Chanteau)
+- **Reference Path**: `C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\libs\GeometryExtensionsR25.dll`
+- **Namespace**: `Gile.AutoCAD.R25.Geometry` (R25 for AutoCAD 2025 compatibility)
+
+### Next Implementation Phase
+With accurate viewport boundary detection complete, the next steps are:
+1. **Multileader Discovery**: Find and filter multileaders by style in model space
+2. **Point-in-Polygon Detection**: Implement ray casting algorithm for containment testing
+3. **Note Number Extraction**: Extract TAGNUMBER attributes from multileader blocks
+4. **AutoNotesService**: Orchestrate complete pipeline for sheet processing

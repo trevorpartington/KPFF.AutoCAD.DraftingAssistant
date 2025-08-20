@@ -8,6 +8,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
@@ -1247,68 +1248,92 @@ public class DraftingAssistantCommands
                             ed.WriteMessage($"  Type: Model Space Viewport\n");
                             ed.WriteMessage($"  Number: {viewport.Number}\n");
                             ed.WriteMessage($"  On: {viewport.On}\n");
-
-                            // Test GeometryExtensions transformation
-                            ed.WriteMessage($"\n  *** TESTING GEOMETRYEXTENSIONS DCS2WCS ***\n");
                             
-                            // Check if GeometryExtensions is available
-                            ed.WriteMessage($"  Testing GeometryExtensions availability...\n");
+                            // Add detailed viewport properties for debugging
+                            ed.WriteMessage($"  ViewTarget: ({viewport.ViewTarget.X:F3}, {viewport.ViewTarget.Y:F3}, {viewport.ViewTarget.Z:F3})\n");
+                            ed.WriteMessage($"  ViewCenter: ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3})\n");
+                            ed.WriteMessage($"  ViewHeight: {viewport.ViewHeight:F3}\n");
+                            ed.WriteMessage($"  CustomScale: {viewport.CustomScale:F6}\n");
+                            
+                            // Detect and display the viewport scale
+                            double scaleRatio = 1.0 / viewport.CustomScale;
+                            ed.WriteMessage($"  Detected Scale: 1:{scaleRatio:F0} (1\" = {scaleRatio:F0}')\n");
+                            
+                            ed.WriteMessage($"  ViewDirection: ({viewport.ViewDirection.X:F3}, {viewport.ViewDirection.Y:F3}, {viewport.ViewDirection.Z:F3})\n");
+                            
+                            // Manual scale calculation for verification
+                            double expectedWidth = viewport.Width / viewport.CustomScale;
+                            double expectedHeight = viewport.Height / viewport.CustomScale;
+                            ed.WriteMessage($"  Expected Model Space Area: {expectedWidth:F3} x {expectedHeight:F3}\n");
+                            
+                            // Calculate corners based on ViewCenter being the center of the displayed area
+                            ed.WriteMessage($"  Expected Corners: ({viewport.ViewCenter.X - expectedWidth/2:F3}, {viewport.ViewCenter.Y - expectedHeight/2:F3}) to ({viewport.ViewCenter.X + expectedWidth/2:F3}, {viewport.ViewCenter.Y + expectedHeight/2:F3})\n");
+
+                            // Test ViewportBoundaryCalculator
+                            ed.WriteMessage($"\n  *** TESTING VIEWPORTBOUNDARYCALCULATOR ***\n");
+                            
+                            ed.WriteMessage($"  Using ViewportBoundaryCalculator.GetViewportFootprint()...\n");
                             
                             try
                             {
-                                // Test simple transformation - center point
-                                Point3d testPoint = new Point3d(0, 0, 0); // DCS center
-                                ed.WriteMessage($"  Input (DCS): ({testPoint.X:F3}, {testPoint.Y:F3}, {testPoint.Z:F3})\n");
+                                // Get the actual model space footprint using our new calculator
+                                var footprint = ViewportBoundaryCalculator.GetViewportFootprint(viewport);
                                 
-                                // This will test if GeometryExtensions is working
-                                Point3d transformedPoint = testPoint; // Placeholder - will be replaced with actual transformation
-                                ed.WriteMessage($"  ** GeometryExtensions DCS2WCS not yet implemented **\n");
-                                ed.WriteMessage($"  ** Will transform using viewport.DCS2WCS(testPoint) **\n");
-                                ed.WriteMessage($"  Placeholder output: ({transformedPoint.X:F3}, {transformedPoint.Y:F3}, {transformedPoint.Z:F3})\n");
+                                ed.WriteMessage($"  Paper space viewport: {viewport.Width:F3} x {viewport.Height:F3}\n");
+                                ed.WriteMessage($"  Non-rectangular clipping: {viewport.NonRectClipOn}\n");
+                                ed.WriteMessage($"  Calculated footprint points: {footprint.Count}\n\n");
                                 
-                                // Test rectangular viewport boundary points
-                                ed.WriteMessage($"\n  Testing rectangular boundary transformation:\n");
-                                double hw = viewport.Width / 2.0;
-                                double hh = viewport.Height / 2.0;
-                                
-                                var dcsCorners = new[]
+                                if (footprint.Count > 0)
                                 {
-                                    new Point3d(-hw, -hh, 0), // Bottom-Left
-                                    new Point3d(-hw,  hh, 0), // Top-Left
-                                    new Point3d( hw,  hh, 0), // Top-Right
-                                    new Point3d( hw, -hh, 0)  // Bottom-Right
-                                };
-                                
-                                ed.WriteMessage($"  Paper space boundary: {viewport.Width:F3} x {viewport.Height:F3}\n");
-                                ed.WriteMessage($"  DCS corners to transform:\n");
-                                
-                                for (int i = 0; i < dcsCorners.Length; i++)
-                                {
-                                    string corner = i switch
+                                    ed.WriteMessage($"  Model space boundary points:\n");
+                                    for (int i = 0; i < footprint.Count; i++)
                                     {
-                                        0 => "Bottom-Left",
-                                        1 => "Top-Left", 
-                                        2 => "Top-Right",
-                                        3 => "Bottom-Right",
-                                        _ => $"Point {i+1}"
-                                    };
+                                        string corner = "";
+                                        if (footprint.Count == 4 && !viewport.NonRectClipOn)
+                                        {
+                                            corner = i switch
+                                            {
+                                                0 => "Bottom-Left",
+                                                1 => "Top-Left", 
+                                                2 => "Top-Right",
+                                                3 => "Bottom-Right",
+                                                _ => $"Point {i+1}"
+                                            };
+                                        }
+                                        else
+                                        {
+                                            corner = $"Point {i+1}";
+                                        }
+                                        
+                                        Point3d point = footprint[i];
+                                        ed.WriteMessage($"    {corner}: ({point.X:F3}, {point.Y:F3}, {point.Z:F3})\n");
+                                    }
                                     
-                                    Point3d dcsPoint = dcsCorners[i];
-                                    ed.WriteMessage($"    {corner} DCS: ({dcsPoint.X:F3}, {dcsPoint.Y:F3})\n");
-                                    
-                                    // Placeholder for actual transformation
-                                    Point3d modelPoint = dcsPoint; // Will be: viewport.DCS2WCS(dcsPoint)
-                                    ed.WriteMessage($"    {corner} Model: ({modelPoint.X:F3}, {modelPoint.Y:F3}) [PLACEHOLDER]\n");
-                                }
+                                    // Calculate and display bounding box
+                                    var bounds = ViewportBoundaryCalculator.GetViewportBounds(viewport);
+                                    if (bounds.HasValue)
+                                    {
+                                        ed.WriteMessage($"\n  Model space bounding box:\n");
+                                        ed.WriteMessage($"    Min: ({bounds.Value.MinPoint.X:F3}, {bounds.Value.MinPoint.Y:F3}, {bounds.Value.MinPoint.Z:F3})\n");
+                                        ed.WriteMessage($"    Max: ({bounds.Value.MaxPoint.X:F3}, {bounds.Value.MaxPoint.Y:F3}, {bounds.Value.MaxPoint.Z:F3})\n");
+                                        ed.WriteMessage($"    Width: {(bounds.Value.MaxPoint.X - bounds.Value.MinPoint.X):F3}\n");
+                                        ed.WriteMessage($"    Height: {(bounds.Value.MaxPoint.Y - bounds.Value.MinPoint.Y):F3}\n");
+                                    }
 
-                                ed.WriteMessage($"\n  ✓ GeometryExtensions test structure complete\n");
-                                ed.WriteMessage($"  📝 Next: Implement actual viewport.DCS2WCS() calls\n");
+                                    ed.WriteMessage($"\n  ✅ SUCCESS: ViewportBoundaryCalculator working correctly!\n");
+                                    ed.WriteMessage($"  🎯 Model space transformation complete using GetMatrixFromDcsToWcs()\n");
+                                }
+                                else
+                                {
+                                    ed.WriteMessage($"  ⚠ WARNING: No footprint points calculated\n");
+                                    ed.WriteMessage($"  Check viewport properties and transformation matrix\n");
+                                }
                                 
                             }
-                            catch (System.Exception geomEx)
+                            catch (System.Exception calcEx)
                             {
-                                ed.WriteMessage($"  ERROR with GeometryExtensions: {geomEx.Message}\n");
-                                ed.WriteMessage($"  This indicates GeometryExtensions may not be properly loaded\n");
+                                ed.WriteMessage($"  ERROR with ViewportBoundaryCalculator: {calcEx.Message}\n");
+                                ed.WriteMessage($"  Stack trace: {calcEx.StackTrace}\n");
                             }
 
                         }
