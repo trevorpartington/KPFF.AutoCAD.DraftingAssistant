@@ -14,4 +14,11 @@
     <PackageReference Include="ClosedXML" Version="0.103.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="GeometryExtensionsR25">
+      <HintPath>..\..\libs\GeometryExtensions\GeometryExtensionsR25.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>

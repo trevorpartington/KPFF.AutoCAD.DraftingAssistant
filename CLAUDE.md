@@ -222,309 +222,169 @@ The Excel Notes functionality has been successfully implemented with a **resilie
 
 ## Documentation References
 
-### Overview
-This project includes comprehensive documentation and reference materials in the `docs/` folder to assist with development and understanding of the AutoCAD plugin architecture.
-
 ### AutoCAD .NET API Reference
-The `docs/api-reference/` folder contains extracted documentation from the Autodesk ObjectARX for AutoCAD 2025: Managed .NET Reference Guide, organized by namespace:
+The `docs/api-reference/` folder contains extracted AutoCAD API documentation organized by namespace. Key classes include BlockReference, Layout, MLeader, Viewport, and Transaction management.
 
-#### Available Namespaces
-- **Autodesk.AutoCAD.ApplicationServices**: Core application classes (Application, Document)
-- **Autodesk.AutoCAD.ApplicationServices.Core**: Application management and events
-- **Autodesk.AutoCAD.DatabaseServices**: Database objects (BlockReference, Layout, MLeader, Viewport, Transaction, Database)
-- **Autodesk.AutoCAD.DatabaseServices.Filters**: Spatial and layer filtering (SpatialFilter, LayerFilter, Index classes)
-- **Autodesk.AutoCAD.EditorInput**: Editor interaction and input handling
-- **Autodesk.AutoCAD.Geometry**: Geometric primitives and transformations
+### LISP Reference Implementation  
+The `docs/lisp/` folder contains the original LISP implementation with working algorithms for ray-casting point-in-polygon detection and construction note block updates.
 
-#### Key Classes Documented
-- **BlockReference**: Dynamic block handling, attributes, transformations
-- **Layout**: Paper space layouts, viewport management
-- **MLeader**: Multileader creation and manipulation
-- **Viewport**: Viewport properties and model space mapping
-- **Transaction/TransactionManager**: Database transaction handling
-- **SpatialFilter**: Spatial querying and filtering
-- **Editor**: User input and selection
+### Completed Implementation Summary
+- **Phase 1-3**: Block discovery, updates, and Excel Notes integration complete ✅
+- **Current Architecture**: NT01-NT24 blocks with dynamic attributes and visibility
+- **Excel Integration**: ClosedXML-based reading with comprehensive error handling  
+- **Testing**: All test commands operational (TESTPHASE1, TESTPHASE2, CLEARNOTES, etc.)
 
-**Note**: If you need documentation for any AutoCAD API methods, properties, or classes not currently in the reference folder, please request them specifically and they can be extracted from the CHM documentation.
+### Development Architecture
+- **Block Names**: `NT01`, `NT02`, ... `NT24` (simplified pattern)
+- **Safety Measures**: Deferred initialization, safe object access, transaction handling
+- **Excel Processing**: Async background processing with Task.Run() pattern
 
-### LISP Reference Implementation
-The `docs/lisp/` folder contains the original LISP implementation of the construction notes system, which serves as an algorithmic reference for the C# implementation:
+### Current System Status ✅
+**Production Commands**: DRAFTINGASSISTANT (UI), Excel Notes workflow complete  
+**System Capabilities**: Configuration management, block operations, comprehensive error handling  
+**Next Priority**: Auto Notes implementation, enhanced sheet selection UI
 
-#### Files
-- **DBRT_UNB_DWG.lsp**: Auto Notes implementation
-  - Uses COGO points to define viewport boundaries (naming pattern: `{layoutNum}-{index}`, e.g., "101-1", "101-2")
-  - Implements ray-casting algorithm for point-in-polygon detection
-  - Filters multileaders by style "Arw-Straight-Hex_Anno_WSDOT"
-  - Exports results to CSV files
-- **DBRT_UNB_EXCEL.lsp**: Excel Notes implementation
-  - Reads construction notes from CSV files at hardcoded paths
-  - Uses blocks with "HEX" in naming convention (`{layoutNum}-HEX-NT##`)
-  - Updates block visibility states and attributes
-- **_DBRT_NOTES_FROM_DWG.scr**: AutoCAD script to load and execute Auto Notes
-- **_DBRT_NOTES_FROM_EXCEL.scr**: AutoCAD script to load and execute Excel Notes
-
-#### Key Differences from C# Implementation
-| Aspect | LISP Implementation | C# Implementation |
-|--------|-------------------|-------------------|
-| **Viewport Detection** | Manual COGO points setup | Direct viewport geometry calculation |
-| **Block Naming** | `{layoutNum}-HEX-NT##` | `{layoutNum}-NT##` |
-| **Multileader Style** | Hardcoded "Arw-Straight-Hex_Anno_WSDOT" | Configurable via ProjectConfig.json |
-| **Data Source** | CSV files at fixed paths | Excel files with EPPlus library |
-| **Polygon Detection** | Ray-casting with COGO points | Viewport boundary calculation |
-
-### Developer Guidance
-
-#### Requesting Additional API Documentation
-When working with AutoCAD API methods or properties not documented in the reference folder:
-1. Identify the specific class, method, or property needed
-2. Request extraction from the CHM documentation
-3. The content will be added as a text file in the appropriate namespace folder
-
-#### Using the LISP Reference
-The LISP files demonstrate working algorithms for:
-- Point-in-polygon detection using ray-casting
-- Dynamic block visibility state manipulation
-- Multileader content extraction
-- Construction note block attribute updates
-
-While the algorithmic approaches are valuable references, the C# implementation uses more modern .NET patterns and AutoCAD API features for improved maintainability and performance.
-
-#### API Documentation Format
-Each API reference file contains:
-- Class hierarchy and inheritance
-- Method signatures in C# and VB.NET
-- Parameter descriptions
-- Property accessor information
-- Links to related classes and namespaces
-
-#### Phase 1: Read-Only Block Discovery ✅ **COMPLETE**
-- **Goal**: Safely find and read construction note blocks without modifications
-- **Implementation**: `CurrentDrawingBlockManager` with read-only operations
-- **Key Features**:
-  - Pattern matching for NT## blocks (NT01, NT02, etc.)
-  - Safe AutoCAD object access with extensive error handling
-  - Block attribute reading (Number, Note)
-  - Dynamic block visibility state detection
-- **Status**: ✅ **Working** - All test commands operational
-
-#### Phase 2: Single Block Update ✅ **COMPLETE**
-- **Goal**: Safely modify one construction note block in active drawing
-- **Implementation**: `UpdateConstructionNoteBlock()` method updates:
-  - NUMBER and NOTE attributes
-  - Dynamic block visibility state (OFF → ON)
-  - Proper transaction handling with rollback on failure
-- **Status**: ✅ **Working** - Successfully updates individual blocks
-
-#### Phase 3: Excel Notes Integration ✅ **COMPLETE**
-- **Goal**: Complete Excel Notes functionality with real-time Excel reading
-- **Implementation**: Full pipeline from Excel to AutoCAD block updates
-- **Key Features**:
-  - ClosedXML-based Excel file reading (SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES tables)
-  - AutoCADLogger for real-time command line output during operations
-  - Resilient block handling for partial block sets (handles 2 blocks vs 24)
-  - Comprehensive logging and error reporting throughout the pipeline
-  - Smart reset logic that only resets blocks that actually exist
-  - Graceful degradation: continues with partial updates rather than failing
-- **Status**: ✅ **Working** - Successfully processes sheets and updates construction note blocks
-
-#### Remaining Implementation Tasks
-
-##### Next Priority: Enhanced UI and Sheet Selection
-- **Expose selected sheets property from ConfigurationControl**
-  - Allow users to select specific sheets instead of processing all sheets
-  - Integrate with Excel Notes processing to only update selected sheets
-- **Default all sheets to selected for testing purposes**
-  - Improve user experience during testing and validation
-
-##### Auto Notes Implementation (Future)
-- **Goal**: Automatically detect construction notes from drawing viewports
-- **Implementation Required**:
-  - Viewport boundary calculation and model space mapping
-  - Multileader detection and filtering by style (configurable)
-  - Ray-casting or geometric containment for note extraction
-  - Integration with existing construction note block update pipeline
-- **Reference**: LISP implementation in `docs/lisp/DBRT_UNB_DWG.lsp` provides algorithmic guidance
-
-##### Future Enhancements
-- **Template-based note management system**
-- **Enhanced viewport geometry support for complex layouts**
-- **Automated construction note block creation for new sheets**
-
-## Excel Integration with ClosedXML
+## Auto Notes Implementation Plan with GeometryExtensions
 
 ### Overview
-Phase 3 implements comprehensive Excel integration using ClosedXML 0.104.0 for real-time reading of construction notes and sheet mappings. The implementation provides robust error handling and async processing to maintain AutoCAD stability.
+Auto Notes automatically detects construction notes from drawing viewports by analyzing bubble multileaders within viewport boundaries. This eliminates the manual Excel-based approach and provides real-time note detection from the actual drawing geometry.
 
-### Technology Stack
-- **ClosedXML 0.104.0**: Excel file reading and table processing (latest stable version)
-- **.NET 8.0-windows**: Target framework for AutoCAD 2025 compatibility
-- **Task.Run() Pattern**: Background thread processing to avoid AutoCAD UI freezing
-- **Read-only Access**: Files opened in read-only mode to prevent conflicts
+### Core Technology: GeometryExtensions Library
+We're using Gilles Chanteau's **GeometryExtensions** library (https://github.com/gileCAD/GeometryExtensions) which provides critical viewport transformation methods:
+- **`viewport.DCS2WCS(Point3d)`**: Transform points from Display Coordinate System to World Coordinate System
+- **Proven, tested code**: Used by many AutoCAD developers
+- **Handles all complexity**: Rotation, scale, view direction, coordinate systems
 
-### Implementation Architecture
+### Requirements & Specifications
 
-#### ExcelReaderService
-- **Location**: `Core/Services/ExcelReaderService.cs`
-- **Interface**: Implements `IExcelReader` with async methods
-- **Dependency**: Registered as transient service in DI container
-- **Thread Safety**: All Excel operations wrapped in `Task.Run()` for background execution
+#### Viewport Support
+- **All Viewport Types**: Rectangular, rotated, and polygonal viewports
+- **Boundary Calculation**: Use GeometryExtensions for accurate model space boundaries
+- **No Manual Setup**: Eliminate LISP requirement for manual COGO point placement
 
-#### Excel Table Structure
-The implementation expects specific named tables in the Excel workbook:
+#### Multileader Analysis
+- **Style Filtering**: Filter multileaders by style specified in `config.ConstructionNotes.MultileaderStyleName`
+- **Block Content**: Extract note numbers from block attributes within multileaders
+- **Attribute Extraction**: Get `TAGNUMBER` attribute from multileader blocks (e.g., `_TagCircle`)
+- **Integer Validation**: Only accept integer note numbers, skip non-integer content
+- **Duplicate Handling**: Consolidate duplicate note numbers (e.g., two instances of note 1 → single note 1)
 
-1. **SHEET_INDEX**: Master sheet listing
-   - Columns: Sheet, File, Title
-   - Purpose: Complete drawing inventory with metadata
+#### Point-in-Polygon Detection
+- **Ray Casting Algorithm**: Port the proven ray casting algorithm from LISP implementation
+- **Geometric Containment**: Determine which multileaders fall within viewport boundaries
+- **Robust Handling**: Handle edge cases and boundary conditions
 
-2. **{SERIES}_NOTES**: Construction note definitions per series
-   - Pattern: `ABC_NOTES`, `PV_NOTES`, `C_NOTES` (configurable via `{0}_NOTES`)
-   - Columns: Number, Note
-   - Purpose: Note number to text mapping for each drawing series
+#### Integration Requirements
+- **Block Reset**: Clear all construction note blocks before updating (set Visibility=OFF)
+- **Existing Pipeline**: Use existing construction note block update infrastructure
+- **Error Handling**: Empty viewports are normal - just clear blocks and continue
+- **Logging**: Comprehensive logging for debugging and audit trails
 
-3. **EXCEL_NOTES**: Manual sheet-to-notes mapping
-   - Column 1: Sheet Name (e.g., "ABC-101")
-   - Columns 2-25: Note numbers (max 24 per `maxNotesPerSheet` config)
-   - Purpose: Defines which notes appear on each sheet
+### Test Data & Setup
 
-#### Data Validation
-- **Column Count**: EXCEL_NOTES limited to 25 columns (1 sheet + 24 notes max)
-- **Note Range**: Note numbers validated within 1-24 range
-- **Duplicate Consolidation**: Duplicate note numbers automatically removed (e.g., [4, 4, 7] → [4, 7])
-- **Format Validation**: Number parsing with descriptive error messages for invalid data
+#### Test Drawing: PROJ-ABC-100.dwg
+- **Multiple Layouts**: ABC-101, ABC-102, ABC-103 with viewports containing multileaders
+- **Multileader Style**: `ML-STYLE-01` with `Circle` source block
+- **Block Structure**: Block name `_TagCircle` with `TAGNUMBER` attribute
+- **Duplicate Test Case**: One layout has two multileaders both containing note number 1
+- **Expected Behavior**: System should detect duplicates and only place note 1 once
 
-#### Error Handling Strategy
-- **Descriptive Errors**: Specific messages for missing tables, invalid formats, locked files
-- **Graceful Degradation**: Returns empty collections on failure (never null)
-- **No Retry Logic**: Single attempt with clear error reporting to user
-- **Comprehensive Logging**: All operations logged via `IApplicationLogger`
+#### Multileader Properties (from test data)
+- **Style**: ML-STYLE-01
+- **Source Block**: Circle
+- **Block Name**: _TagCircle (when exploded)
+- **Attribute**: TAGNUMBER with integer values
+- **Content Access**: Available via Edit Attributes dialog or programmatically
 
-#### Examples of Error Messages
-- `"Table 'SHEET_INDEX' not found in workbook"`
-- `"EXCEL_NOTES table has 30 columns but max is 25 (1 sheet + 24 notes)"`
-- `"Unable to open Excel file - may be locked by another process"`
-- `"Unable to parse note number from column 3: 'ABC' for sheet ABC-101"`
+### Implementation Plan
 
-### Async Processing Pattern
+#### Step 1: Setup GeometryExtensions
+- Add GeometryExtensions NuGet package to Core project
+- Create `TESTVIEWPORT` command to validate transformations work correctly
+
+#### Step 2: Core Utilities
+- **ViewportBoundaryCalculator** (`Core/Utilities/`)
+  - `GetViewportFootprint(viewport)` using `viewport.DCS2WCS()`
+  - Handle rectangular and polygonal viewports
+- **PointInPolygonDetector** (`Core/Utilities/`)
+  - Ray casting algorithm for containment testing
+
+#### Step 3: Multileader Analysis
+- **MultileaderAnalyzer** (`Core/Services/`)
+  - Find all multileaders in model space
+  - Filter by style (ML-STYLE-01 from config)
+  - Extract TAGNUMBER attribute values
+
+#### Step 4: Auto Notes Service
+- **AutoNotesService** (`Core/Services/`)
+  - Orchestrate viewport analysis and multileader detection
+  - Map multileaders to viewports using point-in-polygon
+  - Return consolidated note numbers
+
+#### Step 5: Integration
+- Update `ConstructionNotesService.GetAutoNotesForSheetAsync()`
+- Wire into existing UI and block update pipeline
+- Register in DI container
+
+#### Step 6: Testing & Validation
+- Test with PROJ-ABC-100.dwg layouts
+- Verify all viewport types work correctly
+- Confirm duplicate handling and note extraction
+
+### Sample Implementation
+
+#### ViewportBoundaryCalculator.cs
 ```csharp
-public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config)
+public static Point3dCollection GetViewportFootprint(Viewport vp)
 {
-    return await Task.Run(() =>
+    var result = new Point3dCollection();
+    
+    if (!vp.NonRectClipOn)
     {
-        using var workbook = new XLWorkbook(filePath);
-        // Excel processing logic here
-    });
+        // Rectangular boundary
+        double hw = vp.Width / 2.0;
+        double hh = vp.Height / 2.0;
+        
+        var dcsCorners = new[]
+        {
+            new Point3d(-hw, -hh, 0),
+            new Point3d(-hw,  hh, 0),
+            new Point3d( hw,  hh, 0),
+            new Point3d( hw, -hh, 0)
+        };
+        
+        foreach (var pt in dcsCorners)
+            result.Add(vp.DCS2WCS(pt)); // GeometryExtensions!
+    }
+    else
+    {
+        // Polygonal boundary
+        var clipPts = vp.GetNonRectClipBoundary();
+        if (clipPts != null && clipPts.Count > 0)
+        {
+            foreach (Point2d p in clipPts)
+            {
+                var dcsPt = new Point3d(p.X - vp.CenterPoint.X, p.Y - vp.CenterPoint.Y, 0);
+                result.Add(vp.DCS2WCS(dcsPt));
+            }
+        }
+    }
+    
+    return result;
 }
 ```
 
-### Benefits Over Previous Approaches
-- **Real-time Updates**: Direct Excel file access when user clicks "Update Notes"
-- **No File Dependencies**: Eliminates need for intermediate CSV/JSON exports
-- **Rich Validation**: Comprehensive data validation with helpful error messages
-- **AutoCAD Stable**: Background processing prevents UI freezing
-- **Memory Efficient**: Files opened read-only with minimal tracking
+### Benefits Over LISP Implementation
+- **No Manual Setup**: Eliminates manual COGO point placement
+- **Proven Transformations**: Uses GeometryExtensions' tested coordinate math
+- **Better Error Handling**: Robust exception handling and logging  
+- **Configurable**: Uses project configuration for multileader style
+- **Integrated**: Seamlessly works with existing construction notes system
+- **Maintainable**: Clean C# code with proper separation of concerns
+- **Testable**: Each component can be unit tested independently
 
-### Testing Strategy
-- **Unit Tests**: Mock `IExcelReader` for fast, reliable testing of plugin logic
-- **Integration Tests**: Real Excel file testing with `testdata/ProjectIndex.xlsx`
-- **Manual Testing**: TestConsole application validates full Excel reading pipeline
-- **Error Scenario Testing**: Corrupted files, missing tables, invalid data formats
-
-### Performance Considerations
-- **First Access Penalty**: ClosedXML builds DOM on first read (can be slow for large files)
-- **Memory Usage**: Entire workbook loaded into memory (not streaming)
-- **Optimization**: Files opened in read-only mode for faster processing
-- **Recommendation**: If files exceed 50MB, consider hybrid approach with ExcelDataReader for streaming
-
-### Future Considerations
-If AutoCAD freezing occurs during debugging (due to COM/OLE conflicts), the architecture supports migration to out-of-process Excel reading while maintaining the same `IExcelReader` interface.
-
-#### Phase 4: Closed Drawing Operations (Future Enhancement)
-**Current Status**: Excel Notes currently works with active/open drawings only
-
-**Future Production Enhancement**: 
-- **Side Database Pattern**: Use `Database.ReadDwgFile()` to access closed drawings
-- **External File Access**: Open external DWG files in memory without displaying them
-- **Batch Processing**: Update multiple drawings (both open and closed) in sequence  
-- **File Management**: Safe opening, updating, and closing of external files
-- **Advanced Error Handling**: File locking, permission issues, corrupted files
-
-**Note**: This would support the workflow: "select any number of sheets and make updates to both drawings they have opened on their computer and drawings that are closed". Currently, users can update sheets in the active drawing, which covers the primary use case.
-
-### Implementation Architecture
-
-#### Simplified Block Architecture
-- Block names: `NT01`, `NT02`, ... `NT24`
-- Same blocks used across all layouts with different attribute values
-- Result: Only 24 total block definitions (vs N layouts × 24 blocks)
-
-#### Critical Safety Measures
-**AutoCAD Crash Prevention:**
-1. **Deferred Initialization**: No AutoCAD object access during plugin load
-2. **Safe Object Access**: All DocumentManager access wrapped in try-catch
-3. **Lazy Service Creation**: CurrentDrawingBlockManager not in DI container
-4. **Defensive Programming**: Null checks and graceful fallbacks throughout
-
-**Transaction Safety:**
-- Read-only transactions for discovery operations
-- Proper transaction disposal and error handling
-- No premature commits that could corrupt drawings
-
-**Drawing State Protection:**
-- Never access viewports or other entities accidentally
-- Only target construction note blocks with precise pattern matching
-- Extensive logging for debugging and audit trails
-
-#### Excel Integration Data Flow ✅ **IMPLEMENTED**
-1. **File Validation**: Check Excel file exists and is accessible ✅
-2. **Table Discovery**: Find named tables (SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES) across all worksheets ✅
-3. **Data Validation**: Validate table structure, column counts, and data formats ✅
-4. **Excel Reading**: ClosedXML reads table data with comprehensive error handling ✅
-5. **Data Processing**: Parse note numbers, consolidate duplicates, validate ranges ✅
-6. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES tables ✅
-7. **Block Discovery**: Discover which NT## blocks actually exist in each layout ✅
-8. **Block Reset**: Reset only existing blocks (clear attributes, set visibility OFF) ✅
-9. **Block Updates**: Update available NT## blocks with mapped data, handling partial block sets gracefully ✅
-10. **Result Validation**: Verify all updates completed successfully with detailed logging ✅
-
-**Resilient Block Handling**: The system now handles layouts with any number of construction note blocks (e.g., 2 blocks instead of 24) and provides clear warnings when notes cannot be placed due to missing blocks.
-
-#### Testing Commands ✅ **ALL WORKING**
-- **TESTPHASE1**: Read-only block discovery test ✅
-- **TESTPHASE1DETAIL**: Detailed block discovery with attribute display ✅
-- **TESTPHASE2**: Single block update test ✅
-- **CLEARNOTES**: Clear all construction note blocks in all layouts ✅
-- **TESTLAYOUTS**: Layout enumeration test ✅
-
-#### Production Commands ✅ **WORKING**
-- **DRAFTINGASSISTANT**: Launch the main UI palette ✅
-- **Excel Notes Tab**: Complete workflow from Excel reading to block updates ✅
-
-**System Status**: All critical functionality operational. The system ensures **reliable, crash-free operation** while maintaining **clean, maintainable code** that follows AutoCAD .NET API best practices.
-
-## Remaining Development Tasks
-
-### Immediate Priorities
-1. **Enhanced Sheet Selection UI**
-   - Expose selected sheets property from ConfigurationControl
-   - Allow users to select specific sheets instead of processing all sheets automatically
-   - Default all sheets to selected for improved testing experience
-
-2. **Auto Notes Implementation**
-   - Implement viewport boundary calculation
-   - Add multileader detection and filtering
-   - Integrate with existing block update pipeline
-   - Reference LISP algorithms in `docs/lisp/` for implementation guidance
-
-### Future Enhancements
-- Closed drawing operations (Phase 4) for batch processing
-- Template-based construction note management
-- Enhanced viewport geometry support
-- Automated block creation for new sheets
-
-### Current System Capabilities ✅
-- **Excel Notes**: Complete end-to-end functionality working
-- **Configuration Management**: Project loading and sheet discovery
-- **Block Operations**: Safe reading and updating of construction note blocks
-- **Error Handling**: Comprehensive logging and graceful failure handling
-- **Partial Block Support**: Works with any number of available construction note blocks
-- **Real-time Feedback**: AutoCAD command line shows detailed operation progress
+### Benefits Over Manual Implementation
+- **No Coordinate Math Bugs**: GeometryExtensions handles all transformation complexity
+- **Faster Development**: Proven library eliminates trial-and-error coordinate calculations
+- **All Viewport Types**: Support for rectangular, rotated, and polygonal viewports
+- **Production Ready**: Library used by many AutoCAD developers in production

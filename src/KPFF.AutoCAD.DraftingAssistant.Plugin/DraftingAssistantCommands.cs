@@ -2,6 +2,7 @@ using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Runtime;
+using Autodesk.AutoCAD.Geometry;
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
@@ -9,6 +10,7 @@ using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
 using System.Text.Json;
+using System.Linq;
 using IServiceResolver = KPFF.AutoCAD.DraftingAssistant.Core.Interfaces.IServiceResolver;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin;
@@ -1148,6 +1150,219 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             editor.WriteMessage($"\nError during shared process test: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Test command to validate GeometryExtensions viewport transformations
+    /// </summary>
+    [CommandMethod("TESTVIEWPORT")]
+    public static void TestViewportTransformations()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== TESTVIEWPORT: GeometryExtensions Validation ===\n");
+            ed.WriteMessage($"Current Drawing: {doc.Name}\n");
+            ed.WriteMessage("Goal: Validate GeometryExtensions DCS2WCS transformations\n\n");
+
+            // Get layout name from user
+            PromptResult layoutResult = ed.GetString("\nEnter layout name to test (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+            string layoutName = layoutResult.StringResult;
+
+            ed.WriteMessage($"\nTesting layout: '{layoutName}'\n");
+            ed.WriteMessage("==========================================\n");
+
+            Database db = doc.Database;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Get the layout
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        ed.WriteMessage($"ERROR: Layout '{layoutName}' not found in drawing\n");
+                        LogAvailableLayouts(ed, layoutDict, tr);
+                        return;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+
+                    ed.WriteMessage($"Layout Properties:\n");
+                    ed.WriteMessage($"  Name: {layout.LayoutName}\n");
+                    ed.WriteMessage($"  Tab Order: {layout.TabOrder}\n");
+                    ed.WriteMessage($"  Block Table Record ID: {layout.BlockTableRecordId}\n\n");
+
+                    // Access viewports through the layout's BlockTableRecord (no layout switching needed!)
+                    ed.WriteMessage("Accessing viewports through BlockTableRecord (layout-independent)...\n");
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                    
+                    var viewportIds = new List<ObjectId>();
+                    foreach (ObjectId entityId in layoutBtr)
+                    {
+                        var entity = tr.GetObject(entityId, OpenMode.ForRead);
+                        if (entity is Viewport)
+                        {
+                            viewportIds.Add(entityId);
+                        }
+                    }
+                    
+                    ed.WriteMessage($"Found {viewportIds.Count} viewport(s) in layout\n");
+
+                    if (viewportIds.Count == 0)
+                    {
+                        ed.WriteMessage("No viewports found in this layout.\n");
+                        return;
+                    }
+
+                    int viewportIndex = 0;
+                    foreach (ObjectId viewportId in viewportIds)
+                    {
+                        viewportIndex++;
+                        ed.WriteMessage($"\nViewport #{viewportIndex}:\n");
+
+                        try
+                        {
+                            // Open the viewport for reading
+                            Viewport viewport = tr.GetObject(viewportId, OpenMode.ForRead) as Viewport;
+                            if (viewport == null)
+                            {
+                                ed.WriteMessage($"  ERROR: Could not cast to Viewport object\n");
+                                continue;
+                            }
+
+                            // Skip the first viewport (paper space viewport)
+                            if (viewportIndex == 1)
+                            {
+                                ed.WriteMessage($"  Type: Paper Space Viewport (skipping)\n");
+                                continue;
+                            }
+
+                            ed.WriteMessage($"  Type: Model Space Viewport\n");
+                            ed.WriteMessage($"  Number: {viewport.Number}\n");
+                            ed.WriteMessage($"  On: {viewport.On}\n");
+
+                            // Test GeometryExtensions transformation
+                            ed.WriteMessage($"\n  *** TESTING GEOMETRYEXTENSIONS DCS2WCS ***\n");
+                            
+                            // Check if GeometryExtensions is available
+                            ed.WriteMessage($"  Testing GeometryExtensions availability...\n");
+                            
+                            try
+                            {
+                                // Test simple transformation - center point
+                                Point3d testPoint = new Point3d(0, 0, 0); // DCS center
+                                ed.WriteMessage($"  Input (DCS): ({testPoint.X:F3}, {testPoint.Y:F3}, {testPoint.Z:F3})\n");
+                                
+                                // This will test if GeometryExtensions is working
+                                Point3d transformedPoint = testPoint; // Placeholder - will be replaced with actual transformation
+                                ed.WriteMessage($"  ** GeometryExtensions DCS2WCS not yet implemented **\n");
+                                ed.WriteMessage($"  ** Will transform using viewport.DCS2WCS(testPoint) **\n");
+                                ed.WriteMessage($"  Placeholder output: ({transformedPoint.X:F3}, {transformedPoint.Y:F3}, {transformedPoint.Z:F3})\n");
+                                
+                                // Test rectangular viewport boundary points
+                                ed.WriteMessage($"\n  Testing rectangular boundary transformation:\n");
+                                double hw = viewport.Width / 2.0;
+                                double hh = viewport.Height / 2.0;
+                                
+                                var dcsCorners = new[]
+                                {
+                                    new Point3d(-hw, -hh, 0), // Bottom-Left
+                                    new Point3d(-hw,  hh, 0), // Top-Left
+                                    new Point3d( hw,  hh, 0), // Top-Right
+                                    new Point3d( hw, -hh, 0)  // Bottom-Right
+                                };
+                                
+                                ed.WriteMessage($"  Paper space boundary: {viewport.Width:F3} x {viewport.Height:F3}\n");
+                                ed.WriteMessage($"  DCS corners to transform:\n");
+                                
+                                for (int i = 0; i < dcsCorners.Length; i++)
+                                {
+                                    string corner = i switch
+                                    {
+                                        0 => "Bottom-Left",
+                                        1 => "Top-Left", 
+                                        2 => "Top-Right",
+                                        3 => "Bottom-Right",
+                                        _ => $"Point {i+1}"
+                                    };
+                                    
+                                    Point3d dcsPoint = dcsCorners[i];
+                                    ed.WriteMessage($"    {corner} DCS: ({dcsPoint.X:F3}, {dcsPoint.Y:F3})\n");
+                                    
+                                    // Placeholder for actual transformation
+                                    Point3d modelPoint = dcsPoint; // Will be: viewport.DCS2WCS(dcsPoint)
+                                    ed.WriteMessage($"    {corner} Model: ({modelPoint.X:F3}, {modelPoint.Y:F3}) [PLACEHOLDER]\n");
+                                }
+
+                                ed.WriteMessage($"\n  ✓ GeometryExtensions test structure complete\n");
+                                ed.WriteMessage($"  📝 Next: Implement actual viewport.DCS2WCS() calls\n");
+                                
+                            }
+                            catch (System.Exception geomEx)
+                            {
+                                ed.WriteMessage($"  ERROR with GeometryExtensions: {geomEx.Message}\n");
+                                ed.WriteMessage($"  This indicates GeometryExtensions may not be properly loaded\n");
+                            }
+
+                        }
+                        catch (System.Exception vpEx)
+                        {
+                            ed.WriteMessage($"  ERROR reading viewport properties: {vpEx.Message}\n");
+                        }
+
+                        ed.WriteMessage("----------------------------------------\n");
+                    }
+
+                    tr.Commit();
+
+                    ed.WriteMessage("\n=== TESTVIEWPORT SUMMARY ===\n");
+                    ed.WriteMessage($"Layout '{layoutName}' Analysis Complete\n");
+                    ed.WriteMessage($"Total Viewports: {viewportIds.Count}\n");
+                    ed.WriteMessage($"Model Space Viewports: {Math.Max(0, viewportIds.Count - 1)}\n");
+                    
+                    if (viewportIds.Count > 1)
+                    {
+                        ed.WriteMessage("✓ SUCCESS: Found model space viewports for testing\n");
+                        ed.WriteMessage("📝 NEXT STEP: Implement actual GeometryExtensions DCS2WCS calls\n");
+                        ed.WriteMessage("📝 TODO: Add 'using Gile.AutoCAD.Geometry;' when ready\n");
+                    }
+                    else
+                    {
+                        ed.WriteMessage("⚠ WARNING: No model space viewports found\n");
+                        ed.WriteMessage("  Need model space viewports for Auto Notes testing\n");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ed.WriteMessage($"ERROR accessing layout or viewports: {ex.Message}\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nFATAL ERROR in TESTVIEWPORT: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Helper method to log available layouts
+    /// </summary>
+    private static void LogAvailableLayouts(Editor ed, DBDictionary layoutDict, Transaction tr)
+    {
+        ed.WriteMessage("\nAvailable layouts:\n");
+        foreach (DBDictionaryEntry entry in layoutDict)
+        {
+            if (!entry.Key.Equals("Model", StringComparison.OrdinalIgnoreCase))
+            {
+                ed.WriteMessage($"  - '{entry.Key}'\n");
+            }
         }
     }
 }
