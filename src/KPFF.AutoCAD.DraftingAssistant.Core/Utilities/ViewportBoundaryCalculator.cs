@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Gile.AutoCAD.R25.Geometry;
+using System.Linq;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 
@@ -17,61 +18,100 @@ public static class ViewportBoundaryCalculator
     public static Point3dCollection GetViewportFootprint(Viewport viewport)
     {
         var result = new Point3dCollection();
-
         if (viewport == null)
             return result;
 
         try
         {
+            // Use consistent scale calculation (both methods are equivalent)
+            double scale = viewport.ViewHeight / viewport.Height; // == 1.0 / viewport.CustomScale
+
+            // Model-space center of view (from ViewCenter with Y-axis inversion for DCS→model conversion)
+            Point3d msCenter = new Point3d(
+                viewport.ViewCenter.X,
+                -viewport.ViewCenter.Y, // Invert Y for DCS to model space conversion
+                0);
+
+            // Transformation for twist rotation (negate because AutoCAD twist is clockwise)
+            Matrix3d rot = Math.Abs(viewport.TwistAngle) < 1e-9
+                ? Matrix3d.Identity
+                : Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, msCenter);
+
             if (!viewport.NonRectClipOn)
             {
-                // Rectangular viewport boundary
-                // Apply the custom scale factor manually since GeometryExtensions DCS2WCS isn't working correctly
-                double scaleFactor = 1.0 / viewport.CustomScale; // CustomScale 0.05 -> scale factor 20
-                double halfWidth = (viewport.Width * scaleFactor) / 2.0;
-                double halfHeight = (viewport.Height * scaleFactor) / 2.0;
+                // === Rectangular viewport ===
+                double halfWidth = (viewport.Width * scale) / 2.0;
+                double halfHeight = (viewport.Height * scale) / 2.0;
 
-                // Get the view center (center of the displayed area in model space coordinates)
-                // ViewCenter is in paper space coordinates, but represents the model space center
-                Point3d modelSpaceCenter = new Point3d(viewport.ViewCenter.X, viewport.ViewCenter.Y, 0);
-
-                // Define corners in model space relative to the model space center
                 var modelCorners = new[]
                 {
-                    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y - halfHeight, 0), // Bottom-Left
-                    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y + halfHeight, 0), // Top-Left
-                    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y + halfHeight, 0), // Top-Right
-                    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y - halfHeight, 0)  // Bottom-Right
+                    new Point3d(msCenter.X - halfWidth, msCenter.Y - halfHeight, 0), // BL
+                    new Point3d(msCenter.X - halfWidth, msCenter.Y + halfHeight, 0), // TL
+                    new Point3d(msCenter.X + halfWidth, msCenter.Y + halfHeight, 0), // TR
+                    new Point3d(msCenter.X + halfWidth, msCenter.Y - halfHeight, 0)  // BR
                 };
 
-                // Add corners directly (no transformation needed since we calculated them in model space)
-                foreach (var modelPoint in modelCorners)
-                {
-                    result.Add(modelPoint);
-                }
+                foreach (var pt in modelCorners)
+                    result.Add(pt.TransformBy(rot));
             }
             else
             {
-                // Polygonal viewport boundary (non-rectangular clipping)
-                // For now, fall back to rectangular boundary with proper scaling
-                double scaleFactor = 1.0 / viewport.CustomScale;
-                double halfWidth = (viewport.Width * scaleFactor) / 2.0;
-                double halfHeight = (viewport.Height * scaleFactor) / 2.0;
-                
-                Point3d modelSpaceCenter = new Point3d(viewport.ViewCenter.X, viewport.ViewCenter.Y, 0);
-
-                var modelCorners = new[]
+                // === Polygonal viewport ===
+                var pts = new List<Point3d>();
+                Database db = viewport.Database;
+                using (var tr = db.TransactionManager.StartTransaction())
                 {
-                    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y - halfHeight, 0),
-                    new Point3d(modelSpaceCenter.X - halfWidth, modelSpaceCenter.Y + halfHeight, 0),
-                    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y + halfHeight, 0),
-                    new Point3d(modelSpaceCenter.X + halfWidth, modelSpaceCenter.Y - halfHeight, 0)
-                };
+                    var ent = tr.GetObject(viewport.NonRectClipEntityId, OpenMode.ForRead) as Entity;
 
-                foreach (var modelPoint in modelCorners)
-                {
-                    result.Add(modelPoint);
+                    if (ent is Polyline pl)
+                    {
+                        for (int i = 0; i < pl.NumberOfVertices; i++)
+                        {
+                            var v = pl.GetPoint2dAt(i);
+
+                            // Paper → model delta with both X and Y flips based on user's "double mirror" analysis
+                            double dx = (viewport.CenterPoint.X - v.X) * scale; // <-- X inversion too
+                            double dy = (v.Y - viewport.CenterPoint.Y) * scale; // <-- Y inversion
+
+                            var p = new Point3d(msCenter.X + dx, msCenter.Y + dy, 0).TransformBy(rot);
+                            pts.Add(p);
+                        }
+
+                        // Close if needed
+                        if (!pl.Closed && pts.Count > 0)
+                            pts.Add(pts[0]);
+                    }
+                    else
+                    {
+                        // Fallback: approximate with rectangular footprint for Circle/Ellipse clips
+                        double halfWidth = (viewport.Width * scale) / 2.0;
+                        double halfHeight = (viewport.Height * scale) / 2.0;
+
+                        pts.AddRange(new[]
+                        {
+                            new Point3d(msCenter.X - halfWidth, msCenter.Y - halfHeight, 0),
+                            new Point3d(msCenter.X - halfWidth, msCenter.Y + halfHeight, 0),
+                            new Point3d(msCenter.X + halfWidth, msCenter.Y + halfHeight, 0),
+                            new Point3d(msCenter.X + halfWidth, msCenter.Y - halfHeight, 0)
+                        }.Select(pt => pt.TransformBy(rot)));
+                    }
+
+                    tr.Commit();
                 }
+
+                // Optional: normalize order to CCW for stable/consistent winding
+                if (pts.Count >= 3)
+                {
+                    var cx = pts.Average(p => p.X);
+                    var cy = pts.Average(p => p.Y);
+                    pts = pts
+                        .OrderBy(p => Math.Atan2(p.Y - cy, p.X - cx)) // CCW from centroid
+                        .ToList();
+                }
+
+                // Add to result
+                foreach (var p in pts) 
+                    result.Add(p);
             }
         }
         catch (System.Exception)

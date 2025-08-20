@@ -1273,6 +1273,7 @@ public class DraftingAssistantCommands
                             ed.WriteMessage($"\n  *** TESTING VIEWPORTBOUNDARYCALCULATOR ***\n");
                             
                             ed.WriteMessage($"  Using ViewportBoundaryCalculator.GetViewportFootprint()...\n");
+                            ed.WriteMessage($"  TwistAngle: {viewport.TwistAngle:F6} radians ({viewport.TwistAngle * 180.0 / Math.PI:F2} degrees)\n");
                             
                             try
                             {
@@ -1285,28 +1286,11 @@ public class DraftingAssistantCommands
                                 
                                 if (footprint.Count > 0)
                                 {
-                                    ed.WriteMessage($"  Model space boundary points:\n");
+                                    ed.WriteMessage($"  Model space boundary points ({footprint.Count} points):\n");
                                     for (int i = 0; i < footprint.Count; i++)
                                     {
-                                        string corner = "";
-                                        if (footprint.Count == 4 && !viewport.NonRectClipOn)
-                                        {
-                                            corner = i switch
-                                            {
-                                                0 => "Bottom-Left",
-                                                1 => "Top-Left", 
-                                                2 => "Top-Right",
-                                                3 => "Bottom-Right",
-                                                _ => $"Point {i+1}"
-                                            };
-                                        }
-                                        else
-                                        {
-                                            corner = $"Point {i+1}";
-                                        }
-                                        
                                         Point3d point = footprint[i];
-                                        ed.WriteMessage($"    {corner}: ({point.X:F3}, {point.Y:F3}, {point.Z:F3})\n");
+                                        ed.WriteMessage($"    Point {i}: ({point.X:F3}, {point.Y:F3}, {point.Z:F3})\n");
                                     }
                                     
                                     // Calculate and display bounding box
@@ -1373,6 +1357,145 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nFATAL ERROR in TESTVIEWPORT: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Test command to understand ViewTarget vs ViewCenter properties
+    /// </summary>
+    [CommandMethod("CENTERTEST")]
+    public static void TestViewportCenterProperties()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== CENTERTEST: ViewTarget vs ViewCenter Analysis ===\n");
+            ed.WriteMessage("Goal: Understand the difference between ViewTarget and ViewCenter\n");
+            ed.WriteMessage("ViewCenter: Display coordinate system coordinates (paper space units)\n");
+            ed.WriteMessage("ViewTarget: Model Space WCS coordinates (model space location)\n\n");
+
+            // Get layout name from user
+            PromptResult layoutResult = ed.GetString("\nEnter layout name to test (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK)
+                return;
+            string layoutName = layoutResult.StringResult;
+
+            ed.WriteMessage($"\nAnalyzing layout: '{layoutName}'\n");
+            ed.WriteMessage("==========================================\n");
+
+            Database db = doc.Database;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Get the layout
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        ed.WriteMessage($"ERROR: Layout '{layoutName}' not found in drawing\n");
+                        LogAvailableLayouts(ed, layoutDict, tr);
+                        return;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                    
+                    // Find viewports in the layout
+                    var viewportIds = new List<ObjectId>();
+                    foreach (ObjectId entityId in layoutBtr)
+                    {
+                        var entity = tr.GetObject(entityId, OpenMode.ForRead);
+                        if (entity is Viewport)
+                        {
+                            viewportIds.Add(entityId);
+                        }
+                    }
+
+                    if (viewportIds.Count == 0)
+                    {
+                        ed.WriteMessage("No viewports found in this layout.\n");
+                        return;
+                    }
+
+                    int viewportIndex = 0;
+                    foreach (ObjectId viewportId in viewportIds)
+                    {
+                        viewportIndex++;
+                        
+                        Viewport viewport = tr.GetObject(viewportId, OpenMode.ForRead) as Viewport;
+                        if (viewport == null) continue;
+
+                        // Skip paper space viewport
+                        if (viewportIndex == 1)
+                        {
+                            ed.WriteMessage($"Viewport #{viewportIndex}: Paper Space Viewport (skipping)\n");
+                            continue;
+                        }
+
+                        ed.WriteMessage($"\nViewport #{viewportIndex}: Model Space Viewport\n");
+                        ed.WriteMessage("===========================================\n");
+                        
+                        // Core properties comparison
+                        ed.WriteMessage($"📍 ViewCenter (DCS): ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3})\n");
+                        ed.WriteMessage($"🎯 ViewTarget (WCS): ({viewport.ViewTarget.X:F3}, {viewport.ViewTarget.Y:F3}, {viewport.ViewTarget.Z:F3})\n\n");
+                        
+                        // Additional context properties
+                        ed.WriteMessage($"📐 Paper Space Size: {viewport.Width:F3} x {viewport.Height:F3}\n");
+                        ed.WriteMessage($"🔍 Scale Factor: {viewport.CustomScale:F6} (1:{1.0/viewport.CustomScale:F0})\n");
+                        ed.WriteMessage($"📏 ViewHeight: {viewport.ViewHeight:F3}\n");
+                        ed.WriteMessage($"🔄 TwistAngle: {viewport.TwistAngle:F6} radians ({viewport.TwistAngle * 180.0 / Math.PI:F2} degrees)\n");
+                        ed.WriteMessage($"👁️  ViewDirection: ({viewport.ViewDirection.X:F3}, {viewport.ViewDirection.Y:F3}, {viewport.ViewDirection.Z:F3})\n\n");
+                        
+                        // Analysis
+                        ed.WriteMessage("🧠 ANALYSIS:\n");
+                        
+                        // Calculate model space area from ViewCenter approach
+                        double scaleFactor = 1.0 / viewport.CustomScale;
+                        double modelWidth = viewport.Width * scaleFactor;
+                        double modelHeight = viewport.Height * scaleFactor;
+                        
+                        ed.WriteMessage($"   Using ViewCenter as model space center:\n");
+                        ed.WriteMessage($"   Model Space Area: {modelWidth:F3} x {modelHeight:F3}\n");
+                        ed.WriteMessage($"   Bottom-Left: ({viewport.ViewCenter.X - modelWidth/2:F3}, {viewport.ViewCenter.Y - modelHeight/2:F3})\n");
+                        ed.WriteMessage($"   Top-Right: ({viewport.ViewCenter.X + modelWidth/2:F3}, {viewport.ViewCenter.Y + modelHeight/2:F3})\n\n");
+                        
+                        ed.WriteMessage($"   Using ViewTarget as model space center:\n");
+                        ed.WriteMessage($"   Bottom-Left: ({viewport.ViewTarget.X - modelWidth/2:F3}, {viewport.ViewTarget.Y - modelHeight/2:F3})\n");
+                        ed.WriteMessage($"   Top-Right: ({viewport.ViewTarget.X + modelWidth/2:F3}, {viewport.ViewTarget.Y + modelHeight/2:F3})\n\n");
+                        
+                        // Difference analysis
+                        double centerDiffX = viewport.ViewCenter.X - viewport.ViewTarget.X;
+                        double centerDiffY = viewport.ViewCenter.Y - viewport.ViewTarget.Y;
+                        double centerDistance = Math.Sqrt(centerDiffX * centerDiffX + centerDiffY * centerDiffY);
+                        
+                        ed.WriteMessage($"   Difference (ViewCenter - ViewTarget):\n");
+                        ed.WriteMessage($"   ΔX: {centerDiffX:F3}, ΔY: {centerDiffY:F3}\n");
+                        ed.WriteMessage($"   Distance: {centerDistance:F3}\n");
+                        
+                        if (Math.Abs(centerDistance) < 0.001)
+                        {
+                            ed.WriteMessage($"   ✅ ViewCenter and ViewTarget are essentially the same point\n");
+                        }
+                        else
+                        {
+                            ed.WriteMessage($"   ⚠️  ViewCenter and ViewTarget are different points\n");
+                        }
+                    }
+
+                    tr.Commit();
+                }
+                catch (System.Exception ex)
+                {
+                    ed.WriteMessage($"ERROR during viewport analysis: {ex.Message}\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nFATAL ERROR in CENTERTEST: {ex.Message}\n");
         }
     }
 
