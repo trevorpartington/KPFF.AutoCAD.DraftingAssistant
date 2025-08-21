@@ -1,6 +1,5 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
-using Gile.AutoCAD.R25.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +7,15 @@ using System.Linq;
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 
 /// <summary>
-/// Calculates model space boundaries for viewports using Gile's ViewportExtension transformations
+/// Calculates model space boundaries for viewports using manual transformation matrices.
+/// Works on any layout (active or not) by reconstructing transformations from viewport properties.
 /// </summary>
 public static class ViewportBoundaryCalculator
 {
     /// <summary>
     /// Gets the model space footprint of a viewport as an ordered collection of points.
-    /// Uses the proper PSDCS → DCS → WCS transformation chain via Gile's ViewportExtension.
-    /// Handles both rectangular and polygonal viewports.
+    /// Uses manual DCS → WCS transformation built from viewport properties.
+    /// Works on any layout (active or not). Handles both rectangular and polygonal viewports.
     /// </summary>
     /// <param name="viewport">The viewport to calculate boundaries for</param>
     /// <param name="transaction">Optional transaction for accessing clip entities. If null, creates internal transaction.</param>
@@ -32,9 +32,10 @@ public static class ViewportBoundaryCalculator
         
         try
         {
-            // Get the transformation chain: PSDCS → DCS → WCS using Gile's ViewportExtension
-            Matrix3d psdcs2dcs = viewport.PSDCS2DCS();
-            Matrix3d dcs2wcs = viewport.DCS2WCS();
+            // Build transformations manually from viewport data (replicating GeometryExtensions)
+            // This works even if the layout is not active
+            Matrix3d psdcs2dcs = BuildPsdcsToDcs(viewport);
+            Matrix3d dcs2wcs = BuildDcsToWcs(viewport);
             
             // Order matters: matrices apply right-to-left.
             // Start in PSDCS, transform → DCS, then → WCS
@@ -61,6 +62,68 @@ public static class ViewportBoundaryCalculator
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Builds a DCS→WCS transformation matrix from viewport data.
+    /// Works even if the layout is not active by using stored viewport properties.
+    /// </summary>
+    /// <param name="viewport">The viewport to build transformation for</param>
+    /// <returns>Transformation matrix from DCS to WCS coordinates</returns>
+    private static Matrix3d BuildDcsToWcs(Viewport viewport)
+    {
+        // Replicate the exact GeometryExtensions DCS2WCS implementation:
+        // DCS2WCS = Rotation(-TwistAngle) * Displacement(ViewTarget) * PlaneToWorld(ViewDirection)
+        return
+            Matrix3d.Rotation(-viewport.TwistAngle, viewport.ViewDirection, viewport.ViewTarget) *
+            Matrix3d.Displacement(viewport.ViewTarget.GetAsVector()) *
+            Matrix3d.PlaneToWorld(viewport.ViewDirection);
+    }
+
+    /// <summary>
+    /// Builds a PSDCS→DCS transformation matrix from viewport data.
+    /// Replicates the GeometryExtensions PSDCS2DCS implementation.
+    /// </summary>
+    /// <param name="viewport">The viewport to build transformation for</param>
+    /// <returns>Transformation matrix from PSDCS to DCS coordinates</returns>
+    private static Matrix3d BuildPsdcsToDcs(Viewport viewport)
+    {
+        // Replicate the exact GeometryExtensions PSDCS2DCS implementation:
+        // PSDCS2DCS = Displacement(CenterPoint→ViewCenter) * Scaling(1/CustomScale, CenterPoint)
+        return
+            Matrix3d.Displacement(viewport.CenterPoint.GetVectorTo(new Point3d(viewport.ViewCenter.X, viewport.ViewCenter.Y, 0))) *
+            Matrix3d.Scaling(1.0 / viewport.CustomScale, viewport.CenterPoint);
+    }
+
+    /// <summary>
+    /// Converts a point from Paper Space Display Coordinate System (PSDCS) to Display Coordinate System (DCS).
+    /// This handles the transformation from paper space coordinates to viewport's camera coordinates.
+    /// </summary>
+    /// <param name="psdcsPoint">Point in paper space display coordinates</param>
+    /// <param name="viewport">The viewport defining the transformation</param>
+    /// <returns>Point in display coordinate system</returns>
+    private static Point3d ConvertPsdcsToDcs(Point3d psdcsPoint, Viewport viewport)
+    {
+        // PSDCS to DCS conversion:
+        // 1. Translate to viewport center as origin
+        // 2. Scale by viewport dimensions to get normalized coordinates  
+        // 3. Scale by ViewHeight to get DCS coordinates
+        // 4. Translate to ViewCenter
+
+        // Normalize to viewport bounds (-0.5 to 0.5)
+        double normalizedX = (psdcsPoint.X - viewport.CenterPoint.X) / viewport.Width;
+        double normalizedY = (psdcsPoint.Y - viewport.CenterPoint.Y) / viewport.Height;
+
+        // Scale to DCS dimensions based on ViewHeight
+        double aspectRatio = viewport.Width / viewport.Height;
+        double dcsX = normalizedX * viewport.ViewHeight * aspectRatio;
+        double dcsY = normalizedY * viewport.ViewHeight;
+
+        // Translate to ViewCenter
+        return new Point3d(
+            viewport.ViewCenter.X + dcsX,
+            viewport.ViewCenter.Y + dcsY,
+            0);
     }
 
     /// <summary>
@@ -224,10 +287,8 @@ public static class ViewportBoundaryCalculator
 
         try
         {
-            var psdcs2dcs = viewport.PSDCS2DCS();
-            var dcs2wcs = viewport.DCS2WCS();
-            
-            // Correct order: apply PSDCS→DCS first, then DCS→WCS
+            var psdcs2dcs = BuildPsdcsToDcs(viewport);
+            var dcs2wcs = BuildDcsToWcs(viewport);
             var fullTransform = dcs2wcs * psdcs2dcs;
 
             // Test sample corner transformation to show intermediate results
@@ -238,7 +299,7 @@ public static class ViewportBoundaryCalculator
             var sampleCornerDCS = sampleCornerPSDCS.TransformBy(psdcs2dcs);
             var sampleCornerWCS = sampleCornerDCS.TransformBy(dcs2wcs);
 
-            return $"Viewport Transformation Diagnostics:\n" +
+            return $"Viewport Transformation Diagnostics (GeometryExtensions Replica):\n" +
                    $"  Center Point (PSDCS): {viewport.CenterPoint}\n" +
                    $"  Dimensions: {viewport.Width:F3} x {viewport.Height:F3}\n" +
                    $"  View Center (DCS): {viewport.ViewCenter}\n" +
