@@ -1,137 +1,179 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Gile.AutoCAD.R25.Geometry;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 
 /// <summary>
-/// Calculates model space boundaries for viewports using AutoCAD's coordinate transformation matrix
+/// Calculates model space boundaries for viewports using Gile's ViewportExtension transformations
 /// </summary>
 public static class ViewportBoundaryCalculator
 {
     /// <summary>
-    /// Gets the model space footprint of a viewport as an ordered collection of points
+    /// Gets the model space footprint of a viewport as an ordered collection of points.
+    /// Uses the proper PSDCS → DCS → WCS transformation chain via Gile's ViewportExtension.
+    /// Handles both rectangular and polygonal viewports.
     /// </summary>
     /// <param name="viewport">The viewport to calculate boundaries for</param>
-    /// <returns>Ordered vertices of the model-space footprint</returns>
-    public static Point3dCollection GetViewportFootprint(Viewport viewport)
+    /// <param name="transaction">Optional transaction for accessing clip entities. If null, creates internal transaction.</param>
+    /// <returns>Ordered vertices of the model-space footprint in WCS coordinates</returns>
+    /// <exception cref="ArgumentNullException">Thrown when viewport is null</exception>
+    /// <exception cref="NotSupportedException">Thrown when viewport uses unsupported clip entity type</exception>
+    /// <exception cref="InvalidOperationException">Thrown when transformation fails</exception>
+    public static Point3dCollection GetViewportFootprint(Viewport viewport, Transaction? transaction = null)
     {
-        var result = new Point3dCollection();
         if (viewport == null)
-            return result;
+            throw new ArgumentNullException(nameof(viewport), "Viewport cannot be null");
 
+        var result = new Point3dCollection();
+        
         try
         {
-            // Use consistent scale calculation (both methods are equivalent)
-            double scale = viewport.ViewHeight / viewport.Height; // == 1.0 / viewport.CustomScale
+            // Get the transformation chain: PSDCS → DCS → WCS using Gile's ViewportExtension
+            Matrix3d psdcs2dcs = viewport.PSDCS2DCS();
+            Matrix3d dcs2wcs = viewport.DCS2WCS();
+            
+            // Order matters: matrices apply right-to-left.
+            // Start in PSDCS, transform → DCS, then → WCS
+            Matrix3d fullTransform = dcs2wcs * psdcs2dcs;
 
-            // Model-space center of view (from ViewCenter with Y-axis inversion for DCS→model conversion)
-            Point3d msCenter = new Point3d(
-                viewport.ViewCenter.X,
-                -viewport.ViewCenter.Y, // Invert Y for DCS to model space conversion
-                0);
-
-            // Transformation for twist rotation (negate because AutoCAD twist is clockwise)
-            Matrix3d rot = Math.Abs(viewport.TwistAngle) < 1e-9
-                ? Matrix3d.Identity
-                : Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, msCenter);
-
-            if (!viewport.NonRectClipOn)
+            if (viewport.NonRectClipOn && viewport.NonRectClipEntityId.IsValid)
             {
-                // === Rectangular viewport ===
-                double halfWidth = (viewport.Width * scale) / 2.0;
-                double halfHeight = (viewport.Height * scale) / 2.0;
-
-                var modelCorners = new[]
-                {
-                    new Point3d(msCenter.X - halfWidth, msCenter.Y - halfHeight, 0), // BL
-                    new Point3d(msCenter.X - halfWidth, msCenter.Y + halfHeight, 0), // TL
-                    new Point3d(msCenter.X + halfWidth, msCenter.Y + halfHeight, 0), // TR
-                    new Point3d(msCenter.X + halfWidth, msCenter.Y - halfHeight, 0)  // BR
-                };
-
-                foreach (var pt in modelCorners)
-                    result.Add(pt.TransformBy(rot));
+                // === Polygonal viewport with clip entity ===
+                var points = GetPolygonalViewportPoints(viewport, transaction, fullTransform);
+                foreach (var point in points)
+                    result.Add(point);
             }
             else
             {
-                // === Polygonal viewport ===
-                var pts = new List<Point3d>();
-                Database db = viewport.Database;
-                using (var tr = db.TransactionManager.StartTransaction())
-                {
-                    var ent = tr.GetObject(viewport.NonRectClipEntityId, OpenMode.ForRead) as Entity;
-
-                    if (ent is Polyline pl)
-                    {
-                        for (int i = 0; i < pl.NumberOfVertices; i++)
-                        {
-                            var v = pl.GetPoint2dAt(i);
-
-                            // Paper → model delta with both X and Y flips based on user's "double mirror" analysis
-                            double dx = (viewport.CenterPoint.X - v.X) * scale; // <-- X inversion too
-                            double dy = (v.Y - viewport.CenterPoint.Y) * scale; // <-- Y inversion
-
-                            var p = new Point3d(msCenter.X + dx, msCenter.Y + dy, 0).TransformBy(rot);
-                            pts.Add(p);
-                        }
-
-                        // Close if needed
-                        if (!pl.Closed && pts.Count > 0)
-                            pts.Add(pts[0]);
-                    }
-                    else
-                    {
-                        // Fallback: approximate with rectangular footprint for Circle/Ellipse clips
-                        double halfWidth = (viewport.Width * scale) / 2.0;
-                        double halfHeight = (viewport.Height * scale) / 2.0;
-
-                        pts.AddRange(new[]
-                        {
-                            new Point3d(msCenter.X - halfWidth, msCenter.Y - halfHeight, 0),
-                            new Point3d(msCenter.X - halfWidth, msCenter.Y + halfHeight, 0),
-                            new Point3d(msCenter.X + halfWidth, msCenter.Y + halfHeight, 0),
-                            new Point3d(msCenter.X + halfWidth, msCenter.Y - halfHeight, 0)
-                        }.Select(pt => pt.TransformBy(rot)));
-                    }
-
-                    tr.Commit();
-                }
-
-                // Optional: normalize order to CCW for stable/consistent winding
-                if (pts.Count >= 3)
-                {
-                    var cx = pts.Average(p => p.X);
-                    var cy = pts.Average(p => p.Y);
-                    pts = pts
-                        .OrderBy(p => Math.Atan2(p.Y - cy, p.X - cx)) // CCW from centroid
-                        .ToList();
-                }
-
-                // Add to result
-                foreach (var p in pts) 
-                    result.Add(p);
+                // === Rectangular viewport ===
+                var points = GetRectangularViewportPoints(viewport, fullTransform);
+                foreach (var point in points)
+                    result.Add(point);
             }
         }
-        catch (System.Exception)
+        catch (System.Exception ex) when (!(ex is ArgumentNullException || ex is NotSupportedException))
         {
-            // Return empty collection on any transformation errors
-            // This allows calling code to handle the empty result gracefully
-            result.Clear();
+            throw new InvalidOperationException($"Failed to calculate viewport footprint: {ex.Message}", ex);
         }
 
         return result;
     }
 
     /// <summary>
+    /// Gets the model space footprint points for a rectangular viewport.
+    /// </summary>
+    /// <param name="viewport">The viewport to process</param>
+    /// <param name="fullTransform">Combined PSDCS → DCS → WCS transformation matrix</param>
+    /// <returns>Ordered list of corner points in WCS coordinates</returns>
+    private static List<Point3d> GetRectangularViewportPoints(Viewport viewport, Matrix3d fullTransform)
+    {
+        var points = new List<Point3d>();
+
+        // Define viewport corners in PSDCS (paper space display coordinates)
+        double halfWidth = viewport.Width / 2.0;
+        double halfHeight = viewport.Height / 2.0;
+
+        // Counter-clockwise from bottom-left
+        var psdcsCorners = new[]
+        {
+            new Point3d(viewport.CenterPoint.X - halfWidth, viewport.CenterPoint.Y - halfHeight, 0), // Bottom-left
+            new Point3d(viewport.CenterPoint.X - halfWidth, viewport.CenterPoint.Y + halfHeight, 0), // Top-left
+            new Point3d(viewport.CenterPoint.X + halfWidth, viewport.CenterPoint.Y + halfHeight, 0), // Top-right
+            new Point3d(viewport.CenterPoint.X + halfWidth, viewport.CenterPoint.Y - halfHeight, 0)  // Bottom-right
+        };
+
+        // Transform each corner: PSDCS → DCS → WCS
+        foreach (var psdcsPoint in psdcsCorners)
+        {
+            points.Add(psdcsPoint.TransformBy(fullTransform));
+        }
+
+        return points;
+    }
+
+    /// <summary>
+    /// Gets the model space footprint points for a polygonal viewport with clip entity.
+    /// </summary>
+    /// <param name="viewport">The viewport to process</param>
+    /// <param name="externalTransaction">Optional external transaction</param>
+    /// <param name="fullTransform">Combined PSDCS → DCS → WCS transformation matrix</param>
+    /// <returns>Ordered list of boundary points in WCS coordinates</returns>
+    /// <exception cref="NotSupportedException">Thrown for unsupported clip entity types</exception>
+    private static List<Point3d> GetPolygonalViewportPoints(Viewport viewport, Transaction? externalTransaction, Matrix3d fullTransform)
+    {
+        var points = new List<Point3d>();
+        Database db = viewport.Database;
+        bool ownTransaction = externalTransaction == null;
+
+        Transaction tr = externalTransaction ?? db.TransactionManager.StartTransaction();
+        try
+        {
+            var entity = tr.GetObject(viewport.NonRectClipEntityId, OpenMode.ForRead) as Entity;
+
+            switch (entity)
+            {
+                case Polyline polyline:
+                    for (int i = 0; i < polyline.NumberOfVertices; i++)
+                    {
+                        Point3d psdcsPoint = polyline.GetPoint3dAt(i);
+                        points.Add(psdcsPoint.TransformBy(fullTransform));
+                    }
+                    break;
+
+                case Polyline2d polyline2d:
+                    foreach (ObjectId vertexId in polyline2d)
+                    {
+                        var vertex = tr.GetObject(vertexId, OpenMode.ForRead) as Vertex2d;
+                        if (vertex != null)
+                        {
+                            Point3d psdcsPoint = vertex.Position;
+                            points.Add(psdcsPoint.TransformBy(fullTransform));
+                        }
+                    }
+                    break;
+
+                case Polyline3d polyline3d:
+                    foreach (ObjectId vertexId in polyline3d)
+                    {
+                        var vertex = tr.GetObject(vertexId, OpenMode.ForRead) as PolylineVertex3d;
+                        if (vertex != null)
+                        {
+                            Point3d psdcsPoint = vertex.Position;
+                            points.Add(psdcsPoint.TransformBy(fullTransform));
+                        }
+                    }
+                    break;
+
+                default:
+                    string entityType = entity?.GetType().Name ?? "null";
+                    throw new NotSupportedException($"Unsupported clip entity type: {entityType}. Only Polyline, Polyline2d, and Polyline3d are supported.");
+            }
+
+            if (ownTransaction)
+                tr.Commit();
+        }
+        finally
+        {
+            if (ownTransaction)
+                tr.Dispose();
+        }
+
+        return points;
+    }
+
+    /// <summary>
     /// Gets the bounding box of a viewport's model space footprint
     /// </summary>
     /// <param name="viewport">The viewport to calculate bounds for</param>
+    /// <param name="transaction">Optional transaction for accessing clip entities</param>
     /// <returns>Extents3d representing the bounding box, or null if calculation fails</returns>
-    public static Extents3d? GetViewportBounds(Viewport viewport)
+    public static Extents3d? GetViewportBounds(Viewport viewport, Transaction? transaction = null)
     {
-        var footprint = GetViewportFootprint(viewport);
+        var footprint = GetViewportFootprint(viewport, transaction);
         
         if (footprint.Count == 0)
             return null;
@@ -155,10 +197,11 @@ public static class ViewportBoundaryCalculator
     /// </summary>
     /// <param name="viewport">The viewport to test against</param>
     /// <param name="testPoint">The point to test (in model space coordinates)</param>
+    /// <param name="transaction">Optional transaction for accessing clip entities</param>
     /// <returns>True if the point is within the viewport boundary</returns>
-    public static bool IsPointInViewport(Viewport viewport, Point3d testPoint)
+    public static bool IsPointInViewport(Viewport viewport, Point3d testPoint, Transaction? transaction = null)
     {
-        var footprint = GetViewportFootprint(viewport);
+        var footprint = GetViewportFootprint(viewport, transaction);
         
         if (footprint.Count < 3)
             return false;
@@ -170,35 +213,67 @@ public static class ViewportBoundaryCalculator
     }
 
     /// <summary>
-    /// Calculates the transformation matrix from DCS to WCS for a viewport
-    /// This implementation uses viewport properties to reconstruct the transformation
+    /// Creates diagnostic information about viewport transformations for debugging.
     /// </summary>
-    /// <param name="viewport">The viewport to calculate the matrix for</param>
-    /// <returns>Transformation matrix from DCS to WCS</returns>
-    private static Matrix3d GetDcsToWcsMatrix(Viewport viewport)
+    /// <param name="viewport">The viewport to analyze</param>
+    /// <returns>Diagnostic information string</returns>
+    public static string GetTransformationDiagnostics(Viewport viewport)
     {
-        // Get viewport properties
-        Point2d viewCenter2d = viewport.ViewCenter;
-        Point3d viewTarget = viewport.ViewTarget;
-        Vector3d viewDirection = viewport.ViewDirection;
-        double viewHeight = viewport.ViewHeight;
-        double customScale = viewport.CustomScale;
-        
-        // Calculate the scale factor from viewport height to model space
-        // ViewHeight is the height of the model space area shown in the viewport
-        double modelToViewportScale = viewport.Height / viewHeight;
-        
-        // Calculate transformation matrix
-        // 1. Scale from DCS units to model space units
-        double scaleFactor = viewHeight / viewport.Height;
-        Matrix3d scaleMatrix = Matrix3d.Scaling(scaleFactor, Point3d.Origin);
-        
-        // 2. Translate to position in model space
-        // The viewport center in paper space corresponds to the view target in model space
-        Vector3d translation = viewTarget.GetAsVector();
-        Matrix3d translationMatrix = Matrix3d.Displacement(translation);
-        
-        // Combine transformations: scale first, then translate
-        return scaleMatrix * translationMatrix;
+        if (viewport == null)
+            return "Viewport is null";
+
+        try
+        {
+            var psdcs2dcs = viewport.PSDCS2DCS();
+            var dcs2wcs = viewport.DCS2WCS();
+            
+            // Correct order: apply PSDCS→DCS first, then DCS→WCS
+            var fullTransform = dcs2wcs * psdcs2dcs;
+
+            // Test sample corner transformation to show intermediate results
+            var sampleCornerPSDCS = new Point3d(
+                viewport.CenterPoint.X + viewport.Width / 2.0, 
+                viewport.CenterPoint.Y + viewport.Height / 2.0, 
+                0);
+            var sampleCornerDCS = sampleCornerPSDCS.TransformBy(psdcs2dcs);
+            var sampleCornerWCS = sampleCornerDCS.TransformBy(dcs2wcs);
+
+            return $"Viewport Transformation Diagnostics:\n" +
+                   $"  Center Point (PSDCS): {viewport.CenterPoint}\n" +
+                   $"  Dimensions: {viewport.Width:F3} x {viewport.Height:F3}\n" +
+                   $"  View Center (DCS): {viewport.ViewCenter}\n" +
+                   $"  View Target (WCS): {viewport.ViewTarget}\n" +
+                   $"  View Direction: {viewport.ViewDirection}\n" +
+                   $"  View Height: {viewport.ViewHeight:F3}\n" +
+                   $"  Custom Scale: {viewport.CustomScale:F6}\n" +
+                   $"  Twist Angle: {viewport.TwistAngle:F6} rad ({viewport.TwistAngle * 180.0 / Math.PI:F2}°)\n" +
+                   $"  Non-Rect Clip: {viewport.NonRectClipOn}\n" +
+                   $"  Clip Entity Valid: {viewport.NonRectClipEntityId.IsValid}\n" +
+                   $"  \n" +
+                   $"  Transformation Matrices:\n" +
+                   $"  PSDCS→DCS: {FormatMatrix(psdcs2dcs)}\n" +
+                   $"  DCS→WCS: {FormatMatrix(dcs2wcs)}\n" +
+                   $"  Full (DCS2WCS * PSDCS2DCS): {FormatMatrix(fullTransform)}\n" +
+                   $"  \n" +
+                   $"  Sample Corner Transformation (top-right):\n" +
+                   $"  PSDCS: {sampleCornerPSDCS}\n" +
+                   $"  → DCS: {sampleCornerDCS}\n" +
+                   $"  → WCS: {sampleCornerWCS}";
+        }
+        catch (System.Exception ex)
+        {
+            return $"Error getting diagnostics: {ex.Message}";
+        }
+    }
+
+    /// <summary>
+    /// Formats a transformation matrix for display.
+    /// </summary>
+    private static string FormatMatrix(Matrix3d matrix)
+    {
+        return $"[{matrix[0,0]:F3},{matrix[0,1]:F3},{matrix[0,2]:F3},{matrix[0,3]:F3}]" +
+               $"[{matrix[1,0]:F3},{matrix[1,1]:F3},{matrix[1,2]:F3},{matrix[1,3]:F3}]" +
+               $"[{matrix[2,0]:F3},{matrix[2,1]:F3},{matrix[2,2]:F3},{matrix[2,3]:F3}]" +
+               $"[{matrix[3,0]:F3},{matrix[3,1]:F3},{matrix[3,2]:F3},{matrix[3,3]:F3}]";
     }
 }

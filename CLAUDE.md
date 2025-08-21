@@ -439,6 +439,52 @@ var modelCorners = new[]
 - **Reference Path**: `C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\libs\GeometryExtensionsR25.dll`
 - **Namespace**: `Gile.AutoCAD.R25.Geometry` (R25 for AutoCAD 2025 compatibility)
 
+### Enhanced Viewport Transformation Implementation ✅ **COMPLETE**
+
+#### Refactored ViewportBoundaryCalculator with Gile's ViewportExtension
+The implementation was completely refactored to use Gile's ViewportExtension methods instead of manual coordinate calculations:
+
+#### Key Transformation Chain
+```csharp
+// Get the transformation chain: PSDCS → DCS → WCS using Gile's ViewportExtension
+Matrix3d psdcs2dcs = viewport.PSDCS2DCS();
+Matrix3d dcs2wcs = viewport.DCS2WCS();
+
+// Order matters: matrices apply right-to-left.
+// Start in PSDCS, transform → DCS, then → WCS
+Matrix3d fullTransform = dcs2wcs * psdcs2dcs;
+```
+
+#### Coordinate System Understanding
+- **PSDCS (Paper Space Display Coordinate System)**: Layout coordinates as they appear on the sheet
+- **DCS (Display Coordinate System)**: Each viewport's camera coordinate system 
+- **WCS (World Coordinate System)**: Global fixed coordinate system for the entire DWG
+- **ViewCenter Property**: Exists in DCS coordinates, critical for rotated viewports
+
+#### Matrix Multiplication Order Fix ✅
+**Critical Bug Fix**: Initial implementation had backwards matrix multiplication order:
+- **Wrong**: `psdcs2dcs * dcs2wcs` (applies DCS→WCS transformation first)
+- **Correct**: `dcs2wcs * psdcs2dcs` (applies PSDCS→DCS first, then DCS→WCS)
+- **Impact**: Fixed twisted/rotated viewport calculations that were rotating around wrong origin
+
+#### Supported Viewport Types
+- **Rectangular Viewports**: Standard paper space viewports
+- **Rotated Viewports**: Viewports with twist angle transformations
+- **Polygonal Viewports**: Custom-clipped viewports with complex boundaries
+
+#### Enhanced Features
+- **Transaction Parameter**: Optional transaction for efficient polygonal viewport processing
+- **Comprehensive Error Handling**: Specific exceptions for different failure modes
+- **Transformation Diagnostics**: `GetTransformationDiagnostics()` method shows step-by-step coordinate transformations
+- **Robust Polygonal Support**: Handles Polyline, Polyline2d, and Polyline3d clip entities
+
+#### Validation Results ✅
+All test cases confirmed working:
+- **Non-rotated viewports**: Accurate boundary detection
+- **Twisted/rotated viewports**: Correct transformation with proper matrix order
+- **Polygonal viewports**: Proper clip entity processing
+- **Mixed scenarios**: Robust handling across all viewport configurations
+
 ### Next Implementation Phase
 With accurate viewport boundary detection complete, the next steps are:
 1. **Multileader Discovery**: Find and filter multileaders by style in model space
