@@ -1,5 +1,6 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using System;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
@@ -12,18 +13,30 @@ public class ConstructionNotesService : IConstructionNotesService
     private readonly ILogger _logger;
     private readonly IExcelReader _excelReader;
     private readonly IDrawingOperations _drawingOperations;
+    private readonly AutoNotesService _autoNotesService;
 
     public ConstructionNotesService(ILogger logger, IExcelReader excelReader, IDrawingOperations drawingOperations)
     {
         _logger = logger;
         _excelReader = excelReader;
         _drawingOperations = drawingOperations;
+        _autoNotesService = new AutoNotesService(logger);
     }
 
-    public Task<List<int>> GetAutoNotesForSheetAsync(string sheetName, ProjectConfiguration config)
+    public async Task<List<int>> GetAutoNotesForSheetAsync(string sheetName, ProjectConfiguration config)
     {
-        _logger.LogDebug($"GetAutoNotesForSheetAsync called for {sheetName} - returning empty list (stub implementation)");
-        return Task.FromResult(new List<int>());
+        try
+        {
+            _logger.LogDebug($"Getting auto notes for sheet {sheetName}");
+            var noteNumbers = await _autoNotesService.GetAutoNotesForSheetAsync(sheetName, config);
+            _logger.LogInformation($"Auto notes detection found {noteNumbers.Count} notes for sheet {sheetName}: {string.Join(", ", noteNumbers)}");
+            return noteNumbers;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get auto notes for sheet {sheetName}: {ex.Message}", ex);
+            return new List<int>();
+        }
     }
 
     public async Task<List<int>> GetExcelNotesForSheetAsync(string sheetName, ProjectConfiguration config)

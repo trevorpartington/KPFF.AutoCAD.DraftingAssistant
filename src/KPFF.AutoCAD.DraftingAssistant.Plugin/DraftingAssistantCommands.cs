@@ -1269,16 +1269,16 @@ public class DraftingAssistantCommands
                             // Calculate corners based on ViewCenter being the center of the displayed area
                             ed.WriteMessage($"  Expected Corners: ({viewport.ViewCenter.X - expectedWidth/2:F3}, {viewport.ViewCenter.Y - expectedHeight/2:F3}) to ({viewport.ViewCenter.X + expectedWidth/2:F3}, {viewport.ViewCenter.Y + expectedHeight/2:F3})\n");
 
-                            // Test ViewportBoundaryCalculator
-                            ed.WriteMessage($"\n  *** TESTING VIEWPORTBOUNDARYCALCULATOR ***\n");
+                            // Test ViewportBoundaryCalculator with Gile's ViewportExtension
+                            ed.WriteMessage($"\n  *** TESTING GILE'S VIEWPORTEXTENSION TRANSFORMATIONS ***\n");
                             
-                            ed.WriteMessage($"  Using ViewportBoundaryCalculator.GetViewportFootprint()...\n");
-                            ed.WriteMessage($"  TwistAngle: {viewport.TwistAngle:F6} radians ({viewport.TwistAngle * 180.0 / Math.PI:F2} degrees)\n");
+                            // Show detailed transformation diagnostics
+                            ed.WriteMessage($"\n{ViewportBoundaryCalculator.GetTransformationDiagnostics(viewport)}\n");
                             
                             try
                             {
-                                // Get the actual model space footprint using our new calculator
-                                var footprint = ViewportBoundaryCalculator.GetViewportFootprint(viewport);
+                                // Get the actual model space footprint using Gile's transformations
+                                var footprint = ViewportBoundaryCalculator.GetViewportFootprint(viewport, tr);
                                 
                                 ed.WriteMessage($"  Paper space viewport: {viewport.Width:F3} x {viewport.Height:F3}\n");
                                 ed.WriteMessage($"  Non-rectangular clipping: {viewport.NonRectClipOn}\n");
@@ -1294,7 +1294,7 @@ public class DraftingAssistantCommands
                                     }
                                     
                                     // Calculate and display bounding box
-                                    var bounds = ViewportBoundaryCalculator.GetViewportBounds(viewport);
+                                    var bounds = ViewportBoundaryCalculator.GetViewportBounds(viewport, tr);
                                     if (bounds.HasValue)
                                     {
                                         ed.WriteMessage($"\n  Model space bounding box:\n");
@@ -1496,6 +1496,123 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nFATAL ERROR in CENTERTEST: {ex.Message}\n");
+        }
+    }
+
+    [CommandMethod("TESTAUTONOTES")]
+    public void TestAutoNotes()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== TESTAUTONOTES: Auto Notes Detection Validation ===\n");
+            
+            // Prompt for layout name
+            PromptStringOptions pso = new PromptStringOptions($"\nEnter layout name to test (or press Enter for 'ABC-101'): ");
+            pso.AllowSpaces = true;
+            pso.DefaultValue = "ABC-101";
+            PromptResult pr = ed.GetString(pso);
+            
+            if (pr.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("Command cancelled.\n");
+                return;
+            }
+
+            string layoutName = string.IsNullOrWhiteSpace(pr.StringResult) ? "ABC-101" : pr.StringResult.Trim();
+            ed.WriteMessage($"Testing auto notes detection for layout: '{layoutName}'\n");
+
+            // Ensure services are initialized
+            if (!DraftingAssistantExtensionApplication.EnsureServicesInitialized())
+            {
+                ed.WriteMessage("ERROR: Failed to initialize services. Please ensure a drawing is open.\n");
+                return;
+            }
+
+            // Get or create project configuration
+            var services = DraftingAssistantExtensionApplication.CompositionRoot;
+            if (services == null)
+            {
+                ed.WriteMessage("ERROR: Services not initialized\n");
+                return;
+            }
+
+            var logger = services.GetService<ILogger>();
+            var configService = services.GetService<IProjectConfigurationService>();
+            
+            // Use default configuration for testing
+            var config = configService.CreateDefaultConfiguration();
+            config.ConstructionNotes = new ConstructionNotesConfiguration
+            {
+                MultileaderStyleName = "ML-STYLE-01"  // Test data style
+            };
+            ed.WriteMessage("Using default configuration for testing\n");
+
+            ed.WriteMessage($"Target multileader style: '{config.ConstructionNotes?.MultileaderStyleName ?? "any"}'\n");
+
+            // Test the auto notes service
+            var autoNotesService = new AutoNotesService(logger);
+            
+            // Get diagnostic information first
+            ed.WriteMessage("\n--- DIAGNOSTIC INFORMATION ---\n");
+            var diagnosticInfo = autoNotesService.GetDiagnosticInfo(layoutName, config);
+            ed.WriteMessage(diagnosticInfo + "\n");
+
+            // Perform auto notes detection
+            ed.WriteMessage("\n--- AUTO NOTES DETECTION ---\n");
+            var noteNumbers = autoNotesService.GetAutoNotesForSheet(layoutName, config);
+            
+            if (noteNumbers.Count == 0)
+            {
+                ed.WriteMessage("❌ No construction notes detected in layout viewports\n");
+                ed.WriteMessage("\nPossible reasons:\n");
+                ed.WriteMessage("  - Layout not found\n");
+                ed.WriteMessage("  - No viewports in layout\n");
+                ed.WriteMessage("  - No multileaders in model space\n");
+                ed.WriteMessage("  - Multileaders not within viewport boundaries\n");
+                ed.WriteMessage("  - Multileaders don't match target style\n");
+                ed.WriteMessage("  - Multileader blocks don't have TAGNUMBER attribute\n");
+            }
+            else
+            {
+                ed.WriteMessage($"✅ SUCCESS: Found {noteNumbers.Count} construction notes!\n");
+                ed.WriteMessage($"Note numbers: {string.Join(", ", noteNumbers.OrderBy(n => n))}\n");
+            }
+
+            // Test point-in-polygon functionality with a simple case
+            ed.WriteMessage("\n--- POINT-IN-POLYGON TEST ---\n");
+            var testPolygon = new Point3dCollection();
+            testPolygon.Add(new Point3d(0, 0, 0));
+            testPolygon.Add(new Point3d(10, 0, 0));
+            testPolygon.Add(new Point3d(10, 10, 0));
+            testPolygon.Add(new Point3d(0, 10, 0));
+
+            var testPoint1 = new Point3d(5, 5, 0);  // Should be inside
+            var testPoint2 = new Point3d(15, 15, 0); // Should be outside
+
+            bool inside1 = PointInPolygonDetector.IsPointInPolygon(testPoint1, testPolygon);
+            bool inside2 = PointInPolygonDetector.IsPointInPolygon(testPoint2, testPolygon);
+
+            ed.WriteMessage($"Point (5,5) in square (0,0)-(10,10): {(inside1 ? "✅ INSIDE" : "❌ OUTSIDE")} (expected: INSIDE)\n");
+            ed.WriteMessage($"Point (15,15) in square (0,0)-(10,10): {(inside2 ? "❌ INSIDE" : "✅ OUTSIDE")} (expected: OUTSIDE)\n");
+
+            if (inside1 && !inside2)
+            {
+                ed.WriteMessage("✅ Point-in-polygon test PASSED\n");
+            }
+            else
+            {
+                ed.WriteMessage("❌ Point-in-polygon test FAILED\n");
+            }
+
+            ed.WriteMessage("\n=== TESTAUTONOTES COMPLETE ===\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nFATAL ERROR in TESTAUTONOTES: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
         }
     }
 
