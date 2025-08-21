@@ -240,9 +240,10 @@ The `docs/lisp/` folder contains the original LISP implementation with working a
 - **Excel Processing**: Async background processing with Task.Run() pattern
 
 ### Current System Status ✅
-**Production Commands**: DRAFTINGASSISTANT (UI), Excel Notes workflow complete  
-**System Capabilities**: Configuration management, block operations, comprehensive error handling  
-**Next Priority**: Auto Notes implementation, enhanced sheet selection UI
+**Production Commands**: DRAFTINGASSISTANT (UI), Excel Notes workflow complete, TESTAUTONOTES validation  
+**System Capabilities**: Configuration management, block operations, Auto Notes backend, comprehensive error handling  
+**Completed Features**: Phase 5A (viewport boundaries), Phase 5B (multileader analysis), Excel Notes integration  
+**Next Priority**: Phase 5C (Auto Notes UI integration), enhanced sheet selection UI
 
 ## Auto Notes Implementation Plan with GeometryExtensions
 
@@ -485,9 +486,100 @@ All test cases confirmed working:
 - **Polygonal viewports**: Proper clip entity processing
 - **Mixed scenarios**: Robust handling across all viewport configurations
 
-### Next Implementation Phase
-With accurate viewport boundary detection complete, the next steps are:
-1. **Multileader Discovery**: Find and filter multileaders by style in model space
-2. **Point-in-Polygon Detection**: Implement ray casting algorithm for containment testing
-3. **Note Number Extraction**: Extract TAGNUMBER attributes from multileader blocks
-4. **AutoNotesService**: Orchestrate complete pipeline for sheet processing
+### ✅ Auto Notes Phase 5B Implementation Complete
+
+#### Implemented Components
+- **PointInPolygonDetector** (`Core/Utilities/`): Ray casting algorithm with tolerance support and winding number calculations
+- **MultileaderAnalyzer** (`Core/Services/`): Comprehensive multileader discovery, style filtering, and TAGNUMBER extraction
+- **AutoNotesService** (`Core/Services/`): Complete viewport-to-notes orchestration pipeline with layout management
+- **TESTAUTONOTES Command**: Validation tool with diagnostics, point-in-polygon testing, and service initialization
+
+#### Key Capabilities Delivered ✅
+- **Multileader Discovery**: Finds all multileaders in model space with configurable style filtering (ML-STYLE-01)
+- **Attribute Extraction**: Extracts TAGNUMBER attributes from multileader blocks (_TagCircle) with integer validation
+- **Point-in-Polygon Detection**: Ray casting algorithm handles viewport boundary containment testing
+- **Note Consolidation**: Removes duplicates and sorts note numbers for clean output
+- **Full Integration**: Seamlessly integrated with existing ConstructionNotesService and Excel Notes workflow
+
+#### Technical Implementation Details
+- **Robust Error Handling**: Graceful handling of missing layouts, empty viewports, and invalid multileaders
+- **Comprehensive Logging**: Detailed progress tracking and diagnostic information for troubleshooting
+- **Service Integration**: Proper dependency injection and service initialization patterns
+- **Transaction Management**: Safe AutoCAD object access with proper transaction handling
+
+#### Testing & Validation ✅
+- **TESTAUTONOTES Command**: Provides comprehensive testing with layout input, diagnostic output, and algorithm validation
+- **Point-in-Polygon Verification**: Built-in tests validate ray casting algorithm with known test cases
+- **Service Initialization**: Fixed service startup issues to ensure commands work reliably
+- **Production Ready**: Successfully tested with PROJ-ABC-100.dwg test data
+
+#### Commit Status ✅
+**Commit `abd18e4`**: "Implement Auto Notes Phase 5B: Multileader Discovery and Analysis"
+- 5 files changed, 986 insertions(+), 10 deletions(-)
+- 3 new core services created
+- Full backend implementation complete
+
+### Next Implementation Phase: UI Integration (Phase 5C)
+With the Auto Notes backend complete, the final step is user interface integration to provide seamless Auto/Excel mode selection:
+
+#### 1. Update Construction Notes UI (ConstructionNotesView.xaml)
+- **Add Radio Button Group**: "Auto Notes" (default) and "Excel Notes" mode selection
+- **Multileader Style Configuration**: Text field for specifying target multileader style name
+- **Mode-Specific Controls**: Show/hide relevant options based on selected mode
+- **User Feedback Area**: Display detected note counts and processing status
+
+#### 2. Enhance ViewModel Logic (ConstructionNotesViewModel.cs)
+- **NotesMode Property**: Enum-based mode selection (Auto/Excel) with property change notification
+- **Configuration Binding**: Two-way binding for multileader style name setting
+- **Command Routing**: Update `UpdateNotesCommand` to call appropriate service based on mode
+- **Progress Feedback**: Show real-time progress and results from Auto Notes detection
+
+#### 3. Configuration Management
+- **Project Settings**: Store multileader style preference in ProjectConfiguration
+- **Default Values**: Set reasonable defaults (ML-STYLE-01) for new projects
+- **Validation**: Ensure style name is valid before processing
+- **Persistence**: Save user preferences across sessions
+
+#### 4. User Experience Enhancements
+- **Progress Indicators**: Show processing status during Auto Notes detection
+- **Result Display**: List detected notes with counts and locations
+- **Error Handling**: Clear error messages for common issues (no multileaders, layout not found)
+- **Help Integration**: Tooltips and help text explaining Auto Notes requirements
+
+#### 5. Testing & Quality Assurance
+- **Mode Switching**: Verify smooth transitions between Auto and Excel modes
+- **End-to-End Testing**: Test complete workflow from UI to drawing updates
+- **Error Scenarios**: Test handling of missing layouts, invalid styles, empty viewports
+- **Performance**: Ensure UI remains responsive during processing
+
+#### Expected UI Layout
+```
+Construction Notes Tab:
+┌─ Mode Selection ─────────────────────────────────┐
+│ ○ Auto Notes (detect from viewports)            │
+│ ○ Excel Notes (use manual configuration)        │
+└──────────────────────────────────────────────────┘
+┌─ Auto Notes Settings ────────────────────────────┐
+│ Multileader Style: [ML-STYLE-01    ] [?]        │
+│ └─ Style used to filter multileaders            │
+└──────────────────────────────────────────────────┘
+┌─ Processing Status ──────────────────────────────┐
+│ ● Found 3 multileaders in ABC-101               │
+│ ● Detected notes: 1, 2, 4                       │
+│ ● Updated 3 construction note blocks             │
+└──────────────────────────────────────────────────┘
+                [Update Notes]
+```
+
+#### Implementation Priority
+1. **Core UI Changes**: Radio buttons and basic mode switching
+2. **Service Integration**: Route commands to Auto/Excel services
+3. **Configuration**: Multileader style settings and persistence  
+4. **User Feedback**: Progress display and result messaging
+5. **Polish & Testing**: Error handling, tooltips, comprehensive testing
+
+#### Benefits of Completion
+- **Eliminates Manual Setup**: No more Excel configuration for basic note detection
+- **Real-time Detection**: Notes automatically found from actual drawing content
+- **Maintains Flexibility**: Excel mode still available for complex scenarios
+- **Improved Workflow**: Faster, more accurate construction note management
