@@ -1249,25 +1249,52 @@ public class DraftingAssistantCommands
                             ed.WriteMessage($"  Number: {viewport.Number}\n");
                             ed.WriteMessage($"  On: {viewport.On}\n");
                             
-                            // Add detailed viewport properties for debugging
-                            ed.WriteMessage($"  ViewTarget: ({viewport.ViewTarget.X:F3}, {viewport.ViewTarget.Y:F3}, {viewport.ViewTarget.Z:F3})\n");
-                            ed.WriteMessage($"  ViewCenter: ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3})\n");
-                            ed.WriteMessage($"  ViewHeight: {viewport.ViewHeight:F3}\n");
-                            ed.WriteMessage($"  CustomScale: {viewport.CustomScale:F6}\n");
+                            // === ALL VIEWPORT PROPERTIES USED IN OUR CALCULATIONS ===
+                            ed.WriteMessage($"\n  *** VIEWPORT PROPERTIES (All properties we use) ***\n");
                             
-                            // Detect and display the viewport scale
+                            // Paper space properties
+                            ed.WriteMessage($"  PAPER SPACE PROPERTIES:\n");
+                            ed.WriteMessage($"    CenterPoint: ({viewport.CenterPoint.X:F3}, {viewport.CenterPoint.Y:F3}) - Center of viewport in paper space\n");
+                            ed.WriteMessage($"    Width: {viewport.Width:F3} - Paper space width of viewport\n");
+                            ed.WriteMessage($"    Height: {viewport.Height:F3} - Paper space height of viewport\n");
+                            
+                            // Model space view properties
+                            ed.WriteMessage($"  MODEL SPACE VIEW PROPERTIES:\n");
+                            ed.WriteMessage($"    ViewTarget: ({viewport.ViewTarget.X:F3}, {viewport.ViewTarget.Y:F3}, {viewport.ViewTarget.Z:F3}) - Point in WCS that camera looks at\n");
+                            ed.WriteMessage($"    ViewCenter: ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3}) - Center of view in DCS (Display Coordinate System)\n");
+                            ed.WriteMessage($"    ViewDirection: ({viewport.ViewDirection.X:F3}, {viewport.ViewDirection.Y:F3}, {viewport.ViewDirection.Z:F3}) - Camera direction vector\n");
+                            ed.WriteMessage($"    ViewHeight: {viewport.ViewHeight:F3} - Height of model space area shown in viewport (in model units)\n");
+                            ed.WriteMessage($"    CustomScale: {viewport.CustomScale:F6} - Scale factor (model units per paper unit)\n");
+                            ed.WriteMessage($"    TwistAngle: {viewport.TwistAngle:F6} rad ({viewport.TwistAngle * 180.0 / Math.PI:F2}°) - Rotation around view direction\n");
+                            
+                            // Clipping properties
+                            ed.WriteMessage($"  CLIPPING PROPERTIES:\n");
+                            ed.WriteMessage($"    NonRectClipOn: {viewport.NonRectClipOn} - True if using polygonal clipping\n");
+                            ed.WriteMessage($"    NonRectClipEntityId: {viewport.NonRectClipEntityId} - ObjectId of clipping entity\n");
+                            
+                            // Calculated scale information
+                            ed.WriteMessage($"\n  *** SCALE ANALYSIS ***\n");
                             double scaleRatio = 1.0 / viewport.CustomScale;
-                            ed.WriteMessage($"  Detected Scale: 1:{scaleRatio:F0} (1\" = {scaleRatio:F0}')\n");
+                            ed.WriteMessage($"    Scale Ratio: 1:{scaleRatio:F0} (1 paper unit = {scaleRatio:F0} model units)\n");
+                            ed.WriteMessage($"    CustomScale: {viewport.CustomScale:F6} (model units per paper unit)\n");
+                            ed.WriteMessage($"    1/CustomScale: {1.0/viewport.CustomScale:F6} (paper units per model unit - for DCS→WCS)\n");
                             
-                            ed.WriteMessage($"  ViewDirection: ({viewport.ViewDirection.X:F3}, {viewport.ViewDirection.Y:F3}, {viewport.ViewDirection.Z:F3})\n");
+                            // Expected model space dimensions
+                            ed.WriteMessage($"\n  *** EXPECTED MODEL SPACE AREA CALCULATIONS ***\n");
+                            double modelWidth = viewport.ViewHeight * viewport.Width / viewport.Height;
+                            double modelHeight = viewport.ViewHeight;
+                            ed.WriteMessage($"    ViewHeight: {viewport.ViewHeight:F3} (direct from property)\n");
+                            ed.WriteMessage($"    Calculated Width: {modelWidth:F3} (ViewHeight × Width/Height aspect ratio)\n");
+                            ed.WriteMessage($"    Expected Center: ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3}) (using ViewCenter)\n");
+                            ed.WriteMessage($"    Expected Bounds: ({viewport.ViewCenter.X - modelWidth/2:F3}, {viewport.ViewCenter.Y - modelHeight/2:F3}) to ({viewport.ViewCenter.X + modelWidth/2:F3}, {viewport.ViewCenter.Y + modelHeight/2:F3})\n");
                             
-                            // Manual scale calculation for verification
-                            double expectedWidth = viewport.Width / viewport.CustomScale;
-                            double expectedHeight = viewport.Height / viewport.CustomScale;
-                            ed.WriteMessage($"  Expected Model Space Area: {expectedWidth:F3} x {expectedHeight:F3}\n");
-                            
-                            // Calculate corners based on ViewCenter being the center of the displayed area
-                            ed.WriteMessage($"  Expected Corners: ({viewport.ViewCenter.X - expectedWidth/2:F3}, {viewport.ViewCenter.Y - expectedHeight/2:F3}) to ({viewport.ViewCenter.X + expectedWidth/2:F3}, {viewport.ViewCenter.Y + expectedHeight/2:F3})\n");
+                            // Alternative calculation using paper dimensions and scale
+                            double altWidth = viewport.Width / viewport.CustomScale;
+                            double altHeight = viewport.Height / viewport.CustomScale;
+                            ed.WriteMessage($"\n  *** ALTERNATIVE CALCULATION (Paper × Scale) ***\n");
+                            ed.WriteMessage($"    Width: {viewport.Width:F3} ÷ {viewport.CustomScale:F6} = {altWidth:F3}\n");
+                            ed.WriteMessage($"    Height: {viewport.Height:F3} ÷ {viewport.CustomScale:F6} = {altHeight:F3}\n");
+                            ed.WriteMessage($"    Alt Bounds: ({viewport.ViewCenter.X - altWidth/2:F3}, {viewport.ViewCenter.Y - altHeight/2:F3}) to ({viewport.ViewCenter.X + altWidth/2:F3}, {viewport.ViewCenter.Y + altHeight/2:F3})\n");
 
                             // Test ViewportBoundaryCalculator with Gile's ViewportExtension
                             ed.WriteMessage($"\n  *** TESTING GILE'S VIEWPORTEXTENSION TRANSFORMATIONS ***\n");
@@ -1613,6 +1640,98 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage($"\nFATAL ERROR in TESTAUTONOTES: {ex.Message}\n");
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    [CommandMethod("SELECTVIEWPORT")]
+    public void SelectViewport()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+        var db = doc.Database;
+
+        ed.WriteMessage("\n=== Select Viewport for Property Display ===\n");
+
+        try
+        {
+            // Prompt user to select a viewport
+            var selectionOptions = new PromptSelectionOptions
+            {
+                MessageForAdding = "\nSelect a viewport: ",
+                AllowDuplicates = false,
+                SingleOnly = true
+            };
+
+            // Filter for viewport objects only
+            var filter = new TypedValue[]
+            {
+                new TypedValue((int)DxfCode.Start, "VIEWPORT")
+            };
+            var selectionFilter = new SelectionFilter(filter);
+
+            var selectionResult = ed.GetSelection(selectionOptions, selectionFilter);
+            
+            if (selectionResult.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("No viewport selected or selection cancelled.\n");
+                return;
+            }
+
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                var selectedObjectId = selectionResult.Value[0].ObjectId;
+                var viewport = tr.GetObject(selectedObjectId, OpenMode.ForRead) as Viewport;
+
+                if (viewport == null)
+                {
+                    ed.WriteMessage("ERROR: Selected object is not a viewport.\n");
+                    return;
+                }
+
+                ed.WriteMessage($"\n=== Viewport Properties ===\n");
+                ed.WriteMessage($"Handle: {viewport.Handle}\n");
+                ed.WriteMessage($"Number: {viewport.Number}\n");
+                
+                if (viewport.Number == 1)
+                {
+                    ed.WriteMessage("NOTE: This is the paper space viewport (Number = 1)\n");
+                }
+                else
+                {
+                    ed.WriteMessage("NOTE: This is a model space viewport\n");
+                }
+
+                ed.WriteMessage($"\n--- Requested Properties ---\n");
+                ed.WriteMessage($"ViewCenter: ({viewport.ViewCenter.X:F6}, {viewport.ViewCenter.Y:F6})\n");
+                ed.WriteMessage($"ViewDirection: ({viewport.ViewDirection.X:F6}, {viewport.ViewDirection.Y:F6}, {viewport.ViewDirection.Z:F6})\n");
+                ed.WriteMessage($"ViewTarget: ({viewport.ViewTarget.X:F6}, {viewport.ViewTarget.Y:F6}, {viewport.ViewTarget.Z:F6})\n");
+                ed.WriteMessage($"TwistAngle: {viewport.TwistAngle:F6} rad ({viewport.TwistAngle * 180.0 / Math.PI:F3}°)\n");
+                ed.WriteMessage($"ViewHeight: {viewport.ViewHeight:F6}\n");
+                ed.WriteMessage($"Width: {viewport.Width:F6}\n");
+                ed.WriteMessage($"Height: {viewport.Height:F6}\n");
+                ed.WriteMessage($"CenterPoint: ({viewport.CenterPoint.X:F6}, {viewport.CenterPoint.Y:F6})\n");
+                ed.WriteMessage($"CustomScale: {viewport.CustomScale:F6}\n");
+
+                ed.WriteMessage($"\n--- Additional Calculated Values ---\n");
+                double scaleRatio = 1.0 / viewport.CustomScale;
+                ed.WriteMessage($"Scale Ratio (1/CustomScale): {scaleRatio:F6} (1:{scaleRatio:F0})\n");
+                
+                double modelWidth = viewport.ViewHeight * viewport.Width / viewport.Height;
+                ed.WriteMessage($"Model Width (ViewHeight × Width/Height): {modelWidth:F6}\n");
+                
+                ed.WriteMessage($"On: {viewport.On}\n");
+                ed.WriteMessage($"NonRectClipOn: {viewport.NonRectClipOn}\n");
+                
+                tr.Commit();
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"ERROR in SELECTVIEWPORT: {ex.Message}\n");
+            if (ex.InnerException != null)
+            {
+                ed.WriteMessage($"Inner exception: {ex.InnerException.Message}\n");
+            }
         }
     }
 
