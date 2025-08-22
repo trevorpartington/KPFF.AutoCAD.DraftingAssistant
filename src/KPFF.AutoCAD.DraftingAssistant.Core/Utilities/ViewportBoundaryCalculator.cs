@@ -32,26 +32,21 @@ public static class ViewportBoundaryCalculator
         
         try
         {
-            // Build transformations manually from viewport data (replicating GeometryExtensions)
-            // This works even if the layout is not active
-            Matrix3d psdcs2dcs = BuildPsdcsToDcs(viewport);
+            // Build DCS→WCS transformation manually from viewport data
+            // This works even if the layout is not active by using only stored viewport properties
             Matrix3d dcs2wcs = BuildDcsToWcs(viewport);
-            
-            // Order matters: matrices apply right-to-left.
-            // Start in PSDCS, transform → DCS, then → WCS
-            Matrix3d fullTransform = dcs2wcs * psdcs2dcs;
 
             if (viewport.NonRectClipOn && viewport.NonRectClipEntityId.IsValid)
             {
                 // === Polygonal viewport with clip entity ===
-                var points = GetPolygonalViewportPoints(viewport, transaction, fullTransform);
+                var points = GetPolygonalViewportPoints(viewport, transaction, dcs2wcs);
                 foreach (var point in points)
                     result.Add(point);
             }
             else
             {
                 // === Rectangular viewport ===
-                var points = GetRectangularViewportPoints(viewport, fullTransform);
+                var points = GetRectangularViewportPoints(viewport, dcs2wcs);
                 foreach (var point in points)
                     result.Add(point);
             }
@@ -66,96 +61,71 @@ public static class ViewportBoundaryCalculator
 
     /// <summary>
     /// Builds a DCS→WCS transformation matrix from viewport data.
-    /// Works even if the layout is not active by using stored viewport properties.
+    /// Works even if the layout is not active by manually constructing coordinate system from viewport properties.
     /// </summary>
     /// <param name="viewport">The viewport to build transformation for</param>
     /// <returns>Transformation matrix from DCS to WCS coordinates</returns>
-    private static Matrix3d BuildDcsToWcs(Viewport viewport)
+    private static Matrix3d BuildDcsToWcs(Viewport vp)
     {
-        // Replicate the exact GeometryExtensions DCS2WCS implementation:
-        // DCS2WCS = Rotation(-TwistAngle) * Displacement(ViewTarget) * PlaneToWorld(ViewDirection)
-        return
-            Matrix3d.Rotation(-viewport.TwistAngle, viewport.ViewDirection, viewport.ViewTarget) *
-            Matrix3d.Displacement(viewport.ViewTarget.GetAsVector()) *
-            Matrix3d.PlaneToWorld(viewport.ViewDirection);
+        // View Z (view direction, normalized)
+        Vector3d vz = vp.ViewDirection.GetNormal();
+
+        // A provisional X axis in the view plane (perp to vz).
+        // If vz is near World Z, use World X as helper to avoid degeneracy.
+        Vector3d helper = Math.Abs(vz.DotProduct(Vector3d.ZAxis)) > 0.999999 ? Vector3d.XAxis : Vector3d.ZAxis;
+        Vector3d vx0 = helper.CrossProduct(vz).GetNormal();        // lies in view plane
+        Vector3d vy0 = vz.CrossProduct(vx0).GetNormal();            // completes right-handed basis
+
+        // Apply TwistAngle: rotate basis around view normal (vz)
+        Matrix3d twist = Matrix3d.Rotation(vp.TwistAngle, vz, Point3d.Origin);
+        Vector3d vx = vx0.TransformBy(twist);
+        Vector3d vy = vy0.TransformBy(twist);
+
+        // Scale: DCS (paper units) → model units is 1 / CustomScale
+        double s = 1.0 / vp.CustomScale;
+
+        // Build an affine transform such that:
+        // W = ViewTarget + vx*( (Dx - ViewCenter.X) * s ) + vy*( (Dy - ViewCenter.Y) * s )
+        // We can assemble this with AlignCoordinateSystem from a local "DCS-like" frame.
+
+        // Matrix that maps from a local XY frame to model (columns are basis vectors, origin at ViewTarget)
+        Matrix3d basisToWcs =
+            Matrix3d.AlignCoordinateSystem(
+                Point3d.Origin, Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis,
+                vp.ViewTarget, vx, vy, vz);
+
+        // Matrix that recenters DCS to have origin at ViewCenter and scales by s
+        Matrix3d dcsCenterAndScale =
+            Matrix3d.Displacement(new Vector3d(-vp.ViewCenter.X, -vp.ViewCenter.Y, 0.0)) *
+            Matrix3d.Scaling(s, Point3d.Origin);
+
+        // Full DCS → WCS
+        return basisToWcs * dcsCenterAndScale;
     }
 
-    /// <summary>
-    /// Builds a PSDCS→DCS transformation matrix from viewport data.
-    /// Replicates the GeometryExtensions PSDCS2DCS implementation.
-    /// </summary>
-    /// <param name="viewport">The viewport to build transformation for</param>
-    /// <returns>Transformation matrix from PSDCS to DCS coordinates</returns>
-    private static Matrix3d BuildPsdcsToDcs(Viewport viewport)
-    {
-        // Replicate the exact GeometryExtensions PSDCS2DCS implementation:
-        // PSDCS2DCS = Displacement(CenterPoint→ViewCenter) * Scaling(1/CustomScale, CenterPoint)
-        return
-            Matrix3d.Displacement(viewport.CenterPoint.GetVectorTo(new Point3d(viewport.ViewCenter.X, viewport.ViewCenter.Y, 0))) *
-            Matrix3d.Scaling(1.0 / viewport.CustomScale, viewport.CenterPoint);
-    }
-
-    /// <summary>
-    /// Converts a point from Paper Space Display Coordinate System (PSDCS) to Display Coordinate System (DCS).
-    /// This handles the transformation from paper space coordinates to viewport's camera coordinates.
-    /// </summary>
-    /// <param name="psdcsPoint">Point in paper space display coordinates</param>
-    /// <param name="viewport">The viewport defining the transformation</param>
-    /// <returns>Point in display coordinate system</returns>
-    private static Point3d ConvertPsdcsToDcs(Point3d psdcsPoint, Viewport viewport)
-    {
-        // PSDCS to DCS conversion:
-        // 1. Translate to viewport center as origin
-        // 2. Scale by viewport dimensions to get normalized coordinates  
-        // 3. Scale by ViewHeight to get DCS coordinates
-        // 4. Translate to ViewCenter
-
-        // Normalize to viewport bounds (-0.5 to 0.5)
-        double normalizedX = (psdcsPoint.X - viewport.CenterPoint.X) / viewport.Width;
-        double normalizedY = (psdcsPoint.Y - viewport.CenterPoint.Y) / viewport.Height;
-
-        // Scale to DCS dimensions based on ViewHeight
-        double aspectRatio = viewport.Width / viewport.Height;
-        double dcsX = normalizedX * viewport.ViewHeight * aspectRatio;
-        double dcsY = normalizedY * viewport.ViewHeight;
-
-        // Translate to ViewCenter
-        return new Point3d(
-            viewport.ViewCenter.X + dcsX,
-            viewport.ViewCenter.Y + dcsY,
-            0);
-    }
 
     /// <summary>
     /// Gets the model space footprint points for a rectangular viewport.
     /// </summary>
-    /// <param name="viewport">The viewport to process</param>
-    /// <param name="fullTransform">Combined PSDCS → DCS → WCS transformation matrix</param>
+    /// <param name="vp">The viewport to process</param>
+    /// <param name="dcs2wcs">DCS → WCS transformation matrix</param>
     /// <returns>Ordered list of corner points in WCS coordinates</returns>
-    private static List<Point3d> GetRectangularViewportPoints(Viewport viewport, Matrix3d fullTransform)
+    private static List<Point3d> GetRectangularViewportPoints(Viewport vp, Matrix3d dcs2wcs)
     {
-        var points = new List<Point3d>();
+        // In DCS, the viewport rectangle is centered at ViewCenter and its size is the PAPER size.
+        // Half-sizes in DCS (paper units):
+        double halfW = vp.Width / 2.0;
+        double halfH = vp.Height / 2.0;
 
-        // Define viewport corners in PSDCS (paper space display coordinates)
-        double halfWidth = viewport.Width / 2.0;
-        double halfHeight = viewport.Height / 2.0;
-
-        // Counter-clockwise from bottom-left
-        var psdcsCorners = new[]
+        var dcsCorners = new[]
         {
-            new Point3d(viewport.CenterPoint.X - halfWidth, viewport.CenterPoint.Y - halfHeight, 0), // Bottom-left
-            new Point3d(viewport.CenterPoint.X - halfWidth, viewport.CenterPoint.Y + halfHeight, 0), // Top-left
-            new Point3d(viewport.CenterPoint.X + halfWidth, viewport.CenterPoint.Y + halfHeight, 0), // Top-right
-            new Point3d(viewport.CenterPoint.X + halfWidth, viewport.CenterPoint.Y - halfHeight, 0)  // Bottom-right
+            new Point3d(vp.ViewCenter.X - halfW, vp.ViewCenter.Y - halfH, 0), // BL
+            new Point3d(vp.ViewCenter.X - halfW, vp.ViewCenter.Y + halfH, 0), // TL
+            new Point3d(vp.ViewCenter.X + halfW, vp.ViewCenter.Y + halfH, 0), // TR
+            new Point3d(vp.ViewCenter.X + halfW, vp.ViewCenter.Y - halfH, 0), // BR
         };
 
-        // Transform each corner: PSDCS → DCS → WCS
-        foreach (var psdcsPoint in psdcsCorners)
-        {
-            points.Add(psdcsPoint.TransformBy(fullTransform));
-        }
-
-        return points;
+        return dcsCorners.Select(p => p.TransformBy(dcs2wcs)).ToList();
     }
 
     /// <summary>
@@ -163,10 +133,10 @@ public static class ViewportBoundaryCalculator
     /// </summary>
     /// <param name="viewport">The viewport to process</param>
     /// <param name="externalTransaction">Optional external transaction</param>
-    /// <param name="fullTransform">Combined PSDCS → DCS → WCS transformation matrix</param>
+    /// <param name="dcs2wcs">DCS → WCS transformation matrix</param>
     /// <returns>Ordered list of boundary points in WCS coordinates</returns>
     /// <exception cref="NotSupportedException">Thrown for unsupported clip entity types</exception>
-    private static List<Point3d> GetPolygonalViewportPoints(Viewport viewport, Transaction? externalTransaction, Matrix3d fullTransform)
+    private static List<Point3d> GetPolygonalViewportPoints(Viewport viewport, Transaction? externalTransaction, Matrix3d dcs2wcs)
     {
         var points = new List<Point3d>();
         Database db = viewport.Database;
@@ -182,8 +152,8 @@ public static class ViewportBoundaryCalculator
                 case Polyline polyline:
                     for (int i = 0; i < polyline.NumberOfVertices; i++)
                     {
-                        Point3d psdcsPoint = polyline.GetPoint3dAt(i);
-                        points.Add(psdcsPoint.TransformBy(fullTransform));
+                        Point3d clipPoint = polyline.GetPoint3dAt(i);
+                        points.Add(clipPoint.TransformBy(dcs2wcs));
                     }
                     break;
 
@@ -193,8 +163,8 @@ public static class ViewportBoundaryCalculator
                         var vertex = tr.GetObject(vertexId, OpenMode.ForRead) as Vertex2d;
                         if (vertex != null)
                         {
-                            Point3d psdcsPoint = vertex.Position;
-                            points.Add(psdcsPoint.TransformBy(fullTransform));
+                            Point3d clipPoint = vertex.Position;
+                            points.Add(clipPoint.TransformBy(dcs2wcs));
                         }
                     }
                     break;
@@ -205,8 +175,8 @@ public static class ViewportBoundaryCalculator
                         var vertex = tr.GetObject(vertexId, OpenMode.ForRead) as PolylineVertex3d;
                         if (vertex != null)
                         {
-                            Point3d psdcsPoint = vertex.Position;
-                            points.Add(psdcsPoint.TransformBy(fullTransform));
+                            Point3d clipPoint = vertex.Position;
+                            points.Add(clipPoint.TransformBy(dcs2wcs));
                         }
                     }
                     break;
@@ -287,38 +257,36 @@ public static class ViewportBoundaryCalculator
 
         try
         {
-            var psdcs2dcs = BuildPsdcsToDcs(viewport);
             var dcs2wcs = BuildDcsToWcs(viewport);
-            var fullTransform = dcs2wcs * psdcs2dcs;
 
-            // Test sample corner transformation to show intermediate results
-            var sampleCornerPSDCS = new Point3d(
-                viewport.CenterPoint.X + viewport.Width / 2.0, 
-                viewport.CenterPoint.Y + viewport.Height / 2.0, 
+            // Test sample corner transformation from DCS to show results
+            // Use ViewCenter and ViewHeight to define a sample corner in DCS
+            double halfHeight = viewport.ViewHeight / 2.0;
+            double halfWidth = (viewport.ViewHeight * viewport.Width / viewport.Height) / 2.0;
+            
+            var sampleCornerDCS = new Point3d(
+                viewport.ViewCenter.X + halfWidth, 
+                viewport.ViewCenter.Y + halfHeight, 
                 0);
-            var sampleCornerDCS = sampleCornerPSDCS.TransformBy(psdcs2dcs);
             var sampleCornerWCS = sampleCornerDCS.TransformBy(dcs2wcs);
 
-            return $"Viewport Transformation Diagnostics (GeometryExtensions Replica):\n" +
-                   $"  Center Point (PSDCS): {viewport.CenterPoint}\n" +
-                   $"  Dimensions: {viewport.Width:F3} x {viewport.Height:F3}\n" +
+            return $"Viewport Transformation Diagnostics (Manual DCS→WCS):\n" +
+                   $"  Center Point (Paper): {viewport.CenterPoint}\n" +
+                   $"  Dimensions (Paper): {viewport.Width:F3} x {viewport.Height:F3}\n" +
                    $"  View Center (DCS): {viewport.ViewCenter}\n" +
                    $"  View Target (WCS): {viewport.ViewTarget}\n" +
                    $"  View Direction: {viewport.ViewDirection}\n" +
-                   $"  View Height: {viewport.ViewHeight:F3}\n" +
+                   $"  View Height (DCS): {viewport.ViewHeight:F3}\n" +
                    $"  Custom Scale: {viewport.CustomScale:F6}\n" +
                    $"  Twist Angle: {viewport.TwistAngle:F6} rad ({viewport.TwistAngle * 180.0 / Math.PI:F2}°)\n" +
                    $"  Non-Rect Clip: {viewport.NonRectClipOn}\n" +
                    $"  Clip Entity Valid: {viewport.NonRectClipEntityId.IsValid}\n" +
                    $"  \n" +
-                   $"  Transformation Matrices:\n" +
-                   $"  PSDCS→DCS: {FormatMatrix(psdcs2dcs)}\n" +
+                   $"  Manual Transformation Matrix:\n" +
                    $"  DCS→WCS: {FormatMatrix(dcs2wcs)}\n" +
-                   $"  Full (DCS2WCS * PSDCS2DCS): {FormatMatrix(fullTransform)}\n" +
                    $"  \n" +
-                   $"  Sample Corner Transformation (top-right):\n" +
-                   $"  PSDCS: {sampleCornerPSDCS}\n" +
-                   $"  → DCS: {sampleCornerDCS}\n" +
+                   $"  Sample Corner Transformation (DCS top-right):\n" +
+                   $"  DCS: {sampleCornerDCS}\n" +
                    $"  → WCS: {sampleCornerWCS}";
         }
         catch (System.Exception ex)

@@ -1,0 +1,307 @@
+the key issue here is that your code works fine only when the layout is active, because Viewport.PSDCS2DCS() / Viewport.DCS2WCS() depend on the active graphics system state. That’s why you get errors when iterating through other layouts.
+
+To make this work on non-active layouts (and even closed drawings), you need to avoid APIs that rely on the active view, and instead reconstruct the transformation matrices from the viewport’s stored properties.
+
+What’s Happening
+
+ViewportExtension.PSDCS2DCS() and ViewportExtension.DCS2WCS() use the active viewport’s graphics pipeline.
+
+If the layout isn’t active, AutoCAD hasn’t set up those transforms, so the calls fail.
+
+Fix Approach
+
+Stop depending on the active view.
+Build the transform yourself from Viewport.ViewCenter, ViewTarget, ViewDirection, ViewHeight, CustomScale, and TwistAngle. This data is persisted in the Viewport object and available even in non-active layouts.
+
+Manual transformation chain.
+Instead of:
+
+Matrix3d psdcs2dcs = viewport.PSDCS2DCS();
+Matrix3d dcs2wcs = viewport.DCS2WCS();
+
+
+Build your own equivalent:
+
+Matrix3d eyeToWorld =
+    Matrix3d.Displacement(viewport.ViewTarget - Point3d.Origin) *
+    Matrix3d.Rotation(-viewport.TwistAngle, viewport.ViewDirection, viewport.ViewTarget) *
+    Matrix3d.AlignCoordinateSystem(
+        Point3d.Origin,
+        Vector3d.XAxis,
+        Vector3d.YAxis,
+        Vector3d.ZAxis,
+        Point3d.Origin,
+        viewport.ViewDirection.GetPerpendicularVector(),
+        viewport.ViewDirection.CrossProduct(viewport.ViewDirection.GetPerpendicularVector()),
+        viewport.ViewDirection);
+
+double scale = viewport.CustomScale;
+Matrix3d dcs2wcs = Matrix3d.Scaling(scale, viewport.ViewTarget) * eyeToWorld;
+
+
+Then compute the rectangle in DCS (device coordinates relative to the viewport center/width/height) and transform into WCS using dcs2wcs.
+
+Bulk across layouts.
+
+Open each layout’s BlockTableRecord in a transaction.
+
+Iterate through Viewport objects.
+
+Apply your manual transform logic (not the Gile extension).
+
+You now get footprints for non-active layouts.
+
+Closed drawings.
+That’s already supported by the AutoCAD API — you can Database.ReadDwgFile() into a side database and open it in ReadDwgFile mode. Since you’re not relying on the active view, the same code works.
+
+Minimal Pseudocode for Any Layout
+using (var tr = db.TransactionManager.StartTransaction())
+{
+    var layoutDict = (DBDictionary)tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead);
+    foreach (DBDictionaryEntry entry in layoutDict)
+    {
+        var layout = (Layout)tr.GetObject(entry.Value, OpenMode.ForRead);
+        var btr = (BlockTableRecord)tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead);
+
+        foreach (ObjectId id in btr)
+        {
+            if (!id.ObjectClass.DxfName.Equals("VIEWPORT", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var vp = (Viewport)tr.GetObject(id, OpenMode.ForRead);
+            if (vp.Number == 1) continue; // skip paperspace viewport
+
+            // Build manual DCS→WCS transform from vp properties
+            var transform = BuildDcsToWcs(vp);
+
+            // Get rectangular/polygonal points in DCS → transform to WCS
+        }
+    }
+}
+
+
+✅ Summary:
+Replace PSDCS2DCS()/DCS2WCS() with your own matrix built from viewport data. Then you can safely run across all layouts and even external DWGs without making them active.
+
+Do you want me to write you a drop-in replacement for your GetViewportFootprint() that uses this manual matrix build instead of ViewportExtension, so you can immediately test bulk runs?
+
+You said:
+Yes
+ChatGPT said:
+
+Perfect 👍 — here’s a drop-in replacement GetViewportFootprint() that will work on any layout (active or not, even in side databases).
+
+I removed the PSDCS2DCS() / DCS2WCS() calls and instead build the transformation from the viewport’s own properties.
+
+Updated ViewportBoundaryCalculator.GetViewportFootprint
+public static Point3dCollection GetViewportFootprint(Viewport viewport, Transaction? transaction = null)
+{
+    if (viewport == null)
+        throw new ArgumentNullException(nameof(viewport), "Viewport cannot be null");
+
+    var result = new Point3dCollection();
+
+    try
+    {
+        // Build DCS→WCS transform manually from viewport data
+        Matrix3d dcs2wcs = BuildDcsToWcs(viewport);
+
+        if (viewport.NonRectClipOn && viewport.NonRectClipEntityId.IsValid)
+        {
+            // Polygonal viewport with clip entity
+            var points = GetPolygonalViewportPoints(viewport, transaction, dcs2wcs);
+            foreach (var pt in points)
+                result.Add(pt);
+        }
+        else
+        {
+            // Rectangular viewport
+            var points = GetRectangularViewportPoints(viewport, dcs2wcs);
+            foreach (var pt in points)
+                result.Add(pt);
+        }
+    }
+    catch (System.Exception ex) when (!(ex is ArgumentNullException || ex is NotSupportedException))
+    {
+        throw new InvalidOperationException($"Failed to calculate viewport footprint: {ex.Message}", ex);
+    }
+
+    return result;
+}
+
+Manual Transform Builder
+
+Add this helper in the same class:
+
+/// <summary>
+/// Builds a DCS→WCS transformation matrix from viewport data.
+/// Works even if the layout is not active.
+/// </summary>
+private static Matrix3d BuildDcsToWcs(Viewport vp)
+{
+    // View direction & target define camera
+    Vector3d viewDir = vp.ViewDirection;
+    Point3d viewTarget = vp.ViewTarget;
+
+    // Build eye coordinate system (camera basis vectors)
+    Vector3d up = Vector3d.ZAxis; // arbitrary world up, fixed later
+    if (viewDir.IsParallelTo(up))
+        up = Vector3d.XAxis; // handle edge case
+
+    Vector3d xAxis = up.CrossProduct(viewDir).GetNormal();
+    Vector3d yAxis = viewDir.CrossProduct(xAxis).GetNormal();
+    Vector3d zAxis = viewDir.GetNormal();
+
+    // Align to viewport twist
+    Matrix3d twist = Matrix3d.Rotation(-vp.TwistAngle, zAxis, viewTarget);
+
+    // Scale from DCS to world
+    double scale = vp.CustomScale;
+    Matrix3d scaleMat = Matrix3d.Scaling(scale, viewTarget);
+
+    // Compose transform: twist, axes alignment, then scale
+    Matrix3d align =
+        Matrix3d.AlignCoordinateSystem(
+            Point3d.Origin,
+            Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis,
+            viewTarget, xAxis, yAxis, zAxis);
+
+    return scaleMat * twist * align;
+}
+
+Rectangular Viewport in DCS
+
+Replace your rectangular method with this (no PSDCS2DCS anymore):
+
+private static List<Point3d> GetRectangularViewportPoints(Viewport viewport, Matrix3d dcs2wcs)
+{
+    var points = new List<Point3d>();
+
+    // DCS is centered at viewport.ViewCenter, with width/height = viewport.ViewHeight * aspect ratio
+    double halfHeight = viewport.ViewHeight / 2.0;
+    double halfWidth = (viewport.ViewHeight * viewport.Width / viewport.Height) / 2.0;
+
+    // Rectangle in DCS (around ViewCenter)
+    var dcsCorners = new[]
+    {
+        new Point3d(viewport.ViewCenter.X - halfWidth, viewport.ViewCenter.Y - halfHeight, 0),
+        new Point3d(viewport.ViewCenter.X - halfWidth, viewport.ViewCenter.Y + halfHeight, 0),
+        new Point3d(viewport.ViewCenter.X + halfWidth, viewport.ViewCenter.Y + halfHeight, 0),
+        new Point3d(viewport.ViewCenter.X + halfWidth, viewport.ViewCenter.Y - halfHeight, 0)
+    };
+
+    foreach (var p in dcsCorners)
+        points.Add(p.TransformBy(dcs2wcs));
+
+    return points;
+}
+
+
+✅ What this gives you:
+
+Works on any layout, active or not.
+
+Works in side databases loaded with ReadDwgFile().
+
+No dependency on ViewportExtension anymore.
+
+Do you want me to also show how to loop through all layouts in a DWG (open or closed) and run this on every viewport in one go, so you can batch-update all note blocks?
+
+You said:
+Yes
+ChatGPT said:
+
+Great 👍 — here’s how you can loop through all layouts in a DWG (open or closed) and run your viewport footprint logic for each viewport.
+
+Bulk Processor (works on open or closed DWGs)
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.Geometry;
+using System;
+using System.Collections.Generic;
+
+public static class ViewportBatchProcessor
+{
+    /// <summary>
+    /// Processes all layouts in a database, running a callback on each viewport footprint.
+    /// </summary>
+    public static void ProcessAllViewports(Database db, Action<Viewport, Point3dCollection> processViewport)
+    {
+        using (var tr = db.TransactionManager.StartTransaction())
+        {
+            var layoutDict = (DBDictionary)tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead);
+
+            foreach (DBDictionaryEntry entry in layoutDict)
+            {
+                var layout = (Layout)tr.GetObject(entry.Value, OpenMode.ForRead);
+                var btr = (BlockTableRecord)tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead);
+
+                foreach (ObjectId id in btr)
+                {
+                    if (!id.ObjectClass.DxfName.Equals("VIEWPORT", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var vp = (Viewport)tr.GetObject(id, OpenMode.ForRead);
+                    if (vp.Number == 1) continue; // skip the main paperspace viewport
+
+                    // Calculate modelspace footprint
+                    Point3dCollection footprint = ViewportBoundaryCalculator.GetViewportFootprint(vp, tr);
+
+                    // Run your custom action
+                    processViewport(vp, footprint);
+                }
+            }
+            tr.Commit();
+        }
+    }
+
+    /// <summary>
+    /// Utility to process viewports in a DWG that isn’t open in the editor.
+    /// </summary>
+    public static void ProcessClosedDrawing(string dwgPath, Action<Viewport, Point3dCollection> processViewport)
+    {
+        using (var db = new Database(false, true))
+        {
+            db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, "");
+            ProcessAllViewports(db, processViewport);
+        }
+    }
+}
+
+Example: Run on Current Drawing
+[CommandMethod("ProcessViewports")]
+public static void ProcessViewports()
+{
+    var doc = Application.DocumentManager.MdiActiveDocument;
+    var db = doc.Database;
+
+    ViewportBatchProcessor.ProcessAllViewports(db, (vp, footprint) =>
+    {
+        // Example: print extents to command line
+        var ed = doc.Editor;
+        var bounds = ViewportBoundaryCalculator.GetViewportBounds(vp);
+        if (bounds.HasValue)
+            ed.WriteMessage($"\nViewport {vp.Handle} bounds: {bounds.Value.MinPoint} → {bounds.Value.MaxPoint}");
+    });
+}
+
+Example: Run on Closed DWG
+[CommandMethod("ProcessClosedViewports")]
+public static void ProcessClosedViewports()
+{
+    string dwgPath = @"C:\Projects\Example.dwg";
+    ViewportBatchProcessor.ProcessClosedDrawing(dwgPath, (vp, footprint) =>
+    {
+        // Do your note block update logic here
+        Console.WriteLine($"Viewport {vp.Handle} has {footprint.Count} boundary points");
+    });
+}
+
+
+✅ What this gives you
+
+Works across all layouts in the current DWG.
+
+Works on closed DWGs via ReadDwgFile.
+
+You can drop your “update note blocks” code inside the processViewport callback.
