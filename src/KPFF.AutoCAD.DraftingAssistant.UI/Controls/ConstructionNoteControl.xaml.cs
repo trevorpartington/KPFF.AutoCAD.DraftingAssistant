@@ -61,30 +61,109 @@ public partial class ConstructionNoteControl : BaseUserControl
         }
     }
     
-    private void ExecuteAutoNotesUpdate()
+    private async void ExecuteAutoNotesUpdate()
     {
         try
         {
             Logger.LogInformation("Executing Auto Notes update functionality");
             
-            // TODO: Implement actual Auto Notes functionality
-            // This should integrate with Phase 1 & 2 working functionality
-            // For now, show a placeholder message indicating it would work
+            // Use AutoCAD services when actually performing operations
+            var autocadLogger = new AutoCADLogger();
+            IConstructionNotesService? constructionNotesService = null;
             
-            // Auto Notes functionality placeholder - no popup needed
-                
-            NotesTextBlock.Text = "Auto Notes Update Executed!\n\n" +
-                                 "This feature is working and will:\n" +
-                                 "- Automatically detect construction notes from viewports\n" +
-                                 "- Analyze bubble multileaders in model space\n" +
-                                 "- Calculate viewport boundaries and extract note numbers\n" +
-                                 "- Update construction note blocks accordingly\n\n" +
-                                 "Status: Ready for implementation connection...";
+            // Use AutoCAD-connected services
+            var excelReader = new ExcelReaderService(autocadLogger);
+            var drawingOps = new DrawingOperations(autocadLogger);
+            constructionNotesService = new ConstructionNotesService(autocadLogger, excelReader, drawingOps);
+            
+            autocadLogger.LogInformation("Using AutoCAD-connected services for Auto Notes update");
+            
+            // Load project configuration
+            var config = await LoadProjectConfigurationAsync();
+            if (config == null)
+            {
+                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configuration tab.");
+                return;
+            }
+
+            // Update config with current multileader style if changed
+            await UpdateMultileaderStyleInConfigAsync(config);
+
+            // For testing, use all sheets from SHEET_INDEX - later this will come from ConfigurationControl
+            var selectedSheets = await GetSelectedSheetsAsync(config);
+            if (selectedSheets.Count == 0)
+            {
+                UpdateStatus("No sheets selected. Please select sheets in the Configuration tab.");
+                return;
+            }
+
+            UpdateStatus($"Processing {selectedSheets.Count} sheets in Auto Notes mode...\n");
+            autocadLogger.LogInformation($"Starting Auto Notes update for {selectedSheets.Count} sheets");
+
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            foreach (var sheet in selectedSheets)
+            {
+                try
+                {
+                    autocadLogger.LogDebug($"Processing sheet {sheet.SheetName}");
+                    
+                    // Get Auto notes for this sheet
+                    var noteNumbers = await constructionNotesService.GetAutoNotesForSheetAsync(sheet.SheetName, config);
+                    
+                    if (noteNumbers.Count == 0)
+                    {
+                        autocadLogger.LogWarning($"No Auto notes found for sheet {sheet.SheetName}");
+                        errors.Add($"No Auto notes detected for sheet {sheet.SheetName}");
+                        continue;
+                    }
+
+                    autocadLogger.LogInformation($"Found {noteNumbers.Count} notes for sheet {sheet.SheetName}: {string.Join(", ", noteNumbers)}");
+
+                    // Update construction note blocks
+                    await constructionNotesService.UpdateConstructionNoteBlocksAsync(sheet.SheetName, noteNumbers, config);
+                    
+                    successes.Add($"Updated {sheet.SheetName} with {noteNumbers.Count} notes: {string.Join(", ", noteNumbers)}");
+                    autocadLogger.LogInformation($"Successfully updated sheet {sheet.SheetName}");
+                }
+                catch (Exception ex)
+                {
+                    var errorMsg = $"Failed to update sheet {sheet.SheetName}: {ex.Message}";
+                    errors.Add(errorMsg);
+                    autocadLogger.LogError(errorMsg, ex);
+                }
+            }
+
+            // Report results (errors first, then successes)
+            var statusText = "";
+            if (errors.Count > 0)
+            {
+                statusText += "ERRORS:\n";
+                statusText += string.Join("\n", errors.Select(e => $"• {e}"));
+                statusText += "\n\n";
+            }
+
+            if (successes.Count > 0)
+            {
+                statusText += $"SUCCESS: Updated {successes.Count} of {selectedSheets.Count} sheets:\n";
+                statusText += string.Join("\n", successes.Select(s => $"• {s}"));
+            }
+
+            if (errors.Count == 0 && successes.Count == 0)
+            {
+                statusText = "No updates performed. Check that sheets have viewports with multileaders.";
+            }
+
+            UpdateStatus(statusText);
+            
+            autocadLogger.LogInformation($"Auto Notes update completed. Processed {selectedSheets.Count} sheets. Successful: {successes.Count}, Errors: {errors.Count}");
         }
         catch (Exception ex)
         {
-            Logger.LogError($"Error executing Auto Notes update: {ex.Message}", ex);
-            NotesTextBlock.Text = $"ERROR: Failed to execute Auto Notes update: {ex.Message}";
+            var errorMsg = $"Error executing Auto Notes update: {ex.Message}";
+            Logger.LogError(errorMsg, ex);
+            UpdateStatus($"ERROR: {errorMsg}");
         }
     }
 
@@ -200,6 +279,10 @@ public partial class ConstructionNoteControl : BaseUserControl
             if (sharedConfig != null)
             {
                 Logger.LogDebug($"Using shared configuration with {sharedConfig.SelectedSheets.Count} selected sheets: {sharedConfig.ProjectName}");
+                
+                // Load multileader style from config into UI
+                LoadMultileaderStyleFromConfig(sharedConfig);
+                
                 return sharedConfig;
             }
             
@@ -210,6 +293,10 @@ public partial class ConstructionNoteControl : BaseUserControl
             {
                 var config = await _configService.LoadConfigurationAsync(testConfigPath);
                 Logger.LogDebug($"Loaded test configuration from file: {config?.ProjectName}");
+                
+                // Load multileader style from config into UI
+                LoadMultileaderStyleFromConfig(config);
+                
                 return config;
             }
             else
@@ -293,5 +380,64 @@ public partial class ConstructionNoteControl : BaseUserControl
     {
         NotesTextBlock.Text = message;
         Logger.LogDebug($"Status updated: {message}");
+    }
+
+    private async Task UpdateMultileaderStyleInConfigAsync(ProjectConfiguration config)
+    {
+        try
+        {
+            string currentStyleInTextBox = MultileaderStyleTextBox.Text?.Trim() ?? "";
+            string configStyle = config.ConstructionNotes?.MultileaderStyleName ?? "";
+
+            if (!string.Equals(currentStyleInTextBox, configStyle, StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.LogInformation($"Updating multileader style in config from '{configStyle}' to '{currentStyleInTextBox}'");
+                
+                // Ensure ConstructionNotes section exists
+                if (config.ConstructionNotes == null)
+                {
+                    config.ConstructionNotes = new ConstructionNotesConfiguration();
+                }
+                
+                config.ConstructionNotes.MultileaderStyleName = currentStyleInTextBox;
+                
+                // Save the updated configuration back to file
+                var testConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectConfig.json";
+                if (File.Exists(testConfigPath))
+                {
+                    await _configService.SaveConfigurationAsync(config, testConfigPath);
+                    Logger.LogInformation($"Configuration saved with updated multileader style: {currentStyleInTextBox}");
+                }
+                else
+                {
+                    Logger.LogWarning("Could not save configuration - config file path not found");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Failed to update multileader style in config: {ex.Message}", ex);
+        }
+    }
+
+    private void LoadMultileaderStyleFromConfig(ProjectConfiguration? config)
+    {
+        try
+        {
+            if (config?.ConstructionNotes?.MultileaderStyleName != null)
+            {
+                MultileaderStyleTextBox.Text = config.ConstructionNotes.MultileaderStyleName;
+                Logger.LogDebug($"Loaded multileader style from config: {config.ConstructionNotes.MultileaderStyleName}");
+            }
+            else
+            {
+                // Keep default value
+                Logger.LogDebug("No multileader style found in config, using default");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning($"Failed to load multileader style from config: {ex.Message}");
+        }
     }
 }
