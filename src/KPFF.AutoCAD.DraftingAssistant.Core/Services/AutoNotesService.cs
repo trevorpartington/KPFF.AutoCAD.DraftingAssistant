@@ -162,14 +162,24 @@ public class AutoNotesService
 
             int viewportCount = 0;
             int processedViewports = 0;
+            int viewportIndex = 0;
 
             // Find all viewports in the layout
             foreach (ObjectId entityId in layoutBlock)
             {
                 var entity = transaction.GetObject(entityId, OpenMode.ForRead);
                 
-                if (entity is Viewport viewport && viewport.Number > 1) // Skip paper space viewport (number 1)
+                if (entity is Viewport viewport)
                 {
+                    viewportIndex++;
+                    
+                    // Skip the first viewport (paper space viewport)
+                    if (viewportIndex == 1)
+                    {
+                        _logger.LogDebug("Skipping paper space viewport (index 1)");
+                        continue;
+                    }
+                    
                     viewportCount++;
                     
                     try
@@ -178,11 +188,12 @@ public class AutoNotesService
                         notesFromViewports.AddRange(notesInViewport);
                         processedViewports++;
                         
-                        _logger.LogDebug($"Viewport {viewport.Number}: found {notesInViewport.Count} multileaders");
+                        // Use viewportIndex instead of viewport.Number for logging (Number may be 0 for inactive layouts)
+                        _logger.LogDebug($"Viewport #{viewportIndex} (Number={viewport.Number}): found {notesInViewport.Count} multileaders");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning($"Error analyzing viewport {viewport.Number}: {ex.Message}");
+                        _logger.LogWarning($"Error analyzing viewport #{viewportIndex} (Number={viewport.Number}): {ex.Message}");
                     }
                 }
             }
@@ -264,29 +275,100 @@ public class AutoNotesService
                 string? targetStyle = config.ConstructionNotes?.MultileaderStyleName;
                 var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyle);
 
-                // Get viewport information
+                // Get viewport information with detailed boundary data
                 var layoutBlock = transaction.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
                 int viewportCount = 0;
+                int viewportIndex = 0;
+                var viewportDetails = new List<string>();
+                
                 if (layoutBlock != null)
                 {
                     foreach (ObjectId entityId in layoutBlock)
                     {
                         var entity = transaction.GetObject(entityId, OpenMode.ForRead);
-                        if (entity is Viewport viewport && viewport.Number > 1)
+                        if (entity is Viewport viewport)
                         {
+                            viewportIndex++;
+                            
+                            // Skip the first viewport (paper space viewport)
+                            if (viewportIndex == 1)
+                            {
+                                continue;
+                            }
+                            
                             viewportCount++;
+                            
+                            try
+                            {
+                                // Get viewport boundary in model space coordinates
+                                var viewportBoundary = ViewportBoundaryCalculator.GetViewportFootprint(viewport, transaction);
+                                
+                                var boundaryType = viewport.NonRectClipOn ? "Polygonal" : "Rectangular";
+                                var scaleRatio = viewport.CustomScale > 0 ? $"1:{(1.0 / viewport.CustomScale):F0}" : "Unknown";
+                                
+                                // Use viewportIndex for display (more reliable than viewport.Number for inactive layouts)
+                                var viewportInfo = new List<string>
+                                {
+                                    $"  Viewport #{viewportIndex} Boundary (Model Space):",
+                                    $"    AutoCAD Number: {viewport.Number} (may be 0 for inactive layouts)",
+                                    $"    Type: {boundaryType}",
+                                    $"    Scale: {scaleRatio}",
+                                    $"    Paper Size: {viewport.Width:F1} × {viewport.Height:F1}",
+                                    $"    View Center: ({viewport.ViewCenter.X:F3}, {viewport.ViewCenter.Y:F3})"
+                                };
+                                
+                                if (viewportBoundary.Count > 0)
+                                {
+                                    viewportInfo.Add($"    Boundary Points ({viewportBoundary.Count}):");
+                                    for (int i = 0; i < viewportBoundary.Count; i++)
+                                    {
+                                        var pt = viewportBoundary[i];
+                                        viewportInfo.Add($"      Point {i}: ({pt.X:F3}, {pt.Y:F3})");
+                                    }
+                                }
+                                else
+                                {
+                                    viewportInfo.Add("    ❌ Could not calculate boundary points");
+                                }
+                                
+                                viewportDetails.Add(string.Join("\n", viewportInfo));
+                            }
+                            catch (Exception ex)
+                            {
+                                viewportDetails.Add($"  Viewport #{viewportIndex}: ❌ Error calculating boundary - {ex.Message}");
+                            }
                         }
                     }
                 }
 
                 transaction.Commit();
 
-                return $"Auto Notes Diagnostic for '{sheetName}':\n" +
-                       $"  Target Style: {targetStyle ?? "any"}\n" +
-                       $"  Multileaders Found: {allMultileaders.Count}\n" +
-                       $"  Viewports Found: {viewportCount}\n" +
-                       $"  Multileader Details:\n" +
-                       string.Join("\n", allMultileaders.Select(m => $"    {m}"));
+                var result = new List<string>
+                {
+                    $"Auto Notes Diagnostic for '{sheetName}':",
+                    $"  Target Style: {targetStyle ?? "any"}",
+                    $"  Multileaders Found: {allMultileaders.Count}",
+                    $"  Viewports Found: {viewportCount}",
+                    ""
+                };
+                
+                if (viewportDetails.Count > 0)
+                {
+                    result.AddRange(viewportDetails);
+                    result.Add("");
+                }
+                
+                if (allMultileaders.Count > 0)
+                {
+                    result.Add("  Multileader Details:");
+                    result.AddRange(allMultileaders.Select(m => $"    {m}"));
+                }
+                else
+                {
+                    result.Add("  No multileaders found in model space");
+                }
+
+                return string.Join("\n", result);
             }
         }
         catch (Exception ex)
