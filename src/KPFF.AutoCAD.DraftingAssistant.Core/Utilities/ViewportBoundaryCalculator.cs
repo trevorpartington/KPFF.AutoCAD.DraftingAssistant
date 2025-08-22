@@ -82,13 +82,42 @@ public static class ViewportBoundaryCalculator
             vp.ViewCenter.Y + scaledFromCenter.Y,
             0);
         
-        // Step 2: Rotate around origin (0,0) by TwistAngle
-        Matrix3d rotation = Matrix3d.Rotation(vp.TwistAngle, Vector3d.ZAxis, Point3d.Origin);
+        // Step 2: Rotate around origin (0,0) by negative TwistAngle
+        Matrix3d rotation = Matrix3d.Rotation(-vp.TwistAngle, Vector3d.ZAxis, Point3d.Origin);
         Point3d rotatedPoint = scaledPoint.TransformBy(rotation);
         
         return rotatedPoint;
     }
 
+    /// <summary>
+    /// Adjusts a clip point from paper space coordinates to ViewCenter-relative coordinates.
+    /// This ensures polygonal viewport points use the same coordinate system as rectangular viewport points.
+    /// </summary>
+    /// <param name="clipPoint">Point from clip entity (in paper space)</param>
+    /// <param name="vp">The viewport</param>
+    /// <returns>Point adjusted to be relative to ViewCenter</returns>
+    private static Point3d AdjustClipPointToViewCenterCoordinates(Point3d clipPoint, Viewport vp)
+    {
+        // Clip points are in paper space coordinates relative to paper origin
+        // We need to offset them to match how rectangular points are built around ViewCenter
+        // 
+        // The relationship: clipPoint = paperSpacePoint
+        // We want: adjustedPoint = ViewCenter + offset from CenterPoint
+        
+        // Calculate offset from viewport center point in paper space
+        Vector3d offsetFromCenter = new Vector3d(
+            clipPoint.X - vp.CenterPoint.X,
+            clipPoint.Y - vp.CenterPoint.Y,
+            0);
+        
+        // Apply this offset to ViewCenter to get the equivalent point in ViewCenter coordinates
+        Point3d adjustedPoint = new Point3d(
+            vp.ViewCenter.X + offsetFromCenter.X,
+            vp.ViewCenter.Y + offsetFromCenter.Y,
+            0);
+        
+        return adjustedPoint;
+    }
 
     /// <summary>
     /// Gets the model space footprint points for a rectangular viewport.
@@ -138,7 +167,8 @@ public static class ViewportBoundaryCalculator
                     for (int i = 0; i < polyline.NumberOfVertices; i++)
                     {
                         Point3d clipPoint = polyline.GetPoint3dAt(i);
-                        points.Add(TransformPaperToModel(clipPoint, viewport));
+                        Point3d adjustedPoint = AdjustClipPointToViewCenterCoordinates(clipPoint, viewport);
+                        points.Add(TransformPaperToModel(adjustedPoint, viewport));
                     }
                     break;
 
@@ -149,7 +179,8 @@ public static class ViewportBoundaryCalculator
                         if (vertex != null)
                         {
                             Point3d clipPoint = vertex.Position;
-                            points.Add(TransformPaperToModel(clipPoint, viewport));
+                            Point3d adjustedPoint = AdjustClipPointToViewCenterCoordinates(clipPoint, viewport);
+                            points.Add(TransformPaperToModel(adjustedPoint, viewport));
                         }
                     }
                     break;
@@ -161,7 +192,8 @@ public static class ViewportBoundaryCalculator
                         if (vertex != null)
                         {
                             Point3d clipPoint = vertex.Position;
-                            points.Add(TransformPaperToModel(clipPoint, viewport));
+                            Point3d adjustedPoint = AdjustClipPointToViewCenterCoordinates(clipPoint, viewport);
+                            points.Add(TransformPaperToModel(adjustedPoint, viewport));
                         }
                     }
                     break;
@@ -268,7 +300,7 @@ public static class ViewportBoundaryCalculator
                    $"  Transformation Steps:\n" +
                    $"  1. Build rectangle in paper space around ViewCenter\n" +
                    $"  2. Scale from ViewCenter by {1.0/viewport.CustomScale:F1}\n" +
-                   $"  3. Rotate around origin (0,0) by {viewport.TwistAngle * 180.0 / Math.PI:F2}°\n" +
+                   $"  3. Rotate around origin (0,0) by {-viewport.TwistAngle * 180.0 / Math.PI:F2}° (negative TwistAngle)\n" +
                    $"  \n" +
                    $"  Sample Corner Transformation (top-right):\n" +
                    $"  Paper Space: {sampleCornerPaper}\n" +
