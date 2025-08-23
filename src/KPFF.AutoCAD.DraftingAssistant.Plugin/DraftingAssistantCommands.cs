@@ -1749,4 +1749,323 @@ public class DraftingAssistantCommands
             }
         }
     }
+
+    /// <summary>
+    /// Test command to validate DrawingAccessService functionality
+    /// </summary>
+    [CommandMethod("TESTDRAWINGACCESS")]
+    public void TestDrawingAccess()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== Testing DrawingAccessService ===\n");
+
+            // Create logger and service
+            var logger = new AutoCADLogger();
+            var drawingService = new DrawingAccessService(logger);
+
+            // Test 1: Get all currently open drawings
+            ed.WriteMessage("\n--- Test 1: All Open Drawings ---\n");
+            var openDrawings = drawingService.GetAllOpenDrawings();
+            ed.WriteMessage($"Found {openDrawings.Count} open drawings:\n");
+            
+            foreach (var kvp in openDrawings)
+            {
+                var fileName = Path.GetFileName(kvp.Key);
+                var state = kvp.Value;
+                ed.WriteMessage($"  • {fileName} -> {state}\n");
+            }
+
+            // Test 2: Check state of current drawing
+            ed.WriteMessage("\n--- Test 2: Current Drawing State ---\n");
+            var currentDrawingPath = doc.Name;
+            var currentState = drawingService.GetDrawingState(currentDrawingPath);
+            ed.WriteMessage($"Current drawing: {Path.GetFileName(currentDrawingPath)}\n");
+            ed.WriteMessage($"State: {currentState}\n");
+
+            // Test 3: Test with test project files
+            ed.WriteMessage("\n--- Test 3: Test Project Files ---\n");
+            var testProjectPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\";
+            var testDwgPath = Path.Combine(testProjectPath, "PROJ-ABC-100.dwg");
+            
+            if (File.Exists(testDwgPath))
+            {
+                var testState = drawingService.GetDrawingState(testDwgPath);
+                ed.WriteMessage($"Test drawing (PROJ-ABC-100.dwg): {testState}\n");
+                
+                if (testState == DrawingState.Inactive)
+                {
+                    ed.WriteMessage("Attempting to make test drawing active...\n");
+                    var success = drawingService.TryMakeDrawingActive(testDwgPath);
+                    ed.WriteMessage($"Make active result: {(success ? "SUCCESS" : "FAILED")}\n");
+                }
+            }
+            else
+            {
+                ed.WriteMessage($"Test drawing not found at: {testDwgPath}\n");
+            }
+
+            // Test 4: File path resolution (if project config exists)
+            ed.WriteMessage("\n--- Test 4: File Path Resolution ---\n");
+            // Skip Excel-based test for now to avoid crashes
+            ed.WriteMessage("Skipping Excel integration test to avoid crashes\n");
+            ed.WriteMessage("Excel-based file path resolution would be tested here\n");
+
+            // Test 5: Test with non-existent file
+            ed.WriteMessage("\n--- Test 5: Non-existent File ---\n");
+            var fakePath = @"C:\NonExistent\File.dwg";
+            var fakeState = drawingService.GetDrawingState(fakePath);
+            ed.WriteMessage($"Non-existent file state: {fakeState}\n");
+
+            ed.WriteMessage("\n=== DrawingAccessService Test Complete ===\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nError during test: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    private void TestFilePathResolution(Editor ed, DrawingAccessService drawingService)
+    {
+        try
+        {
+            // Try to load project configuration
+            var configPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectConfig.json";
+            if (!File.Exists(configPath))
+            {
+                ed.WriteMessage("ProjectConfig.json not found - skipping file path resolution test\n");
+                return;
+            }
+
+            var logger = new AutoCADLogger();
+            var configService = new ProjectConfigurationService(logger);
+            var config = configService.LoadConfigurationAsync(configPath).GetAwaiter().GetResult();
+            
+            if (config == null)
+            {
+                ed.WriteMessage("Failed to load project configuration\n");
+                return;
+            }
+
+            // Try to load sheet index
+            var excelReader = new ExcelReaderService(logger);
+            var sheetInfos = excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config).GetAwaiter().GetResult();
+            
+            if (sheetInfos.Count == 0)
+            {
+                ed.WriteMessage("No sheet information found in Excel file\n");
+                return;
+            }
+
+            ed.WriteMessage($"Loaded {sheetInfos.Count} sheets from Excel index\n");
+
+            // Test file path resolution for first few sheets
+            var testSheets = sheetInfos.Take(3).ToList();
+            foreach (var sheetInfo in testSheets)
+            {
+                var resolvedPath = drawingService.GetDrawingFilePath(sheetInfo.SheetName, config, sheetInfos);
+                if (resolvedPath != null)
+                {
+                    var state = drawingService.GetDrawingState(resolvedPath);
+                    var fileName = Path.GetFileName(resolvedPath);
+                    ed.WriteMessage($"  • {sheetInfo.SheetName} -> {fileName} ({state})\n");
+                }
+                else
+                {
+                    ed.WriteMessage($"  • {sheetInfo.SheetName} -> [FAILED TO RESOLVE]\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"File path resolution test failed: {ex.Message}\n");
+        }
+    }
+
+    [CommandMethod("TESTDRAWINGLIST")]
+    public void ListAllDrawings()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== Quick Drawing List ===\n");
+            
+            var logger = new AutoCADLogger();
+            var drawingService = new DrawingAccessService(logger);
+            var openDrawings = drawingService.GetAllOpenDrawings();
+            
+            if (openDrawings.Count == 0)
+            {
+                ed.WriteMessage("No drawings currently open\n");
+                return;
+            }
+
+            ed.WriteMessage($"Found {openDrawings.Count} open drawing(s):\n");
+            foreach (var kvp in openDrawings)
+            {
+                var fileName = Path.GetFileName(kvp.Key);
+                var state = kvp.Value;
+                var indicator = state == DrawingState.Active ? " ← ACTIVE" : "";
+                ed.WriteMessage($"  {fileName} ({state}){indicator}\n");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nError: {ex.Message}\n");
+        }
+    }
+
+    [CommandMethod("TESTDRAWINGSTATE")]
+    public void TestSpecificDrawingState()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+
+        try
+        {
+            // Prompt user for file path
+            var pfo = new PromptOpenFileOptions("\nSelect DWG file to check state")
+            {
+                Filter = "AutoCAD Drawing (*.dwg)|*.dwg"
+            };
+
+            var pfr = ed.GetFileNameForOpen(pfo);
+            if (pfr.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("Command cancelled.\n");
+                return;
+            }
+
+            var logger = new AutoCADLogger();
+            var drawingService = new DrawingAccessService(logger);
+            var state = drawingService.GetDrawingState(pfr.StringResult);
+            
+            var fileName = Path.GetFileName(pfr.StringResult);
+            ed.WriteMessage($"\nDrawing: {fileName}\n");
+            ed.WriteMessage($"State: {state}\n");
+
+            if (state == DrawingState.Inactive)
+            {
+                var pko = new PromptKeywordOptions("\nDrawing is inactive. Make it active? ");
+                pko.Keywords.Add("Yes");
+                pko.Keywords.Add("No");
+                pko.Keywords.Default = "Yes";
+                var pkr = ed.GetKeywords(pko);
+                
+                if (pkr.Status == PromptStatus.OK && pkr.StringResult == "Yes")
+                {
+                    var success = drawingService.TryMakeDrawingActive(pfr.StringResult);
+                    ed.WriteMessage($"Make active result: {(success ? "SUCCESS" : "FAILED")}\n");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nError: {ex.Message}\n");
+        }
+    }
+
+    [CommandMethod("TESTCLOSEDUPDATE")]
+    public void TestExternalDrawingUpdate()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== TESTCLOSEDUPDATE: External Drawing Manager Validation ===\n");
+
+            // Prompt user for DWG file path
+            var pfo = new PromptOpenFileOptions("\nSelect CLOSED DWG file to update")
+            {
+                Filter = "AutoCAD Drawing (*.dwg)|*.dwg"
+            };
+
+            var pfr = ed.GetFileNameForOpen(pfo);
+            if (pfr.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("Command cancelled.\n");
+                return;
+            }
+
+            string dwgPath = pfr.StringResult;
+            ed.WriteMessage($"Target DWG: {Path.GetFileName(dwgPath)}\n");
+
+            // Check that the file is actually closed (not currently open)
+            var logger = new AutoCADLogger();
+            var drawingService = new DrawingAccessService(logger);
+            var state = drawingService.GetDrawingState(dwgPath);
+            
+            ed.WriteMessage($"Drawing state: {state}\n");
+            
+            if (state != DrawingState.Closed)
+            {
+                ed.WriteMessage($"WARNING: Drawing is {state}, not Closed. Test may still proceed but results might be affected.\n");
+            }
+
+            // Prompt for layout name
+            var pso = new PromptStringOptions("\nEnter layout name to update (e.g., ABC-101): ");
+            pso.AllowSpaces = false;
+            var psr = ed.GetString(pso);
+            if (psr.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("Command cancelled.\n");
+                return;
+            }
+
+            string layoutName = psr.StringResult;
+            ed.WriteMessage($"Target layout: {layoutName}\n");
+
+            // Create test construction note data
+            var testNotes = new List<ConstructionNoteData>
+            {
+                new ConstructionNoteData(1, "TEST NOTE 1 - Updated via ExternalDrawingManager"),
+                new ConstructionNoteData(2, "TEST NOTE 2 - Closed drawing update"),
+                new ConstructionNoteData(4, "TEST NOTE 4 - ATTSYNC validation test")
+            };
+
+            ed.WriteMessage($"Test data: {testNotes.Count} construction notes\n");
+            foreach (var note in testNotes)
+            {
+                ed.WriteMessage($"  Note {note.NoteNumber}: {note.NoteText.Substring(0, Math.Min(note.NoteText.Length, 40))}...\n");
+            }
+
+            // Create ExternalDrawingManager and perform update
+            ed.WriteMessage("\nStarting external drawing update...\n");
+            var externalManager = new ExternalDrawingManager(logger);
+            bool success = externalManager.UpdateClosedDrawing(dwgPath, layoutName, testNotes);
+
+            if (success)
+            {
+                ed.WriteMessage("\n*** SUCCESS! ***\n");
+                ed.WriteMessage($"Updated construction notes in closed drawing: {Path.GetFileName(dwgPath)}\n");
+                ed.WriteMessage($"Layout: {layoutName}\n");
+                ed.WriteMessage($"Notes updated: {testNotes.Count}\n");
+                ed.WriteMessage("\nVerification:\n");
+                ed.WriteMessage("1. Open the drawing in AutoCAD\n");
+                ed.WriteMessage($"2. Switch to layout '{layoutName}'\n");
+                ed.WriteMessage("3. Check that blocks NT01, NT02, NT04 are visible with test notes\n");
+                ed.WriteMessage("4. Verify attributes are properly centered (ATTSYNC applied)\n");
+            }
+            else
+            {
+                ed.WriteMessage("\n*** FAILED ***\n");
+                ed.WriteMessage("External drawing update was not successful.\n");
+                ed.WriteMessage("Check command line for detailed error messages.\n");
+            }
+
+            ed.WriteMessage("\n=== TESTCLOSEDUPDATE COMPLETE ===\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nFATAL ERROR in TESTCLOSEDUPDATE: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
 }

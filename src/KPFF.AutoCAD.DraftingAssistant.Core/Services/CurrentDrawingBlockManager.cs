@@ -474,7 +474,11 @@ public class CurrentDrawingBlockManager
                                         string tag = attRef.Tag.ToUpper();
                                         if (tag == "NUMBER" || tag == "NOTE")
                                         {
-                                            attRef.TextString = "";
+                                            if (!string.IsNullOrEmpty(attRef.TextString))
+                                            {
+                                                attRef.TextString = "";
+                                                attRef.AdjustAlignment(attRef.Database);
+                                            }
                                         }
                                     }
                                 }
@@ -491,6 +495,10 @@ public class CurrentDrawingBlockManager
                                             try
                                             {
                                                 prop.Value = "OFF";
+                                                
+                                                // Notify AutoCAD that block graphics have been modified
+                                                writeBlockRef.RecordGraphicsModified(true);
+                                                
                                                 clearedCount++;
                                                 _logger.LogDebug($"Cleared block {currentBlockName}");
                                                 break;
@@ -695,6 +703,9 @@ public class CurrentDrawingBlockManager
 
                     if (attributesUpdated && visibilityUpdated)
                     {
+                        // Notify AutoCAD that block graphics have been modified
+                        targetBlockRef.RecordGraphicsModified(true);
+                        
                         _logger.LogDebug("Committing transaction...");
                         tr.Commit();
                         _logger.LogInformation($"SUCCESS: Block {blockName} updated successfully!");
@@ -726,7 +737,8 @@ public class CurrentDrawingBlockManager
     }
 
     /// <summary>
-    /// Updates the attributes of a construction note block
+    /// Updates the attributes of a construction note block with proper alignment
+    /// Uses BlockProcessor approach: set Justify and call AdjustAlignment for proper positioning
     /// </summary>
     private bool UpdateBlockAttributes(BlockReference blockRef, int noteNumber, string noteText, Transaction tr)
     {
@@ -745,13 +757,24 @@ public class CurrentDrawingBlockManager
                     
                     if (tag == "NUMBER")
                     {
-                        attRef.TextString = noteNumber > 0 ? noteNumber.ToString() : "";
+                        string newValue = noteNumber > 0 ? noteNumber.ToString() : "";
+                        if (attRef.TextString != newValue)
+                        {
+                            attRef.Justify = AttachmentPoint.MiddleCenter;
+                            attRef.TextString = newValue;
+                            attRef.AdjustAlignment(attRef.Database);
+                        }
                         numberUpdated = true;
                         _logger.LogDebug($"Updated NUMBER attribute: '{attRef.TextString}'");
                     }
                     else if (tag == "NOTE")
                     {
-                        attRef.TextString = noteText ?? "";
+                        string newValue = noteText ?? "";
+                        if (attRef.TextString != newValue)
+                        {
+                            attRef.TextString = newValue;
+                            attRef.AdjustAlignment(attRef.Database);
+                        }
                         noteUpdated = true;
                         _logger.LogDebug($"Updated NOTE attribute: '{attRef.TextString.Substring(0, Math.Min(attRef.TextString.Length, 50))}...'");
                     }
