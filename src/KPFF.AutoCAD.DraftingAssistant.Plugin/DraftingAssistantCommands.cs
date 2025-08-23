@@ -2068,4 +2068,210 @@ public class DraftingAssistantCommands
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
         }
     }
+
+    /// <summary>
+    /// Debug command to discover and analyze all blocks in a layout
+    /// </summary>
+    [CommandMethod("TESTBLOCKDISCOVERY")]
+    public static void TestBlockDiscovery()
+    {
+        var ed = Application.DocumentManager.MdiActiveDocument.Editor;
+        
+        try
+        {
+            ed.WriteMessage("\n=== BLOCK DISCOVERY DEBUG TEST ===\n");
+            
+            // Get drawing file path
+            var fileResult = ed.GetString("\nEnter DWG file path (or press Enter for current document): ");
+            if (fileResult.Status == PromptStatus.Cancel) return;
+            
+            string dwgFilePath = string.IsNullOrWhiteSpace(fileResult.StringResult) 
+                ? Application.DocumentManager.MdiActiveDocument.Name 
+                : fileResult.StringResult.Trim();
+
+            // Get layout name
+            var layoutResult = ed.GetString("\nEnter layout name (e.g., ABC-101): ");
+            if (layoutResult.Status != PromptStatus.OK) return;
+            string layoutName = layoutResult.StringResult.Trim();
+
+            ed.WriteMessage($"Analyzing blocks in layout '{layoutName}' from file: {Path.GetFileName(dwgFilePath)}\n");
+
+            // Use current drawing or external drawing
+            if (dwgFilePath == Application.DocumentManager.MdiActiveDocument.Name)
+            {
+                ed.WriteMessage("Using current drawing...\n");
+                AnalyzeCurrentDrawingBlocks(layoutName, ed);
+            }
+            else
+            {
+                ed.WriteMessage("Using external drawing...\n");
+                AnalyzeExternalDrawingBlocks(dwgFilePath, layoutName, ed);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR in TESTBLOCKDISCOVERY: {ex.Message}\n");
+        }
+    }
+
+    /// <summary>
+    /// Analyze blocks in the current drawing
+    /// </summary>
+    private static void AnalyzeCurrentDrawingBlocks(string layoutName, Editor ed)
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var db = doc.Database;
+
+        using (var tr = db.TransactionManager.StartTransaction())
+        {
+            var layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+            if (!layoutDict.Contains(layoutName))
+            {
+                ed.WriteMessage($"ERROR: Layout '{layoutName}' not found\n");
+                return;
+            }
+
+            var layoutId = layoutDict.GetAt(layoutName);
+            var layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+            var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+            AnalyzeLayoutBlocks(layoutBtr, layout, tr, ed);
+        }
+    }
+
+    /// <summary>
+    /// Analyze blocks in an external drawing
+    /// </summary>
+    private static void AnalyzeExternalDrawingBlocks(string dwgPath, string layoutName, Editor ed)
+    {
+        if (!File.Exists(dwgPath))
+        {
+            ed.WriteMessage($"ERROR: File not found: {dwgPath}\n");
+            return;
+        }
+
+        using (var db = new Database(false, true))
+        {
+            db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
+            
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                var layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                if (!layoutDict.Contains(layoutName))
+                {
+                    ed.WriteMessage($"ERROR: Layout '{layoutName}' not found\n");
+                    return;
+                }
+
+                var layoutId = layoutDict.GetAt(layoutName);
+                var layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                AnalyzeLayoutBlocks(layoutBtr, layout, tr, ed);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Analyze all blocks in a layout
+    /// </summary>
+    private static void AnalyzeLayoutBlocks(BlockTableRecord layoutBtr, Layout layout, Transaction tr, Editor ed)
+    {
+        // Get viewport protection info
+        var viewportIds = new HashSet<ObjectId>();
+        var viewports = layout.GetViewports();
+        if (viewports != null)
+        {
+            foreach (ObjectId vpId in viewports)
+            {
+                viewportIds.Add(vpId);
+            }
+        }
+        
+        ed.WriteMessage($"Found {viewportIds.Count} viewports to protect\n");
+        
+        // Analyze all entities
+        int totalEntities = 0;
+        int blockReferences = 0;
+        int viewportCount = 0;
+        int ntBlocks = 0;
+        var blockTypes = new Dictionary<string, int>();
+        
+        ed.WriteMessage("\n--- DETAILED ENTITY ANALYSIS ---\n");
+        
+        foreach (ObjectId objId in layoutBtr)
+        {
+            totalEntities++;
+            var entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+            
+            ed.WriteMessage($"{totalEntities:D3}: ObjectId={objId}, Type={entity?.GetType().Name}");
+            
+            if (viewportIds.Contains(objId))
+            {
+                viewportCount++;
+                ed.WriteMessage(" [VIEWPORT - PROTECTED]");
+            }
+            else if (entity is BlockReference blockRef)
+            {
+                blockReferences++;
+                
+                // Get effective block name using the same method as ExternalDrawingManager
+                string blockName = GetEffectiveBlockNameForDebug(blockRef, tr);
+                string blockType = blockRef.IsDynamicBlock ? "Dynamic" : "Static";
+                
+                ed.WriteMessage($", Block='{blockName}', {blockType}");
+                
+                if (!string.IsNullOrEmpty(blockName))
+                {
+                    blockTypes[blockName] = blockTypes.GetValueOrDefault(blockName, 0) + 1;
+                    
+                    // Check if NT block
+                    if (System.Text.RegularExpressions.Regex.IsMatch(blockName, @"^NT\d{2}$"))
+                    {
+                        ntBlocks++;
+                        ed.WriteMessage(" [NT BLOCK]");
+                    }
+                }
+            }
+            
+            ed.WriteMessage("\n");
+        }
+        
+        ed.WriteMessage("\n--- SUMMARY ---\n");
+        ed.WriteMessage($"Total entities: {totalEntities}\n");
+        ed.WriteMessage($"Block references: {blockReferences}\n");
+        ed.WriteMessage($"Viewports: {viewportCount}\n");
+        ed.WriteMessage($"NT blocks found: {ntBlocks}\n");
+        
+        ed.WriteMessage("\n--- BLOCK TYPES ---\n");
+        foreach (var kvp in blockTypes.OrderBy(x => x.Key))
+        {
+            ed.WriteMessage($"  {kvp.Key}: {kvp.Value} instance(s)\n");
+        }
+    }
+
+    /// <summary>
+    /// Debug version of GetEffectiveBlockName for testing
+    /// </summary>
+    private static string GetEffectiveBlockNameForDebug(BlockReference blockRef, Transaction tr)
+    {
+        try
+        {
+            // Check if this is a dynamic block
+            if (blockRef.IsDynamicBlock)
+            {
+                var btr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                return btr?.Name ?? "[DYNAMIC-NO-NAME]";
+            }
+            else
+            {
+                var btr = tr.GetObject(blockRef.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                return btr?.Name ?? "[STATIC-NO-NAME]";
+            }
+        }
+        catch (System.Exception ex)
+        {
+            return $"[ERROR: {ex.Message}]";
+        }
+    }
 }

@@ -2,6 +2,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
@@ -61,55 +62,54 @@ public class ExternalDrawingManager
             {
                 _logger.LogDebug($"Reading DWG file: {Path.GetFileName(dwgPath)}");
                 db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
-                _logger.LogDebug("DWG file loaded successfully");
+                _logger.LogDebug("DWG file loaded successfully (CloseInput called automatically by OpenForReadAndAllShare mode)");
 
-                // Set WorkingDatabase to the external database - CRITICAL for external drawing operations
-                var originalWorkingDatabase = HostApplicationServices.WorkingDatabase;
-                try
+                // Start transaction for all operations - NO WorkingDatabase switching
+                using (var tr = db.TransactionManager.StartTransaction())
                 {
-                    HostApplicationServices.WorkingDatabase = db;
-                    _logger.LogDebug("Set WorkingDatabase to external database");
-
-                    // Start transaction for all operations
-                    using (var tr = db.TransactionManager.StartTransaction())
+                    try
                     {
-                        try
+                        // Update blocks in the external database
+                        bool updateSuccess = UpdateBlocksInExternalDatabase(db, tr, layoutName, noteData);
+                        
+                        if (updateSuccess)
                         {
-                            // Update blocks in the external database
-                            bool updateSuccess = UpdateBlocksInExternalDatabase(db, tr, layoutName, noteData);
-                            
-                            if (updateSuccess)
-                            {
-                                // Commit transaction
-                                tr.Commit();
-                                _logger.LogDebug("Transaction committed successfully");
-                            }
-                            else
-                            {
-                                _logger.LogError("Block update failed, rolling back transaction");
-                                return false;
-                            }
+                            // Commit transaction
+                            tr.Commit();
+                            _logger.LogDebug("Transaction committed successfully");
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            _logger.LogError($"Error during block updates: {ex.Message}", ex);
+                            _logger.LogError("Block update failed, rolling back transaction");
                             return false;
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error during block updates: {ex.Message}", ex);
+                        return false;
+                    }
+                }
 
-                    // Save the drawing back to disk
-                    _logger.LogDebug("Saving drawing to disk...");
-                    db.SaveAs(dwgPath, DwgVersion.Current);
-                    _logger.LogInformation($"Successfully updated closed drawing: {Path.GetFileName(dwgPath)}");
-                    
-                    return true;
-                }
-                finally
+                // CRITICAL: Save to temporary file first to prevent corruption
+                string tempPath = dwgPath + ".tmp";
+                _logger.LogDebug($"Saving to temporary file: {Path.GetFileName(tempPath)}");
+                db.SaveAs(tempPath, DwgVersion.Current);
+                _logger.LogDebug("Successfully saved to temporary file");
+                
+                // Replace original file with updated version
+                if (File.Exists(dwgPath))
                 {
-                    // Always restore the original WorkingDatabase
-                    HostApplicationServices.WorkingDatabase = originalWorkingDatabase;
-                    _logger.LogDebug("Restored original WorkingDatabase");
+                    string backupPath = dwgPath + ".bak.beforeupdate";
+                    _logger.LogDebug($"Creating backup: {Path.GetFileName(backupPath)}");
+                    File.Copy(dwgPath, backupPath, true); // Create backup
+                    File.Delete(dwgPath); // Delete original
                 }
+                
+                File.Move(tempPath, dwgPath); // Move temp to original location
+                _logger.LogInformation($"Successfully updated closed drawing: {Path.GetFileName(dwgPath)}");
+                
+                return true;
             }
         }
         catch (Exception ex)
@@ -120,13 +120,13 @@ public class ExternalDrawingManager
     }
 
     /// <summary>
-    /// Updates construction note blocks within an external database
+    /// Updates construction note blocks within an external database using precise targeting
     /// </summary>
     private bool UpdateBlocksInExternalDatabase(Database db, Transaction tr, string layoutName, List<ConstructionNoteData> noteData)
     {
         try
         {
-            _logger.LogDebug($"Updating blocks in layout: {layoutName}");
+            _logger.LogDebug($"Updating blocks in layout: {layoutName} using precise targeting");
             
             // Get layout dictionary
             var layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
@@ -142,31 +142,132 @@ public class ExternalDrawingManager
             var layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
             var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
 
-            _logger.LogDebug($"Found layout '{layoutName}', scanning for NT## blocks...");
+            _logger.LogDebug($"Found layout '{layoutName}' (BTR: {layoutBtr.Name})");
 
-            // First pass: Clear all existing NT## blocks (reset them to empty state)
-            int clearedCount = ClearConstructionNoteBlocks(layoutBtr, tr);
-            _logger.LogDebug($"Cleared {clearedCount} existing NT## blocks");
-
-            // Second pass: Update blocks with new note data
-            int updatedCount = 0;
-            foreach (var noteEntry in noteData)
+            // CRITICAL: Get all viewport ObjectIds to explicitly exclude them
+            var viewportIds = new HashSet<ObjectId>();
+            var viewports = layout.GetViewports();
+            if (viewports != null)
             {
-                string targetBlockName = $"NT{noteEntry.NoteNumber:D2}"; // Format as NT01, NT02, etc.
-                
-                if (UpdateSingleBlockInLayout(layoutBtr, tr, targetBlockName, noteEntry))
+                foreach (ObjectId vpId in viewports)
                 {
-                    updatedCount++;
-                    _logger.LogDebug($"Updated block {targetBlockName} with note {noteEntry.NoteNumber}");
+                    viewportIds.Add(vpId);
+                }
+                _logger.LogDebug($"Protected {viewportIds.Count} viewports from modification");
+            }
+
+            // HYBRID APPROACH: Iterate through layout but with explicit viewport protection
+            var ntBlockRefs = new List<ObjectId>();
+            int totalEntities = 0;
+            int skippedViewports = 0;
+            int skippedOtherBlocks = 0;
+            int foundNTBlocks = 0;
+
+            _logger.LogDebug("Starting layout entity iteration with viewport protection...");
+
+            foreach (ObjectId objId in layoutBtr)
+            {
+                totalEntities++;
+                var entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                
+                // CRITICAL: Skip viewports using explicit ObjectId check
+                if (viewportIds.Contains(objId))
+                {
+                    skippedViewports++;
+                    _logger.LogDebug($"Protected viewport: ObjectId {objId}, Type: {entity?.GetType().Name}");
+                    continue;
+                }
+                
+                // Additional entity type check for viewports (double protection)
+                if (entity is Viewport)
+                {
+                    skippedViewports++;
+                    _logger.LogDebug($"Protected viewport by type: ObjectId {objId}");
+                    continue;
+                }
+                
+                if (entity is BlockReference blockRef)
+                {
+                    string blockName = GetEffectiveBlockName(blockRef, tr);
+                    _logger.LogDebug($"Found block: {blockName} (ObjectId: {objId}, Type: {(blockRef.IsDynamicBlock ? "Dynamic" : "Static")})");
+                    
+                    // Check if this is an NT block
+                    if (!string.IsNullOrEmpty(blockName) && _noteBlockPattern.IsMatch(blockName))
+                    {
+                        ntBlockRefs.Add(objId);
+                        foundNTBlocks++;
+                        _logger.LogInformation($"Added NT block: {blockName} (ObjectId: {objId})");
+                    }
+                    else if (!string.IsNullOrEmpty(blockName))
+                    {
+                        skippedOtherBlocks++;
+                        _logger.LogDebug($"Skipped non-NT block: {blockName}");
+                    }
+                    // If blockName is empty, it was filtered out by GetEffectiveBlockName
                 }
                 else
                 {
-                    _logger.LogWarning($"Failed to update block {targetBlockName}");
+                    _logger.LogDebug($"Non-block entity: {entity?.GetType().Name} (ObjectId: {objId})");
                 }
             }
 
+            _logger.LogInformation($"Layout scan complete: {totalEntities} total entities, {foundNTBlocks} NT blocks, {skippedViewports} viewports protected, {skippedOtherBlocks} other blocks skipped");
+
+            // First pass: Clear all NT blocks
+            int clearedCount = 0;
+            foreach (var blockRefId in ntBlockRefs)
+            {
+                var blockRef = tr.GetObject(blockRefId, OpenMode.ForWrite) as BlockReference;
+                ClearBlockAttributes(blockRef, tr);
+                
+                if (blockRef.IsDynamicBlock)
+                {
+                    SetDynamicBlockVisibility(blockRef, false);
+                }
+                clearedCount++;
+            }
+            _logger.LogDebug($"Cleared {clearedCount} NT blocks");
+
+            // Second pass: Update specific blocks with note data
+            int updatedCount = 0;
+            foreach (var noteEntry in noteData)
+            {
+                string targetBlockName = $"NT{noteEntry.NoteNumber:D2}";
+                bool foundAndUpdated = false;
+
+                foreach (var blockRefId in ntBlockRefs)
+                {
+                    var blockRef = tr.GetObject(blockRefId, OpenMode.ForWrite) as BlockReference;
+                    string blockName = GetEffectiveBlockName(blockRef, tr);
+                    
+                    if (blockName.Equals(targetBlockName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogDebug($"Updating NT block: {blockName} with note {noteEntry.NoteNumber}");
+                        
+                        // Update attributes
+                        UpdateBlockAttributes(blockRef, tr, noteEntry.NoteNumber, noteEntry.NoteText);
+                        
+                        // Set visibility to ON
+                        if (blockRef.IsDynamicBlock)
+                        {
+                            SetDynamicBlockVisibility(blockRef, true);
+                        }
+                        
+                        updatedCount++;
+                        foundAndUpdated = true;
+                        break; // Only update the first match
+                    }
+                }
+
+                if (!foundAndUpdated)
+                {
+                    _logger.LogWarning($"Block '{targetBlockName}' not found for note {noteEntry.NoteNumber}");
+                }
+            }
+
+
             _logger.LogInformation($"Updated {updatedCount} out of {noteData.Count} construction note blocks");
-            return updatedCount > 0 || noteData.Count == 0; // Success if we updated blocks or there were no blocks to update
+            return updatedCount > 0 || noteData.Count == 0;
         }
         catch (Exception ex)
         {
@@ -188,13 +289,23 @@ public class ExternalDrawingManager
             {
                 var entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
                 
+                // CRITICAL: Skip viewports entirely to prevent corruption
+                if (entity is Viewport)
+                {
+                    _logger.LogDebug("Skipping viewport entity");
+                    continue;
+                }
+                
                 if (entity is BlockReference blockRef)
                 {
                     string blockName = GetEffectiveBlockName(blockRef, tr);
                     
-                    if (_noteBlockPattern.IsMatch(blockName))
+                    // Only process if we got a valid NT block name back
+                    if (!string.IsNullOrEmpty(blockName) && _noteBlockPattern.IsMatch(blockName))
                     {
-                        // Open block for write
+                        _logger.LogDebug($"Clearing NT block: {blockName}");
+                        
+                        // NOW it's safe to open for write
                         var writeBlockRef = tr.GetObject(objId, OpenMode.ForWrite) as BlockReference;
                         
                         // Clear attributes
@@ -208,6 +319,11 @@ public class ExternalDrawingManager
                         
                         clearedCount++;
                     }
+                    else if (!string.IsNullOrEmpty(blockName))
+                    {
+                        _logger.LogDebug($"Skipping non-NT block: {blockName}");
+                    }
+                    // If blockName is empty, it was filtered out (anonymous/viewport-related)
                 }
             }
         }
@@ -231,13 +347,23 @@ public class ExternalDrawingManager
             {
                 var entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
                 
+                // CRITICAL: Skip viewports to prevent corruption
+                if (entity is Viewport)
+                {
+                    continue;
+                }
+                
                 if (entity is BlockReference blockRef)
                 {
                     string blockName = GetEffectiveBlockName(blockRef, tr);
                     
-                    if (blockName.Equals(targetBlockName, StringComparison.OrdinalIgnoreCase))
+                    // Only process valid NT block names
+                    if (!string.IsNullOrEmpty(blockName) && 
+                        blockName.Equals(targetBlockName, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Open block for write
+                        _logger.LogDebug($"Updating NT block: {blockName} with note {noteData.NoteNumber}");
+                        
+                        // NOW it's safe to open for write
                         var writeBlockRef = tr.GetObject(objId, OpenMode.ForWrite) as BlockReference;
                         
                         // Update attributes
@@ -265,21 +391,59 @@ public class ExternalDrawingManager
     }
 
     /// <summary>
-    /// Gets the effective name of a block, handling dynamic blocks
+    /// Gets the effective name of a block, handling dynamic blocks and filtering out viewport-related anonymous blocks
     /// </summary>
     private string GetEffectiveBlockName(BlockReference blockRef, Transaction tr)
     {
         try
         {
+            // Get the base block name first
+            BlockTableRecord btr;
             if (blockRef.IsDynamicBlock)
             {
-                var dynamicBtr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
-                return dynamicBtr.Name;
+                btr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
             }
             else
             {
-                var btr = tr.GetObject(blockRef.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                btr = tr.GetObject(blockRef.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+            }
+            
+            // CRITICAL: Skip anonymous/system blocks unless they're tied to NT blocks
+            if (btr.Name.StartsWith("*"))
+            {
+                // For dynamic blocks with anonymous definitions, check if parent is NT block
+                if (blockRef.IsDynamicBlock)
+                {
+                    var parentBtr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                    if (!parentBtr.Name.StartsWith("NT"))
+                    {
+                        _logger.LogDebug($"Skipping anonymous block not tied to NT block: {btr.Name} (parent: {parentBtr.Name})");
+                        return string.Empty; // Not our block, skip it
+                    }
+                    return parentBtr.Name;
+                }
+                
+                // Anonymous non-dynamic block - skip it
+                _logger.LogDebug($"Skipping anonymous non-dynamic block: {btr.Name}");
+                return string.Empty;
+            }
+            
+            // FINAL SAFETY CHECK: Ensure this is actually a construction note block
+            if (btr.Name.StartsWith("NT") && btr.Name.Length == 4 && 
+                btr.Name.Substring(2).All(char.IsDigit))
+            {
+                _logger.LogDebug($"Confirmed valid NT block: {btr.Name}");
                 return btr.Name;
+            }
+            else if (!btr.Name.StartsWith("NT"))
+            {
+                _logger.LogDebug($"Skipping non-NT block: {btr.Name}");
+                return string.Empty;
+            }
+            else
+            {
+                _logger.LogDebug($"Skipping invalid NT block format: {btr.Name}");
+                return string.Empty;
             }
         }
         catch (Exception ex)
@@ -342,9 +506,9 @@ public class ExternalDrawingManager
                         {
                             attRef.Justify = AttachmentPoint.MiddleCenter;
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database);
+                            attRef.AdjustAlignment(attRef.Database); // Use the proven approach
                             wasModified = true;
-                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with alignment");
+                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with proven alignment approach");
                         }
                     }
                     else if (tag == "NOTE")
@@ -354,9 +518,9 @@ public class ExternalDrawingManager
                         if (currentValue != newValue)
                         {
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database);
+                            attRef.AdjustAlignment(attRef.Database); // Use the proven approach
                             wasModified = true;
-                            _logger.LogDebug($"Updated NOTE attribute with alignment");
+                            _logger.LogDebug($"Updated NOTE attribute with proven alignment approach");
                         }
                     }
                 }
@@ -382,6 +546,22 @@ public class ExternalDrawingManager
     {
         try
         {
+            // SAFETY: Double-check this is our NT block before changing visibility
+            if (blockRef.IsDynamicBlock)
+            {
+                using (var tr = blockRef.Database.TransactionManager.StartTransaction())
+                {
+                    var dynamicBtr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                    if (dynamicBtr != null && !dynamicBtr.Name.StartsWith("NT"))
+                    {
+                        _logger.LogWarning($"SAFETY: Skipping visibility change for non-NT dynamic block: {dynamicBtr.Name}");
+                        tr.Dispose();
+                        return;
+                    }
+                    tr.Dispose();
+                }
+            }
+            
             var props = blockRef.DynamicBlockReferencePropertyCollection;
             foreach (DynamicBlockReferenceProperty prop in props)
             {
@@ -398,6 +578,7 @@ public class ExternalDrawingManager
                         if (allowedState.Equals(targetState, StringComparison.OrdinalIgnoreCase))
                         {
                             prop.Value = targetState;
+                            _logger.LogDebug($"Set visibility of NT block to '{targetState}'");
                             return;
                         }
                         // Also check for alternative visibility states
@@ -405,6 +586,7 @@ public class ExternalDrawingManager
                                           allowedState.Equals("Hex", StringComparison.OrdinalIgnoreCase)))
                         {
                             prop.Value = allowedState;
+                            _logger.LogDebug($"Set visibility of NT block to '{allowedState}'");
                             return;
                         }
                     }
