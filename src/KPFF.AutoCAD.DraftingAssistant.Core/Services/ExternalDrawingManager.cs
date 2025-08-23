@@ -63,42 +63,53 @@ public class ExternalDrawingManager
                 db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
                 _logger.LogDebug("DWG file loaded successfully");
 
-                // Start transaction for all operations
-                using (var tr = db.TransactionManager.StartTransaction())
+                // Set WorkingDatabase to the external database - CRITICAL for external drawing operations
+                var originalWorkingDatabase = HostApplicationServices.WorkingDatabase;
+                try
                 {
-                    try
+                    HostApplicationServices.WorkingDatabase = db;
+                    _logger.LogDebug("Set WorkingDatabase to external database");
+
+                    // Start transaction for all operations
+                    using (var tr = db.TransactionManager.StartTransaction())
                     {
-                        // Update blocks in the external database
-                        bool updateSuccess = UpdateBlocksInExternalDatabase(db, tr, layoutName, noteData);
-                        
-                        if (updateSuccess)
+                        try
                         {
-                            // Apply ATTSYNC to all NT## blocks for proper attribute positioning
-                            ApplyAttributeSynchronization(db, tr);
+                            // Update blocks in the external database
+                            bool updateSuccess = UpdateBlocksInExternalDatabase(db, tr, layoutName, noteData);
                             
-                            // Commit transaction
-                            tr.Commit();
-                            _logger.LogDebug("Transaction committed successfully");
+                            if (updateSuccess)
+                            {
+                                // Commit transaction
+                                tr.Commit();
+                                _logger.LogDebug("Transaction committed successfully");
+                            }
+                            else
+                            {
+                                _logger.LogError("Block update failed, rolling back transaction");
+                                return false;
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            _logger.LogError("Block update failed, rolling back transaction");
+                            _logger.LogError($"Error during block updates: {ex.Message}", ex);
                             return false;
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Error during block updates: {ex.Message}", ex);
-                        return false;
-                    }
-                }
 
-                // Save the drawing back to disk
-                _logger.LogDebug("Saving drawing to disk...");
-                db.SaveAs(dwgPath, DwgVersion.Current);
-                _logger.LogInformation($"Successfully updated closed drawing: {Path.GetFileName(dwgPath)}");
-                
-                return true;
+                    // Save the drawing back to disk
+                    _logger.LogDebug("Saving drawing to disk...");
+                    db.SaveAs(dwgPath, DwgVersion.Current);
+                    _logger.LogInformation($"Successfully updated closed drawing: {Path.GetFileName(dwgPath)}");
+                    
+                    return true;
+                }
+                finally
+                {
+                    // Always restore the original WorkingDatabase
+                    HostApplicationServices.WorkingDatabase = originalWorkingDatabase;
+                    _logger.LogDebug("Restored original WorkingDatabase");
+                }
             }
         }
         catch (Exception ex)
@@ -195,9 +206,6 @@ public class ExternalDrawingManager
                             SetDynamicBlockVisibility(writeBlockRef, false);
                         }
                         
-                        // Notify AutoCAD that block graphics have been modified
-                        writeBlockRef.RecordGraphicsModified(true);
-                        
                         clearedCount++;
                     }
                 }
@@ -241,9 +249,6 @@ public class ExternalDrawingManager
                             SetDynamicBlockVisibility(writeBlockRef, true);
                         }
                         
-                        // Notify AutoCAD that block graphics have been modified
-                        writeBlockRef.RecordGraphicsModified(true);
-                        
                         return true;
                     }
                 }
@@ -285,7 +290,7 @@ public class ExternalDrawingManager
     }
 
     /// <summary>
-    /// Clears all attributes in a construction note block with proper alignment
+    /// Clears all attributes in a construction note block
     /// </summary>
     private void ClearBlockAttributes(BlockReference blockRef, Transaction tr)
     {
@@ -300,11 +305,7 @@ public class ExternalDrawingManager
                     string tag = attRef.Tag.ToUpper();
                     if (tag == "NUMBER" || tag == "NOTE")
                     {
-                        if (!string.IsNullOrEmpty(attRef.TextString))
-                        {
-                            attRef.TextString = "";
-                            attRef.AdjustAlignment(attRef.Database);
-                        }
+                        attRef.TextString = "";
                     }
                 }
             }
@@ -317,13 +318,15 @@ public class ExternalDrawingManager
 
     /// <summary>
     /// Updates attributes in a construction note block with proper alignment
-    /// Uses BlockProcessor approach: set Justify and call AdjustAlignment for proper positioning
+    /// Uses the working archive approach with Justify and AdjustAlignment
     /// </summary>
     private void UpdateBlockAttributes(BlockReference blockRef, Transaction tr, int noteNumber, string noteText)
     {
         try
         {
             var attCol = blockRef.AttributeCollection;
+            bool wasModified = false;
+            
             foreach (ObjectId attId in attCol)
             {
                 var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
@@ -334,23 +337,36 @@ public class ExternalDrawingManager
                     if (tag == "NUMBER")
                     {
                         string newValue = noteNumber > 0 ? noteNumber.ToString() : "";
-                        if (attRef.TextString != newValue)
+                        string currentValue = attRef.TextString ?? "";
+                        if (currentValue != newValue)
                         {
                             attRef.Justify = AttachmentPoint.MiddleCenter;
                             attRef.TextString = newValue;
                             attRef.AdjustAlignment(attRef.Database);
+                            wasModified = true;
+                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with alignment");
                         }
                     }
                     else if (tag == "NOTE")
                     {
                         string newValue = noteText ?? "";
-                        if (attRef.TextString != newValue)
+                        string currentValue = attRef.TextString ?? "";
+                        if (currentValue != newValue)
                         {
                             attRef.TextString = newValue;
                             attRef.AdjustAlignment(attRef.Database);
+                            wasModified = true;
+                            _logger.LogDebug($"Updated NOTE attribute with alignment");
                         }
                     }
                 }
+            }
+            
+            // Record graphics modification after attribute updates
+            if (wasModified)
+            {
+                blockRef.RecordGraphicsModified(true);
+                _logger.LogDebug("Applied RecordGraphicsModified to block reference");
             }
         }
         catch (Exception ex)
@@ -404,38 +420,7 @@ public class ExternalDrawingManager
         }
     }
 
-    /// <summary>
-    /// Applies BlockTableRecordExtensions.SynchronizeAttributes() to all NT## blocks
-    /// This mimics AutoCAD's ATTSYNC command for proper attribute positioning
-    /// </summary>
-    private void ApplyAttributeSynchronization(Database db, Transaction tr)
-    {
-        try
-        {
-            _logger.LogDebug("Applying attribute synchronization (ATTSYNC) to NT## blocks...");
-            
-            var blockTable = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-            int syncCount = 0;
-            
-            foreach (ObjectId btrId in blockTable)
-            {
-                var btr = tr.GetObject(btrId, OpenMode.ForRead) as BlockTableRecord;
-                if (btr != null && _noteBlockPattern.IsMatch(btr.Name))
-                {
-                    // Apply SynchronizeAttributes from BlockTableRecordExtensions
-                    btr.SynchronizeAttributes();
-                    syncCount++;
-                    _logger.LogDebug($"Applied ATTSYNC to block definition: {btr.Name}");
-                }
-            }
-            
-            _logger.LogInformation($"Applied attribute synchronization to {syncCount} NT## block definitions");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error applying attribute synchronization: {ex.Message}", ex);
-        }
-    }
+
 
     /// <summary>
     /// Helper method to log available layouts for debugging
