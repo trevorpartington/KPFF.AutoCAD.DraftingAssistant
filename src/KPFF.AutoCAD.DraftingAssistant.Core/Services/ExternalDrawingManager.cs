@@ -1,4 +1,5 @@
 using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.ApplicationServices.Core;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
@@ -245,7 +246,7 @@ public class ExternalDrawingManager
                         _logger.LogDebug($"Updating NT block: {blockName} with note {noteEntry.NoteNumber}");
                         
                         // Update attributes
-                        UpdateBlockAttributes(blockRef, tr, noteEntry.NoteNumber, noteEntry.NoteText);
+                        UpdateBlockAttributes(blockRef, tr, db, noteEntry.NoteNumber, noteEntry.NoteText);
                         
                         // Set visibility to ON
                         if (blockRef.IsDynamicBlock)
@@ -338,7 +339,7 @@ public class ExternalDrawingManager
     /// <summary>
     /// Updates a single construction note block in the layout
     /// </summary>
-    private bool UpdateSingleBlockInLayout(BlockTableRecord layoutBtr, Transaction tr, string targetBlockName, ConstructionNoteData noteData)
+    private bool UpdateSingleBlockInLayout(BlockTableRecord layoutBtr, Transaction tr, Database db, string targetBlockName, ConstructionNoteData noteData)
     {
         try
         {
@@ -367,7 +368,7 @@ public class ExternalDrawingManager
                         var writeBlockRef = tr.GetObject(objId, OpenMode.ForWrite) as BlockReference;
                         
                         // Update attributes
-                        UpdateBlockAttributes(writeBlockRef, tr, noteData.NoteNumber, noteData.NoteText);
+                        UpdateBlockAttributes(writeBlockRef, tr, db, noteData.NoteNumber, noteData.NoteText);
                         
                         // Set visibility to ON
                         if (writeBlockRef.IsDynamicBlock)
@@ -484,7 +485,7 @@ public class ExternalDrawingManager
     /// Updates attributes in a construction note block with proper alignment
     /// Uses the working archive approach with Justify and AdjustAlignment
     /// </summary>
-    private void UpdateBlockAttributes(BlockReference blockRef, Transaction tr, int noteNumber, string noteText)
+    private void UpdateBlockAttributes(BlockReference blockRef, Transaction tr, Database db, int noteNumber, string noteText)
     {
         try
         {
@@ -506,9 +507,24 @@ public class ExternalDrawingManager
                         {
                             attRef.Justify = AttachmentPoint.MiddleCenter;
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database); // Use the proven approach
+                            
+                            // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
+                            var originalWdb = HostApplicationServices.WorkingDatabase;
+                            try
+                            {
+                                _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NUMBER attribute alignment");
+                                HostApplicationServices.WorkingDatabase = db;
+                                attRef.AdjustAlignment(db);
+                                _logger.LogDebug($"Successfully adjusted NUMBER attribute alignment");
+                            }
+                            finally
+                            {
+                                HostApplicationServices.WorkingDatabase = originalWdb;
+                                _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
+                            }
+                            
                             wasModified = true;
-                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with proven alignment approach");
+                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with minimal-scope WorkingDatabase alignment");
                         }
                     }
                     else if (tag == "NOTE")
@@ -518,9 +534,24 @@ public class ExternalDrawingManager
                         if (currentValue != newValue)
                         {
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database); // Use the proven approach
+                            
+                            // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
+                            var originalWdb = HostApplicationServices.WorkingDatabase;
+                            try
+                            {
+                                _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NOTE attribute alignment");
+                                HostApplicationServices.WorkingDatabase = db;
+                                attRef.AdjustAlignment(db);
+                                _logger.LogDebug($"Successfully adjusted NOTE attribute alignment");
+                            }
+                            finally
+                            {
+                                HostApplicationServices.WorkingDatabase = originalWdb;
+                                _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
+                            }
+                            
                             wasModified = true;
-                            _logger.LogDebug($"Updated NOTE attribute with proven alignment approach");
+                            _logger.LogDebug($"Updated NOTE attribute with minimal-scope WorkingDatabase alignment");
                         }
                     }
                 }
