@@ -236,17 +236,50 @@ public partial class ConstructionNoteControl : BaseUserControl
                         "Analyzing drawing states and preparing batch operations...\n");
             autocadLogger.LogInformation($"Starting Auto Notes batch update for {selectedSheets.Count} sheets");
 
-            // Gather Auto Notes for selected sheets
+            // Gather Auto Notes for selected sheets using smart drawing state handling
             var sheetToNotes = new Dictionary<string, List<int>>();
+            
             foreach (var sheet in selectedSheets)
             {
                 try
                 {
-                    var noteNumbers = await constructionNotesService.GetAutoNotesForSheetAsync(sheet.SheetName, config);
+                    var dwgPath = drawingAccessService.GetDrawingFilePath(sheet.SheetName, config, selectedSheets);
+                    if (string.IsNullOrEmpty(dwgPath))
+                    {
+                        autocadLogger.LogWarning($"Could not find drawing file for sheet {sheet.SheetName}");
+                        continue;
+                    }
+
+                    var drawingState = drawingAccessService.GetDrawingState(dwgPath);
+                    List<int> noteNumbers;
+
+                    if (drawingState == Core.Services.DrawingState.Closed)
+                    {
+                        // Use ExternalDrawingManager for closed drawings
+                        autocadLogger.LogDebug($"Using external drawing analysis for closed sheet {sheet.SheetName}");
+                        var styleName = config.ConstructionNotes?.MultileaderStyleName ?? "ML-STYLE-01";
+                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleName);
+                    }
+                    else
+                    {
+                        // For active/inactive drawings, use the standard approach
+                        if (drawingState == Core.Services.DrawingState.Inactive)
+                        {
+                            // Make inactive drawing active temporarily
+                            drawingAccessService.TryMakeDrawingActive(dwgPath);
+                        }
+                        
+                        noteNumbers = await constructionNotesService.GetAutoNotesForSheetAsync(sheet.SheetName, config);
+                    }
+
                     if (noteNumbers.Count > 0)
                     {
                         sheetToNotes[sheet.SheetName] = noteNumbers;
                         autocadLogger.LogDebug($"Auto Notes for {sheet.SheetName}: [{string.Join(", ", noteNumbers)}]");
+                    }
+                    else
+                    {
+                        autocadLogger.LogDebug($"No Auto Notes detected for {sheet.SheetName}");
                     }
                 }
                 catch (Exception ex)
