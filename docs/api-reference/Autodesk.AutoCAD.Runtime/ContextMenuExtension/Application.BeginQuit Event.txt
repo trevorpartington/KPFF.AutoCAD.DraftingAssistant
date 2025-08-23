@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > BeginQuit Event
+Application.BeginQuit Event    Description
+Wraps the AcEditorReactor::beginQuit() ObjectARX function, which is called when AutoCAD starts to shutdown.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.Core.Application
+
+Visual Basic
+Public static Event BeginQuit As BeginQuitEventHandler
+Previous Declaration
+public static event EventHandler BeginQuit;
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Application
+
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsLayout Property
+BlockTableRecord.IsLayout PropertyDescription
+ 
+
+Returns true if this block table record represents a layout.
+
+Visual Basic
+Public Property IsLayout() As bool
+C#
+public bool IsLayout;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

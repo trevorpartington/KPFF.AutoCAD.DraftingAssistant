@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Properties > TopTransaction Property
+TransactionManager.TopTransaction PropertyDescription
+ 
+
+Accesses the the Transaction object that is at the top of the transaction stack (that is, the most recently created Transaction object). This can be compared to a cached Transaction to determine if the cached object is the top (that is, "current") transaction, or it can be used to access the two member functions of that transaction object. However, because there are member functions in the TransactionManager class that provide direct access to the two member functions in the top transaction, there's no need to use TopTransaction for this purpose
+
+Visual Basic
+Public virtual Property TopTransaction() As Transaction
+C#
+public virtual Transaction TopTransaction;
+Conditions
+Read-only
+
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

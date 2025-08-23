@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Properties > TreatElementsAsHard Property
+DBDictionary.TreatElementsAsHard PropertyDescription
+ 
+
+Accesses whether elements are treated hard or not.
+
+Visual Basic
+Public Property TreatElementsAsHard() As bool
+C#
+public bool TreatElementsAsHard;
+Conditions
+Read / Write
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

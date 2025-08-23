@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class
+DynamicBlockReferenceProperty ClassDescription
+ 
+
+This .NET class wraps the AcDbDynBlockReferenceProperty ObjectARX class. 
+
+This class encapsulates a property on a dynamic block reference, and provides a mutator for the property's value.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferenceProperty
+Visual Basic
+Public sealed Class DynamicBlockReferenceProperty
+C#
+public sealed class DynamicBlockReferenceProperty;
+Links
+DynamicBlockReferenceProperty Methods, DynamicBlockReferenceProperty Properties
+   Comments?  

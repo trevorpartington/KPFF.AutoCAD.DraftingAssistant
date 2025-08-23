@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Runtime Namespace > ExtensionApplicationAttribute Class > ExtensionApplicationAttribute Properties
+ExtensionApplicationAttribute PropertiesProperties
+Property  Description  
+ Type  
+Returns the Type property value.  
+
+   Comments?  

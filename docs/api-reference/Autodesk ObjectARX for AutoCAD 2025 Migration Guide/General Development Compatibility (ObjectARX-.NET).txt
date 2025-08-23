@@ -1,0 +1,217 @@
+About ObjectARX Compatibility 
+Autodesk ObjectARX for AutoCAD 2025: Migration Guide >  
+General Development Compatibility (ObjectARX/.NET)
+ 
+ 
+ 
+ObjectARX and .NET applications are developed using libraries that are designed to work with specific AutoCAD releases. 
+
+When a new product is released, an application that was developed for an earlier release of the product might need to be updated. Updating an existing application might require you to do one or more of the following: 
+
+Reference the latest versions of the libraries used by the application 
+Change code statements of modified or obsolete methods used in an application 
+Recompile the application 
+New versions of the programming libraries is released with each product release, not all applications must be compiled or modified to work with the latest product release. Some product releases are "binary compatible" with each other, this allows for an application written for an earlier release to work with a later release of the product. The following table lists which releases of the AutoCAD product are forward binary compatible. 
+
+Product Releases 
+ Binary Compatible Releases 
+ Supported Development Environments 
+ 
+AutoCAD 2025* 
+ AutoCAD 2025 
+ Windows 
+Microsoft Visual Studio 2022 version 17.8.0 
+Mac OS (13.3 or later) 
+Xcode: 14.3 
+Mono: 6.1.2 
+ 
+AutoCAD 2024 
+ AutoCAD 2024, AutoCAD 2023, AutoCAD 2022, and AutoCAD 2021 
+ Windows 
+Microsoft Visual Studio 2022 version 17.2.6 
+Mac OS (12.3 or later) 
+Xcode: 13.3.1 
+Mono: 6.1.2 
+ 
+AutoCAD 2023 
+ AutoCAD 2023, AutoCAD 2022, and AutoCAD 2021 
+ Windows 
+Microsoft Visual Studio 2019 version 16.11.5 
+Mac OS (11.2.3 or later) 
+Xcode: 12.4 
+Mono: 6.1.2 
+ 
+AutoCAD 2022 
+ AutoCAD 2022 and AutoCAD 2021 
+ Windows 
+Microsoft Visual Studio 2019 version 16.7 
+Mac OS (10.15 or later) 
+Xcode: 11.3.1 
+Mono: 6.4.0 
+Mac OS (10.14 or later) 
+Xcode: 11.3.1 
+Mono: 5.10.0.160 
+ 
+AutoCAD 2021* 
+ AutoCAD 2021 
+ Windows 
+Microsoft Visual Studio 2019 version 16.0 
+Mac OS (10.15 or later) 
+Xcode: 11.3.1 
+Mono: 6.4.0 
+Mac OS (10.14 or later) 
+Xcode: 10.2.1 
+Mono: 5.10.0.160 
+ 
+AutoCAD 2020 
+ AutoCAD 2019 and AutoCAD 2020 
+ Windows 
+Microsoft Visual Studio 2017 (Update 2) 
+Mac OS (10.13 or later) 
+Xcode: 9.3 
+Mono: 5.10.0.160 
+ 
+AutoCAD 2019* 
+ AutoCAD 2019 
+ Windows 
+Microsoft Visual Studio 2017 (Update 2) 
+Mac OS (10.13 or later) 
+Xcode: 9.3 
+Mono: 5.10.0.160 
+ 
+AutoCAD 2018* 
+ AutoCAD 2018 
+ Windows 
+Microsoft Visual Studio 2015 (Update 3) 
+Mac OS (10.12 or later) 
+Xcode: 8.3.2 
+Mono: 4.6.2.7 
+ 
+AutoCAD 2017* 
+ AutoCAD 2017 
+ Windows 
+Microsoft Visual Studio 2015 (Update 1) 
+Mac OS X (10.10 or later) 
+Xcode: 7.1 
+Qt: 4.8.5 
+Mono: 4.2.1 
+ 
+AutoCAD 2016 
+ AutoCAD 2015 and AutoCAD 2016 
+ Windows 
+Microsoft Visual Studio 2012 (Update 4) 
+Mac OS X (10.9/10.10) 
+Xcode: 5.0.2 
+Qt: 4.8.5 
+Mono: 3.2.7 
+ 
+AutoCAD 2015* 
+ AutoCAD 2015 
+ Windows 
+Microsoft Visual Studio 2012 (Update 4) 
+Mac OS X (10.9) 
+Xcode: 5.0.2 
+Qt: 4.8.5 
+Mono: 3.2.7 
+ 
+AutoCAD 2014 
+ AutoCAD 2013 and AutoCAD 2014 
+ Windows 
+Microsoft Visual Studio 2010 
+Mac OS X (10.8) 
+Xcode: 4.4 
+Qt: 4.8.2 
+Mono: 2.10.5 
+ 
+AutoCAD 2013* 
+ AutoCAD 2013 
+ Windows 
+Microsoft Visual Studio 2010 
+Mac OS X (10.8) 
+Xcode: 4.4 
+Qt: 4.8.1 
+Mono: 2.10.5 
+Mac OS X (10.7.3) 
+Xcode: 4.3.2+ 
+Qt: 4.8.1 
+Mono: 2.10.5 
+ 
+AutoCAD 2012 
+ AutoCAD 2010, AutoCAD 2011, and AutoCAD 2012 
+ Windows 
+Microsoft Visual Studio 2008 
+Mac OS X (10.6.4+) 
+Xcode: 3.2.5 
+Qt: 4.7.2 Patched 
+Mono: 2.10.2_5 
+ 
+AutoCAD 2011 
+ AutoCAD 2010 and AutoCAD 2011 
+ Windows 
+Microsoft Visual Studio 2008 
+Mac OS X (10.6.4+) 
+Xcode: 3.2.5 
+Qt: 4.6.3 Patched/4.6.3.1 Patched (SP1) 
+Mono: 2.6.7_3 
+ 
+AutoCAD 2010* 
+ AutoCAD 2010 
+ Windows 
+Microsoft Visual Studio 2008 
+ 
+AutoCAD 2009 
+ AutoCAD 2007, AutoCAD 2008, and AutoCAD 2009 
+ Windows 
+Microsoft Visual Studio .NET 2005 
+ 
+AutoCAD 2008 
+ AutoCAD 2007 and AutoCAD 2008 
+ Windows 
+Microsoft Visual Studio .NET 2005 
+ 
+AutoCAD 2007* 
+ AutoCAD 2007 
+ Windows 
+Microsoft Visual Studio .NET 2005 
+ 
+AutoCAD 2006 
+ AutoCAD 2004, AutoCAD 2005, and AutoCAD 2006 
+ Windows 
+Microsoft Visual Studio .NET 2002 
+ 
+AutoCAD 2005 
+ AutoCAD 2004 and AutoCAD 2005 
+ Windows 
+Microsoft Visual Studio .NET 2002 
+ 
+AutoCAD 2004* 
+ AutoCAD 2004 
+ Windows 
+Microsoft Visual Studio .NET 2002 
+ 
+AutoCAD 2002 
+ AutoCAD 2000, AutoCAD 2000i, and AutoCAD 2002 
+ Windows 
+Microsoft Visual Studio 6 (Service Pack 2) 
+ 
+AutoCAD 2000i 
+ AutoCAD 2000 and AutoCAD 2000i 
+ Windows 
+Microsoft Visual Studio 6 (Service Pack 2) 
+ 
+AutoCAD 2000* 
+ AutoCAD 2000 
+ Windows 
+Microsoft Visual Studio 6 (Service Pack 2) 
+ 
+
+NOTE:* denotes when binary compatibility was broken. Applications created with an earlier release need to be recompiled. 
+Topics in this section
+About ObjectARX Compatibility
+ObjectARX applications are often associated with internal and third-party applications that add new functionality to the AutoCAD-based product. 
+
+About Managed .NET Compatibility
+Managed .NET applications are often associated with corporate and third-party applications that extend the behavior and capabilities of the AutoCAD-based product. 
+
+Please send us your comment about this page
+

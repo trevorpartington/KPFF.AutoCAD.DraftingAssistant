@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentLockModeChangeVetoed Event
+DocumentCollection.DocumentLockModeChangeVetoed EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentLockModeChangeVetoed() ObjectARX function. 
+
+Requests to established locks on a document can be vetoed by reactors receiving the DocumentLockModeChanged callback. If this happens, then all reactors will receive this callback so that all will know the request was vetoed, even though not all the reactors may have received the DocumentLockModeChanged callback before the veto occurred.
+
+Visual Basic
+Public Event DocumentLockModeChangeVetoed As DocumentLockModeChangeVetoedEventHandler
+C#
+public event DocumentLockModeChangeVetoedEventHandler DocumentLockModeChangeVetoed;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

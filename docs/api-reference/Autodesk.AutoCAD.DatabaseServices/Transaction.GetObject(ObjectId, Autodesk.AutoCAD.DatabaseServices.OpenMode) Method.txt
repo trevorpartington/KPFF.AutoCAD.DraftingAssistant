@@ -1,0 +1,26 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > GetObject Method > GetObject(ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode) Method
+Transaction.GetObject(ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode) MethodDescription
+This function calls the Open() function of the top transaction passing on all the arguments it has received. Objects can only be obtained within the top transaction, so this function saves the trouble of having to either keep a pointer to the top transaction or use the TransactionManager.TopTransaction property to obtain it. 
+
+ 
+
+For more information, see the section on transactions in the ObjectARX Developer's Guide.
+
+Visual Basic
+Public virtual Function GetObject(
+    id As ObjectId, 
+    mode As Autodesk.AutoCAD.DatabaseServices.OpenMode
+) As DBObject
+C#
+public virtual DBObject GetObject(
+    ObjectId id, 
+    Autodesk.AutoCAD.DatabaseServices.OpenMode mode
+);
+Parameters
+Parameters  Description  
+ObjectId id  Input objectId of object to obtain  
+Autodesk.AutoCAD.DatabaseServices.OpenMode mode  Input mode to obtain in  
+
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

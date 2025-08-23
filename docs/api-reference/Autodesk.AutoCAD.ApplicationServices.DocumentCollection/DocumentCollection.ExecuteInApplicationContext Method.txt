@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > ExecuteInApplicationContext Method
+DocumentCollection.ExecuteInApplicationContext MethodDescription
+ 
+
+Allows a void function to be called from the application context.
+
+Visual Basic
+Public Function ExecuteInApplicationContext(
+    callback As ExecuteInApplicationContextCallback, 
+    data As object
+) As void
+C#
+public void ExecuteInApplicationContext(
+    ExecuteInApplicationContextCallback callback, 
+    object data
+);
+Parameters
+Parameters  Description  
+ExecuteInApplicationContextCallback callback  Input Autodesk.AutoCAD.ApplicationServices.ExecuteInApplicationContextCallback object.  
+object data  Input any data that should be used for the function call.  
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

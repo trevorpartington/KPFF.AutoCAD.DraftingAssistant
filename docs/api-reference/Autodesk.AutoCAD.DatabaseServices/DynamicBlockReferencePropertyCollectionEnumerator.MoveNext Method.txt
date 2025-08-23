@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollectionEnumerator Class > DynamicBlockReferencePropertyCollectionEnumerator Methods > MoveNext Method
+DynamicBlockReferencePropertyCollectionEnumerator.MoveNext MethodDescription
+ 
+
+This method moves the current pointer to the next item, or to the end marker if the current item is at the end of the collection.
+
+Visual Basic
+Public Function MoveNext() As bool
+C#
+public bool MoveNext();
+Links
+DynamicBlockReferencePropertyCollectionEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

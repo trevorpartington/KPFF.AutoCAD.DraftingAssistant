@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentCreated Event
+DocumentCollection.DocumentCreated EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentCreated() ObjectARX function. 
+
+ 
+
+This notification is sent when a new Document has been constructed.
+
+Visual Basic
+Public Event DocumentCreated As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentCreated;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

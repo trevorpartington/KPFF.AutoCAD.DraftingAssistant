@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > DockEnabled Property
+PaletteSet.DockEnabled PropertyDescription
+Controls if the palette set can be docked by the user.
+
+Visual Basic
+Public Property DockEnabled() As DockSides
+C#
+public DockSides DockEnabled;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

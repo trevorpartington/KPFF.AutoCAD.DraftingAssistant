@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > BlockBeginId Property
+BlockTableRecord.BlockBeginId PropertyDescription
+ 
+
+Returns the the block begin opened openMode.
+
+Visual Basic
+Public Property BlockBeginId() As ObjectId
+C#
+public ObjectId BlockBeginId;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

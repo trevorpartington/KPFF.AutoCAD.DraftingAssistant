@@ -1,0 +1,76 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Entity Class > Entity Methods
+Entity MethodsMethods
+Method  Description  
+ AddSubentityPaths  
+Adds one or more subentities to an entity.
+The prototype of this method is provided for completeness of the subentity... more  
+ BoundingBoxIntersectWith    
+ DeleteSubentityPaths  
+Deletes one or more subentities from an entity.
+Custom objects which expose subentity behavior can choose to override this method... more  
+ Draw  
+This function queues up the entity's graphics and flushes the graphics queue, forcing the entity and anything else in the... more  
+ Explode  This function is primarily intended for AutoCAD to call as part of an explode operation that includes this entity. However,... more  
+ GetGripPoints    
+ GetGraphicsMarkersAtSubentityPathIntPtr  
+Entities use various graphic primitives to draw themselves. Part of this mechanism is the ability to associate an integer identifier... more  
+ GetGripPointsAtSubentityPath  
+This .NET method wraps the ObjectARX method AcDbEntity::getGripPointsAtSubentPath.  
+ GetObjectSnapPoints    
+ GetPlane  Returns the plane which contains the curve.  
+ GetStretchPoints  
+  
+ GetSubentity  
+Obtains the subentity.  
+ GetSubentityGeometricExtents  
+Retrieves the geometric extents for a subentity.
+Unimplemented at the Entity level, this method is intended to be overridden in... more  
+ GetSubentityPathsAtGraphicsMarker    
+ GetTransformedCopy  
+  
+ Highlight    
+ HighlightState  
+This wraps the ObjectARX AcDbEntity::highlightState() method.  
+ IntersectWith    
+ JoinEntity  This wraps AcDbJoinEntityPE::joinEntity, which when implemented for an Entity, it can be used to join two supported entities together.... more  
+ JoinEntities  This wraps AcDbJoinEntityPE::joinEntities(), which when implemented for an Entity can be used to join supported entities together. Some implementations... more  
+ List  
+  
+ MoveGripPointsAt    
+ MoveStretchPointsAt  
+  
+ PopHighlight  This wraps the ObjectARX AcDbEntity::popHighlight() method.
+The current highlight effect of subId will be removed, and the former pushed... more  
+ PushHighlight  This wraps the ObjectARX AcDbEntity::pushHighlight() method.
+The later pushed highlight effect will override the former push highlight effect. We... more  
+ RecordGraphicsModified  
+This method sets the entity's state to indicate whether or not the entity should be updated on screen when it... more  
+ SaveAs  
+  
+ SetDatabaseDefaults    
+ SetDragStatus  
+This function is called when a drag operation involving this entity is starting, ending, or aborting. The status argument provides... more  
+ SetGripStatus  
+This notification allows the entity to perform any required resource management tasks before the grip's GripStatus objects and any alternate... more  
+ SetLayerId  
+This method sets entity to reference the LayerTableRecord identified by the name specified in newValue. For an BlockReference entity,... more  
+ SetPropertiesFrom  
+This method copies the
+
+Color 
+Layer 
+Linetype 
+Linetype scale 
+Visibility 
+
+values from the entity pointed to by entityPointer into this... more  
+ SetSubentityGripStatus  
+This function is called with a status value of GripsToBeDeleted when the grips for the subentity are about to be... more  
+ TransformBy  
+  
+ TransformSubentityPathsBy  
+Applies a geometric transformation to one or more subentities on an object.
+This function provides a means by which AutoCAD... more  
+ Unhighlight    
+
+   Comments?  

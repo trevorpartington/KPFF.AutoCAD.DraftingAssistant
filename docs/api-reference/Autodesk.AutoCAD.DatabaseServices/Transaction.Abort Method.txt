@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > Abort Method
+Transaction.Abort MethodDescription
+ 
+
+Aborts the transaction.
+
+Visual Basic
+Public virtual Function Abort() As void
+C#
+public virtual void Abort();
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

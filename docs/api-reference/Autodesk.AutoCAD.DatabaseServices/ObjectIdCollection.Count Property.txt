@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Properties > Count Property
+ObjectIdCollection.Count PropertyDescription
+ 
+
+Accesses the total number of objects in the collection.
+
+Visual Basic
+Public Property Count() As Integer
+C#
+public int Count;
+Conditions
+Read-only
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

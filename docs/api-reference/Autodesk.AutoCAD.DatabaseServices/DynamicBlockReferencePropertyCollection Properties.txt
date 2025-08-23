@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class > DynamicBlockReferencePropertyCollection Properties
+DynamicBlockReferencePropertyCollection PropertiesProperties
+Property  Description  
+ Count  
+Accesses the number of objects in this collection.  
+
+   Comments?  

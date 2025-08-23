@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentActivated Event
+DocumentCollection.DocumentActivated EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentActivated() ObjectARX function. 
+
+ 
+
+This notification is sent once a document has been activated and its context has been successfully switched.
+
+Visual Basic
+Public Event DocumentActivated As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentActivated;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

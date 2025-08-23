@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Constructor
+BlockTableRecord.BlockTableRecord ConstructorDescription
+ 
+
+Default constructor. Initializes the origin to (0,0,0); the IsAnonymous, HasAttributeDefinitions, IsFromExternalReference, and IsFromOverlayReference flags to false; and the PathName to NULL. In addition, the SymbolTableRecord default constructor is invoked.
+
+Visual Basic
+Public Sub New()
+C#
+public BlockTableRecord();
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

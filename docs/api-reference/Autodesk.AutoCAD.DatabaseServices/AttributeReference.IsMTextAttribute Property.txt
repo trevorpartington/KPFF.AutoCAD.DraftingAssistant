@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > IsMTextAttribute Property
+AttributeReference.IsMTextAttribute PropertyDescription
+ 
+
+Returns true if the attribute is a multi-line attribute.
+
+Visual Basic
+Public Property IsMTextAttribute() As bool
+C#
+public bool IsMTextAttribute;
+Conditions
+Read-only
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > UnitsType Property
+DynamicBlockReferenceProperty.UnitsType PropertyDescription
+ 
+
+Accesses the format type of the property.
+
+Visual Basic
+Public Property UnitsType() As DynamicBlockReferencePropertyUnitsType
+C#
+public DynamicBlockReferencePropertyUnitsType UnitsType;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

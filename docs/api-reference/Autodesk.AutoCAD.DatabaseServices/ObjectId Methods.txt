@@ -1,0 +1,12 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods
+ObjectId MethodsMethods
+Method  Description  
+ Compare  Compares this object to value1 and returns true if they are equal.  
+ ConvertToRedirectedId  This function will take the object ID for this object if it has been redirected from another database, and convert... more  
+ Equals  Returns true if this object is equal to the argument object.  
+ GetHashCode  Returns the hash code for this object. See the Microsoft .NET API documentation for details.  
+ GetObject    
+ GetMetaObject  This is GetMetaObject, a member of class ObjectId.  
+ ToString    
+
+   Comments?  

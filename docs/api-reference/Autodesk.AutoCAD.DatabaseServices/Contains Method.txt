@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Contains Method
+Contains MethodOverload List
+Method  Description  
+ DBDictionary.Contains (ObjectId)  
+Returns true if the object specified is in the dictionary.  
+ DBDictionary.Contains (string)  
+Returns true if the object specified is in the dictionary.  
+
+   Comments?  

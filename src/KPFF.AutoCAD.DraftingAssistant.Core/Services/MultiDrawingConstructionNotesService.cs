@@ -13,17 +13,20 @@ public class MultiDrawingConstructionNotesService
     private readonly DrawingAccessService _drawingAccessService;
     private readonly ExternalDrawingManager _externalDrawingManager;
     private readonly IConstructionNotesService _constructionNotesService;
+    private readonly IExcelReader _excelReader;
 
     public MultiDrawingConstructionNotesService(
         ILogger logger,
         DrawingAccessService drawingAccessService,
         ExternalDrawingManager externalDrawingManager,
-        IConstructionNotesService constructionNotesService)
+        IConstructionNotesService constructionNotesService,
+        IExcelReader excelReader)
     {
         _logger = logger;
         _drawingAccessService = drawingAccessService;
         _externalDrawingManager = externalDrawingManager;
         _constructionNotesService = constructionNotesService;
+        _excelReader = excelReader;
     }
 
     /// <summary>
@@ -124,12 +127,12 @@ public class MultiDrawingConstructionNotesService
                 else
                 {
                     _logger.LogWarning($"Could not make drawing active, falling back to external mode for {sheetName}");
-                    return UpdateClosedDrawing(sheetName, dwgPath, noteNumbers, config);
+                    return await UpdateClosedDrawingAsync(sheetName, dwgPath, noteNumbers, config);
                 }
 
             case DrawingState.Closed:
                 _logger.LogDebug($"Using external drawing operations for closed sheet {sheetName}");
-                return UpdateClosedDrawing(sheetName, dwgPath, noteNumbers, config);
+                return await UpdateClosedDrawingAsync(sheetName, dwgPath, noteNumbers, config);
 
             case DrawingState.NotFound:
                 _logger.LogError($"Drawing file not found for sheet {sheetName}: {dwgPath}");
@@ -173,7 +176,7 @@ public class MultiDrawingConstructionNotesService
     /// <summary>
     /// Updates a closed drawing using external drawing operations
     /// </summary>
-    private bool UpdateClosedDrawing(
+    private async Task<bool> UpdateClosedDrawingAsync(
         string sheetName,
         string dwgPath,
         List<int> noteNumbers,
@@ -181,15 +184,17 @@ public class MultiDrawingConstructionNotesService
     {
         try
         {
-            // Convert note numbers to ConstructionNoteData objects
-            var noteData = noteNumbers.Select(noteNumber => 
+            // Convert note numbers to ConstructionNoteData objects with real note text
+            var noteDataTasks = noteNumbers.Select(async noteNumber => 
                 new ConstructionNoteData(
                     noteNumber,
-                    GetNoteTextForNumber(noteNumber, sheetName, config)
-                )).ToList();
+                    await GetNoteTextForNumberAsync(noteNumber, sheetName, config)
+                ));
+
+            var noteData = await Task.WhenAll(noteDataTasks);
 
             // Use external drawing manager for closed drawings
-            return _externalDrawingManager.UpdateClosedDrawing(dwgPath, sheetName, noteData);
+            return _externalDrawingManager.UpdateClosedDrawing(dwgPath, sheetName, noteData.ToList());
         }
         catch (Exception ex)
         {
@@ -201,7 +206,7 @@ public class MultiDrawingConstructionNotesService
     /// <summary>
     /// Gets the note text for a specific note number in a given sheet
     /// </summary>
-    private string GetNoteTextForNumber(int noteNumber, string sheetName, ProjectConfiguration config)
+    private async Task<string> GetNoteTextForNumberAsync(int noteNumber, string sheetName, ProjectConfiguration config)
     {
         try
         {
@@ -213,9 +218,21 @@ public class MultiDrawingConstructionNotesService
                 return $"Note {noteNumber}";
             }
 
-            // This would typically come from the Excel service or be cached
-            // For now, return a placeholder - this will be enhanced when integrating with existing services
-            return $"Construction note {noteNumber} for series {series}";
+            // Read construction notes from Excel for the series
+            var constructionNotes = await _excelReader.ReadConstructionNotesAsync(config.ProjectIndexFilePath, series, config);
+            
+            // Find the specific note
+            var note = constructionNotes.FirstOrDefault(n => n.Number == noteNumber);
+            if (note != null)
+            {
+                _logger.LogDebug($"Found note text for {sheetName} note {noteNumber}: {note.Text}");
+                return note.Text;
+            }
+            else
+            {
+                _logger.LogWarning($"Note {noteNumber} not found in series {series} for sheet {sheetName}");
+                return $"Note {noteNumber}";
+            }
         }
         catch (Exception ex)
         {

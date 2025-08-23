@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > Handle Property
+ObjectId.Handle PropertyDescription
+Accesses the handle of the object associated with the object ID.
+
+Visual Basic
+Public Property Handle() As Autodesk.AutoCAD.DatabaseServices.Handle
+C#
+public Autodesk.AutoCAD.DatabaseServices.Handle Handle;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

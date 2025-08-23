@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > DarkThemedIcon Property
+PaletteSet.DarkThemedIcon Property    Description
+Provides access to the 16x16 palette set icon used when the dark theme is active.
+
+Visual Basic
+Public Property DarkThemedIcon() As System.Drawing.Icon
+C#
+public System.Drawing.Icon DarkThemedIcon;
+Remarks
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

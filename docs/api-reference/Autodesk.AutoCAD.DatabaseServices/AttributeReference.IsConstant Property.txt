@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > IsConstant Property
+AttributeReference.IsConstant PropertyDescription
+ 
+
+Returns true if the AttributeReference object is set to be constant.
+
+Visual Basic
+Public Property IsConstant() As bool
+C#
+public bool IsConstant;
+Conditions
+Read-only
+
+Notes
+This function reflects the setting on bit 2 of DXF group code 70 (that is, if bit 2 is set then the attribute will use the preset value and not prompt for user input). 
+
+ 
+
+AutoCAD itself never creates a constant AttributeReference object. AutoCAD creates the AttributeReference objects for each BlockReference based on the AttributeDefinition objects within the referenced BlockTableRecord. If a constant AttributeDefinition is encountered, then AutoCAD uses the AttributeDefinition itself instead of creating a matching AttributeReference.
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

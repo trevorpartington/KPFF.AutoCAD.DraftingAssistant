@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecordEnumerator Class
+BlockTableRecordEnumerator ClassDescription
+This .NET class wraps the AcDbBlockTableRecordIterator ObjectARX class. 
+
+That iterator is used to iterate through an BlockTableRecord.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.BlockTableRecordEnumerator
+Visual Basic
+Public sealed Class BlockTableRecordEnumerator
+Inherits DisposableWrapper
+Inherits IEnumerator
+C#
+public sealed class BlockTableRecordEnumerator : DisposableWrapper, IEnumerator;
+Links
+BlockTableRecordEnumerator Methods
+   Comments?  

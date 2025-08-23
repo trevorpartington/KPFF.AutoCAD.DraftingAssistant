@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > CurrentDocument Property
+DocumentCollection.CurrentDocument PropertyDescription
+This is CurrentDocument, a member of class DocumentCollection.
+
+Visual Basic
+Public Property CurrentDocument() As Document
+C#
+public Document CurrentDocument;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

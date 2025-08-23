@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > Add Method > Add(string, Uri) Method
+PaletteSet.Add(string, Uri) MethodDescription
+This is Add, a member of class PaletteSet.
+
+Visual Basic
+Public Function Add(
+    name As string, 
+    htmlPage As Uri
+) As Palette
+C#
+public Palette Add(
+    string name, 
+    Uri htmlPage
+);
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

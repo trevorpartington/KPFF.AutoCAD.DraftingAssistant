@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties
+DocumentCollection PropertiesProperties
+Property  Description  
+ Count  
+Accesses the number of documents.  
+ CurrentDocument  This is CurrentDocument, a member of class DocumentCollection.  
+ DefaultFormatForSave  Gets or sets the default DocumentSaveFormat for AutoCAD.  
+ DocumentActivationEnabled  
+Accesses the status of document activation  
+ IsApplicationContext  
+Assesses if a function is executing in the application context.  
+ MdiActiveDocument  
+Accesses the MDI active document.  
+
+   Comments?  

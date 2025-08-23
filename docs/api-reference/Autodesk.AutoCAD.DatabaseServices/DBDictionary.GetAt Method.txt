@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > GetAt Method
+DBDictionary.GetAt MethodDescription
+ 
+
+This function searches the dictionary for an entry with key entryName and, if found, returns its object ID.
+
+Visual Basic
+Public virtual Function GetAt(
+    entryName As string
+) As ObjectId
+C#
+public virtual ObjectId GetAt(
+    string entryName
+);
+Parameters
+Parameters  Description  
+string entryName  String representing the entry's search key name to look for  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

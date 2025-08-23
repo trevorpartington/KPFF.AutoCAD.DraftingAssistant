@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > PathName Property
+BlockTableRecord.PathName PropertyDescription
+ 
+
+Accesses the path and name of the xref drawing. If this block table record is not an xref, then this string will be copied into the block table record, but will not be used.
+
+Visual Basic
+Public Property PathName() As string
+C#
+public string PathName;
+Conditions
+Read / Write
+
+Notes
+The pathName value is used for DXF group code 1.
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

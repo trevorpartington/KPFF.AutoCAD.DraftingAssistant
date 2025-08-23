@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTable Class
+BlockTable ClassDescription
+ 
+
+This .NET class wraps the AcDbBlockTable ObjectARX class, which is the symbol table for BlockTableRecords, which represent block definitions within a drawing database.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.SymbolTable
+        Autodesk.AutoCAD.DatabaseServices.BlockTable
+Visual Basic
+Public sealed Class BlockTable
+Inherits SymbolTable
+Inherits IEnumerable
+C#
+public sealed class BlockTable : SymbolTable, IEnumerable;
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > LockPositionInBlock Property
+AttributeReference.LockPositionInBlock PropertyDescription
+ 
+
+Returns true if the AttributeReference object is set to be immovable relative to the geometry in the block.
+
+Visual Basic
+Public Property LockPositionInBlock() As bool
+C#
+public bool LockPositionInBlock;
+Conditions
+Read-only
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

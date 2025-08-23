@@ -1,0 +1,21 @@
+Change the Clipping Boundary of an Image (.NET)Advanced Drawing and Organizational Techniques (.NET)Work with Blocks (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Advanced Drawing and Organizational Techniques (.NET) > 
+Use Blocks and Attributes (.NET)
+ 
+ 
+ 
+
+AutoCAD provides several features to help you manage objects in your drawings. With blocks you can organize and manipulate many objects as one component. Attributes associate items of information with the blocks in your drawings—for example, part numbers and prices. 
+
+Using AutoCAD external references, or xrefs, you can attach or overlay entire drawings to your current drawing. When you open your current drawing, any changes made in the referenced drawing appear in the current drawing. 
+
+Topics in this section
+Work with Blocks (.NET)
+Work with Attributes (.NET)
+Related Concepts
+Work with Blocks (.NET)
+Work with Attributes (.NET)
+Advanced Drawing and Organizational Techniques (.NET)
+Create Objects (.NET)
+Please send us your comment about this page
+

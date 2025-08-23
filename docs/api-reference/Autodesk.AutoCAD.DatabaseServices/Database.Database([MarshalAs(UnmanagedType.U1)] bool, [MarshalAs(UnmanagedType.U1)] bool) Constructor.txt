@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Constructor > Database([MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) Constructor
+Database.Database([MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) ConstructorDescription
+ 
+
+Constructor with additional options.
+
+Visual Basic
+Public Sub New(
+    buildDefaultDrawing As [MarshalAs(UnmanagedType.U1)] bool, 
+    noDocument As [MarshalAs(UnmanagedType.U1)] bool
+)
+C#
+public Database(
+    [MarshalAs(UnmanagedType.U1)] bool buildDefaultDrawing, 
+    [MarshalAs(UnmanagedType.U1)] bool noDocument
+);
+Parameters
+Parameters  Description  
+[MarshalAs(UnmanagedType.U1)] bool buildDefaultDrawing  System.Boolean specifying whether or not to build an empty object  
+[MarshalAs(UnmanagedType.U1)] bool noDocument  System.Boolean specifying whether or not to associate this database to the current document  
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

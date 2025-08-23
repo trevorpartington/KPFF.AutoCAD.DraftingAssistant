@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties
+ObjectId PropertiesProperties
+Property  Description  
+ Database  Accesses the database in which the object ID is resident. If the object ID is NULL, then NULL is returned.... more  
+ Handle  Accesses the handle of the object associated with the object ID.  
+ IsEffectivelyErased  Assesses true if the object associated with this object ID is erased or if any of the owners in the... more  
+ IsErased  Assesses if the object associated with this object ID is erased  
+ IsNull  Assesses if the object ID has a null value.  
+ IsResident  Assesses if the object associated with this objectId is resident in memory.  
+ IsValid  Assesses if the object ID is associated with a database that is currently in memory. If the object ID is... more  
+ NonForwardedHandle  If this object ID is in an xref database and the object associated with this object ID has been redirected... more  
+ Null  Accesses a null object ID. This property allows more compact expressions to be used and helps the compiler generate better... more  
+ ObjectClass  Accesses the RXClass of the object that is associated with the object id, thus guaranteeing that the result can be... more  
+ OldIdPtr  Accesses the objectId value as a long, which is the old format (an is an array of two longs, the... more  
+ OriginalDatabase  If this object ID is in an xref database and the object associated with this object ID has been redirected... more  
+ IsWellBehaved  Checks, in a safe way (using an exception handler), whether this AcDbObjectId is "well behaved".
+true if this id is... more  
+ OldId  Obsolete - Use the OldIdPtr property instead.
+Accesses the objectId value as a long, which is the old format (an... more  
+
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Constructor > Database() Constructor
+Database.Database() ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public Database();
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

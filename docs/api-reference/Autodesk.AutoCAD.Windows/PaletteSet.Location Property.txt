@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Location Property
+PaletteSet.Location PropertyDescription
+Location of the palette set window.
+
+Visual Basic
+Public Property Location() As System.Drawing.Point
+C#
+public System.Drawing.Point Location;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

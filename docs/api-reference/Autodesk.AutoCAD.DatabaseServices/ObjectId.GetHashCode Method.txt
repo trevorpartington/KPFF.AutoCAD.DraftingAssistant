@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > GetHashCode Method
+ObjectId.GetHashCode MethodDescription
+Returns the hash code for this object. See the Microsoft .NET API documentation for details.
+
+Visual Basic
+Public Function GetHashCode() As Integer
+C#
+public int GetHashCode();
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

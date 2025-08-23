@@ -229,11 +229,12 @@ public class ExternalDrawingManager
             }
             _logger.LogDebug($"Cleared {clearedCount} NT blocks");
 
-            // Second pass: Update specific blocks with note data
+            // Second pass: Update specific blocks with note data using SEQUENTIAL assignment
             int updatedCount = 0;
-            foreach (var noteEntry in noteData)
+            for (int i = 0; i < noteData.Count && i < ntBlockRefs.Count; i++)
             {
-                string targetBlockName = $"NT{noteEntry.NoteNumber:D2}";
+                var noteEntry = noteData[i];
+                string targetBlockName = $"NT{(i + 1):D2}"; // Sequential assignment: first note → NT01, second note → NT02, etc.
                 bool foundAndUpdated = false;
 
                 foreach (var blockRefId in ntBlockRefs)
@@ -243,7 +244,7 @@ public class ExternalDrawingManager
                     
                     if (blockName.Equals(targetBlockName, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogDebug($"Updating NT block: {blockName} with note {noteEntry.NoteNumber}");
+                        _logger.LogDebug($"Updating NT block: {blockName} with note {noteEntry.NoteNumber} (sequential assignment: position {i + 1})");
                         
                         // Update attributes
                         UpdateBlockAttributes(blockRef, tr, db, noteEntry.NoteNumber, noteEntry.NoteText);
@@ -262,7 +263,7 @@ public class ExternalDrawingManager
 
                 if (!foundAndUpdated)
                 {
-                    _logger.LogWarning($"Block '{targetBlockName}' not found for note {noteEntry.NoteNumber}");
+                    _logger.LogWarning($"Block '{targetBlockName}' not found for note {noteEntry.NoteNumber} at position {i + 1}");
                 }
             }
 

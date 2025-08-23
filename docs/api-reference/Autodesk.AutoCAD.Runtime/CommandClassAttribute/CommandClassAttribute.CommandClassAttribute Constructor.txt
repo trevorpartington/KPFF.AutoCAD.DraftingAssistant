@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandClassAttribute Class > CommandClassAttribute Constructor
+CommandClassAttribute.CommandClassAttribute ConstructorDescription
+ 
+
+Constructs an object with a name.
+
+Visual Basic
+Public Sub New(
+    name As System.Type
+)
+C#
+public CommandClassAttribute(
+    System.Type name
+);
+Parameters
+Parameters  Description  
+System.Type name  Input command name  
+
+Links
+CommandClassAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

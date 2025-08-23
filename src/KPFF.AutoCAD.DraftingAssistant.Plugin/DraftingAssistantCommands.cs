@@ -2515,7 +2515,8 @@ public class DraftingAssistantCommands
                 logger,
                 drawingAccessService,
                 externalDrawingManager,
-                constructionNotesService);
+                constructionNotesService,
+                mockExcelReader);
             
             ed.WriteMessage("✓ MultiDrawingConstructionNotesService created\n");
             
@@ -2663,6 +2664,195 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nERROR in TESTMULTIDRAWINGSERVICE: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Production test command for real multi-drawing batch operations with actual Excel reading
+    /// </summary>
+    [CommandMethod("TESTPRODUCTIONBATCH")]
+    public async void TestProductionBatch()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+        
+        try
+        {
+            ed.WriteMessage("\n=== PRODUCTION MULTI-DRAWING BATCH TEST ===\n");
+            
+            var logger = new AutoCADLogger();
+            
+            // Create REAL service dependencies
+            ed.WriteMessage("\n--- STEP 1: CREATING PRODUCTION SERVICES ---\n");
+            
+            var drawingAccessService = new DrawingAccessService(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger);
+            var excelReaderService = new ExcelReaderService(logger);
+            var drawingOperations = new DrawingOperations(logger);
+            var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, drawingOperations);
+            
+            ed.WriteMessage("✓ DrawingAccessService created\n");
+            ed.WriteMessage("✓ ExternalDrawingManager created\n");
+            ed.WriteMessage("✓ ExcelReaderService created (REAL)\n");
+            ed.WriteMessage("✓ DrawingOperations created (REAL)\n");
+            ed.WriteMessage("✓ ConstructionNotesService created\n");
+            
+            // Create the production multi-drawing service
+            var multiDrawingService = new MultiDrawingConstructionNotesService(
+                logger,
+                drawingAccessService,
+                externalDrawingManager,
+                constructionNotesService,
+                excelReaderService);
+            
+            ed.WriteMessage("✓ MultiDrawingConstructionNotesService created with REAL services\n");
+            
+            // Use real project configuration
+            ed.WriteMessage("\n--- STEP 2: LOADING REAL PROJECT CONFIGURATION ---\n");
+            
+            var testDataPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata";
+            var config = new ProjectConfiguration
+            {
+                ProjectName = "Test Project",
+                ProjectDWGFilePath = testDataPath,
+                ProjectIndexFilePath = Path.Combine(testDataPath, "ProjectIndex.xlsx")
+            };
+            
+            ed.WriteMessage($"Project config: DWG path = {config.ProjectDWGFilePath}\n");
+            ed.WriteMessage($"Project config: Excel path = {config.ProjectIndexFilePath}\n");
+            
+            // Check if Excel file exists
+            if (!File.Exists(config.ProjectIndexFilePath))
+            {
+                ed.WriteMessage($"⚠ Excel file not found: {config.ProjectIndexFilePath}\n");
+                ed.WriteMessage("Please ensure ProjectIndex.xlsx exists in testdata folder\n");
+                return;
+            }
+            
+            // Load real sheet information from Excel
+            try
+            {
+                var sheetInfos = await excelReaderService.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+                ed.WriteMessage($"✓ Loaded {sheetInfos.Count} sheets from Excel\n");
+                
+                foreach (var sheet in sheetInfos.Take(3)) // Show first 3 for brevity
+                {
+                    ed.WriteMessage($"  • {sheet.SheetName}: {sheet.DWGFileName} - {sheet.DrawingTitle}\n");
+                }
+                
+                if (sheetInfos.Count == 0)
+                {
+                    ed.WriteMessage("⚠ No sheet data found in Excel file\n");
+                    return;
+                }
+                
+                // Load REAL Excel Notes data
+                ed.WriteMessage("\n--- STEP 3: LOADING EXCEL NOTES DATA ---\n");
+                
+                var sheetNotesMappings = await excelReaderService.ReadExcelNotesAsync(config.ProjectIndexFilePath, config);
+                ed.WriteMessage($"✓ Loaded Excel Notes data for {sheetNotesMappings.Count} sheets\n");
+                
+                // Convert to the format expected by MultiDrawingConstructionNotesService
+                var sheetToNotes = new Dictionary<string, List<int>>();
+                
+                foreach (var mapping in sheetNotesMappings)
+                {
+                    if (mapping.NoteNumbers?.Count > 0)
+                    {
+                        sheetToNotes[mapping.SheetName] = mapping.NoteNumbers.ToList();
+                        ed.WriteMessage($"  • {mapping.SheetName}: {mapping.NoteNumbers.Count} notes ({string.Join(", ", mapping.NoteNumbers)})\n");
+                    }
+                }
+                
+                if (sheetToNotes.Count == 0)
+                {
+                    ed.WriteMessage("⚠ No Excel Notes data found. Check EXCEL_NOTES table in Excel file.\n");
+                    return;
+                }
+                
+                ed.WriteMessage($"\nPrepared batch data for {sheetToNotes.Count} sheets with actual Excel Notes:\n");
+                
+                // Test drawing state detection for ALL sheets with Excel Notes
+                ed.WriteMessage("\n--- STEP 4: DRAWING STATE DETECTION ---\n");
+                
+                var uniqueDrawingFiles = new HashSet<string>();
+                
+                foreach (var sheetName in sheetToNotes.Keys)
+                {
+                    var dwgPath = drawingAccessService.GetDrawingFilePath(sheetName, config, sheetInfos);
+                    if (!string.IsNullOrEmpty(dwgPath))
+                    {
+                        var state = drawingAccessService.GetDrawingState(dwgPath);
+                        ed.WriteMessage($"  {sheetName} -> {Path.GetFileName(dwgPath)} -> {state}\n");
+                        uniqueDrawingFiles.Add(dwgPath);
+                    }
+                    else
+                    {
+                        ed.WriteMessage($"  {sheetName} -> [PATH NOT RESOLVED]\n");
+                    }
+                }
+                
+                ed.WriteMessage($"\nSummary: {sheetToNotes.Count} sheets across {uniqueDrawingFiles.Count} unique drawing files\n");
+                
+                // Perform actual batch update
+                ed.WriteMessage("\n--- STEP 5: PERFORMING BATCH UPDATE ---\n");
+                ed.WriteMessage($"⚠ This will modify {uniqueDrawingFiles.Count} drawing files:\n");
+                foreach (var dwgFile in uniqueDrawingFiles)
+                {
+                    ed.WriteMessage($"  • {Path.GetFileName(dwgFile)}\n");
+                }
+                ed.WriteMessage("Continue? (Press ESC to cancel)\n");
+                
+                var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(
+                    sheetToNotes, 
+                    config, 
+                    sheetInfos);
+                
+                // Report results
+                ed.WriteMessage($"\n--- STEP 6: BATCH UPDATE RESULTS ---\n");
+                ed.WriteMessage($"Total sheets processed: {result.TotalProcessed}\n");
+                ed.WriteMessage($"Successes: {result.Successes.Count}\n");
+                ed.WriteMessage($"Failures: {result.Failures.Count}\n");
+                ed.WriteMessage($"Success rate: {result.SuccessRate:P1}\n");
+                
+                if (result.Successes.Count > 0)
+                {
+                    ed.WriteMessage($"\n✓ SUCCESSFUL UPDATES:\n");
+                    foreach (var success in result.Successes)
+                    {
+                        ed.WriteMessage($"  • {success.SheetName} ({success.DrawingState}): {success.NotesUpdated} notes updated\n");
+                    }
+                }
+                
+                if (result.Failures.Count > 0)
+                {
+                    ed.WriteMessage($"\n✗ FAILED UPDATES:\n");
+                    foreach (var failure in result.Failures)
+                    {
+                        ed.WriteMessage($"  • {failure.SheetName}: {failure.ErrorMessage}\n");
+                    }
+                }
+                
+                ed.WriteMessage("\n=== PRODUCTION BATCH TEST COMPLETE ===\n");
+                if (result.SuccessRate > 0.5)
+                {
+                    ed.WriteMessage("🎉 BATCH PROCESSING SUCCESSFULLY IMPLEMENTED!\n");
+                }
+                else
+                {
+                    ed.WriteMessage("⚠ Batch processing needs refinement - check failure details above\n");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ed.WriteMessage($"Excel reading error: {ex.Message}\n");
+                return;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR in TESTPRODUCTIONBATCH: {ex.Message}\n");
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
         }
     }

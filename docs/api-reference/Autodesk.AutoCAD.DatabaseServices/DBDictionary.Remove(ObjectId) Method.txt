@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Remove Method > Remove(ObjectId) Method
+DBDictionary.Remove(ObjectId) MethodDescription
+ 
+
+This function removes an entry specified by its object ID in objId from the dictionary.
+
+Visual Basic
+Public Function Remove(
+    objId As ObjectId
+) As void
+C#
+public void Remove(
+    ObjectId objId
+);
+Parameters
+Parameters  Description  
+ObjectId objId  Object ID of the object to remove  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

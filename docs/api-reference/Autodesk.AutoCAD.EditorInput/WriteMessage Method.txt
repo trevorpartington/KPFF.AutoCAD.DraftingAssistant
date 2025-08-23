@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Methods > WriteMessage Method
+WriteMessage MethodOverload List
+Method  Description  
+ Editor.WriteMessage (string)  Displays a message on the AutoCAD text screen.  
+ Editor.WriteMessage (string, params object[])  Displays a message on the AutoCAD text screen.  
+
+   Comments?  

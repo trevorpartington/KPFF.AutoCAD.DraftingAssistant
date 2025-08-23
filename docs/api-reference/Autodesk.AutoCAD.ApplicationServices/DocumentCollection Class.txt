@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class
+DocumentCollection ClassDescription
+This .NET class wraps the AcApDocManager ObjectARX class. 
+
+The DocumentManager object is the container for all the document objects (there is one document object for each drawing that is open and being edited).
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentCollection
+Visual Basic
+Public sealed Class DocumentCollection
+Inherits MarshalByRefObject
+Inherits ICollection
+C#
+public sealed class DocumentCollection : MarshalByRefObject, ICollection;
+Links
+DocumentCollection Classes, DocumentCollection Methods, DocumentCollection Properties, DocumentCollection Events
+   Comments?  

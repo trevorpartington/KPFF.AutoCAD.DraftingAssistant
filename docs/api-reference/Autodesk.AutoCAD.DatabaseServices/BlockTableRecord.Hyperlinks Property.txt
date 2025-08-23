@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > Hyperlinks Property
+BlockTableRecord.Hyperlinks Property    Description
+Accesses a collection of hyperlinks associated with the BlockTableRecord.
+
+Visual Basic
+Public Property Hyperlinks() As HyperLinkCollection
+C#
+public HyperLinkCollection Hyperlinks;
+Conditions
+Read-Only.
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

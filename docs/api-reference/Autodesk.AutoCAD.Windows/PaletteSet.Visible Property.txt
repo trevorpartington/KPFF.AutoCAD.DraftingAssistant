@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Visible Property
+PaletteSet.Visible PropertyDescription
+True if the palette set window is visible; otherwise false.
+
+Visual Basic
+Public override Property Visible() As bool
+C#
+public override bool Visible;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

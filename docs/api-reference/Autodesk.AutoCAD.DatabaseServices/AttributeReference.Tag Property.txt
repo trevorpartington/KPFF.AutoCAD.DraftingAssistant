@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > Tag Property
+AttributeReference.Tag PropertyDescription
+ 
+
+Accesses the tag string, which is the identifier you see if you explode the BlockReference that owns the attribute, so that the attribute reverts back to the AttributeDefinition that was part of the original reference’s block definition.
+
+Visual Basic
+Public Property Tag() As string
+C#
+public string Tag;
+Conditions
+Read / Write
+
+Notes
+The tag string is used for DXF group code 2.
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

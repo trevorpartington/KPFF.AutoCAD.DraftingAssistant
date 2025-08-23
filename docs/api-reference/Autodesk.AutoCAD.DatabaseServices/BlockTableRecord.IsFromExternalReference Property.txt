@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsFromExternalReference Property
+BlockTableRecord.IsFromExternalReference PropertyDescription
+ 
+
+Returns true if the block table record is describing an xref drawing.
+
+Visual Basic
+Public Property IsFromExternalReference() As bool
+C#
+public bool IsFromExternalReference;
+Conditions
+Read-only
+
+Notes
+The IsFromExternalReference value is used for the third bit in DXF group code 70
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

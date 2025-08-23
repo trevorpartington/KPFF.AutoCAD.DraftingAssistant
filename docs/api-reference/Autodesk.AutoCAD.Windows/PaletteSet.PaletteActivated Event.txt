@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > PaletteActivated Event
+PaletteSet.PaletteActivated EventDescription
+Occurs when the palette set data is activated.
+
+Visual Basic
+Public Event PaletteActivated As PaletteActivatedEventHandler
+C#
+public event PaletteActivatedEventHandler PaletteActivated;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

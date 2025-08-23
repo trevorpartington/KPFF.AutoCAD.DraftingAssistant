@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > IsPaperspaceView Property
+ViewTableRecord.IsPaperspaceView PropertyDescription
+ 
+
+Returns true if this ViewTableRecord is a Paper Space view. Otherwise it returns false. 
+
+ 
+
+Within AutoCAD, if a Paper Space view is restored while in Model Space, AutoCAD automatically switches to Paper Space. If a Model Space view is restored while in PaperSpace, AutoCAD prompts the end user to determine which Model Space viewport to restore it to. 
+
+ 
+
+The isPaperSpaceView flag is represented as bit 1 of DXF group code 70 (if bit 1 is set, then the view is a Paper Space view).
+
+Visual Basic
+Public Property IsPaperspaceView() As bool
+C#
+public bool IsPaperspaceView;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

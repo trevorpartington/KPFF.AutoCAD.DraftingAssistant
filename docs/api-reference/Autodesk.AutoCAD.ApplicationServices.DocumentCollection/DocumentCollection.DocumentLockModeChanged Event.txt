@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentLockModeChanged Event
+DocumentCollection.DocumentLockModeChanged EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentLockModeChanged() ObjectARX function. 
+
+ 
+
+This callback is given every time a lock is established or removed on a document. You can distinguish between a lock or an unlock call. Unlock calls will always have a command name prefixed with a '#' character. Lock calls can be vetoed, but unlock calls cannot.
+
+Visual Basic
+Public Event DocumentLockModeChanged As DocumentLockModeChangedEventHandler
+C#
+public event DocumentLockModeChangedEventHandler DocumentLockModeChanged;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

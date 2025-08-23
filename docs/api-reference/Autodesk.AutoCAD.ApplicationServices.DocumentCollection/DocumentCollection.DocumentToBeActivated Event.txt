@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentToBeActivated Event
+DocumentCollection.DocumentToBeActivated EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentToBeActivated() ObjectARX function. 
+
+ 
+
+This notification is sent when a document is about to be activated.
+
+Visual Basic
+Public Event DocumentToBeActivated As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentToBeActivated;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

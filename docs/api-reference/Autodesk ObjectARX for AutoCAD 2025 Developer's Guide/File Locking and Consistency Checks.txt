@@ -1,0 +1,12 @@
+AcDbDatabase::restoreForwardingXrefSymbols() FunctionExternal ReferencesIndexes and Filters 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > ObjectARX Introductory Concepts > Database Operations > External References > 
+File Locking and Consistency Checks
+ 
+ 
+ 
+The AcEdXrefFileLock base class is provided to handle the management of xref file locking. Its main purpose is to prepare the xref block in a drawing for in-place editing, though, it can be used for other purposes. It is assumed that these xref file methods operate on the current database drawing.
+
+The acedXrefReload() global function processes the list of xref block table record object IDs for xref reload. It is assumed that each xref block table record object ID references an xref drawing file that can be reloaded to the current drawing. It has the same functionality as the AutoCAD XREF subcommand for Reload.
+
+Please send us your comment about this page
+

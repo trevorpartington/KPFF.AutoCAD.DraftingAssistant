@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsEffectivelyErased Property
+ObjectId.IsEffectivelyErased PropertyDescription
+Assesses true if the object associated with this object ID is erased or if any of the owners in the ownership hierarchy for the object (in other words, the object's owner, the object's owner's owner, etc.) are erased.
+
+Visual Basic
+Public Property IsEffectivelyErased() As bool
+C#
+public bool IsEffectivelyErased;
+Conditions
+Read-only
+
+Notes
+This method uses the OwnerId property of each object to find the next owner in the hierarchy. If any of the objects in the ownership hierarchy (other than the top level Symbol Table or Named Object Dictionary object) do not have their owner Id set, then this method will not be able to walk all the way up the ownership chain. If this happens, or if any of the owner objects are not able to be opened for read, then this method returns true.
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

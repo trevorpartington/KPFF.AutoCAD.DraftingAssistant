@@ -1,0 +1,48 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties
+BlockTableRecord PropertiesProperties
+Property  Description  
+ BlockBeginId  
+Returns the the block begin opened openMode.  
+ BlockEndId  
+Returns the the block end opened openMode.  
+ BlockScaling  
+Specifies whether block references associated with this block table record can be uniformly or non-uniformly scaled.  
+ Comments  
+Accesses the description text associated with the BlockTableRecord.  
+ DrawOrderTableId  
+Returns the DrawOrderTable object ID.  
+ Explodable  
+Specifies whether block references associated with this block table record can be exploded.  
+ HasAttributeDefinitions  
+Returns true if the block table record contains attribute definitions.  
+ HasPreviewIcon  
+Returns true if the block table record has a preview icon.  
+ Hyperlinks  Accesses a collection of hyperlinks associated with the BlockTableRecord.  
+ IncludingErased  
+Returns the IncludingErased property value.  
+ IsAnonymous  
+Returns true if the block table record is anonymous.  
+ IsDynamicBlock  
+Returns true if the block table record is a dynamic block.  
+ IsFromExternalReference  
+Returns true if the block table record is describing an xref drawing.  
+ IsFromOverlayReference  Gets and sets the BlockTableRecord's overlay flag.
+Wraps the ObjectARX AcDbBlockTableRecord::isFromOverlayReference() and AcDbBlockTableRecord::setIsFromOverlayReference() methods.  
+ IsLayout  
+Returns true if this block table record represents a layout.  
+ IsUnloaded  
+Returns true if this block table record is an xref that is currently unloaded  
+ LayoutId  
+Accesses the layout ID.  
+ Origin  
+Accesses the insertion point of the block table record in WCS coordinates. This point is the origin of the MCS... more  
+ PathName  
+Accesses the path and name of the xref drawing. If this block table record is not an xref, then this... more  
+ PreviewIcon  
+Accesses the preview icon.  
+ Units  
+Accesses the units value.  
+ XrefStatus  
+Retrieves the xref status of the block table record on which this method is called.  
+
+   Comments?  

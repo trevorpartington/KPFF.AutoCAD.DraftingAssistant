@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > Contains Method
+ObjectIdCollection.Contains MethodDescription
+ 
+
+Returns true if value exists within the collection.
+
+Visual Basic
+Public Function Contains(
+    value As ObjectId
+) As bool
+C#
+public bool Contains(
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+ObjectId value  Item to check for  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

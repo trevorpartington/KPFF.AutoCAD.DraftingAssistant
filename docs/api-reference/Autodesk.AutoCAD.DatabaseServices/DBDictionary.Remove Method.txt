@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Remove Method
+Remove MethodOverload List
+Method  Description  
+ DBDictionary.Remove (ObjectId)  
+This function removes an entry specified by its object ID in objId from the dictionary.  
+ DBDictionary.Remove (string)  
+This function removes and entry specified by its 'key' from the dictionary.  
+
+   Comments?  

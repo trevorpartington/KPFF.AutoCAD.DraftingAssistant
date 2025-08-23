@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Runtime Namespace > IExtensionApplication Interface > IExtensionApplication Methods > Initialize Method
+IExtensionApplication.Initialize MethodDescription
+This is Initialize, a member of class IExtensionApplication.
+
+Visual Basic
+Function Initialize() As void
+C#
+void Initialize();
+Links
+IExtensionApplication Interface, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

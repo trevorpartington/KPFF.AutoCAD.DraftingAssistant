@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Properties > MergeStyle Property
+DBDictionary.MergeStyle PropertyDescription
+Accesses the merge style property value.
+
+Visual Basic
+Public override Property MergeStyle() As Autodesk.AutoCAD.DatabaseServices.DuplicateRecordCloning
+C#
+public override Autodesk.AutoCAD.DatabaseServices.DuplicateRecordCloning MergeStyle;
+Conditions
+Read / Write
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

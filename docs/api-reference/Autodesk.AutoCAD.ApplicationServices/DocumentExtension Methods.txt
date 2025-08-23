@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods
+DocumentExtension MethodsMethods
+Method  Description  
+ CapturePreviewImage  
+Captures the capture preview image for any document, even if it's not active and not saved.  
+ CloseAndDiscard  
+Closes the document without saving it.  
+ CloseAndSave  
+Closes the document and saves it to fileName.  
+ FromAcadDocument  Converts an object into a Document.  
+ GetAcadDocument  
+This .NET method wraps the ObjectARX method  
+ GetDocumentWindow  Gets the window associated with a Document object.  
+ GetStatusBar  
+This .NET method wraps the ObjectARX method  
+
+   Comments?  

@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > AppContextOpenDocument Method
+DocumentCollection.AppContextOpenDocument Method    Description
+This function allows synchronous access to the OPEN drawing operation. It can only be called from the application context.
+
+Visual Basic
+Public Function AppContextOpenDocument(
+    fileName As string
+) As void
+C#
+public void AppContextOpenDocument(
+    string fileName
+);
+Parameters
+Parameters  Description  
+string fileName  Input path/filenam  
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

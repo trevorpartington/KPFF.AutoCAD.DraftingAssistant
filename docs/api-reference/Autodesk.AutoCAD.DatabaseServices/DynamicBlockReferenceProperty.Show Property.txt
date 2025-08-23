@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > Show Property
+DynamicBlockReferenceProperty.Show PropertyDescription
+ 
+
+Accesses
+
+Visual Basic
+Public Property Show() As bool
+C#
+public bool Show;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

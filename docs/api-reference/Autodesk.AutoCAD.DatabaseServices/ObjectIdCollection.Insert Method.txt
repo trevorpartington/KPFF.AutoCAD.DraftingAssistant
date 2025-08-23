@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > Insert Method
+ObjectIdCollection.Insert MethodDescription
+ 
+
+Inserts value at position index in the collection.
+
+Visual Basic
+Public Function Insert(
+    index As Integer, 
+    value As ObjectId
+) As void
+C#
+public void Insert(
+    int index, 
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+int index  Index to insert at  
+ObjectId value  Item to add  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

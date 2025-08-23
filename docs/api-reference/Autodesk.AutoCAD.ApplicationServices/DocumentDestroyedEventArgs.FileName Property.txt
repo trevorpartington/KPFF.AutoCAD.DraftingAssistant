@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentDestroyedEventArgs Class > DocumentDestroyedEventArgs Properties > FileName Property
+DocumentDestroyedEventArgs.FileName PropertyDescription
+ 
+
+Accesses the name of the document that was destroyed.
+
+Visual Basic
+Public Property FileName() As string
+C#
+public string FileName;
+Conditions
+Read-only
+
+Links
+DocumentDestroyedEventArgs Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

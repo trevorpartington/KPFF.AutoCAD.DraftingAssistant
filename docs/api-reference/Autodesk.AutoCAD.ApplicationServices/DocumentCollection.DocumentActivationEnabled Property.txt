@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > DocumentActivationEnabled Property
+DocumentCollection.DocumentActivationEnabled PropertyDescription
+ 
+
+Accesses the status of document activation
+
+Visual Basic
+Public Property DocumentActivationEnabled() As bool
+C#
+public bool DocumentActivationEnabled;
+Conditions
+Read / Write
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

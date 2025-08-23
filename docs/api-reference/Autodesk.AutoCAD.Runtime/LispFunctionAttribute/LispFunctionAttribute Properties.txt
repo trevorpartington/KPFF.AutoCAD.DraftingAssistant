@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Properties
+LispFunctionAttribute PropertiesProperties
+Property  Description  
+ GlobalName  
+Returns the GlobalName property value.  
+ HelpFileName  
+Returns the HelpFileName property value.  
+ HelpTopic  
+Returns the HelpTopic property value.  
+ LocalizedNameId  
+Returns the LocalizedNameId property value.  
+
+   Comments?  

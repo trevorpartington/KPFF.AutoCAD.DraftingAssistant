@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > CopyTo Method
+DocumentCollection.CopyTo MethodDescription
+ 
+
+Copies the DocumentCollection to a one-dimensional array.
+
+Visual Basic
+Public Function CopyTo(
+    array As Document[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    Document\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+Document[] array  Input the one-dimensional array that is the destination of the elements copied from DocumentCollection. The array must have zero-based indexing.  
+int index  Input the zero-based index in array at which copying begins.  
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

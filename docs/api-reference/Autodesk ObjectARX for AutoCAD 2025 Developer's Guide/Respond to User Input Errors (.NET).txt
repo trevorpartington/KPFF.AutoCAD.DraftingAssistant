@@ -1,0 +1,13 @@
+Compare Error Handlers in VBA or VB to VB.NET (.NET)Handle Errors (.NET)Distribute Your Application (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Develop Applications with VB.NET and C# (.NET) > Handle Errors (.NET) > 
+Respond to User Input Errors (.NET)
+ 
+ 
+ 
+The user-input methods provide a certain amount of inherent error trapping in that they require the user to enter a certain type of data. If the user tries to enter some other data, AutoCAD rejects the input and re-prompts the user. Using the PromptXXXOption objects with the appropriate GetXXX or SelectXXX methods provide additional control of the user input but can also introduce additional conditions that must be verified before execution continues. 
+
+Related Concepts
+Handle Errors (.NET)
+Prompt for User Input (.NET)
+Please send us your comment about this page
+

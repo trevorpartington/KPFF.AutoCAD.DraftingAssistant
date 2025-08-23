@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > CopyTo Method
+PaletteSet.CopyTo MethodDescription
+Copies the palette in this palette set to the array starting from the specified index.
+
+Visual Basic
+Public Function CopyTo(
+    array As Palette[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    Palette\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+Palette[] array  Input target array  
+int index  Input first index to copy elements to  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Methods
+DbDictionaryEnumerator MethodsMethods
+Method  Description  
+ MoveNext  
+This function attempts to advance the iterator one entry in the dictionary. If another entry is found, it returns true;... more  
+ Reset  
+Resets the iterating position.  
+
+   Comments?  

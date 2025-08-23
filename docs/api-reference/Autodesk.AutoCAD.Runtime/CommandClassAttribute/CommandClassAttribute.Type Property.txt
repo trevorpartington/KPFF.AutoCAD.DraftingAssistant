@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandClassAttribute Class > CommandClassAttribute Properties > Type Property
+CommandClassAttribute.Type PropertyDescription
+ 
+
+Returns the Type property value.
+
+Visual Basic
+Public Property Type() As System.Type
+C#
+public System.Type Type;
+Conditions
+Read-only
+
+Links
+CommandClassAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Methods
+AttributeReference MethodsMethods
+Method  Description  
+ SetAttributeFromBlock    
+ UpdateMTextAttribute  
+Updates the internal MText entity from the basic AttributeReference properties.  
+
+   Comments?  

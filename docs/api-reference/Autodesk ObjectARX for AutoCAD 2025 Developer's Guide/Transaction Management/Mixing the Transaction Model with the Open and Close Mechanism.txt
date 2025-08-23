@@ -1,0 +1,11 @@
+Undo and TransactionsTransaction ManagementTransactions and Graphics Generation 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Mixing the Transaction Model with the Open and Close Mechanism
+ 
+ 
+ 
+The transaction model coexists with the regular open and close mechanism described in Database Objects. However, if you are using the transaction model, it is recommended that you do not mix it with the open and close mechanism. For example, if you obtained a pointer to an object using AcTransaction::getObject(), you shouldnot call close() on the object pointer, which could cause unexpected results and may crash AutoCAD. However, you are free to open and close a particular object even if transactions are active. You can also instantiate new objects, add them to the database, and close them while transactions are active. The primary purpose of having the mixed model is to allow simultaneous execution of multiple applications where some use transaction management and others do not, but all of them are operating on the same objects. 
+
+NOTE:If an object is modified with the open and close mechanism while a transaction is active, changes to it will be rolled back with the transaction during UNDO operations. 
+Please send us your comment about this page
+

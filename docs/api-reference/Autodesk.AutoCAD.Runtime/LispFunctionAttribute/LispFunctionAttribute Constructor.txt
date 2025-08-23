@@ -1,0 +1,12 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Constructor
+LispFunctionAttribute ConstructorOverload List
+Method  Description  
+ LispFunctionAttribute.LispFunctionAttribute (string)  
+Constructs an object of the given name.  
+ LispFunctionAttribute.LispFunctionAttribute (string, string)  
+Constructs an object of the given name and localized ID.  
+ LispFunctionAttribute.LispFunctionAttribute (string, string, string)  
+Constructs an object of the given name, localized ID, and help topic.  
+ LispFunctionAttribute.LispFunctionAttribute (string, string, string, string)  Constructor.  
+
+   Comments?  

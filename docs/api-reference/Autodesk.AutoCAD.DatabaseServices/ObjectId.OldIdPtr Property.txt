@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > OldIdPtr Property
+ObjectId.OldIdPtr PropertyDescription
+Accesses the objectId value as a long, which is the old format (an is an array of two longs, the first element of which contains the same value as that in an objectId).
+
+Visual Basic
+Public Property OldIdPtr() As IntPtr
+C#
+public IntPtr OldIdPtr;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

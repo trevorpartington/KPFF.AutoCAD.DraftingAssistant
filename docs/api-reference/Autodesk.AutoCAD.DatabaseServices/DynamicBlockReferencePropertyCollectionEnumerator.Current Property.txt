@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollectionEnumerator Class > DynamicBlockReferencePropertyCollectionEnumerator Properties > Current Property
+DynamicBlockReferencePropertyCollectionEnumerator.Current PropertyDescription
+ 
+
+Accesses the current item.
+
+Visual Basic
+Public virtual Property Current() As object
+C#
+public virtual object Current;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferencePropertyCollectionEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > ReadDwgFile Method
+ReadDwgFile MethodOverload List
+Method  Description  
+ Database.ReadDwgFile (IntPtr, [MarshalAs(UnmanagedType.U1)] bool, string)  
+Reads the drawing file specified by drawingFile into the database object executing this function.
+This function uses the "lazy-load" mechanism,... more  
+ Database.ReadDwgFile (string, FileOpenMode, [MarshalAs(UnmanagedType.U1)] bool, string)  
+Reads the drawing file specified by fileName into the database object executing this function. fileName must include the extension of... more  
+ Database.ReadDwgFile (string, FileShare, [MarshalAs(UnmanagedType.U1)] bool, string)  This function is obsolete and will be removed in a future release.
+
+Reads the drawing file specified by fileName into... more  
+
+   Comments?  

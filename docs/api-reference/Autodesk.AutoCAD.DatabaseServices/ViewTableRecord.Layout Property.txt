@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > Layout Property
+ViewTableRecord.Layout PropertyDescription
+ 
+
+Returns the layout of the view. 
+
+ 
+
+Returns an error if the layout ID could not be stored. Because paperspace views refer to a position on a specific layout rather than just an arbitrary paper region, this field is required to accurately restore a paperspace view.
+
+Visual Basic
+Public Property Layout() As ObjectId
+C#
+public ObjectId Layout;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

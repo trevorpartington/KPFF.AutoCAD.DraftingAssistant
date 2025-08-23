@@ -1,0 +1,32 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionExtension Class > DocumentCollectionExtension Methods > Open Method > Open(this DocumentCollection, string, [MarshalAs(UnmanagedType.U1)] bool) Method
+DocumentCollectionExtension.Open(this DocumentCollection, string, [MarshalAs(UnmanagedType.U1)] bool) Method    Description
+ 
+
+Opens the specified drawing and returns a Document object representing the opened drawing.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.DocumentCollectionExtension
+
+Visual Basic
+Public static Function Open(
+    docCol As this DocumentCollection, 
+    fileName As string, 
+    forReadOnly As [MarshalAs(UnmanagedType.U1)] bool
+) As Document
+C#
+public static Document Open(
+    this DocumentCollection docCol, 
+    string fileName, 
+    [MarshalAs(UnmanagedType.U1)] bool forReadOnly
+);
+Parameters
+Parameters  Description  
+string fileName  Input System.String object. The name of the drawing file to open.  
+[MarshalAs(UnmanagedType.U1)] bool forReadOnly  Input true if the item is to be read only  
+
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.DocumentCollection
+
+Links
+DocumentCollectionExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

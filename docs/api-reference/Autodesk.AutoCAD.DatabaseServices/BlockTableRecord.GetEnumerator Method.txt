@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > GetEnumerator Method
+BlockTableRecord.GetEnumerator MethodDescription
+ 
+
+Returns an enumerator that iterates through the collection.
+
+Visual Basic
+Public Function GetEnumerator() As BlockTableRecordEnumerator
+C#
+public BlockTableRecordEnumerator GetEnumerator();
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

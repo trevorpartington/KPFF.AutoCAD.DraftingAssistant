@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > RemoveAt Method
+ObjectIdCollection.RemoveAt MethodDescription
+ 
+
+Removes the object whose index in the collection is index.
+
+Visual Basic
+Public Function RemoveAt(
+    index As Integer
+) As void
+C#
+public void RemoveAt(
+    int index
+);
+Parameters
+Parameters  Description  
+int index  Index of object to remove  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

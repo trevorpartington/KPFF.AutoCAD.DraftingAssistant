@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > SetThemedIcon Method
+PaletteSet.SetThemedIcon Method    Description
+A convenience method for setting the large and small icon for the given theme of the palette.
+
+Visual Basic
+Public Function SetThemedIcon(
+    value As System.Drawing.Icon, 
+    theme As ColorThemeEnum
+) As void
+C#
+public void SetThemedIcon(
+    System.Drawing.Icon value, 
+    ColorThemeEnum theme
+);
+Parameters
+Parameters  Description  
+System.Drawing.Icon value  icon to be set  
+ColorThemeEnum theme  theme to be applied to  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

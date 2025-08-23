@@ -1,0 +1,25 @@
+Update the Geometry in the Document Window (.NET)Control the AutoCAD Environment (.NET)Create and Open a Drawing (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Control the AutoCAD Environment (.NET) > 
+Create, Open, Save, and Close Drawings (.NET)
+ 
+ 
+ 
+The DocumentCollection, DocumentCollectionExtension, Document, and Database objects provide access to the AutoCAD® file methods. 
+
+VBA/ActiveX Cross Reference
+VBA/ActiveX Class  .NET API Class  
+Documents collection  DocumentCollection and DocumentCollectionExtension  
+Document  Document and Database  
+Document.Saved  System.Convert.ToInt16(Application.GetSystemVariable("DBMOD"))  
+
+Topics in this section
+Create and Open a Drawing (.NET)
+Save and Close a Drawing (.NET)
+Work With No Documents Open (.NET)
+Related Concepts
+Control the AutoCAD Environment (.NET)
+Create and Open a Drawing (.NET)
+Save and Close a Drawing (.NET)
+Work With No Documents Open (.NET)
+Please send us your comment about this page
+

@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods
+PaletteSet MethodsMethods
+Method  Description  
+ Activate  Activates palette set window based on the index specified.  
+ Add    
+ AddVisual    
+ AddVisualBrowser  Adds a visual browser control to a palette.
+Note: Related to the Blocks palette.  
+ CopyTo  Copies the palette in this palette set to the array starting from the specified index.  
+ EnableTransparency  This function is equivalent to CAdUiPaletteSet::SetAllowTransparency().
+Sets whether to enable or disable transparency for the palette set.
+A return... more  
+ FloatControl    
+ GetEnumerator  Returns the IEnumerator interface to enumerate the elements of the collection.  
+ GetThemedIcon  Returns either the small (16x16) or large icon (32x32) of the palette set for the current theme.  
+ Remove  Removes palette set window based on the index specified.  
+ SetThemedIcon  A convenience method for setting the large and small icon for the given theme of the palette.  
+ switchVisualBrowser  Switches the current tab to a specific tab and controls the display of the content on the tab.
+Note: Related... more  
+
+   Comments?  

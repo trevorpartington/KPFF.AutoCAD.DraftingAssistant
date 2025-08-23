@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IncludingErased Property
+BlockTableRecord.IncludingErased PropertyDescription
+ 
+
+Returns the IncludingErased property value.
+
+Visual Basic
+Public Property IncludingErased() As BlockTableRecord
+C#
+public BlockTableRecord IncludingErased;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

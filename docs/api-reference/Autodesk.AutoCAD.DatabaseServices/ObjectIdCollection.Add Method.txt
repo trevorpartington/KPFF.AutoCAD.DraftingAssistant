@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > Add Method
+ObjectIdCollection.Add MethodDescription
+ 
+
+Adds the object represented by value to this collection. Returns the zero-based index of the newly added collection item.
+
+Visual Basic
+Public Function Add(
+    value As ObjectId
+) As Integer
+C#
+public int Add(
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+ObjectId value  Item to add  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,19 @@
+Specialized Overrule ClassesAdvanced TopicsDynamic Block API Overview 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > 
+Dynamic Blocks, Protocol Reactors, and Evaluation Graphs
+ 
+ 
+ 
+AutoCAD ® block entities support enhancements that let users specialize instances of block definitions. Blocks that support such specialization are known as dynamic blocks. With dynamic block API classes, you can query and set properties of dynamic block references. With dynamic block extension classes, you can add custom grip points and insertion points to blocks. 
+
+The dynamic block API also exposes a set of graph evaluation classes. These classes define a general mechanism that applications can use to create their own systems of intelligent dependencies.
+
+Topics in this section
+Dynamic Block API Overview
+Protocol Extensions for Dynamic Blocks
+Dynamic Block Properties
+Evaluation of Interobject Relationships
+Dynamic Block Interaction with Other Objects
+Dynamic Blocks and Legacy Block Applications
+Please send us your comment about this page
+

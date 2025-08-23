@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > Operators > == Operator
+ObjectId.== OperatorDescription
+Returns true if a equals b.
+
+Visual Basic
+Public static Operator ==(
+    a As ObjectId, 
+    b As ObjectId
+)
+C#
+public static bool operator ==(
+    ObjectId a, 
+    ObjectId b
+);
+Parameters
+Parameters  Description  
+ObjectId a  Left operand  
+ObjectId b  Right operand  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

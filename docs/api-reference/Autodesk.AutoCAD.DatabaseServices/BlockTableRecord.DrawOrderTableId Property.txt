@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > DrawOrderTableId Property
+BlockTableRecord.DrawOrderTableId PropertyDescription
+ 
+
+Returns the DrawOrderTable object ID.
+
+Visual Basic
+Public Property DrawOrderTableId() As ObjectId
+C#
+public ObjectId DrawOrderTableId;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

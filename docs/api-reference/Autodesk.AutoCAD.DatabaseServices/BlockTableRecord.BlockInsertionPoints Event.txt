@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Events > BlockInsertionPoints Event
+BlockTableRecord.BlockInsertionPoints EventDescription
+ 
+
+This event occurs during the insertion of a block for which an application has defined custom insertion points.
+
+Visual Basic
+Public static Event BlockInsertionPoints As BlockInsertionPointsEventHandler
+C#
+public static event BlockInsertionPointsEventHandler BlockInsertionPoints;
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

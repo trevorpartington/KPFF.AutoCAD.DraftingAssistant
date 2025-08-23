@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Properties > Value Property
+DBDictionaryEntry.Value PropertyDescription
+ 
+
+Accesses the Value property value.
+
+Visual Basic
+Public Property Value() As ObjectId
+C#
+public ObjectId Value;
+Conditions
+Read / Write
+
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

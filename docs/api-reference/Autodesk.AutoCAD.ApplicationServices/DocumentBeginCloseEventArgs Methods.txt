@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentBeginCloseEventArgs Class > DocumentBeginCloseEventArgs Methods
+DocumentBeginCloseEventArgs MethodsMethods
+Method  Description  
+ Veto  
+Vetoes the close process.  
+
+   Comments?  

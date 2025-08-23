@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > IndexOf Method
+ObjectIdCollection.IndexOf MethodDescription
+ 
+
+Returns the zero-based index of the collection item that matches value.
+
+Visual Basic
+Public Function IndexOf(
+    value As ObjectId
+) As Integer
+C#
+public int IndexOf(
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+ObjectId value  Item to search for  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

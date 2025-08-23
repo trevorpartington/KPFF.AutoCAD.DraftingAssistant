@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Constructor > CommandMethodAttribute(string) Constructor
+CommandMethodAttribute.CommandMethodAttribute(string) ConstructorDescription
+ 
+
+Constructs an object with a global name.
+
+Visual Basic
+Public Sub New(
+    globalName As string
+)
+C#
+public CommandMethodAttribute(
+    string globalName
+);
+Parameters
+Parameters  Description  
+string globalName  Input global command name  
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

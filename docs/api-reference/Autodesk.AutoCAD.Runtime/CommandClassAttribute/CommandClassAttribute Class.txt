@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandClassAttribute Class
+CommandClassAttribute ClassDescription
+This custom attribute class is used to mark a type as the application's command class. A CommandClass attribute may be declared for any type that defines AutoCAD command handlers. If an application uses the CommandClass attribute, it must declare an instance of this attribute for every type that contains an AutoCAD command handler method. AutoCAD queries the application's assembly for one or more CommandClass attributes. If instances of this attribute are found, AutoCAD searches only their associated types for command methods. Otherwise, it searches all exported types.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.CommandClassAttribute
+Visual Basic
+Public sealed Class CommandClassAttribute
+Inherits Attribute
+C#
+public sealed class CommandClassAttribute : Attribute;
+Links
+CommandClassAttribute Properties
+   Comments?  

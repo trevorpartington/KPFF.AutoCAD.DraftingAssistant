@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Anchored Property
+PaletteSet.Anchored PropertyDescription
+Returns the Anchored property value.
+
+Visual Basic
+Public Property Anchored() As bool
+C#
+public bool Anchored;
+Conditions
+Read-only
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

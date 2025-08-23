@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > NameAt Method
+DBDictionary.NameAt MethodDescription
+ 
+
+This function searches the dictionary for an entry with object ID objId and returns the search key name of the dictionary entry.
+
+Visual Basic
+Public virtual Function NameAt(
+    objId As ObjectId
+) As string
+C#
+public virtual string NameAt(
+    ObjectId objId
+);
+Parameters
+Parameters  Description  
+ObjectId objId  Object ID to search for  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

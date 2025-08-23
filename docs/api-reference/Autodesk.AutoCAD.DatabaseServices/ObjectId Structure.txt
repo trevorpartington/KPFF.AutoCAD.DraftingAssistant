@@ -1,0 +1,34 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure
+ObjectId StructureDescription
+This .NET struct wraps the AcDbObjectId ObjectARX class. 
+
+ 
+
+Since the Release of AutoCAD R13, there has been a mechanism for dealing with database-resident objects in memory. The scheme has two parts for each object. First there is the database-resident object itself, which resides in memory and can be paged out to disk if memory needs to be freed up. The second part is a "stub" object that always resides in memory and acts as the access point for the database-resident object. 
+
+When an object or entity is first added to the database, a new stub object is created and set to point to the object or entity being added to the database. The address of this stub in memory is the ObjectId value for the object or entity added to the database. The same mechanism applies when a database is read into memory from disk. 
+
+When a database-resident object is opened, the ObjectARX application sees that the database-resident object's objectId is passed into the open call and a pointer to the actual database-resident object is returned. What's actually going on is that the objectId is the address of the stub in memory, so the stub is accessed to get a pointer to the actual database-resident object. If the database-resident object is paged out, it is paged in and its new address is returned. 
+
+So, an ObjectId object is a container for the address of a database-resident object's stub. As such, it is an extremely important object because it contains the only session-persistent locator for the database-resident object.
+
+Visual Basic
+Public Structure ObjectId
+Inherits IComparable
+Inherits IDynamicMetaObjectProvider
+End Structure
+C#
+public struct ObjectId : IComparable<ObjectId>, IDynamicMetaObjectProvider {
+}
+Remarks
+Whenever possible, have custom objects and entities file in or out object IDs, since they are automatically translated (to the object's handle) on output or input, so that they always identify the same object or entity from session to session. When filing object IDs, be sure to file them out as the correct subtype (HardPointerId, SoftOwnershipId, etc.) so that the ObjectARX internal mechanisms will treat them correctly. 
+
+If you need to save an object identifier out to an external file (that is, not a DWG or DXF file), then you cannot use object IDs. The actual value in the object ID (its a memory address) is not the same from session to session. For such a situation, you will need to save the object's handle instead of its object ID. If you are working with multiple drawing files, then you need to save the drawing file name as well as the handle, since handle values are not unique across multiple drawings. 
+
+If you have a handle and want the object ID of the object it goes to, use the Database.GetObjectId() function. 
+
+If you have an object ID and want to get the handle of the object it identifies, open the object and use its DBObject.Handle property.
+
+Links
+ObjectId Methods, ObjectId Properties, Operators
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Methods > ToString Method > ToString() Method
+DBDictionaryEntry.ToString() MethodDescription
+ 
+
+Returns an equivalent string representation of this object. See the Microsoft .NET API documentation for details.
+
+Visual Basic
+Public sealed override Function ToString() As string
+C#
+public sealed override string ToString();
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

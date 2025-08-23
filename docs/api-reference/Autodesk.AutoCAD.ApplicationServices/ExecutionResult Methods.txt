@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class > ExecutionResult Methods
+ExecutionResult MethodsMethods
+Method  Description  
+ GetAwaiter  This is GetAwaiter, a member of class ExecutionResult.  
+ GetResult  This is GetResult, a member of class ExecutionResult.  
+ OnCompleted  This is OnCompleted, a member of class ExecutionResult.  
+
+   Comments?  

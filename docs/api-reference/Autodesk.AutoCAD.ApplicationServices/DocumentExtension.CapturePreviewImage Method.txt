@@ -1,0 +1,32 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > CapturePreviewImage Method
+DocumentExtension.CapturePreviewImage Method    Description
+ 
+
+Captures the capture preview image for any document, even if it's not active and not saved.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.DocumentExtension
+
+Visual Basic
+Public static Function CapturePreviewImage(
+    doc As this Document, 
+    width As uint modopt(IsLong), 
+    height As uint modopt(IsLong)
+) As Bitmap
+C#
+public static Bitmap CapturePreviewImage(
+    this Document doc, 
+    uint modopt(IsLong) width, 
+    uint modopt(IsLong) height
+);
+Parameters
+Parameters  Description  
+uint modopt(IsLong) width  Input image width  
+uint modopt(IsLong) height  Input image height  
+
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Document
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

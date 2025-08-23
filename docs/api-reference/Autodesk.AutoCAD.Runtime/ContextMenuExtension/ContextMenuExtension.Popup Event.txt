@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > ContextMenuExtension Class > ContextMenuExtension Events > Popup Event
+ContextMenuExtension.Popup EventDescription
+Occurs when the ContextMenuExtension object is displayed by AutoCAD.
+
+Visual Basic
+Public Event Popup As EventHandler
+C#
+public event EventHandler Popup;
+Links
+ContextMenuExtension Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

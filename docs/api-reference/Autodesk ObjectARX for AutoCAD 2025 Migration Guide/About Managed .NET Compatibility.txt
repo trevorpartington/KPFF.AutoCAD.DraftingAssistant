@@ -1,0 +1,40 @@
+About ObjectARX CompatibilityGeneral Development Compatibility (ObjectARX/.NET)Migrate from AutoCAD 2024 and Earlier 
+Autodesk ObjectARX for AutoCAD 2025: Migration Guide > General Development Compatibility (ObjectARX/.NET) > 
+About Managed .NET Compatibility
+ 
+ 
+ 
+Managed .NET applications are often associated with corporate and third-party applications that extend the behavior and capabilities of the AutoCAD-based product. 
+
+When migrating to the latest release, not all .NET applications might work. Compatibility for .NET applications is subject to change between releases to take advantage of the latest .NET Framework and additions to the AutoCAD Managed .NET API. 
+
+The following table lists the Managed .NET SDK versions that are supported by AutoCAD-based product release and the .NET Framework that is supported. 
+
+Release  Release Number  Supported .NET SDK  .NET  
+AutoCAD 2025  25.0  AutoCAD 2025  8.0  
+AutoCAD 2024  24.3  AutoCAD 2024, AutoCAD 2023, AutoCAD 2022, AutoCAD 2021  4.8  
+AutoCAD 2023  24.2  AutoCAD 2023, AutoCAD 2022, AutoCAD 2021  4.8  
+AutoCAD 2022  24.1  AutoCAD 2022, AutoCAD 2021  4.8  
+AutoCAD 2021  24.0  AutoCAD 2021  4.8  
+AutoCAD 2020  23.1  AutoCAD 2020, AutoCAD 2019  4.7  
+AutoCAD 2019  23.0  AutoCAD 2019  4.7  
+AutoCAD 2018  22.0  AutoCAD 2018  4.6  
+AutoCAD 2017  21.0  AutoCAD 2017  4.6  
+AutoCAD 2016  20.1  AutoCAD 2016, AutoCAD 2015  4.5  
+AutoCAD 2015  20.0  AutoCAD 2015  4.5  
+AutoCAD 2014  19.1  AutoCAD 2014, AutoCAD 2013  4.0  
+AutoCAD 2013  19.0  AutoCAD 2013  4.0  
+AutoCAD 2012  18.2  AutoCAD 2012, AutoCAD 2011, AutoCAD 2010  3.51 SP1  
+AutoCAD 2011  18.1  AutoCAD 2011, AutoCAD 2010  3.51 SP1  
+AutoCAD 2010  18.0  AutoCAD 2010  3.51 SP1  
+AutoCAD 2009  17.2  AutoCAD 2009, AutoCAD 2008, AutoCAD 2007  3.0  
+AutoCAD 2008  17.1  AutoCAD 2008, AutoCAD 2007  2.0  
+AutoCAD 2007  17.0  AutoCAD 2007  2.0  
+AutoCAD 2006  16.2  AutoCAD 2006, AutoCAD 2005  1.1 SP1  
+AutoCAD 2005  16.1  AutoCAD 2005  1.1  
+
+Changes to the Managed .NET SDK can be found in the What’s New and Migration Guide section of the Managed .NET Reference Guide (<drive>:\<objectarx install folder>\docs\arxmgd.chm). 
+
+NOTE:Starting with AutoCAD 2014-based products, custom applications must work under secure mode; when the SECURELOAD system variable is set to 1 or 2. When operating under secure mode, the AutoCAD-based product is restricted to loading and executing files that contain code from trusted locations; trusted locations are specified by the TRUSTEDPATHS system variable. For more information, see About Security and Protecting Against Viruses. 
+Please send us your comment about this page
+

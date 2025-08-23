@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Methods > GetObjectData Method
+Exception.GetObjectData MethodDescription
+This method calls its superclass version, and then adds a value named AcadErrorStatus to the data in info.
+
+Visual Basic
+Public override Function GetObjectData(
+    info As SerializationInfo, 
+    context As StreamingContext
+) As void
+C#
+public override void GetObjectData(
+    SerializationInfo info, 
+    StreamingContext context
+);
+Parameters
+Parameters  Description  
+SerializationInfo info  Input serialization info  
+StreamingContext context  Input context  
+
+Links
+Exception Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

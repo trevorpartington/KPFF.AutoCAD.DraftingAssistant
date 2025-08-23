@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > IsPreset Property
+AttributeReference.IsPreset PropertyDescription
+ 
+
+Returns true if the attribute object has a preset value and will not prompt for user input.
+
+Visual Basic
+Public Property IsPreset() As bool
+C#
+public bool IsPreset;
+Conditions
+Read-only
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

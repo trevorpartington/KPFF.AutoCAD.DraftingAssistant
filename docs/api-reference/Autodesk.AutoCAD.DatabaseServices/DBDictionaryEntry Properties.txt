@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Properties
+DBDictionaryEntry PropertiesProperties
+Property  Description  
+ Key  
+Accesses the Key property value.  
+ Value  
+Accesses the Value property value.  
+
+   Comments?  

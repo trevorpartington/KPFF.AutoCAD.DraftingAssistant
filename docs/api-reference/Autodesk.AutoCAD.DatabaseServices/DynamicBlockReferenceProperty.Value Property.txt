@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > Value Property
+DynamicBlockReferenceProperty.Value PropertyDescription
+ 
+
+Accesses the current value of the property on the block.
+
+Visual Basic
+Public Property Value() As object
+C#
+public object Value;
+Conditions
+Read / Write
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

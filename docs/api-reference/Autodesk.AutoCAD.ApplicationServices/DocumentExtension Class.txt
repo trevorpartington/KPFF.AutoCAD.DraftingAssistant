@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class
+DocumentExtension Class    Description
+ 
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentExtension
+Visual Basic
+Public static Class DocumentExtension
+C#
+public static class DocumentExtension;
+Links
+DocumentExtension Methods
+   Comments?  

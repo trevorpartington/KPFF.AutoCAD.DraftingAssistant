@@ -1,0 +1,14 @@
+Dynamic Blocks, Protocol Reactors, and Evaluation GraphsDynamic Blocks, Protocol Reactors, and Evaluation GraphsProtocol Extensions for Dynamic Blocks 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > 
+Dynamic Block API Overview
+ 
+ 
+ 
+Dynamic blocks enhance classic AutoCAD blocks by increasing their intelligence potential and adaptability. The internal geometry of a dynamic block instance can be adjusted independently of both its base definition and other instances. This flexibility is the central concept of dynamic blocks.
+
+The dynamic block API lets applications edit and enhance dynamic block definitions. Applications can access properties on dynamic block instances, and can change a dynamic block reference to a classic block for use in legacy environments. Applications use API classes to provide custom insertion points and grip points for blocks. In addition, custom entities can use the AcDbAlignment class to provide alignment information to dynamic block references. 
+
+The dynamic block API also exposes a set of graph evaluation classes that AutoCAD uses to define, store, and evaluate the relationships between block authoring elements. External applications can use these classes on a more general scale to introduce object dependencies and control their behavior.
+
+Please send us your comment about this page
+

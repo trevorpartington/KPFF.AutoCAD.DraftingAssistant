@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > LayoutId Property
+BlockTableRecord.LayoutId PropertyDescription
+ 
+
+Accesses the layout ID.
+
+Visual Basic
+Public Property LayoutId() As ObjectId
+C#
+public ObjectId LayoutId;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

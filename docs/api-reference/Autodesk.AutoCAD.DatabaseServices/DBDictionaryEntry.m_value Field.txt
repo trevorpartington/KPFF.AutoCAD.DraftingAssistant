@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Fields > m_value Field
+DBDictionaryEntry.m_value FieldDescription
+ 
+
+Stores the object ID of an entry.
+
+Visual Basic
+Public m_value As ObjectId
+C#
+public ObjectId m_value;
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > RolledUp Property
+PaletteSet.RolledUp PropertyDescription
+Returns the RolledUp property value
+
+Visual Basic
+Public Property RolledUp() As bool
+C#
+public bool RolledUp;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

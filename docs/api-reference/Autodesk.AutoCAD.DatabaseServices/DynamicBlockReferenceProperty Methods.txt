@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Methods
+DynamicBlockReferenceProperty MethodsMethods
+Method  Description  
+ GetAllowedValues  
+Returns the allowed values for the property.  
+
+   Comments?  

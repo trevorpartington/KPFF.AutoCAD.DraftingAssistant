@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > GetAnonymousBlockIds Method
+BlockTableRecord.GetAnonymousBlockIds MethodDescription
+ 
+
+Retrieves a collection populated with the ObjectIds of the anonymous blocks created from the dynamic block definition.
+
+Visual Basic
+Public Function GetAnonymousBlockIds() As ObjectIdCollection
+C#
+public ObjectIdCollection GetAnonymousBlockIds();
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

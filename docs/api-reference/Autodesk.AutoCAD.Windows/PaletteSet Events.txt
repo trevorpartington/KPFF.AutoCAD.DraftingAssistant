@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events
+PaletteSet EventsEvents
+Event  Description  
+ Focused  This is Focused, a member of class PaletteSet.  
+ Load  Occurs when the palette set data is loaded from XML.  
+ PaletteActivated  Occurs when the palette set data is activated.  
+ PaletteAddContextMenu  Occurs when the palette is given a context menu.  
+ PaletteSetEnterSizeMove  Occurs when the user clicks and holds the mouse button over the bottom right corner of a palette and begins... more  
+ PaletteSetHostMoved  Occurs after a palette has changed locations.  
+ Save  Occurs when the palette set data is saved to XML.  
+ SizeChanged  Occurs when the palette set size changes.  
+ StateChanged  Occurs when a detail of the palette set's state has changed.  
+
+   Comments?  

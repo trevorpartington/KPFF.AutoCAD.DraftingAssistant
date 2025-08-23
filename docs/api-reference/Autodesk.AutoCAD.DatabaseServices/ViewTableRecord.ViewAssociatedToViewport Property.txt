@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > ViewAssociatedToViewport Property
+ViewTableRecord.ViewAssociatedToViewport PropertyDescription
+ 
+
+Returns a flag to indicate whether or not the view is associated with a paperspace viewport.
+
+Visual Basic
+Public Property ViewAssociatedToViewport() As bool
+C#
+public bool ViewAssociatedToViewport;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

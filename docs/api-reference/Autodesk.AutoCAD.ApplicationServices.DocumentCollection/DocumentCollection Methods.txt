@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods
+DocumentCollection MethodsMethods
+Method  Description  
+ AppContextNewDocument  This function allows synchronous access to the NEW drawing operation. It can only be called from the application context.  
+ AppContextOpenDocument  This function allows synchronous access to the OPEN drawing operation. It can only be called from the application context.  
+ AppContextRecoverDocument  This is AppContextRecoverDocument, a member of class DocumentCollection.  
+ CopyTo  
+Copies the DocumentCollection to a one-dimensional array.  
+ ExecuteInApplicationContext  
+Allows a void function to be called from the application context.  
+ ExecuteInCommandContextAsync  Allows a void function to be called from the command context.  
+ GetDocument  Returns the Document.   
+ GetEnumerator  
+Returns an enumerator object for this collection.  
+ GetPendingDocumentForSwitch  This is GetPendingDocumentForSwitch, a member of class DocumentCollection.  
+
+   Comments?  

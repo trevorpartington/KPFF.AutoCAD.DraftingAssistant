@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > GetXrefDatabase Method
+BlockTableRecord.GetXrefDatabase MethodDescription
+ 
+
+This function returns the database that defines this block table record’s contents. If incrementUnresolved is true, then a database will be returned, even if the xref block table record is currently unresolved (for reasons other than that the xref drawing file could not be found).
+
+Visual Basic
+Public Function GetXrefDatabase(
+    incrementUnresolved As [MarshalAs(UnmanagedType.U1)] bool
+) As Database
+C#
+public Database GetXrefDatabase(
+    [MarshalAs(UnmanagedType.U1)] bool incrementUnresolved
+);
+Parameters
+Parameters  Description  
+[MarshalAs(UnmanagedType.U1)] bool incrementUnresolved  Input an indication whether or not to return the database of an unresolved xref  
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Properties > NumberOfOpenedObjects Property
+Transaction.NumberOfOpenedObjects Property    Description
+Returns the number of objects opened by the transaction.
+
+Visual Basic
+Public virtual Property NumberOfOpenedObjects() As Integer
+C#
+public virtual int NumberOfOpenedObjects;
+Conditions
+Read-only
+
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

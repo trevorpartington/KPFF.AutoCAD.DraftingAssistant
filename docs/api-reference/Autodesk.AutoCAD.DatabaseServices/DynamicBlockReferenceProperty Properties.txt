@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties
+DynamicBlockReferenceProperty PropertiesProperties
+Property  Description  
+ BlockId  
+Accesses the ObjectId of the dynamic block reference containing the property represented by the DynamicBlockReferenceProperty.  
+ Description  
+Accesses the property description.  
+ PropertyName  
+Accesses the name of the property.  
+ PropertyTypeCode  
+Accesses the property type.  
+ ReadOnly  
+Assesses whether the property is read only.  
+ Show  
+Accesses  
+ UnitsType  
+Accesses the format type of the property.  
+ Value  
+Accesses the current value of the property on the block.  
+ VisibleInCurrentVisibilityState  Indicates whether the property is visible in the current visibility state.  
+
+   Comments?  

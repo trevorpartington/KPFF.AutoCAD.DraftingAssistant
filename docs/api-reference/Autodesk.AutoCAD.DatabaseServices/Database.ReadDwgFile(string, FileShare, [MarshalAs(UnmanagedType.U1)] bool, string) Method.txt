@@ -1,0 +1,85 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > ReadDwgFile Method > ReadDwgFile(string, FileShare, [MarshalAs(UnmanagedType.U1)] bool, string) Method
+Database.ReadDwgFile(string, FileShare, [MarshalAs(UnmanagedType.U1)] bool, string) MethodDescription
+This function is obsolete and will be removed in a future release. 
+
+ 
+
+Reads the drawing file specified by fileName into the database object executing this function. fileName must include the extension of the file (which does not have to be .dwg) if the file to open has one, even if the extension is .dwg. fileName may be a URL. 
+
+ 
+
+This function uses the "lazy-load" mechanism, which means that pieces of the drawing are read in only as needed. So, the drawing file is left open until the database object is deleted, at which point the database destructor closes the drawing file. It always tries to open files with read access. It fails if read access is not available. 
+
+ 
+
+The share mode describes how other applications may access the file when the same file has already been opened. The following are share modes supported by AutoCAD: 
+
+ 
+
+Mode  Function  
+_SH_DENYWR  Opens an existing file as read-only
+Denies write-access to the file by other sessions  
+_SH_DENYRW  Opens a file for reading and writing
+Denies read-write access to the file by other sessions  
+_SH_DENYNO  Opens an existing file as read-only
+Permits read-write access to the file by other sessions  
+
+ 
+
+The fileSharing argument defaults to _SH_DENYWR. This default value gives the same behavior as in previous releases of ObjectARX, and prevents other applications from writing to the file. Also, if the file was already opened by another application for writing, this call will fail. 
+
+ 
+
+Using _SH_DENYNO does not lock out other applications from writing to the file. It is not safe to do a lazy load in such circumstances. Performing a lazy load means that pieces of the drawing are read-in only as needed. This feature, combined with the possibility of other applications updating the drawing file under _SH_DENYNO, can cause inconsistent reads and other errors without the call to CloseInput(). CloseInput() also releases the file handle when it finishes reading from the file. 
+
+ 
+
+The allowCPConversion argument controls the behavior when the user tries to read a dwg file where the NLS files are not available to convert from the codepage of the drawing to the codepage of the system (for example, a Japanese drawing on an English OS). 
+
+ 
+
+For an ObjectARX application, if allowCPConversion is false, AutoCAD will pop up a dialog explaining the situation and asking if the user wants to allow some kind of default conversion, which might cause a data loss. 
+
+ 
+
+However, when a non-AutoCAD host application encounters this situation with an ObjectDBX module, ReadDwgFile() will not work. At that point, the application can decide whether it wants to allow the default conversion by whatever means it chooses (including asking the user). If it chooses to allow the conversion, it can again call ReadDwgFile() and set allowCPConversion to true. 
+
+ 
+
+In either ObjectARX or ObjectDBX, if allowCPConversion is true, the file will be opened and the conversion will happen silently. 
+
+ 
+
+If password is NULL, the user is prompted for a password if one is required and if no applicable password exists in the password cache. 
+
+ 
+
+Returns Acad::eOk if successful.
+
+Warning
+This function should only be used on a newly created Database that was created with its constructor's buildDefaultDrawing argument set to false. If this method is used on an Database that was created with buildDefaultDrawing set to true, or an Database that already has information in it (for any reason including a previous call to this function), then memory leaks, or worse, will result.
+
+Visual Basic
+Public Function ReadDwgFile(
+    fileName As string, 
+    fileSharing As FileShare, 
+    allowCPConversion As [MarshalAs(UnmanagedType.U1)] bool, 
+    password As string
+) As void
+C#
+public void ReadDwgFile(
+    string fileName, 
+    FileShare fileSharing, 
+    [MarshalAs(UnmanagedType.U1)] bool allowCPConversion, 
+    string password
+);
+Parameters
+Parameters  Description  
+string fileName  Input name or URL of file to read  
+FileShare fileSharing  Input share mode  
+[MarshalAs(UnmanagedType.U1)] bool allowCPConversion  Input Boolean indicating whether to allow codepage conversion  
+string password  Input string containing a DWG password  
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

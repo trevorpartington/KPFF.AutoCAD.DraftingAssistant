@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > LargeDarkThemedIcon Property
+PaletteSet.LargeDarkThemedIcon Property    Description
+Provides access to the 32x32 palette set icon used when the dark theme is active.
+
+Visual Basic
+Public Property LargeDarkThemedIcon() As System.Drawing.Icon
+C#
+public System.Drawing.Icon LargeDarkThemedIcon;
+Remarks
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

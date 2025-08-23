@@ -1,0 +1,25 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > GetObject > GetObject(Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) Method
+ObjectId.GetObject(Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) MethodDescription
+Returns the object associated with this ID.
+
+Visual Basic
+Public Function GetObject(
+    mode As Autodesk.AutoCAD.DatabaseServices.OpenMode, 
+    openErased As [MarshalAs(UnmanagedType.U1)] bool, 
+    forceOpenOnLockedLayer As [MarshalAs(UnmanagedType.U1)] bool
+) As DBObject
+C#
+public DBObject GetObject(
+    Autodesk.AutoCAD.DatabaseServices.OpenMode mode, 
+    [MarshalAs(UnmanagedType.U1)] bool openErased, 
+    [MarshalAs(UnmanagedType.U1)] bool forceOpenOnLockedLayer
+);
+Parameters
+Parameters  Description  
+Autodesk.AutoCAD.DatabaseServices.OpenMode mode  Input mode to retrieve the object  
+[MarshalAs(UnmanagedType.U1)] bool openErased  Input Boolean indicating whether to obtain erased objects  
+[MarshalAs(UnmanagedType.U1)] bool forceOpenOnLockedLayer  Input true if locked layers should be opened  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

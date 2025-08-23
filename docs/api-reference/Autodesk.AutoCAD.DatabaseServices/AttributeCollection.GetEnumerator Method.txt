@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Methods > GetEnumerator Method
+AttributeCollection.GetEnumerator MethodDescription
+ 
+
+Returns an enumerator object for this collection.
+
+Visual Basic
+Public Function GetEnumerator() As IEnumerator
+C#
+public IEnumerator GetEnumerator();
+Links
+AttributeCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

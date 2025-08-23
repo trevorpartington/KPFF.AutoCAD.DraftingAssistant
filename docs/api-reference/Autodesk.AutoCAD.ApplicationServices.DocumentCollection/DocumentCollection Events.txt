@@ -1,0 +1,57 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events
+DocumentCollection EventsEvents
+Event  Description  
+ DocumentActivated  
+Wraps the AcApDocManagerReactor.documentActivated() ObjectARX function.
+
+This notification is sent once a document has been activated and its context has been... more  
+ DocumentActivationChanged  
+Wraps the AcApDocManagerReactor.documentActivationChanged() ObjectARX function.
+
+This notification is sent for changes caused by DocumentActivation or DocumentDestroyed.  
+ DocumentBecameCurrent  
+Wraps the AcApDocManagerReactor.documentBecameCurrent() ObjectARX function.
+
+This notification is sent whenever the current document changes. It should not be confused with... more  
+ DocumentCreated  
+Wraps the AcApDocManagerReactor.documentCreated() ObjectARX function.
+
+This notification is sent when a new Document has been constructed.  
+ DocumentCreateStarted  
+Wraps the AcApDocManagerReactor.documentCreateStarted() ObjectARX function.
+
+This notification is sent when a document is first instantiated and no database is yet... more  
+ DocumentCreationCanceled  
+Wraps the AcApDocManagerReactor.documentCreationCanceled() ObjectARX function.
+
+This notification is sent when a user action has canceled a document’s creation. This notification... more  
+ DocumentDestroyed  
+Wraps the AcApDocManagerReactor.documentDestroyed() ObjectARX function.
+
+This notification is sent when a document is completely destroyed and the underlying database corresponding... more  
+ DocumentLockModeChanged  
+Wraps the AcApDocManagerReactor.documentLockModeChanged() ObjectARX function.
+
+This callback is given every time a lock is established or removed on a document.... more  
+ DocumentLockModeChangeVetoed  
+Wraps the AcApDocManagerReactor.documentLockModeChangeVetoed() ObjectARX function.
+Requests to established locks on a document can be vetoed by reactors receiving the DocumentLockModeChanged... more  
+ DocumentLockModeWillChange  
+Wraps the AcApDocManagerReactor.documentLockModeWillChange()
+ObjectARX function.
+
+This callback is given before all lock changes are made on documents. It cannot be... more  
+ DocumentToBeActivated  
+Wraps the AcApDocManagerReactor.documentToBeActivated() ObjectARX function.
+
+This notification is sent when a document is about to be activated.  
+ DocumentToBeDeactivated  
+Wraps the AcApDocManagerReactor.documentToBeDeactivated() ObjectARX function.
+
+This notification is sent when a document is about to be deactivated.  
+ DocumentToBeDestroyed  
+Wraps the AcApDocManagerReactor.documentToBeDestroyed() ObjectARX function.
+
+This notification is sent at the beginning of document destruction.  
+
+   Comments?  

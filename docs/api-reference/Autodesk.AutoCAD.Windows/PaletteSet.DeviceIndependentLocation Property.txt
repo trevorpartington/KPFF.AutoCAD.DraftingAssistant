@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > DeviceIndependentLocation Property
+PaletteSet.DeviceIndependentLocation PropertyDescription
+This is DeviceIndependentLocation, a member of class PaletteSet.
+
+Visual Basic
+Public override Property DeviceIndependentLocation() As System.Windows.Point
+C#
+public override System.Windows.Point DeviceIndependentLocation;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

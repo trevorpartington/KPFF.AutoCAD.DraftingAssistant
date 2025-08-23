@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Properties > TransactionManager Property
+Transaction.TransactionManager PropertyDescription
+Accesses the associated transaction manager.
+
+Visual Basic
+Public virtual Property TransactionManager() As Autodesk.AutoCAD.DatabaseServices.TransactionManager
+C#
+public virtual Autodesk.AutoCAD.DatabaseServices.TransactionManager TransactionManager;
+Conditions
+Read-only
+
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

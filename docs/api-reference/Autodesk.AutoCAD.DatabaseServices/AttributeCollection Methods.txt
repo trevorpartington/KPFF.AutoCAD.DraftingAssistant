@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Methods
+AttributeCollection MethodsMethods
+Method  Description  
+ AppendAttribute  Returns the block reference with the new attribute.  
+ CopyTo  Copies the objects in the element to the array.  
+ GetEnumerator  
+Returns an enumerator object for this collection.  
+
+   Comments?  

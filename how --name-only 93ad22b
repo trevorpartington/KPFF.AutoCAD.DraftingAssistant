@@ -1,0 +1,21 @@
+[33mcommit 93ad22bb9483bc44d568836d95abb85fffc36acb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mphase3-excel-notes-complete[m[33m)[m
+Author: trevorpartington <35902483+trevorpartington@users.noreply.github.com>
+Date:   Fri Aug 22 08:43:21 2025 -0700
+
+    Implement Auto Notes UI integration (Phase 5C)
+    
+    - Auto Notes is now default selection in Construction Notes UI
+    - Added multileader style configuration TextBox with config persistence
+    - Full Auto Notes workflow: detect notes from viewports → update construction note blocks
+    - Config changes automatically save to ProjectConfig.json
+    - Reuses existing AutoNotesService backend and block update pipeline
+    - Complete error handling and status display
+    - Same workflow pattern as Excel Notes for consistency
+    
+    🤖 Generated with [Claude Code](https://claude.ai/code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+ .../Controls/ConstructionNoteControl.xaml          |  33 [32m+++[m[31m-[m
+ .../Controls/ConstructionNoteControl.xaml.cs       | 176 [32m+++++++++++++++++++[m[31m--[m
+ 2 files changed, 193 insertions(+), 16 deletions(-)

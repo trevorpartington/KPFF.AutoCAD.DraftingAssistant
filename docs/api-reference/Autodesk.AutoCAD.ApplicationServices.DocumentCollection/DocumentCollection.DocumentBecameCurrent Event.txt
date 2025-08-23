@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentBecameCurrent Event
+DocumentCollection.DocumentBecameCurrent EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentBecameCurrent() ObjectARX function. 
+
+ 
+
+This notification is sent whenever the current document changes. It should not be confused with a document getting focus, or becoming active. It is possible for the same document to go in and out of focus, or become active and inactive. This notification is only sent when a document becomes active, and is different than the last active document.
+
+Visual Basic
+Public Event DocumentBecameCurrent As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentBecameCurrent;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

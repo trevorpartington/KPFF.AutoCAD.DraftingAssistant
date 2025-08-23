@@ -1,0 +1,29 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class
+AttributeReference ClassDescription
+ 
+
+This .NET class wraps the AcDbAttribute ObjectARX class. 
+
+ 
+
+The Attribute class represents the ATTRIB entity within AutoCAD. ATTRIB entities are associated with INSERT entities (BlockReference objects).
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Entity
+        Autodesk.AutoCAD.DatabaseServices.DBText
+            Autodesk.AutoCAD.DatabaseServices.AttributeReference
+Visual Basic
+Public Class AttributeReference
+Inherits DBText
+C#
+public class AttributeReference : DBText;
+Notes
+To set all the non-AttributeReference-specific properties such as position, text string, text height, text rotation, and others, for the attribute, use the methods inherited from Text.
+
+Links
+AttributeReference Constructor, AttributeReference Methods, AttributeReference Properties
+See Also
+DBObject, Entity, BlockReference, AttributeDefinition
+
+   Comments?  

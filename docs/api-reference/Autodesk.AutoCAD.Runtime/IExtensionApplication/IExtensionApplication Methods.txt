@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Runtime Namespace > IExtensionApplication Interface > IExtensionApplication Methods
+IExtensionApplication MethodsMethods
+Method  Description  
+ Initialize  This is Initialize, a member of class IExtensionApplication.  
+ Terminate  This is Terminate, a member of class IExtensionApplication.  
+
+   Comments?  

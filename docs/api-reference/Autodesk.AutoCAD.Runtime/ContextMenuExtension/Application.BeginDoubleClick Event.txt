@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > BeginDoubleClick Event
+Application.BeginDoubleClick EventDescription
+Wraps the AcEditorReactor::beginDoubleClick() ObjectARX function. This callback function indicates that the mouse button has been double clicked.
+
+Visual Basic
+Public static Event BeginDoubleClick As BeginDoubleClickEventHandler
+C#
+public static event BeginDoubleClickEventHandler BeginDoubleClick;
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

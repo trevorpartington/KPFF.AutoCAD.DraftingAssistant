@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > TitleBarLocation Property
+PaletteSet.TitleBarLocation PropertyDescription
+Location of the palette set window title bar.
+
+Visual Basic
+Public Property TitleBarLocation() As PaletteSetTitleBarLocation
+C#
+public PaletteSetTitleBarLocation TitleBarLocation;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

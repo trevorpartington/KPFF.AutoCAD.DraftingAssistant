@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsErased Property
+ObjectId.IsErased PropertyDescription
+Assesses if the object associated with this object ID is erased
+
+Visual Basic
+Public Property IsErased() As bool
+C#
+public bool IsErased;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

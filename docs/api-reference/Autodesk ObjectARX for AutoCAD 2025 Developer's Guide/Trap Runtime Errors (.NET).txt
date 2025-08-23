@@ -1,0 +1,23 @@
+Define Application Error Types (.NET)Handle Errors (.NET)Use Try Statements (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Develop Applications with VB.NET and C# (.NET) > Handle Errors (.NET) > 
+Trap Runtime Errors (.NET)
+ 
+ 
+ 
+VB.NET and C# support common and language specific ways to handle errors at runtime. The Try statement is available in both C# and VB.NET to trap errors, while the On Error statement is available in VB.NET and Goto is only in C#. 
+
+For more information on the Try, On Error, and Goto statements beyond what is mentioned in this guide, see the documentation that comes with your development environment. 
+
+Topics in this section
+Use Try Statements (.NET)
+Use the Exception Object (.NET)
+Using the VB.NET On Error Statements (.NET)
+Compare Error Handlers in VBA or VB to VB.NET (.NET)
+Related Concepts
+Handle Errors (.NET)
+Use Try Statements (.NET)
+Use the Exception Object (.NET)
+Using the VB.NET On Error Statements (.NET)
+Compare Error Handlers in VBA or VB to VB.NET (.NET)
+Please send us your comment about this page
+

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Properties > Value Property
+DbDictionaryEnumerator.Value PropertyDescription
+ 
+
+Accesses the value.
+
+Visual Basic
+Public Property Value() As ObjectId
+C#
+public ObjectId Value;
+Conditions
+Read-only
+
+Links
+DbDictionaryEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

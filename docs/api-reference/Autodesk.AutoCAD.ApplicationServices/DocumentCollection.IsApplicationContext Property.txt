@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > IsApplicationContext Property
+DocumentCollection.IsApplicationContext PropertyDescription
+ 
+
+Assesses if a function is executing in the application context.
+
+Visual Basic
+Public Property IsApplicationContext() As bool
+C#
+public bool IsApplicationContext;
+Conditions
+Read-only
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

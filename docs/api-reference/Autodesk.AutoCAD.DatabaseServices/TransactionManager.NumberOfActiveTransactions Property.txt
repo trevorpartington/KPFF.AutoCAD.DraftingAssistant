@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Properties > NumberOfActiveTransactions Property
+TransactionManager.NumberOfActiveTransactions PropertyDescription
+ 
+
+Returns the number of active transactions.
+
+Visual Basic
+Public virtual Property NumberOfActiveTransactions() As Integer
+C#
+public virtual int NumberOfActiveTransactions;
+Conditions
+Read-only
+
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

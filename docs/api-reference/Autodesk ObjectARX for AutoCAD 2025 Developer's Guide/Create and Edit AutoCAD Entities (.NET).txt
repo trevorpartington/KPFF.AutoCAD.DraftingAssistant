@@ -1,0 +1,30 @@
+Extend the AutoCAD User Interface (.NET)Open and Close Objects (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide >  
+Create and Edit AutoCAD Entities (.NET)
+ 
+ 
+ 
+You can create a range of objects, from simple lines and circles to spline curves, ellipses, and associative hatch areas. In general, you add objects to a BlockTableRecord object using the AppendEntity function. Once an object is created, you can change its properties such as layer, color, and linetype. 
+
+The drawing database is similar to other database programs, you can think of a Line object in Model space as table record and Model space as its database table. When working with a database, you must open and close records before working with them. The objects stored in the Database object are no different, you use the GetObject function to retrieve an object from the database and define how you want to work with the object. 
+
+Topics in this section
+Open and Close Objects (.NET)
+Create Objects (.NET)
+Work With Selection Sets (.NET)
+A selection set can consist of a single object, or it can be a more complex grouping: for example, the set of objects on a certain layer. 
+
+Edit Named and 2D Objects (.NET)
+Use Layers, Colors, and Linetypes (.NET)
+Save and Restore Layer States (.NET)
+Add Text to Drawings (.NET)
+Related Concepts
+Open and Close Objects (.NET)
+Create Objects (.NET)
+Work With Selection Sets (.NET)
+Edit Named and 2D Objects (.NET)
+Use Layers, Colors, and Linetypes (.NET)
+Save and Restore Layer States (.NET)
+Add Text to Drawings (.NET)
+Please send us your comment about this page
+

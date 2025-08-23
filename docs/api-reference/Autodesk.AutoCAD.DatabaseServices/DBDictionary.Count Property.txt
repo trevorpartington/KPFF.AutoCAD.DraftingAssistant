@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Properties > Count Property
+DBDictionary.Count PropertyDescription
+ 
+
+Accesses the number of items in the dictionary.
+
+Visual Basic
+Public virtual Property Count() As Integer
+C#
+public virtual int Count;
+Conditions
+Read-only
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

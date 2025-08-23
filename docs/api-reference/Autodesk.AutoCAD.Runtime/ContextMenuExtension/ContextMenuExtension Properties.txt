@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.Windows Namespace > ContextMenuExtension Class > ContextMenuExtension Properties
+ContextMenuExtension PropertiesProperties
+Property  Description  
+ Title  Gets a string representing title.  
+
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > IsUcsAssociatedToView Property
+ViewTableRecord.IsUcsAssociatedToView PropertyDescription
+ 
+
+Returns true if this view table record has an associated ucs. If this function returns true, then the ucs that is associated with this view will become active whenever this view is restored. The associated ucs can be obtained by calling getUcs() (defined in AbstractViewTableRecord parent class). A ucs can be associated to this view by calling one of the setUcs() functions in the AcDbAbstractViewTableRecord class.
+
+Visual Basic
+Public Property IsUcsAssociatedToView() As bool
+C#
+public bool IsUcsAssociatedToView;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

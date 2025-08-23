@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class
+DbDictionaryEnumerator ClassDescription
+ 
+
+This .NET class wraps the AcDbDictionaryIterator ObjectARX class. 
+
+It provides the ability to iterate through an Dictionary.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DbDictionaryEnumerator
+Visual Basic
+Public Class DbDictionaryEnumerator
+Inherits RXObject
+Inherits IDictionaryEnumerator
+C#
+public class DbDictionaryEnumerator : RXObject, IDictionaryEnumerator;
+Links
+DbDictionaryEnumerator Methods, DbDictionaryEnumerator Properties
+   Comments?  

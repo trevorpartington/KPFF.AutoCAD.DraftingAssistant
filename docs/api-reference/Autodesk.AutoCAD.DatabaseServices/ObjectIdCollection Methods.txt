@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods
+ObjectIdCollection MethodsMethods
+Method  Description  
+ Add  
+Adds the object represented by value to this collection. Returns the zero-based index of the newly added collection item.  
+ Clear  
+Erases the entire collection.  
+ Contains  
+Returns true if value exists within the collection.  
+ CopyTo  
+Copies objects in array to this collection, starting from index.  
+ GetEnumerator  
+Returns an enumerator object for this collection.  
+ IndexOf  
+Returns the zero-based index of the collection item that matches value.  
+ Insert  
+Inserts value at position index in the collection.  
+ Remove  
+Removes the object represented by value from this collection.  
+ RemoveAt  
+Removes the object whose index in the collection is index.  
+
+   Comments?  

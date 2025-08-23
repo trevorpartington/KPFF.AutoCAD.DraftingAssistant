@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Constructor
+ViewTableRecord.ViewTableRecord ConstructorDescription
+ 
+
+Constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public ViewTableRecord();
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods > GetAllObjects Method
+TransactionManager.GetAllObjects MethodDescription
+ 
+
+Searches all currently existing transaction objects and returns an objects collection with pointers to all objects it finds.
+
+Visual Basic
+Public virtual Function GetAllObjects() As DBObjectCollection
+C#
+public virtual DBObjectCollection GetAllObjects();
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

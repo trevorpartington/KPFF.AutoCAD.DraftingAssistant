@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Constructor
+DBDictionaryEntry.DBDictionaryEntry ConstructorDescription
+ 
+
+This constructor creates a new object with the provided key and value.
+
+Visual Basic
+Public Sub New(
+    key As string, 
+    value As ObjectId
+)
+C#
+public DBDictionaryEntry(
+    string key, 
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+string key  Original key  
+ObjectId value  Original object ID value  
+
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  
