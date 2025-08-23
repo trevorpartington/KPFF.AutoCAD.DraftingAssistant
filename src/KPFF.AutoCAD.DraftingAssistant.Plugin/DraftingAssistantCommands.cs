@@ -2274,4 +2274,186 @@ public class DraftingAssistantCommands
             return $"[ERROR: {ex.Message}]";
         }
     }
+
+    /// <summary>
+    /// Test command to verify enhanced CurrentDrawingBlockManager with external database support
+    /// Tests both current drawing and external drawing operations using the same manager
+    /// </summary>
+    [CommandMethod("TESTENHANCEDBLOCKMANAGER")]
+    public void TestEnhancedCurrentDrawingBlockManager()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+        
+        try
+        {
+            ed.WriteMessage("\n=== TESTING ENHANCED CURRENTDRAWINGBLOCKMANAGER ===\n");
+            
+            var logger = new AutoCADLogger();
+            
+            // Test 1: Current Drawing Mode (original behavior)
+            ed.WriteMessage("\n--- TEST 1: CURRENT DRAWING MODE ---\n");
+            var currentManager = new CurrentDrawingBlockManager(logger);
+            
+            // Get available layouts for testing
+            var layouts = GetAvailableLayouts();
+            if (layouts.Count == 0)
+            {
+                ed.WriteMessage("ERROR: No layouts available for testing\n");
+                return;
+            }
+            
+            string testLayout = layouts.First();
+            ed.WriteMessage($"Testing with layout: {testLayout}\n");
+            
+            // Test reading blocks in current drawing
+            var currentBlocks = currentManager.GetConstructionNoteBlocks(testLayout);
+            ed.WriteMessage($"Current drawing mode - Found {currentBlocks.Count} NT blocks\n");
+            
+            foreach (var block in currentBlocks.Take(3)) // Show first 3 blocks
+            {
+                ed.WriteMessage($"  Block: {block.BlockName}, Number: {block.Number}, Visible: {block.IsVisible}\n");
+            }
+            
+            // Test 2: External Database Mode (new functionality)  
+            ed.WriteMessage("\n--- TEST 2: EXTERNAL DATABASE MODE ---\n");
+            
+            string currentDwgPath = doc.Name;
+            ed.WriteMessage($"Current drawing path: {currentDwgPath}\n");
+            
+            if (File.Exists(currentDwgPath))
+            {
+                // Create external database and test
+                using (var externalDb = new Database(false, true))
+                {
+                    try
+                    {
+                        ed.WriteMessage("Loading external database...\n");
+                        externalDb.ReadDwgFile(currentDwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
+                        
+                        // Test external database mode
+                        var externalManager = new CurrentDrawingBlockManager(externalDb, logger);
+                        
+                        var externalBlocks = externalManager.GetConstructionNoteBlocks(testLayout);
+                        ed.WriteMessage($"External database mode - Found {externalBlocks.Count} NT blocks\n");
+                        
+                        foreach (var block in externalBlocks.Take(3)) // Show first 3 blocks  
+                        {
+                            ed.WriteMessage($"  Block: {block.BlockName}, Number: {block.Number}, Visible: {block.IsVisible}\n");
+                        }
+                        
+                        // Test 3: Compare Results
+                        ed.WriteMessage("\n--- TEST 3: COMPARISON ---\n");
+                        if (currentBlocks.Count == externalBlocks.Count)
+                        {
+                            ed.WriteMessage("✓ PASS: Both modes found same number of blocks\n");
+                            
+                            bool allMatch = true;
+                            for (int i = 0; i < currentBlocks.Count && i < externalBlocks.Count; i++)
+                            {
+                                var current = currentBlocks[i];
+                                var external = externalBlocks[i];
+                                
+                                if (current.BlockName != external.BlockName ||
+                                    current.Number != external.Number ||
+                                    current.IsVisible != external.IsVisible)
+                                {
+                                    allMatch = false;
+                                    ed.WriteMessage($"  MISMATCH at index {i}: {current.BlockName} vs {external.BlockName}\n");
+                                }
+                            }
+                            
+                            if (allMatch)
+                            {
+                                ed.WriteMessage("✓ PASS: All block properties match between modes\n");
+                            }
+                            else
+                            {
+                                ed.WriteMessage("⚠ WARNING: Some block properties differ between modes\n");
+                            }
+                        }
+                        else
+                        {
+                            ed.WriteMessage($"⚠ WARNING: Block count mismatch - Current: {currentBlocks.Count}, External: {externalBlocks.Count}\n");
+                        }
+                        
+                        // Test 4: Update Operation (if we have blocks to test with)
+                        if (externalBlocks.Count > 0)
+                        {
+                            ed.WriteMessage("\n--- TEST 4: UPDATE OPERATION TEST ---\n");
+                            
+                            var firstBlock = externalBlocks[0];
+                            ed.WriteMessage($"Testing update on block: {firstBlock.BlockName}\n");
+                            
+                            // Test update with external database
+                            bool updateResult = externalManager.UpdateConstructionNoteBlock(
+                                testLayout, 
+                                firstBlock.BlockName, 
+                                99, 
+                                "TEST NOTE FROM ENHANCED MANAGER", 
+                                true
+                            );
+                            
+                            if (updateResult)
+                            {
+                                ed.WriteMessage("✓ PASS: External database update successful\n");
+                            }
+                            else
+                            {
+                                ed.WriteMessage("⚠ WARNING: External database update failed\n");
+                            }
+                        }
+                        
+                        ed.WriteMessage("\n=== ENHANCED CURRENTDRAWINGBLOCKMANAGER TEST COMPLETE ===\n");
+                    }
+                    catch (System.Exception ex)
+                    {
+                        ed.WriteMessage($"ERROR in external database test: {ex.Message}\n");
+                    }
+                }
+            }
+            else
+            {
+                ed.WriteMessage($"WARNING: Cannot test external mode - file path not accessible: {currentDwgPath}\n");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR in TESTENHANCEDBLOCKMANAGER: {ex.Message}\n");
+        }
+    }
+    
+    /// <summary>
+    /// Helper method to get available layouts for testing
+    /// </summary>
+    private List<string> GetAvailableLayouts()
+    {
+        var layouts = new List<string>();
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var db = doc.Database;
+        
+        try
+        {
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                var layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                
+                foreach (DBDictionaryEntry entry in layoutDict)
+                {
+                    string layoutName = entry.Key;
+                    if (!layoutName.Equals("Model", StringComparison.OrdinalIgnoreCase))
+                    {
+                        layouts.Add(layoutName);
+                    }
+                }
+                tr.Dispose();
+            }
+        }
+        catch (System.Exception)
+        {
+            // Return empty list on error
+        }
+        
+        return layouts;
+    }
 }

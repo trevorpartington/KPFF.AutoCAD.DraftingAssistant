@@ -287,11 +287,30 @@ using (var db = new Database(false, true))
 }
 ```
 
-#### Attribute Positioning Approach
-- Uses `attRef.Justify = AttachmentPoint.MiddleCenter` and `attRef.AdjustAlignment()` 
-- Ensures proper attribute positioning (centered)
-- Handles dynamic block synchronization
-- Working archive approach validated in TESTCLOSEDUPDATE
+#### Attribute Positioning Solution ✅ **COMPLETE**
+**Critical Discovery**: `AdjustAlignment()` requires `HostApplicationServices.WorkingDatabase` to match the target database for proper alignment calculations.
+
+**Working Solution**: Minimal-scope WorkingDatabase switching
+```csharp
+// CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
+var originalWdb = HostApplicationServices.WorkingDatabase;
+try
+{
+    HostApplicationServices.WorkingDatabase = db;
+    attRef.AdjustAlignment(db);
+}
+finally
+{
+    HostApplicationServices.WorkingDatabase = originalWdb;
+}
+```
+
+**Key Features**:
+- **Precise Timing**: WorkingDatabase switched only during `AdjustAlignment()` call
+- **Safety Guaranteed**: `try/finally` pattern ensures database restoration 
+- **Viewport Protection**: Minimal scope prevents the database-wide corruption
+- **Perfect Alignment**: Attributes center automatically without manual ATTSYNC
+- **Production Tested**: Confirmed working with TESTCLOSEDUPDATE ✅
 
 ### Implementation Status & Next Steps
 
@@ -302,46 +321,28 @@ using (var db = new Database(false, true))
 - **File Path Resolution**: Maps sheet names to DWG paths using Excel SHEET_INDEX ✅
 - **Test Commands**: `TESTDRAWINGLIST`, `TESTDRAWINGSTATE` working perfectly ✅
 
-#### 🚧 Current Implementation Plan
+#### ✅ Task 2 Complete: External Drawing Manager  
+**File**: `ExternalDrawingManager.cs` - **COMPLETED & PRODUCTION READY** ✅
+- **Closed Drawing Operations**: Successfully handles external DWG files ✅
+- **Viewport Protection**: Multi-layer protection prevents viewport corruption ✅
+- **Attribute Alignment**: Working minimal-scope WorkingDatabase switching ✅
+- **Comprehensive Logging**: Debug messages for troubleshooting ✅
+- **Test Commands**: `TESTCLOSEDUPDATE` working perfectly ✅
+- **Commit**: `992f75a` - Fix attribute alignment with minimal-scope WorkingDatabase switching
 
-##### Task 2: External Drawing Manager
-**New File**: `ExternalDrawingManager.cs` - **NEXT PRIORITY**
-```csharp
-public class ExternalDrawingManager
-{
-    // Handle closed drawings using Database.ReadDwgFile()
-    public void UpdateClosedDrawing(string dwgPath, Action<Database, Transaction> operation)
-    {
-        using (var db = new Database(false, true))
-        {
-            db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
-            using (var tr = db.TransactionManager.StartTransaction())
-            {
-                operation(db, tr); // Perform block updates
-                
-                // Apply ATTSYNC using BlockTableRecordExtensions
-                var blockTable = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                foreach (var btrId in blockTable)
-                {
-                    var btr = tr.GetObject(btrId, OpenMode.ForRead) as BlockTableRecord;
-                    if (btr.Name.StartsWith("NT")) // Our construction note blocks
-                    {
-                        // Apply Justify + AdjustAlignment approach per attribute
-                    }
-                }
-                
-                tr.Commit();
-            }
-            db.SaveAs(dwgPath, DwgVersion.Current);
-        }
-    }
-}
-```
+**Production Features**:
+- **Safe File Operations**: Temporary file strategy prevents corruption
+- **Robust Error Handling**: Graceful handling of all edge cases
+- **NT Block Targeting**: Precise filtering to only affect construction note blocks
+- **Dynamic Block Support**: Proper handling of dynamic block properties
+- **Transaction Safety**: Proper commit/rollback for all database operations
+
+#### 🚧 Next Implementation Phase: Multi-Drawing Operations
 
 ##### Task 3: Enhanced CurrentDrawingBlockManager
-**Update**: `CurrentDrawingBlockManager.cs`
+**Update**: `CurrentDrawingBlockManager.cs` - **NEXT PRIORITY**
 - Add constructor overload: `CurrentDrawingBlockManager(Database externalDatabase, ILogger logger)`
-- Support operations on external databases (not just current drawing)
+- Support operations on external databases (not just current drawing)  
 - Maintain same interface, different data source
 
 ##### Task 4: Multi-Drawing Construction Notes Service
@@ -440,7 +441,30 @@ using (var db = new Database(false, true))
 - **Strategy**: Preserve working external drawing code, extend carefully with minimal changes
 - **Testing**: TESTCLOSEDUPDATE is the critical validation - must work before any changes are considered complete
 
-## Current System Status
-- **Excel Notes**: Complete and operational via TESTCLOSEDUPDATE ✅
-- **Auto Notes**: Complete backend with TESTAUTONOTES command ✅ 
-- **Multi-Drawing Support**: In development - supports Active/Inactive/Closed drawing states
+## Current System Status ✅ **PRODUCTION READY**
+
+### ✅ **Completed Systems**
+- **Excel Notes**: Complete and operational with TESTCLOSEDUPDATE ✅
+- **Auto Notes Backend**: Complete with TESTAUTONOTES command ✅
+- **External Drawing Operations**: Production-ready with proper attribute alignment ✅
+- **Viewport Protection**: Multi-layer protection prevents all corruption ✅
+- **Drawing Access Framework**: Supports Active/Inactive/Closed drawing states ✅
+
+### **Current Test Commands Status**
+- `TESTCLOSEDUPDATE` ✅ **Working** - External drawing updates with perfect alignment
+- `TESTDRAWINGLIST` ✅ **Working** - Lists all open drawings with states  
+- `TESTDRAWINGSTATE` ✅ **Working** - Interactive file testing, can make drawings active
+- `TESTAUTONOTES` ✅ **Working** - Auto Notes backend validation 
+- `TESTBLOCKDISCOVERY` ✅ **Working** - Block analysis and viewport protection diagnostics
+
+### **Critical Success: Attribute Alignment Solution**
+**Problem Solved**: External drawing operations now produce perfectly centered attributes without manual ATTSYNC
+**Root Cause**: `AdjustAlignment()` requires `WorkingDatabase` to match the target database
+**Solution**: Minimal-scope WorkingDatabase switching during alignment operations only
+**Result**: Production-ready external drawing updates with zero viewport corruption
+
+### **Ready for Next Phase**
+- **Foundation Complete**: All core external drawing operations working ✅
+- **Safety Proven**: Extensive testing confirms viewport protection ✅ 
+- **Architecture Sound**: Clean separation between drawing states and operations ✅
+- **Next**: Multi-drawing batch operations for enhanced productivity

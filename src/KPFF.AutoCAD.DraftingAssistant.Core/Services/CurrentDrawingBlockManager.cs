@@ -1,4 +1,5 @@
 using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.ApplicationServices.Core;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
@@ -17,10 +18,52 @@ public class CurrentDrawingBlockManager
     private readonly ILogger _logger;
     private readonly Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
     private bool _isInitialized = false;
+    private readonly Database? _externalDatabase;
+    private readonly bool _useExternalDatabase;
 
+    /// <summary>
+    /// Constructor for current drawing operations (original behavior)
+    /// </summary>
     public CurrentDrawingBlockManager(ILogger logger)
     {
         _logger = logger;
+        _externalDatabase = null;
+        _useExternalDatabase = false;
+    }
+
+    /// <summary>
+    /// Constructor for external database operations (new functionality)
+    /// </summary>
+    public CurrentDrawingBlockManager(Database externalDatabase, ILogger logger)
+    {
+        _logger = logger;
+        _externalDatabase = externalDatabase;
+        _useExternalDatabase = true;
+        _isInitialized = true; // External database is already initialized
+    }
+
+    /// <summary>
+    /// Gets the appropriate database for operations (current drawing or external)
+    /// </summary>
+    private (Database? database, Document? document) GetDatabaseAndDocument()
+    {
+        if (_useExternalDatabase)
+        {
+            return (_externalDatabase, null);
+        }
+        else
+        {
+            try
+            {
+                var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
+                return (doc?.Database, doc);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to access current drawing: {ex.Message}", ex);
+                return (null, null);
+            }
+        }
     }
 
     /// <summary>
@@ -35,21 +78,12 @@ public class CurrentDrawingBlockManager
 
         try
         {
-            _logger.LogDebug("Initializing CurrentDrawingBlockManager - verifying AutoCAD context");
+            _logger.LogDebug($"Initializing CurrentDrawingBlockManager - {(_useExternalDatabase ? "external database" : "current drawing")} mode");
             
-            // Verify AutoCAD document access
-            var doc = Application.DocumentManager?.MdiActiveDocument;
-            if (doc == null)
-            {
-                _logger.LogError("No active AutoCAD document found during initialization");
-                return false;
-            }
-
-            // Verify database access
-            var db = doc.Database;
+            var (db, doc) = GetDatabaseAndDocument();
             if (db == null)
             {
-                _logger.LogError("AutoCAD database not accessible during initialization");
+                _logger.LogError($"Database not accessible during initialization ({(_useExternalDatabase ? "external" : "current")})");
                 return false;
             }
 
@@ -60,7 +94,7 @@ public class CurrentDrawingBlockManager
             }
 
             _isInitialized = true;
-            _logger.LogDebug("CurrentDrawingBlockManager initialized successfully");
+            _logger.LogDebug($"CurrentDrawingBlockManager initialized successfully ({(_useExternalDatabase ? "external" : "current")})");
             return true;
         }
         catch (Exception ex)
@@ -88,26 +122,12 @@ public class CurrentDrawingBlockManager
 
         try
         {
-            // CRASH FIX: Add safety guard around AutoCAD object access
-            Document? doc = null;
-            try
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
             {
-                doc = Application.DocumentManager?.MdiActiveDocument;
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
+                _logger.LogError($"Database not accessible for block operations ({(_useExternalDatabase ? "external" : "current")})");
                 return blocks;
             }
-
-            if (doc == null)
-            {
-                _logger.LogWarning("No active document found");
-                return blocks;
-            }
-
-            Database db = doc.Database;
-            Editor ed = doc.Editor;
 
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -337,25 +357,12 @@ public class CurrentDrawingBlockManager
 
         try
         {
-            // CRASH FIX: Add safety guard around AutoCAD object access
-            Document? doc = null;
-            try
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
             {
-                doc = Application.DocumentManager?.MdiActiveDocument;
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
+                _logger.LogError($"Database not accessible for layout scanning ({(_useExternalDatabase ? "external" : "current")})");
                 return allBlocks;
             }
-
-            if (doc == null)
-            {
-                _logger.LogWarning("No active document found");
-                return allBlocks;
-            }
-
-            Database db = doc.Database;
 
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -414,24 +421,12 @@ public class CurrentDrawingBlockManager
         
         try
         {
-            Document? doc = null;
-            try
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
             {
-                doc = Application.DocumentManager?.MdiActiveDocument;
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
+                _logger.LogError($"Database not accessible for clearing blocks ({(_useExternalDatabase ? "external" : "current")})");
                 return 0;
             }
-
-            if (doc == null)
-            {
-                _logger.LogWarning("No active document found");
-                return 0;
-            }
-
-            Database db = doc.Database;
 
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -547,35 +542,27 @@ public class CurrentDrawingBlockManager
 
         try
         {
-            // CRASH FIX: Add safety guard around AutoCAD object access
-            Document? doc = null;
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
+            {
+                _logger.LogError($"Database not accessible for block update ({(_useExternalDatabase ? "external" : "current")})");
+                return false;
+            }
+
+            _logger.LogDebug($"Database filename: {db.Filename ?? "external"}");
+
+            // For current drawing, lock document. For external database, no locking needed
+            IDisposable? documentLock = null;
+            if (doc != null && !_useExternalDatabase)
+            {
+                documentLock = doc.LockDocument();
+            }
+
             try
             {
-                _logger.LogDebug("Accessing AutoCAD DocumentManager...");
-                doc = Application.DocumentManager?.MdiActiveDocument;
-                _logger.LogDebug($"Document obtained: {doc?.Name ?? "null"}");
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"Failed to access AutoCAD document manager: {ex.Message}", ex);
-                return false;
-            }
-
-            if (doc == null)
-            {
-                _logger.LogError("CRITICAL: No active document found - cannot update blocks");
-                return false;
-            }
-
-            _logger.LogDebug($"Active document: {doc.Name}");
-            Database db = doc.Database;
-            _logger.LogDebug($"Database filename: {db.Filename}");
-
-            // Lock document for write access (required for modeless palette operations)
-            using (doc.LockDocument())
-            using (Transaction tr = db.TransactionManager.StartTransaction())
-            {
-                try
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    try
                 {
                     _logger.LogDebug("Starting transaction for block update...");
                     
@@ -711,11 +698,17 @@ public class CurrentDrawingBlockManager
                         return false;
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error updating block: {ex.Message}", ex);
-                    return false;
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error updating block: {ex.Message}", ex);
+                        return false;
+                    }
                 }
+            }
+            finally
+            {
+                // Dispose document lock if it was created
+                documentLock?.Dispose();
             }
         }
         catch (Exception ex)
@@ -753,9 +746,28 @@ public class CurrentDrawingBlockManager
                         {
                             attRef.Justify = AttachmentPoint.MiddleCenter;
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database);
+                            
+                            // CRITICAL: For external databases, switch WorkingDatabase for alignment
+                            if (_useExternalDatabase)
+                            {
+                                var originalWdb = HostApplicationServices.WorkingDatabase;
+                                try
+                                {
+                                    HostApplicationServices.WorkingDatabase = attRef.Database;
+                                    attRef.AdjustAlignment(attRef.Database);
+                                }
+                                finally
+                                {
+                                    HostApplicationServices.WorkingDatabase = originalWdb;
+                                }
+                            }
+                            else
+                            {
+                                attRef.AdjustAlignment(attRef.Database);
+                            }
+                            
                             wasModified = true;
-                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with alignment");
+                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with alignment ({(_useExternalDatabase ? "external" : "current")})");
                         }
                         numberUpdated = true;
                     }
@@ -766,9 +778,28 @@ public class CurrentDrawingBlockManager
                         if (currentValue != newValue)
                         {
                             attRef.TextString = newValue;
-                            attRef.AdjustAlignment(attRef.Database);
+                            
+                            // CRITICAL: For external databases, switch WorkingDatabase for alignment
+                            if (_useExternalDatabase)
+                            {
+                                var originalWdb = HostApplicationServices.WorkingDatabase;
+                                try
+                                {
+                                    HostApplicationServices.WorkingDatabase = attRef.Database;
+                                    attRef.AdjustAlignment(attRef.Database);
+                                }
+                                finally
+                                {
+                                    HostApplicationServices.WorkingDatabase = originalWdb;
+                                }
+                            }
+                            else
+                            {
+                                attRef.AdjustAlignment(attRef.Database);
+                            }
+                            
                             wasModified = true;
-                            _logger.LogDebug($"Updated NOTE attribute with alignment");
+                            _logger.LogDebug($"Updated NOTE attribute with alignment ({(_useExternalDatabase ? "external" : "current")})");
                         }
                         noteUpdated = true;
                     }
