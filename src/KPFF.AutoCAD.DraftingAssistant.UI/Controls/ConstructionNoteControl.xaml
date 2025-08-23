@@ -74,13 +74,22 @@
                            Margin="120,0,0,0"/>
             </StackPanel>
             
-            <!-- Update Button -->
-            <Button Name="UpdateNotesButton" 
-                    Content="Update Notes" 
-                    Width="120" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="UpdateNotesButton_Click"/>
+            <!-- Action Buttons -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Button Name="PreviewDrawingStatesButton" 
+                        Content="Preview Drawing States" 
+                        Width="160" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="PreviewDrawingStatesButton_Click"
+                        Margin="0,0,10,0"/>
+                <Button Name="UpdateNotesButton" 
+                        Content="Update Notes" 
+                        Width="120" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="UpdateNotesButton_Click"/>
+            </StackPanel>
         </StackPanel>
         
         <!-- Text Readout Area -->
