@@ -193,8 +193,8 @@ public class MultiDrawingConstructionNotesService
 
             var noteData = await Task.WhenAll(noteDataTasks);
 
-            // Use external drawing manager for closed drawings
-            return _externalDrawingManager.UpdateClosedDrawing(dwgPath, sheetName, noteData.ToList());
+            // Use external drawing manager for closed drawings with project path for cleanup
+            return _externalDrawingManager.UpdateClosedDrawing(dwgPath, sheetName, noteData.ToList(), config.ProjectDWGFilePath);
         }
         catch (Exception ex)
         {

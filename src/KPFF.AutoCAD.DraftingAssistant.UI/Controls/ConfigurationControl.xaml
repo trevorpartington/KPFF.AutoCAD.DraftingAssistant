@@ -26,6 +26,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
             <!-- Action Buttons -->
@@ -62,6 +63,38 @@
                           FontStyle="Italic"
                           VerticalAlignment="Center"
                           Foreground="White"/>
+            </StackPanel>
+            
+            <!-- Backup Cleanup Settings -->
+            <StackPanel Grid.Row="2" 
+                        Orientation="Vertical" 
+                        Margin="0,15,0,0">
+                <TextBlock Text="Backup File Management" 
+                          Style="{StaticResource DarkTextBlockStyle}"
+                          FontWeight="SemiBold"
+                          Margin="0,0,0,10"/>
+                
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="Backup files are automatically cleaned up after successful updates." 
+                              Style="{StaticResource DarkTextBlockStyle}"
+                              VerticalAlignment="Center"
+                              Margin="0,0,15,0"/>
+                              
+                    <Button Name="CleanupNowButton" 
+                           Content="Cleanup Now" 
+                           Width="90" 
+                           Height="25"
+                           Style="{StaticResource DarkButtonStyle}"
+                           Click="CleanupNowButton_Click"/>
+                           
+                    <TextBlock Name="BackupCountTextBlock"
+                              Text=""
+                              Style="{StaticResource DarkTextBlockStyle}"
+                              VerticalAlignment="Center"
+                              Margin="10,0,0,0"
+                              FontSize="11"
+                              Foreground="#B0B0B0"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
         

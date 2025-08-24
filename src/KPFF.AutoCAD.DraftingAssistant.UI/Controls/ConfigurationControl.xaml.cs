@@ -257,11 +257,22 @@ public partial class ConfigurationControl : BaseUserControl
             }
 
             UpdateConfigurationDisplay(string.Join("\n", details));
+            
+            // Update backup cleanup UI
+            await UpdateBackupCleanupUI();
         }
         catch (Exception ex)
         {
             UpdateConfigurationDisplay($"Error loading project details: {ex.Message}");
         }
+    }
+
+    private async Task UpdateBackupCleanupUI()
+    {
+        if (_currentProject == null) return;
+        
+        // Update backup file count display
+        await UpdateBackupFileCount();
     }
 
     private void UpdateConfigurationDisplay(string text)
@@ -282,4 +293,70 @@ public partial class ConfigurationControl : BaseUserControl
         NotificationService.ShowWarning("Configuration Warning", message);
         UpdateConfigurationDisplay($"WARNING: {message}");
     }
+
+    #region Backup Cleanup Event Handlers
+
+    private async void CleanupNowButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentProject == null || string.IsNullOrEmpty(_currentProject.ProjectDWGFilePath))
+        {
+            ShowWarningNotification("No project loaded or DWG path not configured");
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("Starting manual backup cleanup...");
+            
+            var backupCleanupService = new BackupCleanupService(Logger);
+            int cleanedCount = backupCleanupService.CleanupAllBackupFiles(_currentProject.ProjectDWGFilePath);
+            
+            if (cleanedCount > 0)
+            {
+                ShowSuccessNotification($"Successfully cleaned up {cleanedCount} backup files");
+            }
+            else
+            {
+                ShowSuccessNotification("No backup files found to clean up");
+            }
+            
+            // Update backup count display
+            await UpdateBackupFileCount();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorNotification($"Error during backup cleanup: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateBackupFileCount()
+    {
+        if (_currentProject == null || string.IsNullOrEmpty(_currentProject.ProjectDWGFilePath))
+        {
+            BackupCountTextBlock.Text = "";
+            return;
+        }
+
+        try
+        {
+            var backupCleanupService = new BackupCleanupService(Logger);
+            int count = backupCleanupService.GetBackupFileCount(_currentProject.ProjectDWGFilePath);
+            
+            BackupCountTextBlock.Text = count > 0 ? $"({count} backup files)" : "";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error counting backup files: {ex.Message}");
+            BackupCountTextBlock.Text = "";
+        }
+    }
+
+    private void ShowSuccessNotification(string message)
+    {
+        Logger.LogInformation(message);
+        NotificationService.ShowWarning("Backup Cleanup", message); // Using ShowWarning as success notification
+    }
+
+
+    #endregion
 }

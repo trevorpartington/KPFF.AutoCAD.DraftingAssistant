@@ -54,7 +54,8 @@ public partial class ConstructionNoteControl : BaseUserControl
         // CRASH FIX: Never access ApplicationServices during UI initialization
         var logger = new DebugLogger();
         var drawingAccessService = new DrawingAccessService(logger);
-        var externalDrawingManager = new ExternalDrawingManager(logger);
+        var backupCleanupService = new BackupCleanupService(logger);
+        var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
         var excelReaderService = new ExcelReaderService(logger);
         var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, new DrawingOperations(logger));
         
@@ -200,7 +201,8 @@ public partial class ConstructionNoteControl : BaseUserControl
             
             // Create production-ready multi-drawing service
             var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger);
+            var backupCleanupService = new BackupCleanupService(autocadLogger);
+            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService);
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
@@ -327,7 +329,8 @@ public partial class ConstructionNoteControl : BaseUserControl
             
             // Create production-ready multi-drawing service
             var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger);
+            var backupCleanupService = new BackupCleanupService(autocadLogger);
+            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService);
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
