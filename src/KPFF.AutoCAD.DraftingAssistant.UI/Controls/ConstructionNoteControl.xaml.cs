@@ -31,6 +31,9 @@ public partial class ConstructionNoteControl : BaseUserControl
         
         // Initialize multi-drawing service
         _multiDrawingService = GetMultiDrawingService();
+        
+        // Load initial display information
+        _ = LoadInitialDisplayAsync();
     }
 
     private static IConstructionNotesService GetConstructionNotesService()
@@ -54,7 +57,8 @@ public partial class ConstructionNoteControl : BaseUserControl
         // CRASH FIX: Never access ApplicationServices during UI initialization
         var logger = new DebugLogger();
         var drawingAccessService = new DrawingAccessService(logger);
-        var externalDrawingManager = new ExternalDrawingManager(logger);
+        var backupCleanupService = new BackupCleanupService(logger);
+        var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
         var excelReaderService = new ExcelReaderService(logger);
         var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, new DrawingOperations(logger));
         
@@ -82,112 +86,6 @@ public partial class ConstructionNoteControl : BaseUserControl
         }
     }
 
-    private async void PreviewDrawingStatesButton_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            Logger.LogInformation("Previewing drawing states for selected sheets");
-            UpdateStatus("Analyzing selected sheets and their drawing states...\n");
-
-            // Load project configuration
-            var config = await LoadProjectConfigurationAsync();
-            if (config == null)
-            {
-                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configuration tab.");
-                return;
-            }
-
-            // Get selected sheets from configuration
-            var selectedSheets = await GetSelectedSheetsAsync(config);
-            if (selectedSheets.Count == 0)
-            {
-                UpdateStatus("No sheets selected. Please select sheets in the Configuration tab.");
-                return;
-            }
-
-            // Use AutoCAD services for drawing state analysis
-            var autocadLogger = new AutoCADLogger();
-            var drawingAccessService = new DrawingAccessService(autocadLogger);
-
-            var statusText = $"=== DRAWING STATE PREVIEW ===\n\n";
-            statusText += $"Analyzing {selectedSheets.Count} selected sheets...\n\n";
-
-            var stateGroups = new Dictionary<string, List<SheetInfo>>();
-
-            // Analyze each sheet's drawing state
-            foreach (var sheet in selectedSheets)
-            {
-                try
-                {
-                    var dwgPath = drawingAccessService.GetDrawingFilePath(sheet.SheetName, config, selectedSheets);
-                    if (string.IsNullOrEmpty(dwgPath))
-                    {
-                        if (!stateGroups.ContainsKey("NotFound")) stateGroups["NotFound"] = new List<SheetInfo>();
-                        stateGroups["NotFound"].Add(sheet);
-                        continue;
-                    }
-
-                    var state = drawingAccessService.GetDrawingState(dwgPath);
-                    var stateKey = state.ToString();
-                    
-                    if (!stateGroups.ContainsKey(stateKey)) stateGroups[stateKey] = new List<SheetInfo>();
-                    stateGroups[stateKey].Add(sheet);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Failed to analyze drawing state for sheet {sheet.SheetName}: {ex.Message}");
-                    if (!stateGroups.ContainsKey("Error")) stateGroups["Error"] = new List<SheetInfo>();
-                    stateGroups["Error"].Add(sheet);
-                }
-            }
-
-            // Generate report by state
-            foreach (var (state, sheets) in stateGroups.OrderBy(kvp => kvp.Key))
-            {
-                statusText += $"{GetDrawingStateIcon(state)} {state.ToUpper()} ({sheets.Count} drawings):\n";
-                foreach (var sheet in sheets.Take(10)) // Show first 10 to avoid overwhelming
-                {
-                    statusText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
-                }
-                if (sheets.Count > 10)
-                {
-                    statusText += $"  ... and {sheets.Count - 10} more\n";
-                }
-                statusText += "\n";
-            }
-
-            // Add operation summary
-            statusText += "BATCH OPERATION READINESS:\n";
-            statusText += $"✓ All {selectedSheets.Count} sheets can be processed\n";
-            statusText += $"✓ Active/Inactive drawings will use current AutoCAD session\n";
-            statusText += $"✓ Closed drawings will use external database operations\n";
-            statusText += $"✓ Sequential NT block assignment will be applied\n\n";
-            statusText += "Ready to process with 'Update Notes' button.";
-
-            UpdateStatus(statusText);
-            
-            autocadLogger.LogInformation($"Drawing state preview completed for {selectedSheets.Count} sheets");
-        }
-        catch (Exception ex)
-        {
-            var errorMsg = $"Error previewing drawing states: {ex.Message}";
-            Logger.LogError(errorMsg, ex);
-            UpdateStatus($"ERROR: {errorMsg}");
-        }
-    }
-
-    private static string GetDrawingStateIcon(string state)
-    {
-        return state switch
-        {
-            "Active" => "🟢",
-            "Inactive" => "🟡", 
-            "Closed" => "🔵",
-            "NotFound" => "❌",
-            "Error" => "⚠️",
-            _ => "❓"
-        };
-    }
     
     private async void ExecuteAutoNotesUpdate()
     {
@@ -200,7 +98,8 @@ public partial class ConstructionNoteControl : BaseUserControl
             
             // Create production-ready multi-drawing service
             var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger);
+            var backupCleanupService = new BackupCleanupService(autocadLogger);
+            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService);
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
@@ -221,8 +120,6 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-            // Update config with current multileader style if changed
-            await UpdateMultileaderStyleInConfigAsync(config);
 
             // Get selected sheets from configuration
             var selectedSheets = await GetSelectedSheetsAsync(config);
@@ -327,7 +224,8 @@ public partial class ConstructionNoteControl : BaseUserControl
             
             // Create production-ready multi-drawing service
             var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger);
+            var backupCleanupService = new BackupCleanupService(autocadLogger);
+            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService);
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
@@ -417,8 +315,6 @@ public partial class ConstructionNoteControl : BaseUserControl
             {
                 Logger.LogDebug($"Using shared configuration with {sharedConfig.SelectedSheets.Count} selected sheets: {sharedConfig.ProjectName}");
                 
-                // Load multileader style from config into UI
-                LoadMultileaderStyleFromConfig(sharedConfig);
                 
                 return sharedConfig;
             }
@@ -431,8 +327,6 @@ public partial class ConstructionNoteControl : BaseUserControl
                 var config = await _configService.LoadConfigurationAsync(testConfigPath);
                 Logger.LogDebug($"Loaded test configuration from file: {config?.ProjectName}");
                 
-                // Load multileader style from config into UI
-                LoadMultileaderStyleFromConfig(config);
                 
                 return config;
             }
@@ -519,64 +413,6 @@ public partial class ConstructionNoteControl : BaseUserControl
         Logger.LogDebug($"Status updated: {message}");
     }
 
-    private async Task UpdateMultileaderStyleInConfigAsync(ProjectConfiguration config)
-    {
-        try
-        {
-            string currentStyleInTextBox = MultileaderStyleTextBox.Text?.Trim() ?? "";
-            string configStyle = config.ConstructionNotes?.MultileaderStyleName ?? "";
-
-            if (!string.Equals(currentStyleInTextBox, configStyle, StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogInformation($"Updating multileader style in config from '{configStyle}' to '{currentStyleInTextBox}'");
-                
-                // Ensure ConstructionNotes section exists
-                if (config.ConstructionNotes == null)
-                {
-                    config.ConstructionNotes = new ConstructionNotesConfiguration();
-                }
-                
-                config.ConstructionNotes.MultileaderStyleName = currentStyleInTextBox;
-                
-                // Save the updated configuration back to file
-                var testConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectConfig.json";
-                if (File.Exists(testConfigPath))
-                {
-                    await _configService.SaveConfigurationAsync(config, testConfigPath);
-                    Logger.LogInformation($"Configuration saved with updated multileader style: {currentStyleInTextBox}");
-                }
-                else
-                {
-                    Logger.LogWarning("Could not save configuration - config file path not found");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Failed to update multileader style in config: {ex.Message}", ex);
-        }
-    }
-
-    private void LoadMultileaderStyleFromConfig(ProjectConfiguration? config)
-    {
-        try
-        {
-            if (config?.ConstructionNotes?.MultileaderStyleName != null)
-            {
-                MultileaderStyleTextBox.Text = config.ConstructionNotes.MultileaderStyleName;
-                Logger.LogDebug($"Loaded multileader style from config: {config.ConstructionNotes.MultileaderStyleName}");
-            }
-            else
-            {
-                // Keep default value
-                Logger.LogDebug("No multileader style found in config, using default");
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogWarning($"Failed to load multileader style from config: {ex.Message}");
-        }
-    }
 
     /// <summary>
     /// Generates a comprehensive status report for batch update operations
@@ -634,5 +470,39 @@ public partial class ConstructionNoteControl : BaseUserControl
         }
 
         return statusText;
+    }
+
+    private async Task LoadInitialDisplayAsync()
+    {
+        await ExceptionHandler.TryExecuteAsync(async () =>
+        {
+            var config = await LoadProjectConfigurationAsync();
+            var selectedSheets = config != null ? await GetSelectedSheetsAsync(config) : new List<SheetInfo>();
+            
+            UpdateInfoDisplay(config, selectedSheets);
+        }, Logger, NotificationService, "LoadInitialDisplayAsync", showUserMessage: false);
+    }
+
+    private void UpdateInfoDisplay(ProjectConfiguration? config, List<SheetInfo> selectedSheets)
+    {
+        var multileaderStyle = config?.ConstructionNotes?.MultileaderStyleName ?? "Not configured";
+        
+        var displayText = $"Construction Notes Information\n\n" +
+                         $"Multileader Style(s): {multileaderStyle}\n" +
+                         $"Selected Sheet(s):\n";
+        
+        if (selectedSheets.Count > 0)
+        {
+            foreach (var sheet in selectedSheets)
+            {
+                displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
+            }
+        }
+        else
+        {
+            displayText += "  No sheets selected\n";
+        }
+        
+        UpdateStatus(displayText);
     }
 }

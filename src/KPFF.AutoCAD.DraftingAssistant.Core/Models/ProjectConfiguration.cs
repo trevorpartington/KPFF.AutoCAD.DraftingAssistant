@@ -49,3 +49,4 @@ public class ConstructionNoteAttributes
     public string NumberAttribute { get; set; } = "Number";
     public string NoteAttribute { get; set; } = "Note";
 }
+

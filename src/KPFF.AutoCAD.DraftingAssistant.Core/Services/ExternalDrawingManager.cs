@@ -17,11 +17,13 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 public class ExternalDrawingManager
 {
     private readonly ILogger _logger;
+    private readonly BackupCleanupService _backupCleanupService;
     private readonly Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
 
-    public ExternalDrawingManager(ILogger logger)
+    public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService)
     {
         _logger = logger;
+        _backupCleanupService = backupCleanupService;
     }
 
     /// <summary>
@@ -30,8 +32,9 @@ public class ExternalDrawingManager
     /// <param name="dwgPath">Full path to the DWG file</param>
     /// <param name="layoutName">Layout name containing the blocks</param>
     /// <param name="noteData">Construction note data to apply</param>
+    /// <param name="projectDWGFilePath">Project DWG directory path for cleanup (optional)</param>
     /// <returns>True if successful, false otherwise</returns>
-    public bool UpdateClosedDrawing(string dwgPath, string layoutName, List<ConstructionNoteData> noteData)
+    public bool UpdateClosedDrawing(string dwgPath, string layoutName, List<ConstructionNoteData> noteData, string? projectDWGFilePath = null)
     {
         _logger.LogInformation($"=== ExternalDrawingManager.UpdateClosedDrawing ===");
         _logger.LogInformation($"DWG Path: {dwgPath}");
@@ -110,6 +113,24 @@ public class ExternalDrawingManager
                 
                 File.Move(tempPath, dwgPath); // Move temp to original location
                 _logger.LogInformation($"Successfully updated closed drawing: {Path.GetFileName(dwgPath)}");
+                
+                // Always perform backup cleanup after successful update
+                if (!string.IsNullOrEmpty(projectDWGFilePath))
+                {
+                    try
+                    {
+                        int cleanedCount = _backupCleanupService.CleanupAllBackupFiles(projectDWGFilePath);
+                        if (cleanedCount > 0)
+                        {
+                            _logger.LogInformation($"Auto-cleaned up {cleanedCount} backup files from project directory");
+                        }
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        _logger.LogWarning($"Failed to cleanup backup files: {cleanupEx.Message}");
+                        // Don't fail the entire operation if cleanup fails
+                    }
+                }
                 
                 return true;
             }

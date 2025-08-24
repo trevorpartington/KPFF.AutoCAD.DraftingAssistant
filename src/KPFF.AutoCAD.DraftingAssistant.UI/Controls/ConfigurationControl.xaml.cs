@@ -257,12 +257,14 @@ public partial class ConfigurationControl : BaseUserControl
             }
 
             UpdateConfigurationDisplay(string.Join("\n", details));
+            
         }
         catch (Exception ex)
         {
             UpdateConfigurationDisplay($"Error loading project details: {ex.Message}");
         }
     }
+
 
     private void UpdateConfigurationDisplay(string text)
     {
@@ -282,4 +284,5 @@ public partial class ConfigurationControl : BaseUserControl
         NotificationService.ShowWarning("Configuration Warning", message);
         UpdateConfigurationDisplay($"WARNING: {message}");
     }
+
 }

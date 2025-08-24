@@ -2038,7 +2038,8 @@ public class DraftingAssistantCommands
 
             // Create ExternalDrawingManager and perform update
             ed.WriteMessage("\nStarting external drawing update...\n");
-            var externalManager = new ExternalDrawingManager(logger);
+            var backupCleanupService = new BackupCleanupService(logger);
+            var externalManager = new ExternalDrawingManager(logger, backupCleanupService);
             bool success = externalManager.UpdateClosedDrawing(dwgPath, layoutName, testNotes);
 
             if (success)
@@ -2065,6 +2066,101 @@ public class DraftingAssistantCommands
         catch (System.Exception ex)
         {
             ed.WriteMessage($"\nFATAL ERROR in TESTCLOSEDUPDATE: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Test command to validate BackupCleanupService functionality
+    /// </summary>
+    [CommandMethod("TESTCLEANUP")]
+    public void TestBackupCleanup()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+
+        try
+        {
+            ed.WriteMessage("\n=== TESTCLEANUP: BackupCleanupService Validation ===\n");
+
+            // Get logger from composition root
+            var compositionRoot = DraftingAssistantExtensionApplication.CompositionRoot;
+            var logger = compositionRoot?.GetService<ILogger>();
+            if (logger == null)
+            {
+                ed.WriteMessage("ERROR: Logger service not available\n");
+                return;
+            }
+
+            // Create BackupCleanupService manually
+            var backupCleanupService = new BackupCleanupService(logger);
+
+            // Prompt for directory path
+            var pfo = new PromptOpenFileOptions("\nSelect any DWG file in the directory to scan for backups")
+            {
+                Filter = "Drawing files (*.dwg)|*.dwg|All Files (*.*)|*.*",
+                DialogCaption = "Select DWG file in directory to scan",
+                DialogName = "TESTCLEANUP Directory Selection"
+            };
+
+            PromptFileNameResult pfnResult = ed.GetFileNameForOpen(pfo);
+            if (pfnResult.Status != PromptStatus.OK)
+            {
+                ed.WriteMessage("Operation cancelled by user.\n");
+                return;
+            }
+
+            string selectedFile = pfnResult.StringResult;
+            string directory = Path.GetDirectoryName(selectedFile) ?? string.Empty;
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                ed.WriteMessage("ERROR: Could not determine directory path.\n");
+                return;
+            }
+
+            ed.WriteMessage($"Scanning directory: {directory}\n");
+
+            // Get backup file information
+            var backupFiles = backupCleanupService.GetBackupFileInfo(directory);
+            ed.WriteMessage($"Found {backupFiles.Count} backup files:\n");
+
+            if (backupFiles.Count == 0)
+            {
+                ed.WriteMessage("No .bak.beforeupdate files found in directory.\n");
+                ed.WriteMessage("To test cleanup functionality:\n");
+                ed.WriteMessage("1. Run TESTCLOSEDUPDATE on a closed drawing\n");
+                ed.WriteMessage("2. Then run TESTCLEANUP again\n");
+                return;
+            }
+
+            // Display backup files
+            foreach (var backup in backupFiles)
+            {
+                ed.WriteMessage($"  - {backup.FileName} (Created: {backup.CreatedDate:yyyy-MM-dd HH:mm:ss}, Size: {backup.Size:N0} bytes)\n");
+            }
+
+            // Test simplified cleanup
+            ed.WriteMessage("\n--- Testing Simplified Cleanup ---\n");
+
+            // Test 1: Count only
+            int count = backupCleanupService.GetBackupFileCount(directory);
+            ed.WriteMessage($"GetBackupFileCount result: {count} files\n");
+
+            // Test 2: Cleanup all backup files immediately
+            ed.WriteMessage("\nTesting immediate cleanup (all backup files):\n");
+            int cleanedCount = backupCleanupService.CleanupAllBackupFiles(directory);
+            ed.WriteMessage($"Cleanup removed: {cleanedCount} files\n");
+
+            // Test 3: Final count
+            int finalCount = backupCleanupService.GetBackupFileCount(directory);
+            ed.WriteMessage($"Final backup file count: {finalCount} files\n");
+
+            ed.WriteMessage("\n=== TESTCLEANUP COMPLETE ===\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nFATAL ERROR in TESTCLEANUP: {ex.Message}\n");
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
         }
     }
@@ -2499,7 +2595,8 @@ public class DraftingAssistantCommands
             ed.WriteMessage("\n--- STEP 1: CREATING SERVICE DEPENDENCIES ---\n");
             
             var drawingAccessService = new DrawingAccessService(logger);
-            var externalDrawingManager = new ExternalDrawingManager(logger);
+            var backupCleanupService = new BackupCleanupService(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
             var mockExcelReader = new MockExcelReader();
             var mockDrawingOperations = new MockDrawingOperations();
             var constructionNotesService = new ConstructionNotesService(logger, mockExcelReader, mockDrawingOperations);
@@ -2687,7 +2784,8 @@ public class DraftingAssistantCommands
             ed.WriteMessage("\n--- STEP 1: CREATING PRODUCTION SERVICES ---\n");
             
             var drawingAccessService = new DrawingAccessService(logger);
-            var externalDrawingManager = new ExternalDrawingManager(logger);
+            var backupCleanupService = new BackupCleanupService(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
             var excelReaderService = new ExcelReaderService(logger);
             var drawingOperations = new DrawingOperations(logger);
             var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, drawingOperations);

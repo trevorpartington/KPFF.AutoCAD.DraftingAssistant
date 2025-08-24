@@ -43,46 +43,9 @@
                             Style="{StaticResource DarkRadioButtonStyle}"/>
             </StackPanel>
             
-            <!-- Auto Notes Configuration -->
-            <StackPanel Name="AutoNotesConfigPanel" 
-                        Orientation="Vertical"
-                        Margin="0,0,0,15"
-                        Visibility="Visible">
-                <TextBlock Text="Auto Notes Configuration:" 
-                           Style="{StaticResource DarkTextBlockStyle}"
-                           FontWeight="Bold"
-                           Margin="0,0,0,5"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <TextBlock Text="Multileader Style:" 
-                               Style="{StaticResource DarkTextBlockStyle}"
-                               Width="120"
-                               VerticalAlignment="Center"/>
-                    <TextBox Name="MultileaderStyleTextBox" 
-                             Text="ML-STYLE-01"
-                             Width="200"
-                             Style="{StaticResource DarkTextBoxStyle}"
-                             Margin="10,0,10,0"/>
-                    <TextBlock Text="(?)" 
-                               Style="{StaticResource DarkTextBlockStyle}"
-                               VerticalAlignment="Center"
-                               ToolTip="Style name used to filter multileaders for note detection"/>
-                </StackPanel>
-                <TextBlock Text="Style used to filter multileaders for note detection" 
-                           Style="{StaticResource DarkTextBlockStyle}"
-                           FontSize="10"
-                           Opacity="0.7"
-                           Margin="120,0,0,0"/>
-            </StackPanel>
             
             <!-- Action Buttons -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Button Name="PreviewDrawingStatesButton" 
-                        Content="Preview Drawing States" 
-                        Width="160" 
-                        Height="30"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="PreviewDrawingStatesButton_Click"
-                        Margin="0,0,10,0"/>
                 <Button Name="UpdateNotesButton" 
                         Content="Update Notes" 
                         Width="120" 

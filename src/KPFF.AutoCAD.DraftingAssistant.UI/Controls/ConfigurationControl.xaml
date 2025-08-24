@@ -26,27 +26,26 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
             <!-- Action Buttons -->
-            <StackPanel Grid.Row="0" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Left" 
-                        Margin="0,0,0,15">
+            <Grid Grid.Row="0" Margin="0,0,0,15">
+                <Button Name="SelectSheetsButton" 
+                        Content="Select Sheets" 
+                        Width="100" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="SelectSheetsButton_Click"
+                        HorizontalAlignment="Left"/>
                 <Button Name="SelectProjectButton" 
                         Content="Select Project" 
                         Width="100" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="SelectProjectButton_Click"
-                        Margin="0,0,10,0"/>
-                <Button Name="SelectSheetsButton" 
-                        Content="Select Sheets" 
-                        Width="100" 
-                        Height="30"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="SelectSheetsButton_Click"/>
-            </StackPanel>
+                        HorizontalAlignment="Right"/>
+            </Grid>
             
             <!-- Active Project Status -->
             <StackPanel Grid.Row="1" 
@@ -63,6 +62,7 @@
                           VerticalAlignment="Center"
                           Foreground="White"/>
             </StackPanel>
+            
         </Grid>
         
         <!-- Text Readout Area -->
