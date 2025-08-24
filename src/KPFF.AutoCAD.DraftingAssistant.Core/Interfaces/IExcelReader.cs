@@ -2,7 +2,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 
-public interface IExcelReader
+public interface IExcelReader : IDisposable
 {
     Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config);
     Task<List<ConstructionNote>> ReadConstructionNotesAsync(string filePath, string series, ProjectConfiguration config);

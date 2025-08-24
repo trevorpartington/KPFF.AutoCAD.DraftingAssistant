@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > GetErasedBlockReferenceIds Method
+BlockTableRecord.GetErasedBlockReferenceIds MethodDescription
+ 
+
+This function returns a list of BlockReferences that directly reference this block. It only returns those block references that have been erased.
+
+Visual Basic
+Public Function GetErasedBlockReferenceIds() As ObjectIdCollection
+C#
+public ObjectIdCollection GetErasedBlockReferenceIds();
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

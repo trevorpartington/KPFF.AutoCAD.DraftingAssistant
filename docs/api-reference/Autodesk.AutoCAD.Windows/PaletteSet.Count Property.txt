@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Count Property
+PaletteSet.Count PropertyDescription
+Returns the Count property value.
+
+Visual Basic
+Public virtual Property Count() As Integer
+C#
+public virtual int Count;
+Conditions
+Read-only
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

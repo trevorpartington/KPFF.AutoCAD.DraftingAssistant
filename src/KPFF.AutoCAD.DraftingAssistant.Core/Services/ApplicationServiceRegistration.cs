@@ -4,8 +4,9 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 /// <summary>
 /// Centralized service registration for the entire application
+/// Implements both builder and resolver to maintain backward compatibility
 /// </summary>
-public class ApplicationServiceRegistration : IServiceRegistration
+public class ApplicationServiceRegistration : IServiceContainerBuilder, IServiceResolver
 {
     private readonly DependencyInjectionServiceProvider _serviceProvider;
     private bool _servicesRegistered = false;
@@ -38,17 +39,19 @@ public class ApplicationServiceRegistration : IServiceRegistration
         // Configuration services
         _serviceProvider.RegisterTransient<IProjectConfigurationService, ProjectConfigurationService>();
         
-        // Excel services
+        // Excel services (Phase 3 ClosedXML implementation)
         _serviceProvider.RegisterTransient<IExcelReader, ExcelReaderService>();
 
-        // Construction Notes services (stub implementations to prevent crashes)
+        // Construction Notes services
         _serviceProvider.RegisterTransient<IConstructionNotesService, ConstructionNotesService>();
         _serviceProvider.RegisterTransient<IConstructionNoteBlockManager, ConstructionNoteBlockManager>();
+        _serviceProvider.RegisterTransient<IDrawingOperations, DrawingOperations>();
         
         // CRASH FIX: Removed CurrentDrawingBlockManager registration from DI container
         // It will be instantiated manually when needed to avoid premature AutoCAD access
         
         // Notification services - these will be registered by specific layers (UI/Plugin)
+        // Command handlers will be registered by Plugin layer
     }
 
     public void RegisterNotificationService<T>() where T : class, INotificationService
@@ -89,5 +92,14 @@ public class ApplicationServiceRegistration : IServiceRegistration
             return false;
         
         return _serviceProvider.IsServiceRegistered<T>();
+    }
+    
+    /// <summary>
+    /// Build the service container and return a resolver
+    /// </summary>
+    public IServiceResolver Build()
+    {
+        RegisterServices();
+        return this; // Return self as we implement both interfaces
     }
 }

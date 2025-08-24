@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentDestroyed Event
+DocumentCollection.DocumentDestroyed EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentDestroyed() ObjectARX function. 
+
+ 
+
+This notification is sent when a document is completely destroyed and the underlying database corresponding to this document has also been deleted.
+
+Visual Basic
+Public Event DocumentDestroyed As DocumentDestroyedEventHandler
+C#
+public event DocumentDestroyedEventHandler DocumentDestroyed;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

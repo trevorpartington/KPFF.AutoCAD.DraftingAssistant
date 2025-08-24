@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Methods > SetAttributeFromBlock Method > SetAttributeFromBlock(AttributeDefinition, Matrix3d) Method
+AttributeReference.SetAttributeFromBlock(AttributeDefinition, Matrix3d) MethodDescription
+ 
+
+Uses definition as a template for the attributes textual, entity, and starting geometric properties (in other words, it copies this information from the attribute definition into the attribute). It then applies blockTransform to transform the position, sizing, and obliquing as would be done by the INSERT command.
+
+Visual Basic
+Public Function SetAttributeFromBlock(
+    definition As AttributeDefinition, 
+    blockTransform As Matrix3d
+) As void
+C#
+public void SetAttributeFromBlock(
+    AttributeDefinition definition, 
+    Matrix3d blockTransform
+);
+Parameters
+Parameters  Description  
+AttributeDefinition definition  Input the the attribute definition entity to be used as a data template  
+Matrix3d blockTransform  Input a block transformation matrix.  
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > OldId Property
+ObjectId.OldId Property    Description
+Obsolete - Use the OldIdPtr property instead. 
+
+Accesses the objectId value as a long, which is the old format (an is an array of two longs, the first element of which contains the same value as that in an objectId).
+
+Class
+Autodesk.AutoCAD.DatabaseServices.ObjectId
+
+Visual Basic
+Public Property OldId() As long
+Conditions
+Read-only
+
+public IntPtr OldIdPtr;
+
+Previous Declaration
+public int modopt(IsLong) OldId;
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

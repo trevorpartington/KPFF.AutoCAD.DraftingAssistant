@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > DeviceIndependentMinimumSize Property
+PaletteSet.DeviceIndependentMinimumSize PropertyDescription
+This is DeviceIndependentMinimumSize, a member of class PaletteSet.
+
+Visual Basic
+Public Property DeviceIndependentMinimumSize() As System.Drawing.Size
+C#
+public System.Drawing.Size DeviceIndependentMinimumSize;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

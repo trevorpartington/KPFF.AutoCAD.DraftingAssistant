@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > HelpFileName Property
+CommandMethodAttribute.HelpFileName PropertyDescription
+ 
+
+Returns the HelpFileName property value.
+
+Visual Basic
+Public virtual Property HelpFileName() As string
+C#
+public virtual string HelpFileName;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

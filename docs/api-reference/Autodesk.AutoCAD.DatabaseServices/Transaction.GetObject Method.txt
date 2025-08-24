@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > GetObject Method
+GetObject MethodOverload List
+Method  Description  
+ Transaction.GetObject (ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode)  This function calls the Open() function of the top transaction passing on all the arguments it has received. Objects can... more  
+ Transaction.GetObject (ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool)  This function calls the Open() function of the top transaction passing on all the arguments it has received. Objects can... more  
+ Transaction.GetObject (ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool)  This function calls the Open() function of the top transaction passing on all the arguments it has received. Objects can... more  
+
+   Comments?  

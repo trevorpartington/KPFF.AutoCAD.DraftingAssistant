@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > CopyTo Method
+DBDictionary.CopyTo MethodDescription
+ 
+
+Copies objects in array to this object, starting from index.
+
+Visual Basic
+Public Function CopyTo(
+    array As DBDictionaryEntry[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    DBDictionaryEntry\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+DBDictionaryEntry[] array  Array to receive data from  
+int index  Index to begin at  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

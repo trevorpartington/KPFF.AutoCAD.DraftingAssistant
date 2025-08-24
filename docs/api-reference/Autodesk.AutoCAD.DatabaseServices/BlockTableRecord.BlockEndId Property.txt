@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > BlockEndId Property
+BlockTableRecord.BlockEndId PropertyDescription
+ 
+
+Returns the the block end opened openMode.
+
+Visual Basic
+Public Property BlockEndId() As ObjectId
+C#
+public ObjectId BlockEndId;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

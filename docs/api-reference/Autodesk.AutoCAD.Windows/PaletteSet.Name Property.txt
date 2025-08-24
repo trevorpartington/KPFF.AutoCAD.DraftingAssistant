@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Name Property
+PaletteSet.Name PropertyDescription
+Name of the palette set window.
+
+Visual Basic
+Public Property Name() As string
+C#
+public string Name;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > SetName Method
+DBDictionary.SetName MethodDescription
+ 
+
+This function renames the entry specified by oldName to the new name specified by newName.
+
+Visual Basic
+Public Function SetName(
+    oldName As string, 
+    newName As string
+) As void
+C#
+public void SetName(
+    string oldName, 
+    string newName
+);
+Parameters
+Parameters  Description  
+string oldName  String representing the entry's old key string name  
+string newName  String representing the entry's new key string name  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

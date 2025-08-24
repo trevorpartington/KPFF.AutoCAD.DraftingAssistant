@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > Explodable Property
+BlockTableRecord.Explodable PropertyDescription
+ 
+
+Specifies whether block references associated with this block table record can be exploded.
+
+Visual Basic
+Public Property Explodable() As bool
+C#
+public bool Explodable;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

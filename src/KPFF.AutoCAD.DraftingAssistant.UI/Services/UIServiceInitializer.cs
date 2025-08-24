@@ -20,15 +20,8 @@ public static class UIServiceInitializer
 
         try
         {
-            // Create and configure service registration
-            var serviceRegistration = new ApplicationServiceRegistration();
-            
-            // Register UI-specific services
-            serviceRegistration.RegisterNotificationService<WpfNotificationService>();
-            
-            // Initialize the application services
-            ApplicationServices.Initialize(serviceRegistration);
-            
+            // UI services are now initialized through dependency injection at the plugin level
+            // This method is kept for backward compatibility but is essentially a no-op
             _isInitialized = true;
         }
         catch (Exception ex)
@@ -36,9 +29,6 @@ public static class UIServiceInitializer
             // Log initialization failure using fallback logger
             var fallbackLogger = new DebugLogger();
             fallbackLogger.LogCritical($"Failed to initialize UI services: {ex.Message}", ex);
-            
-            // Initialize with minimal services as fallback
-            ApplicationServices.Initialize();
             _isInitialized = true;
         }
     }
@@ -54,6 +44,6 @@ public static class UIServiceInitializer
     internal static void Reset()
     {
         _isInitialized = false;
-        ApplicationServices.Reset();
+        // ApplicationServices has been removed - initialization now handled by plugin layer
     }
 }

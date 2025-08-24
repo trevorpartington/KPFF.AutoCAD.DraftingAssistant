@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods
+DBDictionary MethodsMethods
+Method  Description  
+ Contains    
+ Copy  
+Copies the Dictionary object.  
+ CopyTo  
+Copies objects in array to this object, starting from index.  
+ GetAt  
+This function searches the dictionary for an entry with key entryName and, if found, returns its object ID.  
+ GetEnumerator  
+This function returns a new enumerator.  
+ NameAt  
+This function searches the dictionary for an entry with object ID objId and returns the search key name of the... more  
+ Remove    
+ SetAt  This function adds a new entry specified by newValue into the dictionary, if searchKey does not already exist in the... more  
+ SetName  
+This function renames the entry specified by oldName to the new name specified by newName.  
+
+   Comments?  

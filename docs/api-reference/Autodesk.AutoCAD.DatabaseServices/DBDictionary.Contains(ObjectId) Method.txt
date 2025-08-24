@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Contains Method > Contains(ObjectId) Method
+DBDictionary.Contains(ObjectId) MethodDescription
+ 
+
+Returns true if the object specified is in the dictionary.
+
+Visual Basic
+Public Function Contains(
+    objId As ObjectId
+) As bool
+C#
+public bool Contains(
+    ObjectId objId
+);
+Parameters
+Parameters  Description  
+ObjectId objId  Object to search for  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Constructor
+AttributeReference ConstructorOverload List
+Method  Description  
+ AttributeReference.AttributeReference ()  
+Default constructor. Initializes the field length to 0, the flags to 0 (that is, non-constant, visible, not preset, and not... more  
+ AttributeReference.AttributeReference (Point3d, string, string, ObjectId)  
+Default constructor. Initializes the field length to 0, the flags to 0 (that is, non-constant, visible, not preset, and not... more  
+
+   Comments?  

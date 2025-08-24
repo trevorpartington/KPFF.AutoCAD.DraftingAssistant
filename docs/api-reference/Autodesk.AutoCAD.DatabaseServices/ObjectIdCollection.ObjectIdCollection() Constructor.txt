@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Constructor > ObjectIdCollection() Constructor
+ObjectIdCollection.ObjectIdCollection() ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+Public Sub New(
+    values As ObjectId[]
+)
+C#
+public ObjectIdCollection();
+public ObjectIdCollection(
+    ObjectId\[\] values
+);
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

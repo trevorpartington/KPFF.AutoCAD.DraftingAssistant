@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > MTextAttribute Property
+AttributeReference.MTextAttribute PropertyDescription
+ 
+
+Accesses the internal MText entity, to replace or modify it.
+
+Visual Basic
+Public Property MTextAttribute() As MText
+C#
+public MText MTextAttribute;
+Conditions
+Read / Write
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

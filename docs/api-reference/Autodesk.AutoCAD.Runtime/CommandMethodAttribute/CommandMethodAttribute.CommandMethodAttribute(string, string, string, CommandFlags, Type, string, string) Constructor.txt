@@ -1,0 +1,39 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Constructor > CommandMethodAttribute(string, string, string, CommandFlags, Type, string, string) Constructor
+CommandMethodAttribute.CommandMethodAttribute(string, string, string, CommandFlags, Type, string, string) ConstructorDescription
+ 
+
+Constructs an object with a global name, command flags, group name, localized ID name, help topic, help file name, and context menu flags.
+
+Visual Basic
+Public Sub New(
+    groupName As string, 
+    globalName As string, 
+    localizedNameId As string, 
+    flags As CommandFlags, 
+    contextMenuExtensionType As Type, 
+    helpFileName As string, 
+    helpTopic As string
+)
+C#
+public CommandMethodAttribute(
+    string groupName, 
+    string globalName, 
+    string localizedNameId, 
+    CommandFlags flags, 
+    Type contextMenuExtensionType, 
+    string helpFileName, 
+    string helpTopic
+);
+Parameters
+Parameters  Description  
+string groupName  Input command group name  
+string globalName  Input command global name  
+string localizedNameId  Input command localized name Id  
+CommandFlags flags  Input command flags  
+Type contextMenuExtensionType  Input context menu flags  
+string helpFileName  Input help file name  
+string helpTopic  Input help topic string  
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

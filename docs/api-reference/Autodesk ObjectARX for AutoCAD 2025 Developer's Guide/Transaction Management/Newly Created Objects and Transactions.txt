@@ -1,0 +1,14 @@
+Obtaining Pointers to Objects in a TransactionTransaction ManagementCommit-Time Guidelines 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Newly Created Objects and Transactions
+ 
+ 
+ 
+There are two ways to deal with newly created objects in a transaction management context. 
+
+The recommended approach is to close() the object after adding it to the database or the appropriate container and store the ID that is returned to you. Right after closing the object, which commits it to the database, you can use the getObject() function to obtain a new pointer for your operations. Even if you call close() on the object after adding it to the database, its creation will be undone if the containing transaction is aborted. See Mixing the Transaction Model with the Open and Close Mechanism. 
+
+The alternate approach is to add your newly created, in-memory object to the database or to the appropriate container, which in turn will add it to the database. Then add it to the most recent transaction using AcTransactionManager::addNewlyCreatedDBRObject() or AcTransaction::addNewlyCreatedDBRObject. Now that it's associated with a transaction, it will be committed or uncreated depending on whether the transactions end successfully or abort.
+
+Please send us your comment about this page
+

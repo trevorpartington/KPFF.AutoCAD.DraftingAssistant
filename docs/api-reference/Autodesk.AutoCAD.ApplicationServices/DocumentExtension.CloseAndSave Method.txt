@@ -1,0 +1,29 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > CloseAndSave Method
+DocumentExtension.CloseAndSave Method    Description
+ 
+
+Closes the document and saves it to fileName.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.DocumentExtension
+
+Visual Basic
+Public static Function CloseAndSave(
+    doc As this Document, 
+    fileName As string
+) As void
+C#
+public static void CloseAndSave(
+    this Document doc, 
+    string fileName
+);
+Parameters
+Parameters  Description  
+string fileName  Input file to save to  
+
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Document
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

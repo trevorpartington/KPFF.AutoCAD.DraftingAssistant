@@ -18,7 +18,7 @@ public class TogglePaletteCommandHandler : ICommandHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public string CommandName => CommandNames.ToggleDraftingAssistant;
+    public string CommandName => CommandNames.Kpff;
     public string Description => "Toggles the KPFF Drafting Assistant palette visibility";
 
     public void Execute()

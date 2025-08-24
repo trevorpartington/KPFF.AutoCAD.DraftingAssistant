@@ -21,7 +21,7 @@ public partial class ProjectSelectionDialog : Window
         // TODO: Replace with proper dependency injection
         var logger = new DebugLogger();
         _configService = new ProjectConfigurationService(logger);
-        _excelReader = new ExcelReaderService(logger);
+        _excelReader = new PlaceholderExcelReader(logger);
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)

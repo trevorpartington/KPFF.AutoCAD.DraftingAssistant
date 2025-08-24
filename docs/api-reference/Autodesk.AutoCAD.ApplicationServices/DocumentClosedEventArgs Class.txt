@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentClosedEventArgs Class
+DocumentClosedEventArgs ClassDescription
+This is class Autodesk.AutoCAD.ApplicationServices.DocumentClosedEventArgs.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentClosedEventArgs
+Visual Basic
+Public sealed Class DocumentClosedEventArgs
+Inherits EventArgs
+C#
+public sealed class DocumentClosedEventArgs : EventArgs;
+Links
+DocumentClosedEventArgs Properties
+   Comments?  

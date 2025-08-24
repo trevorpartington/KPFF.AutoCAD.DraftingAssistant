@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > DefaultFormatForSave Property
+DocumentCollection.DefaultFormatForSave Property    Description
+Gets or sets the default DocumentSaveFormat for AutoCAD.
+
+Visual Basic
+Public Property DefaultFormatForSave() As DocumentSaveFormat
+C#
+public DocumentSaveFormat DefaultFormatForSave;
+Conditions
+Read / Write
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

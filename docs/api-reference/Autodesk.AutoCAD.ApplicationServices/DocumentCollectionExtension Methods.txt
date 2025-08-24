@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionExtension Class > DocumentCollectionExtension Methods
+DocumentCollectionExtension MethodsMethods
+Method  Description  
+ Add  Creates and returns a Document with the given name.  
+ CloseAll  
+Closes all the open Document objects.  
+ Open    
+
+   Comments?  

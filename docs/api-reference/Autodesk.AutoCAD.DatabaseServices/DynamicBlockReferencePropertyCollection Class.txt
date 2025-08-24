@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class
+DynamicBlockReferencePropertyCollection ClassDescription
+ 
+
+This class provides a container for Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferenceProperty objects.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferencePropertyCollection
+Visual Basic
+Public sealed Class DynamicBlockReferencePropertyCollection
+Inherits DisposableWrapper
+Inherits ICollection
+Inherits IEnumerable
+C#
+public sealed class DynamicBlockReferencePropertyCollection : DisposableWrapper, ICollection, IEnumerable;
+Links
+DynamicBlockReferencePropertyCollection Methods, DynamicBlockReferencePropertyCollection Properties
+   Comments?  

@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > UpdateAnonymousBlocks Method
+BlockTableRecord.UpdateAnonymousBlocks MethodDescription
+ 
+
+Updates the anonymous blocks created from this dynamic block definition to reflect any changes made to the dynamic block definition. 
+
+Calling this method after updating a dynamic block definition causes AutoCAD to replace all anonymous block definitions created from this definition with new anonymous block definitions, thereby causing all references to reflect changes made to the dynamic block. The update preserves the values of dynamic block properties on the references where possible, adding newly created properties and deleting properties that no longer exist. When complete all references to the dynamic block reflect the new state of the block definition.
+
+Visual Basic
+Public Function UpdateAnonymousBlocks() As void
+C#
+public void UpdateAnonymousBlocks();
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,28 @@
+Layouts and Blocks (.NET)Layouts (.NET)Paper Size and Units (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Define Layouts and Plot (.NET) > Layouts (.NET) > 
+Layout Settings (.NET)
+ 
+ 
+ 
+Layout settings control the final output of a drawing when plotted or published. These settings affect the paper size, plot scale, plot area, plot origin, and the plot device name. Understanding how to use layout settings ensures that the layout is plotted as expected. Most settings related to outputting a layout are read-only. Changing the plot settings for a layout requires the use of the PlotSettings and PlotSettingsValidator objects. 
+
+Topics in this section
+Paper Size and Units (.NET)
+Plot Origin (.NET)
+Plot Area (.NET)
+Plot Scale (.NET)
+Lineweight Scale (.NET)
+Plot Device (.NET)
+Query and Set Layout Settings (.NET)
+Related Concepts
+Query and Set Layout Settings (.NET)
+Layouts (.NET)
+Paper Size and Units (.NET)
+Plot Origin (.NET)
+Plot Area (.NET)
+Plot Scale (.NET)
+Lineweight Scale (.NET)
+Plot Device (.NET)
+Plot Styles (.NET)
+Please send us your comment about this page
+

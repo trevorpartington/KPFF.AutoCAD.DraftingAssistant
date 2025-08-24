@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class
+AttributeCollection ClassDescription
+ 
+
+This collection class provides a container for block reference attributes.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.AttributeCollection
+Visual Basic
+Public sealed Class AttributeCollection
+Inherits ICollection
+Inherits IEnumerable
+Inherits ISubObject
+C#
+public sealed class AttributeCollection : ICollection, IEnumerable, ISubObject;
+Links
+AttributeCollection Methods, AttributeCollection Properties
+   Comments?  

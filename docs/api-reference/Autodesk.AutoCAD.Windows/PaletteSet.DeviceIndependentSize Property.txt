@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > DeviceIndependentSize Property
+PaletteSet.DeviceIndependentSize PropertyDescription
+This is DeviceIndependentSize, a member of class PaletteSet.
+
+Visual Basic
+Public override Property DeviceIndependentSize() As System.Windows.Size
+C#
+public override System.Windows.Size DeviceIndependentSize;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

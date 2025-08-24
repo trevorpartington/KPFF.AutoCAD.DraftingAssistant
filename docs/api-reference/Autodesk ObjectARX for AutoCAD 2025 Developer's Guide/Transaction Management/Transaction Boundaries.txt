@@ -1,0 +1,30 @@
+Avoiding Recursive TransactionsTransaction ManagementObtaining Pointers to Objects in a Transaction 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Transaction Boundaries
+ 
+ 
+ 
+Because you, not the system, are in charge of starting, ending, or aborting transactions, it's important to be aware of transaction boundaries. A transaction boundary is the time between the start and end or abort of a transaction. It's recommended that you confine your boundary to the smallest possible scope. For example, if you start a transaction in a function, try to end or abort the transaction before you return from that function, because you may not have knowledge of the transaction outside of the function. You need not follow this rule if you maintain some kind of a global manager for your transaction activities, but you still are responsible for aborting or ending all the transactions you start. 
+
+Multiple applications can use transaction management for their work, and operations on objects are committed at the end of the outermost transaction. Therefore, an AutoCAD ® command boundary is as far as you can stretch the boundary of your transactions. When a command ends, there should not be any active transactions. If there are any active transactions (the transaction stack is not empty) when a command ends, AutoCAD will abort. 
+
+As an exception, transactions can still be active when an acedCommandS()/acedCommandC() or a transparent command ends, but they should all be resolved when a main command ends and AutoCAD returns to the Command prompt. 
+
+It's generally a good idea to start a transaction when one of your functions is invoked as part of a command registered by you and end it when you return from that function. You can generalize it to all the commands in AutoCAD using the AcEditorReactor::commandWillStart() and AcEditorReactor::commandEnded() notifications, but there are certain commands that should not be transacted. The following commands should not be transacted: 
+
+ARX 
+DXFIN 
+INSERT 
+NEW 
+OPEN 
+PURGE 
+QUIT 
+RECOVER 
+REDO 
+SAVE 
+SCRIPT 
+U 
+UNDO 
+XREF 
+Please send us your comment about this page
+

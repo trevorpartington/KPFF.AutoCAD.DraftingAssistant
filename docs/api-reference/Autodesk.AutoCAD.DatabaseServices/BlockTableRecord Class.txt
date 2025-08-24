@@ -1,0 +1,28 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class
+BlockTableRecord ClassDescription
+This .NET class wraps the AcDbBlockTableRecord ObjectARX class. 
+
+ 
+
+Objects of the BlockTableRecord class are used as containers for entities within drawing file databases. BlockTableRecord objects (often referred to as BTRs) are owned by the database’s BlockTable object. The BTRs in turn own the entity objects they contain. 
+
+There are two special BTRs that are always present in every database. They are *MODEL_SPACE and *PAPER_SPACE. They are the Model and Paper Spaces for the database. Any entity that is created by AutoCAD while in Model Space is owned and contained by the *MODEL_SPACE BTR. Entities created while in Paper Space go into the *PAPER_SPACE BTR. 
+
+BTRs other than *MODEL_SPACE and *PAPER_SPACE were known in previous versions of AutoCAD as block definitions and are referenced by BlockReferences (which are often referred to as inserts). The BTR contains a collection of entities that can be referenced by multiple inserts to save space in the drawing, save time in drawing creation, and guarantee that all inserts will appear the same (except possibly in color and linetype).
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.SymbolTableRecord
+        Autodesk.AutoCAD.DatabaseServices.BlockTableRecord
+Visual Basic
+Public Class BlockTableRecord
+Inherits SymbolTableRecord
+Inherits IEnumerable
+C#
+public class BlockTableRecord : SymbolTableRecord, IEnumerable;
+Links
+BlockTableRecord Methods, BlockTableRecord Properties, BlockTableRecord Events
+See Also
+DBObject, Entity, BlockTable, BlockReference
+
+   Comments?  

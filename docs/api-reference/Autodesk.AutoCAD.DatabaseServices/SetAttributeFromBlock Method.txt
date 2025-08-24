@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Methods > SetAttributeFromBlock Method
+SetAttributeFromBlock MethodOverload List
+Method  Description  
+ AttributeReference.SetAttributeFromBlock (AttributeDefinition, Matrix3d)  
+Uses definition as a template for the attributes textual, entity, and starting geometric properties (in other words, it copies this... more  
+ AttributeReference.SetAttributeFromBlock (Matrix3d)  
+Applies blockTransform to the attribute's geometric data to transform the position, sizing, and obliquing as would be done by the... more  
+
+   Comments?  

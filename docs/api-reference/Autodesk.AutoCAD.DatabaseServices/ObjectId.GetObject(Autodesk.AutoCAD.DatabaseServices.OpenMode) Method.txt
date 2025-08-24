@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > GetObject > GetObject(Autodesk.AutoCAD.DatabaseServices.OpenMode) Method
+ObjectId.GetObject(Autodesk.AutoCAD.DatabaseServices.OpenMode) MethodDescription
+Returns the object associated with this ID.
+
+Visual Basic
+Public Function GetObject(
+    mode As Autodesk.AutoCAD.DatabaseServices.OpenMode
+) As DBObject
+C#
+public DBObject GetObject(
+    Autodesk.AutoCAD.DatabaseServices.OpenMode mode
+);
+Parameters
+Parameters  Description  
+Autodesk.AutoCAD.DatabaseServices.OpenMode mode  Input mode to retrieve the object  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

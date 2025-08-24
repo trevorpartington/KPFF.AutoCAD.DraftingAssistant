@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentBeginCloseEventArgs Class > DocumentBeginCloseEventArgs Methods > Veto Method
+DocumentBeginCloseEventArgs.Veto MethodDescription
+ 
+
+Vetoes the close process.
+
+Visual Basic
+Public Function Veto() As void
+C#
+public void Veto();
+Links
+DocumentBeginCloseEventArgs Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

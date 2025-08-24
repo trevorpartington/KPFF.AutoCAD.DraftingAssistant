@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods > StartOpenCloseTransaction Method
+TransactionManager.StartOpenCloseTransaction MethodDescription
+This method instantiates, initializes, and returns an OpenCloseTransaction object.
+
+Visual Basic
+Public virtual Function StartOpenCloseTransaction() As OpenCloseTransaction
+C#
+public virtual OpenCloseTransaction StartOpenCloseTransaction();
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

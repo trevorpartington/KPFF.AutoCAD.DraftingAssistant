@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > Database Property
+ObjectId.Database PropertyDescription
+Accesses the database in which the object ID is resident. If the object ID is NULL, then NULL is returned.
+
+Visual Basic
+Public Property Database() As Autodesk.AutoCAD.DatabaseServices.Database
+C#
+public Autodesk.AutoCAD.DatabaseServices.Database Database;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

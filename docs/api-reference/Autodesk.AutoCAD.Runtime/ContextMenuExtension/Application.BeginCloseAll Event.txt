@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > BeginCloseAll Event
+Application.BeginCloseAll Event    Description
+Wraps the AcEditorReactor::beginCloseAll() ObjectARX function. This callback function indicates AutoCAD is about to close all open drawings; the user can veto the close operation.
+
+Visual Basic
+Public static Event BeginCloseAll As BeginCloseAllEventHandler
+C#
+public static event BeginCloseAllEventHandler BeginCloseAll;
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

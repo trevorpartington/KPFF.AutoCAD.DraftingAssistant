@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.EditorInput Namespace > Editor Class > Editor Methods > WriteMessage Method > WriteMessage(string, params object[]) Method
+Editor.WriteMessage(string, params object[]) MethodDescription
+Displays a message on the AutoCAD text screen.
+
+Visual Basic
+Public Function WriteMessage(
+    message As string, 
+    parameter As params object[]
+) As void
+C#
+public void WriteMessage(
+    string message, 
+    params object\[\] parameter
+);
+Parameters
+Parameters  Description  
+string message  Input message  
+params object[] parameter  Input array of objects to include  
+
+Links
+Editor Class, Autodesk.AutoCAD.EditorInput Namespace
+   Comments?  

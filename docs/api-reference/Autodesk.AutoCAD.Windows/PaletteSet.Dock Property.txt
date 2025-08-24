@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Dock Property
+PaletteSet.Dock PropertyDescription
+Returns the Dock property value.
+
+Visual Basic
+Public Property Dock() As DockSides
+C#
+public DockSides Dock;
+Conditions
+Read-only
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

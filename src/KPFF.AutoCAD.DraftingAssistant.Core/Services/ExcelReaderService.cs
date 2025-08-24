@@ -1,262 +1,399 @@
-using OfficeOpenXml;
+using ClosedXML.Excel;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
-using Microsoft.Extensions.Logging;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
+/// <summary>
+/// Excel reader service implementation using ClosedXML library
+/// Provides async Excel reading functionality with comprehensive error handling
+/// </summary>
 public class ExcelReaderService : IExcelReader
 {
     private readonly IApplicationLogger _logger;
+    private bool _disposed = false;
 
     public ExcelReaderService(IApplicationLogger logger)
     {
         _logger = logger;
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     }
 
     public async Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config)
     {
-        try
+        return await Task.Run(() =>
         {
-            var sheets = new List<SheetInfo>();
+            _logger.LogDebug($"Reading sheet index from {filePath}");
             
-            using var package = new ExcelPackage(new FileInfo(filePath));
-            
-            // Access table directly across all worksheets
-            var table = package.Workbook.Worksheets
-                .SelectMany(ws => ws.Tables)
-                .FirstOrDefault(t => t.Name == config.Tables.SheetIndex);
-                
-            if (table == null)
+            try
             {
-                _logger.LogWarning($"Table '{config.Tables.SheetIndex}' not found in {filePath}");
-                return sheets;
-            }
-            
-            var worksheet = table.WorkSheet;
-
-            var headers = table.Columns.Select(c => c.Name).ToArray();
-            var startRow = table.Address.Start.Row + 1; // Skip header
-            var endRow = table.Address.End.Row;
-
-            for (int row = startRow; row <= endRow; row++)
-            {
-                var sheet = new SheetInfo();
-                
-                for (int col = 0; col < headers.Length; col++)
+                if (!File.Exists(filePath))
                 {
-                    var headerName = headers[col];
-                    var cellValue = worksheet.Cells[row, table.Address.Start.Column + col].Text;
+                    var errorMsg = $"Excel file not found: {filePath}";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetInfo>();
+                }
 
-                    switch (headerName.ToLowerInvariant())
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                
+                // Find SHEET_INDEX table across all worksheets
+                var sheetIndexTable = FindTableByName(workbook, config.Tables.SheetIndex);
+                if (sheetIndexTable == null)
+                {
+                    var errorMsg = $"Table '{config.Tables.SheetIndex}' not found in workbook";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetInfo>();
+                }
+
+                var sheets = new List<SheetInfo>();
+                var dataRange = sheetIndexTable.DataRange;
+                
+                _logger.LogDebug($"Found {dataRange.RowCount()} rows in SHEET_INDEX table");
+
+                foreach (var row in dataRange.Rows())
+                {
+                    try
                     {
-                        case "sheet":
-                        case "sheet name":
-                        case "sheetname":
-                            sheet.SheetName = cellValue;
-                            break;
-                        case "file":
-                        case "filename":
-                        case "dwg file":
-                            sheet.DWGFileName = cellValue;
-                            break;
-                        case "title":
-                        case "drawing title":
-                        case "drawingtitle":
-                            sheet.DrawingTitle = cellValue;
-                            break;
-                        case "project number":
-                        case "projectnumber":
-                        case "project":
-                            sheet.ProjectNumber = cellValue;
-                            break;
-                        case "scale":
-                            sheet.Scale = cellValue;
-                            break;
-                        case "sheet type":
-                        case "sheettype":
-                        case "type":
-                            sheet.SheetType = cellValue;
-                            break;
-                        case "designed by":
-                        case "designedby":
-                        case "designer":
-                            sheet.DesignedBy = cellValue;
-                            break;
-                        case "checked by":
-                        case "checkedby":
-                        case "checker":
-                            sheet.CheckedBy = cellValue;
-                            break;
-                        case "drawn by":
-                        case "drawnby":
-                        case "drafter":
-                            sheet.DrawnBy = cellValue;
-                            break;
-                        case "issue date":
-                        case "issuedate":
-                        case "date":
-                            if (DateTime.TryParse(cellValue, out var date))
-                                sheet.IssueDate = date;
-                            break;
-                        default:
-                            sheet.AdditionalProperties[headerName] = cellValue;
-                            break;
+                        var sheetName = row.Cell(1).GetString().Trim();
+                        var fileName = row.Cell(2).GetString().Trim();
+                        var title = row.Cell(3).GetString().Trim();
+
+                        if (string.IsNullOrEmpty(sheetName))
+                            continue;
+
+                        // Extract series and number from sheet name using configuration
+                        var configService = new ProjectConfigurationService(_logger);
+                        var parts = configService.ExtractSeriesFromSheetName(sheetName, config.SheetNaming);
+                        
+                        var sheetInfo = new SheetInfo
+                        {
+                            SheetName = sheetName,
+                            DWGFileName = fileName,
+                            DrawingTitle = title
+                        };
+
+                        sheets.Add(sheetInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Failed to parse sheet row: {ex.Message}");
+                        continue;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(sheet.SheetName))
-                    sheets.Add(sheet);
+                _logger.LogInformation($"Successfully read {sheets.Count} sheets from index");
+                return sheets;
             }
-
-            _logger.LogInformation($"Read {sheets.Count} sheets from {filePath}");
-            return sheets;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error reading sheet index from {filePath}: {ex.Message}");
-            throw;
-        }
+            catch (Exception ex)
+            {
+                var errorMsg = $"Failed to read sheet index from {filePath}: {ex.Message}";
+                _logger.LogError(errorMsg, ex);
+                return new List<SheetInfo>();
+            }
+        });
     }
 
     public async Task<List<ConstructionNote>> ReadConstructionNotesAsync(string filePath, string series, ProjectConfiguration config)
     {
-        try
+        return await Task.Run(() =>
         {
-            var notes = new List<ConstructionNote>();
-            var tableName = string.Format(config.Tables.NotesPattern, series.ToUpperInvariant());
-
-            using var package = new ExcelPackage(new FileInfo(filePath));
+            _logger.LogDebug($"Reading construction notes for series '{series}' from {filePath}");
             
-            // Access table directly across all worksheets
-            var table = package.Workbook.Worksheets
-                .SelectMany(ws => ws.Tables)
-                .FirstOrDefault(t => t.Name == tableName);
-                
-            if (table == null)
+            try
             {
-                _logger.LogWarning($"Table '{tableName}' not found for series {series}");
+                if (!File.Exists(filePath))
+                {
+                    var errorMsg = $"Excel file not found: {filePath}";
+                    _logger.LogError(errorMsg);
+                    return new List<ConstructionNote>();
+                }
+
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                
+                // Build table name dynamically: e.g., "ABC_NOTES"
+                var tableName = string.Format(config.Tables.NotesPattern, series);
+                var notesTable = FindTableByName(workbook, tableName);
+                
+                if (notesTable == null)
+                {
+                    var errorMsg = $"Table '{tableName}' not found in workbook";
+                    _logger.LogError(errorMsg);
+                    return new List<ConstructionNote>();
+                }
+
+                var notes = new List<ConstructionNote>();
+                var dataRange = notesTable.DataRange;
+                
+                _logger.LogDebug($"Found {dataRange.RowCount()} rows in {tableName} table");
+
+                foreach (var row in dataRange.Rows())
+                {
+                    try
+                    {
+                        var numberCell = row.Cell(1).GetString().Trim();
+                        var noteText = row.Cell(2).GetString().Trim();
+
+                        if (string.IsNullOrEmpty(numberCell) || string.IsNullOrEmpty(noteText))
+                            continue;
+
+                        if (!int.TryParse(numberCell, out var noteNumber))
+                        {
+                            _logger.LogWarning($"Unable to parse note number from '{numberCell}' in series {series}");
+                            continue;
+                        }
+
+                        var note = new ConstructionNote
+                        {
+                            Number = noteNumber,
+                            Text = noteText,
+                            Series = series,
+                            IsActive = true,
+                            LastUpdated = DateTime.Now
+                        };
+
+                        notes.Add(note);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Failed to parse construction note row: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                _logger.LogInformation($"Successfully read {notes.Count} construction notes for series {series}");
                 return notes;
             }
-            
-            var worksheet = table.WorkSheet;
-
-            var startRow = table.Address.Start.Row + 1; // Skip header
-            var endRow = table.Address.End.Row;
-
-            for (int row = startRow; row <= endRow; row++)
+            catch (Exception ex)
             {
-                var numberText = worksheet.Cells[row, table.Address.Start.Column].Text;
-                var noteText = worksheet.Cells[row, table.Address.Start.Column + 1].Text;
-
-                if (int.TryParse(numberText, out var number) && !string.IsNullOrEmpty(noteText))
-                {
-                    notes.Add(new ConstructionNote
-                    {
-                        Number = number,
-                        Text = noteText,
-                        Series = series,
-                        IsActive = true
-                    });
-                }
+                var errorMsg = $"Failed to read construction notes for series '{series}' from {filePath}: {ex.Message}";
+                _logger.LogError(errorMsg, ex);
+                return new List<ConstructionNote>();
             }
-
-            _logger.LogInformation($"Read {notes.Count} construction notes for series {series}");
-            return notes;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error reading construction notes for series {series}: {ex.Message}");
-            throw;
-        }
+        });
     }
 
     public async Task<List<SheetNoteMapping>> ReadExcelNotesAsync(string filePath, ProjectConfiguration config)
     {
-        try
+        return await Task.Run(() =>
         {
-            var mappings = new List<SheetNoteMapping>();
-
-            using var package = new ExcelPackage(new FileInfo(filePath));
+            _logger.LogDebug($"Reading Excel notes mappings from {filePath}");
             
-            // Access table directly across all worksheets
-            var table = package.Workbook.Worksheets
-                .SelectMany(ws => ws.Tables)
-                .FirstOrDefault(t => t.Name == config.Tables.ExcelNotes);
-                
-            if (table == null)
+            try
             {
-                _logger.LogWarning($"Table '{config.Tables.ExcelNotes}' not found in {filePath}");
-                return mappings;
-            }
-            
-            var worksheet = table.WorkSheet;
-
-            var startRow = table.Address.Start.Row + 1; // Skip header
-            var endRow = table.Address.End.Row;
-
-            for (int row = startRow; row <= endRow; row++)
-            {
-                var sheetName = worksheet.Cells[row, table.Address.Start.Column].Text;
-                if (string.IsNullOrEmpty(sheetName))
-                    continue;
-
-                var mapping = new SheetNoteMapping { SheetName = sheetName };
-
-                // Read note numbers from columns 2-25 (up to 24 notes)
-                for (int col = 1; col < Math.Min(25, table.Address.Columns); col++)
+                if (!File.Exists(filePath))
                 {
-                    var noteText = worksheet.Cells[row, table.Address.Start.Column + col].Text;
-                    if (int.TryParse(noteText, out var noteNumber))
-                        mapping.NoteNumbers.Add(noteNumber);
+                    var errorMsg = $"Excel file not found: {filePath}";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetNoteMapping>();
                 }
 
-                if (mapping.NoteNumbers.Count > 0)
-                    mappings.Add(mapping);
-            }
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                
+                // Find EXCEL_NOTES table
+                var excelNotesTable = FindTableByName(workbook, config.Tables.ExcelNotes);
+                if (excelNotesTable == null)
+                {
+                    var errorMsg = $"Table '{config.Tables.ExcelNotes}' not found in workbook";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetNoteMapping>();
+                }
 
-            _logger.LogInformation($"Read excel notes mappings for {mappings.Count} sheets");
-            return mappings;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error reading excel notes from {filePath}: {ex.Message}");
-            throw;
-        }
+                var dataRange = excelNotesTable.DataRange;
+                var columnCount = dataRange.ColumnCount();
+                var maxExpectedColumns = config.ConstructionNotes.MaxNotesPerSheet + 1; // +1 for sheet name column
+
+                // Validate column count
+                if (columnCount > maxExpectedColumns)
+                {
+                    var errorMsg = $"EXCEL_NOTES table has {columnCount} columns but max is {maxExpectedColumns} (1 sheet + {config.ConstructionNotes.MaxNotesPerSheet} notes)";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetNoteMapping>();
+                }
+
+                var mappings = new List<SheetNoteMapping>();
+                
+                _logger.LogDebug($"Found {dataRange.RowCount()} rows in EXCEL_NOTES table with {columnCount} columns");
+
+                foreach (var row in dataRange.Rows())
+                {
+                    try
+                    {
+                        var sheetName = row.Cell(1).GetString().Trim();
+                        if (string.IsNullOrEmpty(sheetName))
+                            continue;
+
+                        var noteNumbers = new List<int>();
+
+                        // Read note numbers from columns 2 onwards
+                        for (int col = 2; col <= columnCount; col++)
+                        {
+                            var cellValue = row.Cell(col).GetString().Trim();
+                            if (string.IsNullOrEmpty(cellValue))
+                                continue;
+
+                            if (int.TryParse(cellValue, out var noteNumber))
+                            {
+                                // Validate note number is within valid range
+                                if (noteNumber >= 1 && noteNumber <= config.ConstructionNotes.MaxNotesPerSheet)
+                                {
+                                    noteNumbers.Add(noteNumber);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning($"Note number {noteNumber} is outside valid range 1-{config.ConstructionNotes.MaxNotesPerSheet} for sheet {sheetName}");
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"Unable to parse note number from column {col}: '{cellValue}' for sheet {sheetName}");
+                            }
+                        }
+
+                        // Consolidate duplicates (e.g., [4, 4, 7] → [4, 7])
+                        var uniqueNoteNumbers = noteNumbers.Distinct().OrderBy(n => n).ToList();
+                        
+                        if (uniqueNoteNumbers.Count != noteNumbers.Count)
+                        {
+                            _logger.LogDebug($"Consolidated duplicates for sheet {sheetName}: {noteNumbers.Count} → {uniqueNoteNumbers.Count} unique notes");
+                        }
+
+                        if (uniqueNoteNumbers.Count > 0)
+                        {
+                            var mapping = new SheetNoteMapping
+                            {
+                                SheetName = sheetName,
+                                NoteNumbers = uniqueNoteNumbers
+                            };
+
+                            mappings.Add(mapping);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Failed to parse Excel notes row: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                _logger.LogInformation($"Successfully read Excel notes mappings for {mappings.Count} sheets");
+                return mappings;
+            }
+            catch (Exception ex)
+            {
+                var errorMsg = $"Failed to read Excel notes from {filePath}: {ex.Message}";
+                _logger.LogError(errorMsg, ex);
+                return new List<SheetNoteMapping>();
+            }
+        });
     }
 
     public async Task<bool> FileExistsAsync(string filePath)
     {
-        return File.Exists(filePath);
+        return await Task.Run(() =>
+        {
+            var exists = File.Exists(filePath);
+            _logger.LogDebug($"File existence check for {filePath}: {exists}");
+            return exists;
+        });
     }
 
     public async Task<string[]> GetWorksheetNamesAsync(string filePath)
     {
-        try
+        return await Task.Run(() =>
         {
-            using var package = new ExcelPackage(new FileInfo(filePath));
-            return package.Workbook.Worksheets.Select(ws => ws.Name).ToArray();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error getting worksheet names from {filePath}: {ex.Message}");
-            return Array.Empty<string>();
-        }
+            _logger.LogDebug($"Getting worksheet names from {filePath}");
+            
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogError($"Excel file not found: {filePath}");
+                    return Array.Empty<string>();
+                }
+
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                var worksheetNames = workbook.Worksheets.Select(ws => ws.Name).ToArray();
+                
+                _logger.LogDebug($"Found {worksheetNames.Length} worksheets: {string.Join(", ", worksheetNames)}");
+                return worksheetNames;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get worksheet names from {filePath}: {ex.Message}", ex);
+                return Array.Empty<string>();
+            }
+        });
     }
 
     public async Task<string[]> GetTableNamesAsync(string filePath, string worksheetName)
     {
-        try
+        return await Task.Run(() =>
         {
-            using var package = new ExcelPackage(new FileInfo(filePath));
-            var worksheet = package.Workbook.Worksheets[worksheetName];
-            return worksheet?.Tables.Select(t => t.Name).ToArray() ?? Array.Empty<string>();
+            _logger.LogDebug($"Getting table names from worksheet '{worksheetName}' in {filePath}");
+            
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogError($"Excel file not found: {filePath}");
+                    return Array.Empty<string>();
+                }
+
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                
+                if (!workbook.Worksheets.TryGetWorksheet(worksheetName, out var worksheet))
+                {
+                    _logger.LogError($"Worksheet '{worksheetName}' not found in {filePath}");
+                    return Array.Empty<string>();
+                }
+
+                var tableNames = worksheet.Tables.Select(t => t.Name).ToArray();
+                
+                _logger.LogDebug($"Found {tableNames.Length} tables in worksheet '{worksheetName}': {string.Join(", ", tableNames)}");
+                return tableNames;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get table names from worksheet '{worksheetName}' in {filePath}: {ex.Message}", ex);
+                return Array.Empty<string>();
+            }
+        });
+    }
+
+    /// <summary>
+    /// Finds a named table across all worksheets in the workbook
+    /// </summary>
+    private static IXLTable? FindTableByName(XLWorkbook workbook, string tableName)
+    {
+        foreach (var worksheet in workbook.Worksheets)
+        {
+            if (worksheet.Tables.TryGetTable(tableName, out var table))
+            {
+                return table;
+            }
         }
-        catch (Exception ex)
+        return null;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            _logger.LogError($"Error getting table names from {filePath}:{worksheetName}: {ex.Message}");
-            return Array.Empty<string>();
+            if (disposing)
+            {
+                _logger?.LogDebug("ExcelReaderService disposed");
+            }
+            _disposed = true;
         }
     }
 }

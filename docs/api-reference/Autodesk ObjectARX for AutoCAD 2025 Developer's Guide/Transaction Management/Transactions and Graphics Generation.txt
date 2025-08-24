@@ -1,0 +1,10 @@
+Mixing the Transaction Model with the Open and Close MechanismTransaction ManagementTransaction Reactors 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Transactions and Graphics Generation
+ 
+ 
+ 
+You can use AcTransactionManager::queueForGraphicsFlush() and AcTransactionManager::flushGraphics() to draw entities on demand even if they are associated with the transactions and some transactions are active, which would mean the modification on the entities is not committed to the database. AcTransactionManager::queueForGraphicsFlush() queues up all the eligible entities associated with all the transactions for graphics update and AcTransactionManager::flushGraphics() draws them. You can also use AcDbEntity::draw() to draw an individual entity. This helps you see a particular entity on the screen without waiting until the end of the outermost transaction when all the modifications to all the entities are drawn. Use AcTransactionManager::enableGraphicsFlush() to enable or disable the drawing of entities. When a command ends, you relinquish control of graphics generation and it is automatically enabled.
+
+Please send us your comment about this page
+

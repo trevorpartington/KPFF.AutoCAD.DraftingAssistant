@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > ConvertToRedirectedId Method
+ObjectId.ConvertToRedirectedId MethodDescription
+This function will take the object ID for this object if it has been redirected from another database, and convert it to the actual object ID for the other database (for example: the object ID from an xref database). If this object ID is not redirected or if it has a value of Null, the function will do nothing.
+
+Visual Basic
+Public Function ConvertToRedirectedId() As ObjectId
+C#
+public ObjectId ConvertToRedirectedId();
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

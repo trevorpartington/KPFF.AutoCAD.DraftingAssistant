@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties
+CommandMethodAttribute PropertiesProperties
+Property  Description  
+ ContextMenuExtensionType  
+Returns the ContextMenuExtensionType property value.  
+ Flags  
+Returns the Flags property value.  
+ GlobalName  
+Returns the GlobalName property value.  
+ GroupName  
+Returns the GroupName property value.  
+ HelpFileName  
+Returns the HelpFileName property value.  
+ HelpTopic  
+Returns the HelpTopic property value.  
+ LocalizedNameId  
+Returns the LocalizedNameId property value.  
+
+   Comments?  

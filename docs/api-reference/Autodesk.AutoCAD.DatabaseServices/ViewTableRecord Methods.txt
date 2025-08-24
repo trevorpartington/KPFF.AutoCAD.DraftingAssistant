@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Methods
+ViewTableRecord MethodsMethods
+Method  Description  
+ DisassociateUcsFromView  
+Disassociates the ucs from this view. If this function is called, then no ucs will be associated with the view... more  
+
+   Comments?  

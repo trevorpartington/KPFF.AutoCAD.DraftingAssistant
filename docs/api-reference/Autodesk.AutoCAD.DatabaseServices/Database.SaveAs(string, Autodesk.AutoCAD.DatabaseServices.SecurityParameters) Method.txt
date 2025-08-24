@@ -1,0 +1,27 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > SaveAs Method > SaveAs(string, Autodesk.AutoCAD.DatabaseServices.SecurityParameters) Method
+Database.SaveAs(string, Autodesk.AutoCAD.DatabaseServices.SecurityParameters) MethodDescription
+Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is taken as is. If no file extension is present, .dwg is not appended. 
+
+To specify security parameters, set security to point to a SecurityParameters object that conveys your preferences. If security is non-NULL, its settings override any previous database security settings. If security is NULL, any currently enforced security settings remain in effect. If no previous security-related settings were specified, and security is NULL, no security-related operation is attempted. If the SecurityParameters object passed as the SecurityParameters argument is not properly initialized, the method fails.
+
+Visual Basic
+Public Function SaveAs(
+    fileName As string, 
+    security As Autodesk.AutoCAD.DatabaseServices.SecurityParameters
+) As void
+C#
+public void SaveAs(
+    string fileName, 
+    Autodesk.AutoCAD.DatabaseServices.SecurityParameters security
+);
+Parameters
+Parameters  Description  
+string fileName  Input file name or URL to write database out to  
+Autodesk.AutoCAD.DatabaseServices.SecurityParameters security  Input a SecurityParameters structure  
+
+Remarks
+DWG files can no longer be saved with passwords. The password will be ignored and returns an error if password information is passed in the pSecParams parameter.
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

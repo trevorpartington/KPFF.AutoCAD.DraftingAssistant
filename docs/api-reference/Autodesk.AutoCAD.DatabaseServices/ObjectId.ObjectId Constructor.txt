@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Constructor
+ObjectId.ObjectId ConstructorDescription
+Constructs an object ID based on an old integer pointer.
+
+Visual Basic
+Public Sub New(
+    oldId As IntPtr
+)
+C#
+public ObjectId(
+    IntPtr oldId
+);
+Parameters
+Parameters  Description  
+IntPtr oldId  Input pointer to construct from  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

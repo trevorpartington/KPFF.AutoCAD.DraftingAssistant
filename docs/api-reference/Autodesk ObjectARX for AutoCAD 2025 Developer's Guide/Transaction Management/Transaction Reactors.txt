@@ -1,0 +1,24 @@
+Transactions and Graphics GenerationTransaction ManagementExample of Nested Transactions 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Transaction Reactors
+ 
+ 
+ 
+The transaction manager has a list of reactors through which it notifies clients of events relevant to the transaction model. The following events send notification: 
+
+transactionStarted 
+transactionEnded 
+transactionAborted 
+endCalledOnOutermostTransaction 
+transactionAboutToStart 
+transactionAboutToEnd 
+transactionAboutToAbort 
+objectIdSwapped 
+The first three notifications are fired when any transaction, including nested ones, is started, ended, or aborted. You can use these notifications in conjunction with AcTransactionManager::numActiveTransactions() to determine the transaction that is relevant to the notification. For example, if a call to AcTransactionManager::numActiveTransactions() returns zero in your override of AcTransactionReactor::transactionEnded() or AcTransactionReactor::transactionAborted(), you know the outermost transaction is ending or aborting. 
+
+The endCalledOnOutermostTransaction() notification signals the beginning of the commit process of all the modifications done in all the transactions. You can use this callback to do any necessary cleanup work before commit begins. 
+
+The first argument in all the notifications represents the number of transactions that are active plus the ones that have completed successfully. It doesn't include the transactions that were started and aborted. 
+
+Please send us your comment about this page
+

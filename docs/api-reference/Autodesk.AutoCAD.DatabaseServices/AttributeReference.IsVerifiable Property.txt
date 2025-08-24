@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > IsVerifiable Property
+AttributeReference.IsVerifiable PropertyDescription
+ 
+
+Returns true if the attribute object is set to verify user input.
+
+Visual Basic
+Public Property IsVerifiable() As bool
+C#
+public bool IsVerifiable;
+Conditions
+Read-only
+
+Notes
+This function reflects the setting of bit 3 of DXF group code 70 (that is, if bit 3 is set, then the attribute will ask for verification of user input).
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

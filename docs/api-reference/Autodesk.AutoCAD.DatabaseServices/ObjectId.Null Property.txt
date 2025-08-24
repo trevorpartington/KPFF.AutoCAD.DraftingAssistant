@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > Null Property
+ObjectId.Null PropertyDescription
+Accesses a null object ID. This property allows more compact expressions to be used and helps the compiler generate better code (it knows the ObjectId is zero instead of having to lookup the Null object).
+
+Visual Basic
+Public static Property Null() As ObjectId
+C#
+public static ObjectId Null;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

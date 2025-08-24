@@ -24,7 +24,7 @@ public class AutoCadPaletteManager : IPaletteManager
     }
 
     public bool IsVisible => _paletteSet?.Visible ?? false;
-    public bool IsInitialized => _paletteSet != null;
+    public bool IsInitialized => true; // CRASH FIX: Always return true since we're just preparing the manager
 
     public void Initialize()
     {
@@ -36,7 +36,34 @@ public class AutoCadPaletteManager : IPaletteManager
 
         try
         {
-            _logger.LogInformation("Initializing palette set");
+            _logger.LogInformation("Preparing palette manager (deferred initialization)");
+            
+            // CRASH FIX: Don't create the actual palette during plugin initialization
+            // This prevents crashes when AutoCAD isn't fully ready
+            // The palette will be created when Show() is called
+            _logger.LogInformation("Palette manager prepared - palette will be created on first use");
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError("Failed to prepare palette manager", ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates the actual palette set when needed
+    /// CRASH FIX: Moved from Initialize() to prevent startup crashes
+    /// </summary>
+    private void CreatePaletteSet()
+    {
+        if (_paletteSet != null)
+        {
+            return; // Already created
+        }
+
+        try
+        {
+            _logger.LogInformation("Creating palette set");
             
             var paletteSetId = new Guid(ApplicationConstants.PaletteSetId);
             _paletteSet = new PaletteSet(ApplicationConstants.ApplicationName, paletteSetId)
@@ -63,12 +90,12 @@ public class AutoCadPaletteManager : IPaletteManager
             elementHost.Child = draftingAssistantControl;
 
             _paletteSet.Add("Drafting Assistant", elementHost);
-            _logger.LogInformation("Palette set initialized successfully");
+            _logger.LogInformation("Palette set created successfully");
         }
         catch (System.Exception ex)
         {
-            _logger.LogError("Failed to initialize palette", ex);
-            _notificationService.ShowError("Initialization Error", $"Failed to create interface: {ex.Message}");
+            _logger.LogError("Failed to create palette set", ex);
+            _notificationService.ShowError("Palette Error", $"Failed to create interface: {ex.Message}");
             throw;
         }
     }
@@ -94,15 +121,21 @@ public class AutoCadPaletteManager : IPaletteManager
                 // Continue anyway - let the palette try to initialize
             }
 
+            // Create palette if it doesn't exist
             if (_paletteSet == null)
             {
-                Initialize();
+                CreatePaletteSet();
             }
 
+            // Show the palette
             if (_paletteSet != null)
             {
                 _paletteSet.Visible = true;
                 _logger.LogDebug("Palette shown");
+            }
+            else
+            {
+                _logger.LogError("Failed to create palette set");
             }
         }
         catch (System.Exception ex)
@@ -110,6 +143,7 @@ public class AutoCadPaletteManager : IPaletteManager
             _logger.LogError("Error showing palette", ex);
         }
     }
+
 
     public void Hide()
     {
@@ -133,12 +167,18 @@ public class AutoCadPaletteManager : IPaletteManager
         {
             if (_paletteSet == null)
             {
+                // First run - show the palette
                 Show();
+            }
+            else if (_paletteSet.Visible)
+            {
+                // Palette is visible - hide it
+                Hide();
             }
             else
             {
-                _paletteSet.Visible = !_paletteSet.Visible;
-                _logger.LogDebug($"Palette toggled to {(_paletteSet.Visible ? "visible" : "hidden")}");
+                // Palette exists but is hidden - show it
+                Show();
             }
         }
         catch (System.Exception ex)

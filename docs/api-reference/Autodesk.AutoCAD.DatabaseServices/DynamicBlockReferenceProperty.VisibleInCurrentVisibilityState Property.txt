@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > VisibleInCurrentVisibilityState Property
+DynamicBlockReferenceProperty.VisibleInCurrentVisibilityState Property    Description
+Indicates whether the property is visible in the current visibility state.
+
+Visual Basic
+Public Property VisibleInCurrentVisibilityState() As bool
+C#
+public bool VisibleInCurrentVisibilityState;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

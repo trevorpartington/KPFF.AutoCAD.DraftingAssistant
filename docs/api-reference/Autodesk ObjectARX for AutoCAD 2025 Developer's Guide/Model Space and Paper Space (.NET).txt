@@ -1,0 +1,14 @@
+Define Layouts and Plot (.NET)Define Layouts and Plot (.NET)Layouts (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Define Layouts and Plot (.NET) > 
+Model Space and Paper Space (.NET)
+ 
+ 
+ 
+Model space is the drawing environment in which you create the geometry for your model. Normally, as you begin to draw in Model space, you designate your drawing limits to determine the extents of the drawing environment, and you draw in real world units. 
+
+Paper space represents the paper representation of your model as it will be plotted. In Paper space you lay out different views of your drawing, scale views independently from one another, and arrange the different views of your drawing as you want them to be plotted. There can be many different Paper space representations of your drawing. 
+
+Related Concepts
+Define Layouts and Plot (.NET)
+Please send us your comment about this page
+

@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class
+PaletteSet Class    Description
+This .NET class wraps the AduiPaletteSet ObjectARX class. This class now supports themed icons for the Palette set icon that is displayed in the caption of the palette set. The new Theme-based Icon methods supercede the SetIcon and GetIcon methods of a Winforms of WPF palette set is to be themed. If a palette set does not support theming, then the new themed APIs need not be used.
+
+Class Hierarchy
+Autodesk.AutoCAD.Windows.PaletteSet
+Visual Basic
+Public Class PaletteSet
+Inherits Autodesk.AutoCAD.Windows.Window
+Inherits ICollection
+C#
+public class PaletteSet : Autodesk.AutoCAD.Windows.Window, ICollection;
+Links
+PaletteSet Constructor, PaletteSet Methods, PaletteSet Properties, PaletteSet Events
+   Comments?  

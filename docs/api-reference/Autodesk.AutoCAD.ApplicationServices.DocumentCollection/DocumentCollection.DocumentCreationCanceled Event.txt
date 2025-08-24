@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentCreationCanceled Event
+DocumentCollection.DocumentCreationCanceled EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentCreationCanceled() ObjectARX function. 
+
+ 
+
+This notification is sent when a user action has canceled a document’s creation. This notification is only sent in MDI mode and after a DocumentCreateStarted notification.
+
+Visual Basic
+Public Event DocumentCreationCanceled As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentCreationCanceled;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

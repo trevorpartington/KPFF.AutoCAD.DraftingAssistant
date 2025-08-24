@@ -1,0 +1,18 @@
+Transaction ManagerTransaction ManagementAvoiding Recursive Transactions 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Nesting Transactions
+ 
+ 
+ 
+Transactions can be nested—that is, you can start one transaction inside another and end or abort the recent transaction. The transaction manager maintains transactions in a stack, with the most recent transaction at the top of the stack. When you start a new transaction using AcTransactionManager::startTransaction(), the new transaction is added to the top of the stack and a pointer to it is returned (an instance of AcTransaction). When someone calls AcTransactionManager::endTransaction() or AcTransactionManager::abortTransaction(), the transaction at the top of the stack is ended or aborted.
+
+When object pointers are obtained from object IDs, they are always associated with the most recent transaction. You can obtain the recent transaction using AcTransactionManager::topTransaction(), then use AcTransaction::getObject() or AcTransactionManager::getObject() to obtain a pointer to an object. The transaction manager automatically associates the object pointers obtained with the recent transaction. You can use AcTransaction::getObject() only with the most recent transaction. 
+
+When nested transactions are started, the object pointers obtained in the outer containing transactions are also available for operation in the innermost transaction. If the recent transaction is aborted, all the operations done on all the objects (associated with either this transaction or the containing ones) since the beginning of the recent transaction are canceled and the objects are rolled back to the state at the beginning of the recent transaction. The object pointers obtained in the recent transaction cease to be valid once it's aborted. 
+
+If the innermost transaction is ended successfully by calling AcTransactionManager::endTransaction(), the objects whose pointers were obtained in this transaction become associated with the containing transaction and are available for operation. This process is continued until the outermost (first) transaction is ended, at which time modifications on all the objects are committed. If the outermost transaction is aborted, all the operations on all the objects are canceled and nothing is committed.
+
+Topics in this section
+Avoiding Recursive Transactions
+Please send us your comment about this page
+

@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > Origin Property
+BlockTableRecord.Origin PropertyDescription
+ 
+
+Accesses the insertion point of the block table record in WCS coordinates. This point is the origin of the MCS (which is the local WCS for the entities within the block table record).
+
+Visual Basic
+Public Property Origin() As Point3d
+C#
+public Point3d Origin;
+Conditions
+Read / Write
+
+Notes
+For all block table records created by AutoCAD versions after Release 10, this point is always (0,0,0). It is highly recommended that this point be left at (0,0,0). 
+
+ 
+
+The origin value is used for DXF group code 10.
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentClosedEventArgs Class > DocumentClosedEventArgs Properties > RecentDocument Property
+DocumentClosedEventArgs.RecentDocument PropertyDescription
+This is RecentDocument, a member of class DocumentClosedEventArgs.
+
+Visual Basic
+Public Property RecentDocument() As Autodesk.AutoCAD.ApplicationServices.RecentDocument
+C#
+public Autodesk.AutoCAD.ApplicationServices.RecentDocument RecentDocument;
+Links
+DocumentClosedEventArgs Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

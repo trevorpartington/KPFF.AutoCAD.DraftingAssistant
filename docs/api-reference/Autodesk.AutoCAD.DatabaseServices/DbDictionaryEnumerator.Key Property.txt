@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Properties > Key Property
+DbDictionaryEnumerator.Key PropertyDescription
+ 
+
+Accesses the Key value for the iterated entry.
+
+Visual Basic
+Public Property Key() As string
+C#
+public string Key;
+Conditions
+Read-only
+
+Links
+DbDictionaryEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

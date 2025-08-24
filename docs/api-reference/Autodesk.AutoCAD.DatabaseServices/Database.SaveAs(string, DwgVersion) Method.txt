@@ -1,0 +1,39 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > SaveAs Method > SaveAs(string, DwgVersion) Method
+Database.SaveAs(string, DwgVersion) MethodDescription
+Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is taken as is. If no file extension is present, .dwg is not appended.
+
+Visual Basic
+Public Function SaveAs(
+    fileName As string, 
+    version As DwgVersion
+) As void
+C#
+public void SaveAs(
+    string fileName, 
+    DwgVersion version
+);
+Parameters
+Parameters  Description  
+string fileName  Input file name or URL to write database out to  
+DwgVersion version  Input dwg version to which to save the file  
+
+Notes
+The allowed values for version are: 
+
+DwgVersion.AC1014 // R14 
+
+DwgVersion.AC1015 // 2000 
+
+DwgVersion.AC1800 // 2004 
+
+DwgVersion.AC1021 // 2007 
+
+DwgVersion.AC1024 // 2010 
+
+DwgVersion.AC1027 // 2013 
+
+DwgVersion.AC1032 // 2018
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

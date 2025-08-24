@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Constructor
+ObjectIdCollection ConstructorOverload List
+Method  Description  
+ ObjectIdCollection.ObjectIdCollection ()  
+Default constructor.  
+ ObjectIdCollection.ObjectIdCollection (ObjectId[])  
+Default constructor.  
+
+   Comments?  

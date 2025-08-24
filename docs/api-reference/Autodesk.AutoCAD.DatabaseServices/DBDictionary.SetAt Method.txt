@@ -1,0 +1,25 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > SetAt Method
+DBDictionary.SetAt MethodDescription
+This function adds a new entry specified by newValue into the dictionary, if searchKey does not already exist in the dictionary. If the entry with key searchKey already exists, the existing entry is erased, the dictionary is removed from its reactor list, and it is replaced by the newValue object is added to the dictionary in its place. The name of the object is specified by searchKey. The object's objectId entry is returned.
+
+Visual Basic
+Public Function SetAt(
+    searchKey As string, 
+    newValue As [CallerMustClose] DBObject
+) As ObjectId
+C#
+public ObjectId SetAt(
+    string searchKey, 
+    [CallerMustClose] DBObject newValue
+);
+Parameters
+Parameters  Description  
+string searchKey  String representing the object's search key name  
+[CallerMustClose] DBObject newValue  The new object to add to the dictionary  
+
+Notes
+The UNDO command does not restore the data of the Xrecord in your dictionary after you have used the SetAt() method. You would find that the Xrecord is deleted after an UNDO command.
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

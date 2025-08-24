@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionEventArgs Class > DocumentCollectionEventArgs Properties > Document Property
+DocumentCollectionEventArgs.Document PropertyDescription
+ 
+
+Wraps the AcApDocManager.document() function. 
+
+ 
+
+Accesses the document that the input database belongs to. All databases created in ObjectARX, the current database, and any loaded Xref databases will have a document that they are associated with. Databases created by ObjectARX applications will be automatically associated with the document of the context in which they were created. This is then the document that the database will have its Undo recorded. It is also the document whose Transaction Manager must be used for objects from the database.
+
+Visual Basic
+Public Property Document() As Autodesk.AutoCAD.ApplicationServices.Document
+C#
+public Autodesk.AutoCAD.ApplicationServices.Document Document;
+Conditions
+Read-only
+
+Links
+DocumentCollectionEventArgs Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

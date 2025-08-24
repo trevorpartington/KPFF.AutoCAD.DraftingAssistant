@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > SizeChanged Event
+PaletteSet.SizeChanged EventDescription
+Occurs when the palette set size changes.
+
+Visual Basic
+Public Event SizeChanged As PaletteSetSizeEventHandler
+C#
+public event PaletteSetSizeEventHandler SizeChanged;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

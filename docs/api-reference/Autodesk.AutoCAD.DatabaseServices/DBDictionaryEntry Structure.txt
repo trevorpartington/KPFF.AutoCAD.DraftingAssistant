@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure
+DBDictionaryEntry StructureDescription
+ 
+
+This lightweight class represents an entry in a DatabaseServices.DBDictionary object. It contains the key and object ID of the entry, but does not contain the entry itself.
+
+Visual Basic
+Public Structure DBDictionaryEntry
+  Public m_key As string
+  Public m_value As ObjectId
+End Structure
+C#
+public struct DBDictionaryEntry {
+  public string m_key;
+  public ObjectId m_value;
+}
+Links
+DBDictionaryEntry Fields, DBDictionaryEntry Methods, DBDictionaryEntry Properties
+   Comments?  

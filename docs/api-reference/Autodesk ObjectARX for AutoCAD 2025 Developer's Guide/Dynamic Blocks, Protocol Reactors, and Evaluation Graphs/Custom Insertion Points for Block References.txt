@@ -1,0 +1,71 @@
+AcRxProtocolReactor MacrosProtocol Extensions for Dynamic BlocksDynamic Block Properties 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > Protocol Extensions for Dynamic Blocks > 
+Custom Insertion Points for Block References
+ 
+ 
+ 
+In addition to custom grips, dynamic block applications can define multiple insertion points for a block. These insertion points are discovered at runtime through protocol extension. To provide custom insertion points, an application derives a protocol reactor from the AcDbBlockInsertionPoints class and implements the AcDbBlockInsertionPoints::getInsertionPoints() function. The AcRx framework calls this function on registered AcDbBlockInsertionPoints reactors when a block is inserted into the current drawing. 
+
+If a reactor returns an array of insertion points and a matching array of alignment vectors, the frameworks uses them to supplement the block's default insertion points. For each entry in the insertion point array, an alignment vector must be specified at the corresponding index in the alignment array. AutoCAD uses alignment vectors to automatically rotate a block when it is being inserted near another object that supports alignment directions. For related information on implementing alignment vectors for custom entities, see Alignment Definitions for Custom Entities.
+
+The following example defines extra insertion points for a block that is composed of a square with lower-left corner at 0,0 and upper-right corner at 2,2. In the getInsertionPoints() function, the application checks the name of the block being inserted. If the block's name matches the name defined by the application, getInsertionPoints() returns a list of alternate insertion points, as well as a list of alignment vectors. AutoCAD makes the insertion points available to the user for cycling during insertion.
+
+
+#include "StdAfx.h"
+#include "AsdkInsertionPoints.h"
+#include "AcString.h"
+#define DYNBLKSAMP_BLOCKNAME "ASDK_CUSTOM_BLOCK"
+Acad::ErrorStatus AsdkInsertionPoints::getInsertionPoints (
+        const AcDbBlockTableRecord* pBlock,
+        AcGePoint3dArray& insPts)
+{
+AcString sName;
+Acad::ErrorStatus es = pBlock->getName(sName);
+if (stricmp(sName, DYNBLKSAMP_BLOCKNAME) != 0)
+{
+    return Acad::eNotApplicable;
+}
+insPts.append(AcGePoint3d(1.0, 0.0, 0.0)); //midpoint of side
+insPts.append(AcGePoint3d(1.0, -1.0, 0.0)); //buffered midpoint
+insPts.append(AcGePoint3d(2.0, 0.0, 0.0)); //endpoint
+insPts.append(AcGePoint3d(2.0, 1.0, 0.0)); //midpoint of side
+insPts.append(AcGePoint3d(3.0, 1.0, 0.0)); //buffered midpoint
+insPts.append(AcGePoint3d(2.0, 2.0, 0.0)); //endpoint
+insPts.append(AcGePoint3d(1.0, 2.0, 0.0)); //midpoint of side
+insPts.append(AcGePoint3d(1.0, 3.0, 0.0)); //buffered midpoint
+insPts.append(AcGePoint3d(0.0, 2.0, 0.0)); //endpoint
+insPts.append(AcGePoint3d(0.0, 1.0, 0.0)); //midpoint of side
+insPts.append(AcGePoint3d(-1.0, 1.0, 0.0)); //buffered midpoint
+alignmentDirections.append(AcGeVector3d(0.0, 1.0, 0.0));
+alignmentDirections.append(AcGeVector3d(0.0, 1.0, 0.0));
+alignmentDirections.append(AcGeVector3d(-1.0, 0.0, 0.0));
+alignmentDirections.append(AcGeVector3d(-1.0, 0.0, 0.0));
+alignmentDirections.append(AcGeVector3d(-1.0, 0.0, 0.0));
+alignmentDirections.append(AcGeVector3d(0.0, -1.0, 0.0));
+alignmentDirections.append(AcGeVector3d(0.0, -1.0, 0.0));
+alignmentDirections.append(AcGeVector3d(0.0, -1.0, 0.0));
+alignmentDirections.append(AcGeVector3d(1.0, 0.0, 0.0));
+alignmentDirections.append(AcGeVector3d(1.0, 0.0, 0.0));
+alignmentDirections.append(AcGeVector3d(1.0, 0.0, 0.0));
+return Acad::eOk;
+}
+To register the AsdkInsertionPoints class, the ACRX_PROTOCOL_REACTOR_LIST_AT protocol reactor macro is used to call AcRxObject::addReactor(), as shown in the following code sample:
+
+AsdkInsertionPoints* pPts = NULL;
+//...
+pPts = new AsdkInsertionPoints();
+ACRX_PROTOCOL_REACTOR_LIST_AT(AcDbBlockTableRecord::desc(),
+    CAsdkInsertionPoints::desc())->addReactor(pPts);
+When the application unloads, it removes the CAsdkInsertionPoints reactor during the AcRx::kUnloadAppMsg of the acrxEntryPoint() function. This is shown in the following code sample:
+
+case AcRx::kUnloadAppMsg:
+acedRegCmds->removeGroup("DYNBLKAPP");
+if (pPts)
+{
+  ACRX_PROTOCOL_REACTOR_LIST_AT(AcDbBlockTableRecord::desc(), 
+      AsdkInsertionPoints::desc())->removeReactor(pPts);
+  delete pPts;
+}
+break;
+Please send us your comment about this page
+

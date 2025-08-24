@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > PaletteSetEnterSizeMove Event
+PaletteSet.PaletteSetEnterSizeMove Event    Description
+Occurs when the user clicks and holds the mouse button over the bottom right corner of a palette and begins to resize the palette.
+
+Visual Basic
+Public Event PaletteSetEnterSizeMove As PaletteEnterSizeMoveEventHandler
+C#
+public event PaletteEnterSizeMoveEventHandler PaletteSetEnterSizeMove;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

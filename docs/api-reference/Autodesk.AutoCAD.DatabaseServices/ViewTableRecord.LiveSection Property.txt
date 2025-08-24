@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > LiveSection Property
+ViewTableRecord.LiveSection PropertyDescription
+ 
+
+Returns a live section to be associated with a view. During the restoration of a view, it's associated live section is enabled.
+
+Visual Basic
+Public Property LiveSection() As ObjectId
+C#
+public ObjectId LiveSection;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

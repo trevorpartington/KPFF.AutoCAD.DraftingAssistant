@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > MinimumSize Property
+PaletteSet.MinimumSize PropertyDescription
+Minimum size of the palette set window.
+
+Visual Basic
+Public Property MinimumSize() As System.Drawing.Size
+C#
+public System.Drawing.Size MinimumSize;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

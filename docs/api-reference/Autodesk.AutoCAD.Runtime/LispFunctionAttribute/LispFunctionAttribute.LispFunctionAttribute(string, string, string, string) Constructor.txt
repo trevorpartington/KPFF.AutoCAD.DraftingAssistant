@@ -1,0 +1,28 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Constructor > LispFunctionAttribute(string, string, string, string) Constructor
+LispFunctionAttribute.LispFunctionAttribute(string, string, string, string) ConstructorDescription
+Constructor.
+
+Visual Basic
+Public Sub New(
+    globalName As string, 
+    localizedNameId As string, 
+    helpFileName As string, 
+    helpTopic As string
+)
+C#
+public LispFunctionAttribute(
+    string globalName, 
+    string localizedNameId, 
+    string helpFileName, 
+    string helpTopic
+);
+Parameters
+Parameters  Description  
+string globalName  Input global name of the Lisp function.  
+string localizedNameId  Input the localized name of the Lisp function.  
+string helpFileName  Input specifies the full path and file name of your Help file.  
+string helpTopic  Input help topic string for this function.  
+
+Links
+LispFunctionAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

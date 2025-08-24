@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > ReadOnly Property
+DynamicBlockReferenceProperty.ReadOnly PropertyDescription
+ 
+
+Assesses whether the property is read only.
+
+Visual Basic
+Public Property ReadOnly() As bool
+C#
+public bool ReadOnly;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

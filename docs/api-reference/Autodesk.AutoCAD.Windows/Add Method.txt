@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > Add Method
+Add MethodOverload List
+Method  Description  
+ PaletteSet.Add (string, Control)  Adds palette set window.  
+ PaletteSet.Add (string, Uri)  This is Add, a member of class PaletteSet.  
+
+   Comments?  

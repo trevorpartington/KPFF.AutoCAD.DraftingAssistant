@@ -1,0 +1,28 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods > AddNewlyCreatedDBObject Method
+TransactionManager.AddNewlyCreatedDBObject MethodDescription
+This method wraps the AcDbTransactionManager::addNewlyCreatedDBRObject ObjectARX function. 
+
+ 
+
+obj must point to an object that is newly created (that is, it has never been closed) and is already database resident (that is, it's been added to an Database so it has an objectId). 
+
+If add == true, the object pointed to by obj is added to the top transaction. If add == false, then the object is removed from whatever transaction it's within.
+
+Visual Basic
+Public virtual Function AddNewlyCreatedDBObject(
+    obj As DBObject, 
+    add As [MarshalAs(UnmanagedType.U1)] bool
+) As void
+C#
+public virtual void AddNewlyCreatedDBObject(
+    DBObject obj, 
+    [MarshalAs(UnmanagedType.U1)] bool add
+);
+Parameters
+Parameters  Description  
+DBObject obj  Input object to be added or removed  
+[MarshalAs(UnmanagedType.U1)] bool add  Input Boolean indicating whether to add or remove the object  
+
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

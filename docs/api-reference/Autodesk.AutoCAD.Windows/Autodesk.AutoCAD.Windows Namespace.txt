@@ -1,0 +1,113 @@
+Autodesk.AutoCAD.Windows Namespace
+Autodesk.AutoCAD.Windows NamespaceDescription
+This is namespace Autodesk.AutoCAD.Windows.
+
+Dynamic-Link Library (DLL)
+AcCoreMgd.dll, AcMgd.dll and AcWindows.dll
+
+Classes
+Class  Description  
+ AcResourceDictionary  This is class Autodesk.AutoCAD.Windows.AcResourceDictionary.  
+ Activity  This is class Autodesk.AutoCAD.Windows.Activity.  
+ Activity_Generic  This is class Autodesk.AutoCAD.Windows.Activity_Generic.  
+ ActivityArgument  This is class Autodesk.AutoCAD.Windows.ActivityArgument.  
+ AnalyticInfo  This class is used to access information related to analytics.  
+ AutomationDataGridView  This is class Autodesk.AutoCAD.Windows.AutomationDataGridView.  
+ ChildItemVisiblityChangedEventArgs  This class provides data for the ChildItemVisiblityChangedEvent event.  
+ ColorComboBox  This is class Autodesk.AutoCAD.Windows.ColorComboBox.  
+ ColorDialog  This class represents a dialog box that allows the user to choose a color.  
+ ColorItem  This is class Autodesk.AutoCAD.Windows.ColorItem.  
+ ColorItemCollection  This is class Autodesk.AutoCAD.Windows.ColorItemCollection.  
+ ColorItemConverter  This is class Autodesk.AutoCAD.Windows.ColorItemConverter.  
+ ColorListBox  This is class Autodesk.AutoCAD.Windows.ColorListBox.  
+ ColorListBoxItem  This is class Autodesk.AutoCAD.Windows.ColorListBoxItem.  
+ ContextMenuExtension  
+This type allows users to extend various context (shortcut) menus in AutoCAD. There are 3 scenarios where this class can... more  
+ DocumentWindow  Wrapper (wraps AcApDocWindow)  
+ DrawingDocumentWindow  Wrapper (wraps AcApDwgDocWindow)  
+ DropTarget  Applications derive from this class to implement custom drag-and-drop behavior in AutoCAD. See the Microsoft documentation for the IDropTarget interface... more  
+ InfoCenter  This class manages the InfoCenter Manager and connects it with the InfoCenter toolbar.  
+ LayerTransparencyDialog  This is class Autodesk.AutoCAD.Windows.LayerTransparencyDialog.  
+ LinetypeDialog  This class represents a dialog box that allows the user to choose a linetype.  
+ LineWeightDialog  This class represents a dialog box that allows the user to choose a lineweight.  
+ Menu  This is the base class for various menu-like types.  
+ MenuItem  This class holds information related to a menu item.  
+ MenuItemCollection  This collection contains MenuItem objects.  
+ OpenAssistantPaletteCommand  This is class Autodesk.AutoCAD.Windows.OpenAssistantPaletteCommand.  
+ OpenAssistantPropertyChanged  This is class Autodesk.AutoCAD.Windows.OpenAssistantPropertyChanged.  
+ OpenFileDialog  This class represents a dialog box that allows the user to choose a file.  
+ OpenFileOrFolderDialog  This is class Autodesk.AutoCAD.Windows.OpenFileOrFolderDialog.  
+ Palette  This .NET class wraps the CAdUiPalette ObjectARX class.
+This class represents a palette window. A palette window exists in a... more  
+ PaletteActivatedEventArgs  This class provides data for the PaletteActivated event.  
+ PaletteAddContextMenuEventArgs  This class provides data for the PaletteAddContextMenu event.  
+ PaletteEnterSizeMoveEventArgs  This is class Autodesk.AutoCAD.Windows.PaletteEnterSizeMoveEventArgs.  
+ PalettePersistEventArgs  This class provides data for the PalettePersist event.  
+ PaletteSet  This .NET class wraps the AduiPaletteSet ObjectARX class. This class now supports themed icons for the Palette set icon that... more  
+ PaletteSetDockSite  This is class Autodesk.AutoCAD.Windows.PaletteSetDockSite.  
+ PaletteSetFocusedEventArgs  This is class Autodesk.AutoCAD.Windows.PaletteSetFocusedEventArgs.  
+ PaletteSetHelpEventArgs  This is class Autodesk.AutoCAD.Windows.PaletteSetHelpEventArgs.  
+ PaletteSetMoveEventArgs  This is class Autodesk.AutoCAD.Windows.PaletteSetMoveEventArgs.  
+ PaletteSetSizeEventArgs  This class provides event parameters related to the size-setting events in the palette set.  
+ PaletteSetStateEventArgs  This class provides data for the PaletteSetState event.  
+ PaletteShowDockBarEventArgs  This is class Autodesk.AutoCAD.Windows.PaletteShowDockBarEventArgs.  
+ Pane  This .NET class wraps the AcPane ObjectARX class.
+The AcPane class represents an individual pane in the status bar. A... more  
+ PaneCollection  This class represents a collection of panes.  
+ PlotStyleDialog  This class represents a dialog box that allows the user to choose a plot style.  
+ QATItemCollection  This collection represents the items on the Quick Access toolbar (QAT).  
+ SaveFileDialog  This class represents a dialog box that allows the user to choose a file.  
+ StatusBar  This .NET class wraps the AcApStatusBar ObjectARX class.
+The StatusBar class enables customization of the AutoCAD drawing status bar.
+This... more  
+ StatusBarItem  This .NET class wraps the AcStatusBarItem ObjectARX class.
+The AcStatusBarItem class represents an item in the status bar. The item... more  
+ StatusBarMouseDownEventArgs  This class provides event parameters related to the mouse-down events in the status bar area.  
+ TrayItem  This .NET class wraps the AcTrayItem ObjectARX class.
+The AcTrayItem class represents an individual tray item in the tray icon... more  
+ TrayItemBubbleWindow  This .NET class wraps the AcTrayItemBubbleWindowControl ObjectARX class.
+The TrayItemBubbleWindowControl class supports the bubble notification window that is displayed for... more  
+ TrayItemBubbleWindowClosedEventArgs  This class provides data for the TrayItemBubbleWindow.Closed event.  
+ TrayItemCollection  This class represents a collection of TrayItem objects.  
+ Visuals  This class represents various reusable visuals of the AutoCAD editor.  
+ Window  This class represents an operating system window.  
+ WindowExtension  This is class Autodesk.AutoCAD.Windows.WindowExtension.  
+ WPFDocumentWindow  Class used for creating WPF based document window  
+
+Enumerations
+Enumeration  Description  
+ ActivityStatus  This is record Autodesk.AutoCAD.Windows.ActivityStatus.  
+ DefaultPane  
+This .NET enum wraps the AcDefaultPane ObjectARX enum. This contains the default panes for the application status bar.  
+ DockSides  
+This class represents values that indicate the current docked site or the potential dock sites for a window.  
+ IconType  This .NET enum wraps the possible values returned by the AcTrayItemBubbleWindowControl.GetIconType() ObjectARX function. This function returns the bubble window icon... more  
+ InfoCenterCmdAccessType  This is record Autodesk.AutoCAD.Windows.InfoCenterCmdAccessType.  
+ PaletteSetStyles  This class represents palette set styles.  
+ PaletteSetTitleBarLocation  This enum represents values indicating the title bar location for a palette set.  
+ PaneStyles  This .NET enum wraps the possible values returned by the AcPane.GetStyle() ObjectARX function. This function returns the current pane style.... more  
+ StateEventIndex  This enum indexes various palette set states.  
+ TrayItemBubbleWindowCloseReason  This .NET enum wraps an AcTrayItemBubbleWindowControl ObjectARX enum.
+TrayItemBubbleWindowControl contains icon values return values for the bubble window.  
+
+Types
+Type  Description  
+InfoToolbarMoveDelegate  This is type Autodesk.AutoCAD.Windows.InfoToolbarMoveDelegate.  
+InfoToolbarResizeTo  This is type Autodesk.AutoCAD.Windows.InfoToolbarResizeTo.  
+PaletteActivatedEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteActivatedEventHandler.  
+PaletteAddContextMenuEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteAddContextMenuEventHandler.  
+PaletteEnterSizeMoveEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteEnterSizeMoveEventHandler.  
+PalettePersistEventHandler  This is type Autodesk.AutoCAD.Windows.PalettePersistEventHandler.  
+PaletteSetDestroyEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetDestroyEventHandler.  
+PaletteSetFocusedEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetFocusedEventHandler.  
+PaletteSetHelpEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetHelpEventHandler.  
+PaletteSetMoveEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetMoveEventHandler.  
+PaletteSetShowDockBarEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetShowDockBarEventHandler.  
+PaletteSetStateEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetStateEventHandler.  
+PaletteSetTitleBarLocationChangeEventHandler  This is type Autodesk.AutoCAD.Windows.PaletteSetTitleBarLocationChangeEventHandler.  
+StatusBarMouseDownEventHandler  This is type Autodesk.AutoCAD.Windows.StatusBarMouseDownEventHandler.  
+TrayItemBubbleWindowClosedEventHandler  This is type Autodesk.AutoCAD.Windows.TrayItemBubbleWindowClosedEventHandler.  
+
+Links
+Types
+   Comments?  

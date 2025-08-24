@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > GetAcadDocument Method
+DocumentExtension.GetAcadDocument Method    Description
+ 
+
+This .NET method wraps the ObjectARX method
+
+Visual Basic
+Public static Function GetAcadDocument(
+    doc As this Document
+) As object
+C#
+public static object GetAcadDocument(
+    this Document doc
+);
+Parameters
+Parameters  Description  
+this Document doc  _nt_  
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

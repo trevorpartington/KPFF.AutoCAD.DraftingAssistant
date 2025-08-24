@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > MdiActiveDocument Property
+DocumentCollection.MdiActiveDocument PropertyDescription
+ 
+
+Accesses the MDI active document.
+
+Visual Basic
+Public Property MdiActiveDocument() As Document
+C#
+public Document MdiActiveDocument;
+Conditions
+Read / Write
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

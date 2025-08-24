@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Methods > AppendAttribute Method
+AttributeCollection.AppendAttribute Method    Description
+Returns the block reference with the new attribute.
+
+Visual Basic
+Public Function AppendAttribute(
+    attributeToAddToBlockReference As [CallerMustClose] AttributeReference
+) As ObjectId
+Parameters
+Parameters  Description  
+[CallerMustClose] AttributeReference attributeToAddToBlockReference  Input the attribute to add.  
+
+Previous Declaration
+public ObjectId AppendAttribute(
+AttributeReference attributeToAddToBlockReference
+);
+Links
+AttributeCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

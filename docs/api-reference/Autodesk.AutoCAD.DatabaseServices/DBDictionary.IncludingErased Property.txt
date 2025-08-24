@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Properties > IncludingErased Property
+DBDictionary.IncludingErased PropertyDescription
+ 
+
+Accesses the including erased property value
+
+Visual Basic
+Public Property IncludingErased() As DBDictionary
+C#
+public DBDictionary IncludingErased;
+Conditions
+Read-only
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

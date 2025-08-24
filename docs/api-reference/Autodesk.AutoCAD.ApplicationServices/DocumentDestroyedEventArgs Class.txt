@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentDestroyedEventArgs Class
+DocumentDestroyedEventArgs ClassDescription
+This class provides data for the DocumentDestroyed event of the DocumentCollection class.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentDestroyedEventArgs
+Visual Basic
+Public sealed Class DocumentDestroyedEventArgs
+Inherits EventArgs
+C#
+public sealed class DocumentDestroyedEventArgs : EventArgs;
+Links
+DocumentDestroyedEventArgs Properties
+   Comments?  

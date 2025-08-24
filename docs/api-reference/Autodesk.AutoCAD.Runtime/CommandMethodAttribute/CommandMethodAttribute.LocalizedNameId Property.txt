@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > LocalizedNameId Property
+CommandMethodAttribute.LocalizedNameId PropertyDescription
+ 
+
+Returns the LocalizedNameId property value.
+
+Visual Basic
+Public virtual Property LocalizedNameId() As string
+C#
+public virtual string LocalizedNameId;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

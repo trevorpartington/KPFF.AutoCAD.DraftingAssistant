@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Methods > ToString Method > ToString(IFormatProvider) Method
+DBDictionaryEntry.ToString(IFormatProvider) MethodDescription
+ 
+
+Returns an equivalent string representation of this object, in the culture-specific format defined by provider. See the Microsoft .NET API documentation for details.
+
+Visual Basic
+Public Function ToString(
+    provider As IFormatProvider
+) As string
+C#
+public string ToString(
+    IFormatProvider provider
+);
+Parameters
+Parameters  Description  
+IFormatProvider provider  Input System.IFormatProvider object.  
+
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

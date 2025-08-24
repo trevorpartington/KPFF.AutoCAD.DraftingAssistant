@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > Invisible Property
+AttributeReference.Invisible PropertyDescription
+ 
+
+Accesses the visibility flag of the AttributeReference. If invisible is true, then the AttributeReference object is set to be invisible.
+
+Visual Basic
+Public Property Invisible() As bool
+C#
+public bool Invisible;
+Conditions
+Read / Write
+
+Notes
+This function reflects the setting on bit 1 of DXF group code 70 (that is, if bit 1 is set, then attributes created with this AttributeReference as a template will be invisible).
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

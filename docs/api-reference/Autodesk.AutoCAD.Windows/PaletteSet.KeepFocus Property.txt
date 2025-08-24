@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > KeepFocus Property
+PaletteSet.KeepFocus PropertyDescription
+Gets or sets whether the palette set will keep the input focus even when AutoCAD requests the focus.
+
+Visual Basic
+Public Property KeepFocus() As bool
+C#
+public bool KeepFocus;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

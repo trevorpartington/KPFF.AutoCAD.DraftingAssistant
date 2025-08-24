@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties > FieldLength Property
+AttributeReference.FieldLength PropertyDescription
+ 
+
+Accesses the attribute’s field length value. This value is not currently used within AutoCAD.
+
+Visual Basic
+Public Property FieldLength() As Integer
+C#
+public int FieldLength;
+Conditions
+Read / Write
+
+Notes
+The field length value is used for DXF group code 73.
+
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

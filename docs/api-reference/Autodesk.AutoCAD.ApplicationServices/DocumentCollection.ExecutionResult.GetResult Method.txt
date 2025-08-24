@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class > ExecutionResult Methods > GetResult Method
+DocumentCollection.ExecutionResult.GetResult MethodDescription
+This is GetResult, a member of class ExecutionResult.
+
+Visual Basic
+Public Function GetResult() As void
+C#
+public void GetResult();
+Links
+DocumentCollection.ExecutionResult Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

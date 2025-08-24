@@ -1,0 +1,25 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > FromAcadDocument Method
+DocumentExtension.FromAcadDocument Method    Description
+Converts an object into a Document.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.DocumentExtension
+
+Visual Basic
+Public static Function FromAcadDocument(
+    acadDocument As object
+) As Document
+C#
+public static Document FromAcadDocument(
+    object acadDocument
+);
+Parameters
+Parameters  Description  
+object acadDocument  Input the object to be converted  
+
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Document
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentActivationChangedEventArgs Class
+DocumentActivationChangedEventArgs ClassDescription
+ 
+
+This class provides data for the DocumentActivationChanged event of the DocumentCollection class.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentActivationChangedEventArgs
+Visual Basic
+Public sealed Class DocumentActivationChangedEventArgs
+Inherits EventArgs
+C#
+public sealed class DocumentActivationChangedEventArgs : EventArgs;
+Links
+DocumentActivationChangedEventArgs Properties
+   Comments?  

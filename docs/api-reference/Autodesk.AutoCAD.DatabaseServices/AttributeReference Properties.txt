@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Properties
+AttributeReference PropertiesProperties
+Property  Description  
+ FieldLength  
+Accesses the attribute’s field length value. This value is not currently used within AutoCAD.  
+ Invisible  
+Accesses the visibility flag of the AttributeReference. If invisible is true, then the AttributeReference object is set to be... more  
+ IsConstant  
+Returns true if the AttributeReference object is set to be constant.  
+ IsMTextAttribute  
+Returns true if the attribute is a multi-line attribute.  
+ IsPreset  
+Returns true if the attribute object has a preset value and will not prompt for user input.  
+ IsVerifiable  
+Returns true if the attribute object is set to verify user input.  
+ LockPositionInBlock  
+Returns true if the AttributeReference object is set to be immovable relative to the geometry in the block.  
+ MTextAttribute  
+Accesses the internal MText entity, to replace or modify it.  
+ Tag  
+Accesses the tag string, which is the identifier you see if you explode the BlockReference that owns the attribute, so... more  
+
+   Comments?  

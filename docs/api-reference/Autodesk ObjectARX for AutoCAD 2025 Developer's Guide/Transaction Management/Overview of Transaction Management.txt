@@ -1,0 +1,16 @@
+Transaction ManagementTransaction ManagementTransaction Manager 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Overview of Transaction Management
+ 
+ 
+ 
+The transaction model encapsulates multiple operations on multiple objects by several clients as one atomic operation called a transaction. Inside a transaction boundary, clients can obtain object pointers from object IDs. Object pointers thus obtained are valid until the transaction is ended or aborted by the client. If the transaction is ended successfully, operations on the objects are committed. If the transaction is aborted, operations on the objects are canceled. 
+
+Operating on objects using this paradigm has several advantages over the regular open and close mechanism described in Database Objects. The open and close mechanism is suitable for simple operations on a single object or a small group of objects. However, there are certain restrictions on opening objects this way. For example, if an object is open for read, you cannot open it for write at the same time. If an object is open for write, you cannot open it for write a second time. For a list of conflict errors associated with the open and close mechanism, see Database Objects. The transaction model is more lenient, and obtaining object pointers from object IDs for a particular mode usually succeeds if the object is associated with a transaction. 
+
+Depending upon your application, there can be other disadvantages to using the open and close mechanism. If your application opens and closes the same object a number of times in the course of one operation—for example, a command—you'll incur serious inefficiencies due to these multiple opens and closes. A number of time-consuming operations are associated with closing an object. If you open an object for write, modify it, and then close it, the undo records of the modification are committed to the undo file, graphics for the object are generated, and notifications are fired. All these operations are performed every time the object is closed. If you transact your operation and obtain a pointer to the object using a transaction, all the activities mentioned above happen only once, at the end of the transaction. The result is improved efficiency and a smaller undo file, because the number of records going into the undo file is reduced. 
+
+Also, if you have a complex network where objects refer to each other by object ID, you want to be able to obtain a pointer to an object in any module of your program without worrying if another module or another application has that object opened. These activities are only possible using the transaction model because transactions group operations and allow obtaining pointers from object IDs across module boundaries. 
+
+Please send us your comment about this page
+

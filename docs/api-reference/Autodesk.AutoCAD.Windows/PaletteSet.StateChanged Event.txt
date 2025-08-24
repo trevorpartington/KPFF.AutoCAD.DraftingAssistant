@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > StateChanged Event
+PaletteSet.StateChanged EventDescription
+Occurs when a detail of the palette set's state has changed.
+
+Visual Basic
+Public Event StateChanged As PaletteSetStateEventHandler
+C#
+public event PaletteSetStateEventHandler StateChanged;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

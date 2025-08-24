@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > HasPreviewIcon Property
+BlockTableRecord.HasPreviewIcon PropertyDescription
+ 
+
+Returns true if the block table record has a preview icon.
+
+Visual Basic
+Public Property HasPreviewIcon() As bool
+C#
+public bool HasPreviewIcon;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

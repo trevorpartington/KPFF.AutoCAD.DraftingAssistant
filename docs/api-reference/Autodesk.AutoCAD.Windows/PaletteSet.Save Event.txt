@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > Save Event
+PaletteSet.Save EventDescription
+Occurs when the palette set data is saved to XML.
+
+Visual Basic
+Public Event Save As PalettePersistEventHandler
+C#
+public event PalettePersistEventHandler Save;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

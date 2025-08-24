@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentActivationChangedEventArgs Class > DocumentActivationChangedEventArgs Properties > NewValue Property
+DocumentActivationChangedEventArgs.NewValue PropertyDescription
+ 
+
+Assesses if the document is activated.
+
+Visual Basic
+Public Property NewValue() As bool
+C#
+public bool NewValue;
+Conditions
+Read-only
+
+Links
+DocumentActivationChangedEventArgs Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

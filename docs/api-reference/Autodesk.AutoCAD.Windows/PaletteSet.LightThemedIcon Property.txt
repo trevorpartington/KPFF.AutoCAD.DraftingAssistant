@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > LightThemedIcon Property
+PaletteSet.LightThemedIcon Property    Description
+Provides access to the 16x16 palette set icon used when the light theme is active.
+
+Visual Basic
+Public Property LightThemedIcon() As System.Drawing.Icon
+C#
+public System.Drawing.Icon LightThemedIcon;
+Remarks
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

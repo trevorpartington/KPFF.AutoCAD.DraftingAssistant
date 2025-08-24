@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > GetStatusBar Method
+DocumentExtension.GetStatusBar Method    Description
+ 
+
+This .NET method wraps the ObjectARX method
+
+Visual Basic
+Public static Function GetStatusBar(
+    doc As this Document
+) As StatusBar
+C#
+public static StatusBar GetStatusBar(
+    this Document doc
+);
+Parameters
+Parameters  Description  
+this Document doc  _nt_  
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

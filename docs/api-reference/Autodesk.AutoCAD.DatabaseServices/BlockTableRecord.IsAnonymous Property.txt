@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsAnonymous Property
+BlockTableRecord.IsAnonymous PropertyDescription
+ 
+
+Returns true if the block table record is anonymous.
+
+Visual Basic
+Public Property IsAnonymous() As bool
+C#
+public bool IsAnonymous;
+Conditions
+Read-only
+
+Notes
+The IsAnonymous value is used for the first bit in DXF group code 70
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

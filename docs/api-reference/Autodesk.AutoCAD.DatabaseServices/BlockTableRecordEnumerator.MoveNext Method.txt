@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecordEnumerator Class > BlockTableRecordEnumerator Methods > MoveNext Method
+BlockTableRecordEnumerator.MoveNext MethodDescription
+ 
+
+This function returns true if the enumerator has been positioned past either end of the block.
+
+Visual Basic
+Public Function MoveNext() As bool
+C#
+public bool MoveNext();
+Links
+BlockTableRecordEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

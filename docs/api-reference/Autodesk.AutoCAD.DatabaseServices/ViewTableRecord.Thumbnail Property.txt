@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > Thumbnail Property
+ViewTableRecord.Thumbnail PropertyDescription
+ 
+
+Returns the packed BITMAPINFO structure of the thumbnail with the thumbnail data following it immediately in memory. It can be set to null if no thumbnail is desired for this view. 
+
+ 
+
+Returns an error if the thumbnail data could not be stored.
+
+Visual Basic
+Public Property Thumbnail() As Bitmap
+C#
+public Bitmap Thumbnail;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

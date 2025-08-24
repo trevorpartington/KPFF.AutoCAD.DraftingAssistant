@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods > StartTransaction Method
+TransactionManager.StartTransaction MethodDescription
+ 
+
+Begins a new transaction.
+
+Visual Basic
+Public virtual Function StartTransaction() As Transaction
+C#
+public virtual Transaction StartTransaction();
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

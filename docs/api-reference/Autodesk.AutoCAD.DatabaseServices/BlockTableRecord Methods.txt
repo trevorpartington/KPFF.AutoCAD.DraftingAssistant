@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods
+BlockTableRecord MethodsMethods
+Method  Description  
+ AppendEntity  
+Adds entity to the database and the block table record.  
+ AssumeOwnershipOf  
+This method causes the invoked block table record to assume the ownership of all the entities listed in the input... more  
+ GetAnonymousBlockIds  
+Retrieves a collection populated with the ObjectIds of the anonymous blocks created from the dynamic block definition.  
+ GetBlockReferenceIds  
+This function returns a list of BlockReferences that either directly or indirectly, through block nesting, reference this block. It... more  
+ GetEnumerator  
+Returns an enumerator that iterates through the collection.  
+ GetErasedBlockReferenceIds  
+This function returns a list of BlockReferences that directly reference this block. It only returns those block references that... more  
+ GetXrefDatabase  
+This function returns the database that defines this block table record’s contents. If incrementUnresolved is true, then a database will... more  
+ UpdateAnonymousBlocks  
+Updates the anonymous blocks created from this dynamic block definition to reflect any changes made to the dynamic block definition.... more  
+
+   Comments?  

@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class > DynamicBlockReferencePropertyCollection Methods > CopyTo Method
+DynamicBlockReferencePropertyCollection.CopyTo MethodDescription
+ 
+
+Copies objects in array to this collection, starting from index.
+
+Visual Basic
+Public Function CopyTo(
+    array As DynamicBlockReferenceProperty[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    DynamicBlockReferenceProperty\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+DynamicBlockReferenceProperty[] array  Input array to copy from  
+int index  Input zero-based index to start at  
+
+Links
+DynamicBlockReferencePropertyCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

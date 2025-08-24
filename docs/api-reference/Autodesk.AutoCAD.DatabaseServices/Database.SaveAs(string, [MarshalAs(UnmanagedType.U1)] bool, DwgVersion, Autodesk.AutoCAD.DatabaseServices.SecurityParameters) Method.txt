@@ -1,0 +1,54 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > SaveAs Method > SaveAs(string, [MarshalAs(UnmanagedType.U1)] bool, DwgVersion, Autodesk.AutoCAD.DatabaseServices.SecurityParameters) Method
+Database.SaveAs(string, [MarshalAs(UnmanagedType.U1)] bool, DwgVersion, Autodesk.AutoCAD.DatabaseServices.SecurityParameters) MethodDescription
+Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is taken as is. If no file extension is present, .dwg is not appended. 
+
+If the database executing the SaveAs() function is not the current database in the AutoCAD editor, then the thumbnail preview image is not saved to fileName. 
+
+To specify security parameters, set security that conveys your preferences.If the security is not properly initialized, the method fails. See SecurityParameters for more information on initializing this struct. 
+
+If bBakAndRename is false, then no .bak file is created, a full save is always done, and if the Database being saved is the main database for a document in AutoCAD, then the document's filename will NOT change to the saved name.
+
+Visual Basic
+Public Function SaveAs(
+    fileName As string, 
+    bBakAndRename As [MarshalAs(UnmanagedType.U1)] bool, 
+    version As DwgVersion, 
+    security As Autodesk.AutoCAD.DatabaseServices.SecurityParameters
+) As void
+C#
+public void SaveAs(
+    string fileName, 
+    [MarshalAs(UnmanagedType.U1)] bool bBakAndRename, 
+    DwgVersion version, 
+    Autodesk.AutoCAD.DatabaseServices.SecurityParameters security
+);
+Parameters
+Parameters  Description  
+string fileName  Input file name or URL to write database out to  
+[MarshalAs(UnmanagedType.U1)] bool bBakAndRename  Input bool indicating whether or not to create a .bak file and change document name in AutoCAD  
+DwgVersion version  Input dwg version to which to save the file  
+Autodesk.AutoCAD.DatabaseServices.SecurityParameters security  Input a SecurityParameters structure  
+
+Remarks
+DWG files can no longer be saved with passwords. The password will be ignored and returns an error if password information is passed in the pSecParams parameter.
+
+Notes
+The allowed values for version are: 
+
+DwgVersion.AC1014 // R14 
+
+DwgVersion.AC1015 // 2000 
+
+DwgVersion.AC1800 // 2004 
+
+DwgVersion.AC1021 // 2007 
+
+DwgVersion.AC1024 // 2010 
+
+DwgVersion.AC1027 // 2013 
+
+DwgVersion.AC1032 // 2018
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > ObjectClass Property
+ObjectId.ObjectClass PropertyDescription
+Accesses the RXClass of the object that is associated with the object id, thus guaranteeing that the result can be safely de-referenced and correctly compared against any class derived from DBObject. This is done because the entire purpose of this property is to streamline code being written; having to always compare the result against NULL would partially defeat the purpose of the function.
+
+Visual Basic
+Public Property ObjectClass() As RXClass
+C#
+public RXClass ObjectClass;
+Conditions
+Read-only
+
+Notes
+Use this property to obtain the associated object class without having to open and close the object itself. 
+
+If the object has not been read in from disk, the disk image will be scanned, but the object will remain on disk after the usage.
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

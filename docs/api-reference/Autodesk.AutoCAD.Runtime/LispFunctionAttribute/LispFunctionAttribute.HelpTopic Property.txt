@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Properties > HelpTopic Property
+LispFunctionAttribute.HelpTopic PropertyDescription
+ 
+
+Returns the HelpTopic property value.
+
+Visual Basic
+Public virtual Property HelpTopic() As string
+C#
+public virtual string HelpTopic;
+Conditions
+Read-only
+
+Links
+LispFunctionAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

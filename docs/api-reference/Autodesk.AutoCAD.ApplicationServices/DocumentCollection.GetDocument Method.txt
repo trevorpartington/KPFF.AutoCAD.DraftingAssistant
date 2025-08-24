@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > GetDocument Method
+DocumentCollection.GetDocument MethodDescription
+Returns the Document. 
+
+Visual Basic
+Public Function GetDocument(
+    db As Database
+) As Document
+C#
+public Document GetDocument(
+    Database db
+);
+Parameters
+Parameters  Description  
+Database db  Input database to obtain from.  
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

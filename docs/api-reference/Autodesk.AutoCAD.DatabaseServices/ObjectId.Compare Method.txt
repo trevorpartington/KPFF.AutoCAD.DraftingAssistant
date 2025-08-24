@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > Compare Method
+ObjectId.Compare MethodDescription
+Compares this object to value1 and returns true if they are equal.
+
+Visual Basic
+Public Function Compare(
+    value1 As ObjectId
+) As bool
+C#
+public bool Compare(
+    ObjectId value1
+);
+Parameters
+Parameters  Description  
+ObjectId value1  Input object to compare against  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

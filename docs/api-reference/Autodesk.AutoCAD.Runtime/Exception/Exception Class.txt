@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class
+Exception ClassDescription
+This class provides a container for an ObjectARX Acad.ErrorStatus enumerator value. 
+
+This should only be used when you are certain there will be no name conflicts.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.Exception
+Visual Basic
+Public Class Exception
+Inherits System.Exception
+Inherits ISerializable
+C#
+public class Exception : System.Exception, ISerializable;
+Links
+Exception Constructor, Exception Methods, Exception Properties
+   Comments?  

@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Methods
+DBDictionaryEntry MethodsMethods
+Method  Description  
+ ToString    
+
+   Comments?  

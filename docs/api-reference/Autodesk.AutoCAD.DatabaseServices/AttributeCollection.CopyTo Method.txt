@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Methods > CopyTo Method
+AttributeCollection.CopyTo MethodDescription
+Copies the objects in the element to the array.
+
+Visual Basic
+Public Function CopyTo(
+    array As ObjectId[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    ObjectId\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+ObjectId[] array  Input the array to copy to.  
+int index  Input the index position to start adding at.  
+
+Links
+AttributeCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

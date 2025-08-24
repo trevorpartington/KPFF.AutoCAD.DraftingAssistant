@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > GetThemedIcon Method
+PaletteSet.GetThemedIcon Method    Description
+Returns either the small (16x16) or large icon (32x32) of the palette set for the current theme.
+
+Visual Basic
+Public Function GetThemedIcon(
+    bBigIcon As [MarshalAs(UnmanagedType.U1)] bool
+) As System.Drawing.Icon
+C#
+public System.Drawing.Icon GetThemedIcon(
+    [MarshalAs(UnmanagedType.U1)] bool bBigIcon
+);
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

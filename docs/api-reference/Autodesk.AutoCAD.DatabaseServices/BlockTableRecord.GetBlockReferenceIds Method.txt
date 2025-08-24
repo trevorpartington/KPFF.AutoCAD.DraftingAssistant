@@ -1,0 +1,31 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > GetBlockReferenceIds Method
+BlockTableRecord.GetBlockReferenceIds MethodDescription
+ 
+
+This function returns a list of BlockReferences that either directly or indirectly, through block nesting, reference this block. It only returns those block references that are currently active. Use getErasedBlockReferenceIds() to get a list of erased references.
+
+Visual Basic
+Public Function GetBlockReferenceIds(
+    directOnly As [MarshalAs(UnmanagedType.U1)] bool, 
+    forceValidity As [MarshalAs(UnmanagedType.U1)] bool
+) As ObjectIdCollection
+C#
+public ObjectIdCollection GetBlockReferenceIds(
+    [MarshalAs(UnmanagedType.U1)] bool directOnly, 
+    [MarshalAs(UnmanagedType.U1)] bool forceValidity
+);
+Parameters
+Parameters  Description  
+[MarshalAs(UnmanagedType.U1)] bool directOnly  Input an indication that only those BlockReferences that directly refer to this BlockTableRecord should be included in the IDs. If this value is true and the block is nested, the parent block's references will not be included.  
+[MarshalAs(UnmanagedType.U1)] bool forceValidity  Input an indication that older drawings which have been demand loaded should be loaded completely, in order to find their BlockReferenceIds. This is because older drawings did not store this information. This parameter is only applicable if directOnly is false.  
+
+Notes
+Callers need to decide what the most efficient setting will be for forceValidity. For example, if the caller wants the set of IDs in order to queue the BlockReferences for regen in order to avoid calling REGENALL, then it would probably be less costly to set forceValidity to false, and do the REGENALL. 
+
+ 
+
+A full regen would be faster, and better memory management, than forcing the entire file into memory. However, if the function is being called for block cycle detection, then forceValidity must be true in order to guarantee that all block references (potential cycles) have been found.
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

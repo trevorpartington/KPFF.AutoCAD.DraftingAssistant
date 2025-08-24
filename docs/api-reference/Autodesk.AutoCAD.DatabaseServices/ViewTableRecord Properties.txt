@@ -1,0 +1,29 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties
+ViewTableRecord PropertiesProperties
+Property  Description  
+ AnnotationScale  
+This function returns a pointer to the AnnotationScale object associated with the viewport.
+
+The controlling application must explicitly delete the... more  
+ CategoryName  
+Returns the name of the category of the view.  
+ IsPaperspaceView  
+Returns true if this ViewTableRecord is a Paper Space view. Otherwise it returns false.
+
+Within AutoCAD, if a Paper... more  
+ IsUcsAssociatedToView  
+Returns true if this view table record has an associated ucs. If this function returns true, then the ucs that... more  
+ LayerState  
+Returns the name of the layer state. The caller is responsible for creating the layer state and storing it into... more  
+ Layout  
+Returns the layout of the view.
+
+Returns an error if the layout ID could not be stored. Because paperspace views... more  
+ LiveSection  
+Returns a live section to be associated with a view. During the restoration of a view, it's associated live section... more  
+ Thumbnail  
+Returns the packed BITMAPINFO structure of the thumbnail with the thumbnail data following it immediately in memory. It can be... more  
+ ViewAssociatedToViewport  
+Returns a flag to indicate whether or not the view is associated with a paperspace viewport.  
+
+   Comments?  

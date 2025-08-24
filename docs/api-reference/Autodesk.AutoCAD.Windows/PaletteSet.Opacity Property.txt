@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Opacity Property
+PaletteSet.Opacity PropertyDescription
+Opacity of the palette set window.
+
+Visual Basic
+Public Property Opacity() As Integer
+C#
+public int Opacity;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

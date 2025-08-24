@@ -1,0 +1,15 @@
+Plot From Model Space (.NET)Plot Your Drawing (.NET)Publish Layouts (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Define Layouts and Plot (.NET) > Plot Your Drawing (.NET) > 
+Plot From Paper Space (.NET)
+ 
+ 
+ 
+You can plot a Paper space layout. Plotting a Paper space layout is the same as plotting the Model layout. Before plotting a Paper space layout, be sure that the layout is initialized and the viewports are defined with the settings and desired views of the model. 
+
+Related Concepts
+Plot Your Drawing (.NET)
+Plot From Model Space (.NET)
+Create Paper Space Viewports (.NET)
+Publish Layouts (.NET)
+Please send us your comment about this page
+

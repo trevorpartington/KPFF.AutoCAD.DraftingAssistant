@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Models;
 
 public class ProjectConfiguration
@@ -9,6 +11,12 @@ public class ProjectConfiguration
     public SheetNamingConfiguration SheetNaming { get; set; } = new();
     public TableConfiguration Tables { get; set; } = new();
     public ConstructionNotesConfiguration ConstructionNotes { get; set; } = new();
+    
+    /// <summary>
+    /// Runtime-only property for selected sheets. Not serialized to JSON.
+    /// </summary>
+    [JsonIgnore]
+    public List<SheetInfo> SelectedSheets { get; set; } = new();
 }
 
 public class SheetNamingConfiguration

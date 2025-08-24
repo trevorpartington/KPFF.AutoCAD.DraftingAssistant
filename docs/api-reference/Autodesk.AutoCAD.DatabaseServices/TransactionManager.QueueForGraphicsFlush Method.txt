@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > TransactionManager Class > TransactionManager Methods > QueueForGraphicsFlush Method
+TransactionManager.QueueForGraphicsFlush MethodDescription
+ 
+
+Queues up the graphics changes of all transaction-resident modified entities from any existing transaction.
+
+Visual Basic
+Public virtual Function QueueForGraphicsFlush() As void
+C#
+public virtual void QueueForGraphicsFlush();
+Links
+TransactionManager Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

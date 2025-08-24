@@ -1,0 +1,34 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > GetObject Method > GetObject(ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) Method
+Transaction.GetObject(ObjectId, Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool) MethodDescription
+This function calls the Open() function of the top transaction passing on all the arguments it has received. Objects can only be obtained within the top transaction, so this function saves the trouble of having to either keep a pointer to the top transaction or use the TransactionManager.TopTransaction property to obtain it. 
+
+If the openErased Boolean is true, then even an erased object can be obtained. If openErased is false, then trying to obtain an erased entity results in an error return value. 
+
+ 
+
+For more information, see the section on transactions in the ObjectARX Developer's Guide.
+
+Visual Basic
+Public virtual Function GetObject(
+    id As ObjectId, 
+    mode As Autodesk.AutoCAD.DatabaseServices.OpenMode, 
+    openErased As [MarshalAs(UnmanagedType.U1)] bool, 
+    forceOpenOnLockedLayer As [MarshalAs(UnmanagedType.U1)] bool
+) As DBObject
+C#
+public virtual DBObject GetObject(
+    ObjectId id, 
+    Autodesk.AutoCAD.DatabaseServices.OpenMode mode, 
+    [MarshalAs(UnmanagedType.U1)] bool openErased, 
+    [MarshalAs(UnmanagedType.U1)] bool forceOpenOnLockedLayer
+);
+Parameters
+Parameters  Description  
+ObjectId id  Input objectId of object to obtain  
+Autodesk.AutoCAD.DatabaseServices.OpenMode mode  Input mode to obtain in  
+[MarshalAs(UnmanagedType.U1)] bool openErased  Input Boolean indicating whether to obtain erased objects  
+[MarshalAs(UnmanagedType.U1)] bool forceOpenOnLockedLayer  Input true if locked layers should be opened  
+
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

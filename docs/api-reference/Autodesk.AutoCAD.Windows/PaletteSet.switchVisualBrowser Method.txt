@@ -1,0 +1,26 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > switchVisualBrowser Method
+PaletteSet.switchVisualBrowser Method    Description
+Switches the current tab to a specific tab and controls the display of the content on the tab. 
+
+Note: Related to the Blocks palette and is for internal use only. 
+
+Visual Basic
+Public Function switchVisualBrowser(
+    index As Integer, 
+    bVisual As [MarshalAs(UnmanagedType.U1)] bool, 
+    url As string
+) As void
+Parameters
+Parameters  Description  
+int index  Input integer that references which tab to set current  
+[MarshalAs(UnmanagedType.U1)] bool bVisual  Input Boolean that controls whether the content is displayed  
+string url  Input string that specifies the URL to the related content  
+
+Previous Declaration
+public void switchVisualBrowser(
+int index,
+[MarshalAs(UnmanagedType.U1)] bool bVisual
+);
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

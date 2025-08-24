@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Fields > m_key Field
+DBDictionaryEntry.m_key FieldDescription
+ 
+
+Stores the key of an entry.
+
+Visual Basic
+Public m_key As string
+C#
+public string m_key;
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Constructor
+CommandMethodAttribute ConstructorOverload List
+Method  Description  
+ CommandMethodAttribute.CommandMethodAttribute (string)  
+Constructs an object with a global name.  
+ CommandMethodAttribute.CommandMethodAttribute (string, CommandFlags)  
+Constructs an object with a global name and command flags.  
+ CommandMethodAttribute.CommandMethodAttribute (string, string, CommandFlags)  
+Constructs an object with a global name, command flags, and a group name.  
+ CommandMethodAttribute.CommandMethodAttribute (string, string, string, CommandFlags)  
+Constructs an object with a global name, command flags, group name, and localized ID name.  
+ CommandMethodAttribute.CommandMethodAttribute (string, string, string, CommandFlags, string)  
+Constructs an object with a global name, command flags, group name, localized ID name, and help topic.  
+ CommandMethodAttribute.CommandMethodAttribute (string, string, string, CommandFlags, Type)  
+Constructs an object with a global name, command flags, group name, localized ID name, and context menu flags.  
+ CommandMethodAttribute.CommandMethodAttribute (string, string, string, CommandFlags, Type, string, string)  
+Constructs an object with a global name, command flags, group name, localized ID name, help topic, help file name, and... more  
+
+   Comments?  

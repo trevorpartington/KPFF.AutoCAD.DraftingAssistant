@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Icon Property
+PaletteSet.Icon PropertyDescription
+This is Icon, a member of class PaletteSet.
+
+Visual Basic
+Public Property Icon() As System.Drawing.Icon
+C#
+public System.Drawing.Icon Icon;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

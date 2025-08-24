@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > GetPendingDocumentForSwitch Method
+DocumentCollection.GetPendingDocumentForSwitch MethodDescription
+This is GetPendingDocumentForSwitch, a member of class DocumentCollection.
+
+Visual Basic
+Public Function GetPendingDocumentForSwitch() As Tuple<bool, Document>
+C#
+public Tuple<bool, Document> GetPendingDocumentForSwitch();
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

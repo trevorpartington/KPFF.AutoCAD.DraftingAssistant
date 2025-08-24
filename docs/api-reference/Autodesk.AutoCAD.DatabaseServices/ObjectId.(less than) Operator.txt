@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > Operators > < Operator
+ObjectId.< OperatorDescription
+Returns true if value1 is less than value2.
+
+Visual Basic
+Public static Operator <(
+    value1 As ObjectId, 
+    value2 As ObjectId
+)
+C#
+public static bool operator <(
+    ObjectId value1, 
+    ObjectId value2
+);
+Parameters
+Parameters  Description  
+ObjectId value1  Left operand  
+ObjectId value2  Right operand  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

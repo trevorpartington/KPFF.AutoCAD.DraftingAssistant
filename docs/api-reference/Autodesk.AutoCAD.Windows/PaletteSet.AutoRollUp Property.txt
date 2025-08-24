@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > AutoRollUp Property
+PaletteSet.AutoRollUp PropertyDescription
+Returns the AutoRollUp property value.
+
+Visual Basic
+Public Property AutoRollUp() As bool
+C#
+public bool AutoRollUp;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

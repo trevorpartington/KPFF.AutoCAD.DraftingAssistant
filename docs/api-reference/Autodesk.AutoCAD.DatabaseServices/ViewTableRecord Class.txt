@@ -1,0 +1,31 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class
+ViewTableRecord ClassDescription
+ 
+
+This .NET class wraps the AcDbViewTableRecord ObjectARX class. 
+
+ 
+
+Objects of this class represent stored views within AutoCAD. The ViewTable object (referred to in the AutoCAD and DXF documentation as the VIEW table) within each database is the container or owner of objects of this class. 
+
+ 
+
+Most of the data and functionality of this class is inherited from its AbstractViewTableRecord parent class. 
+
+ 
+
+Within AutoCAD, objects of this class are created whenever the VIEW command's "save" option is used to save a view with a name that does not already exist.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.SymbolTableRecord
+        Autodesk.AutoCAD.DatabaseServices.AbstractViewTableRecord
+            Autodesk.AutoCAD.DatabaseServices.ViewTableRecord
+Visual Basic
+Public Class ViewTableRecord
+Inherits AbstractViewTableRecord
+C#
+public class ViewTableRecord : AbstractViewTableRecord;
+Links
+ViewTableRecord Methods, ViewTableRecord Properties
+   Comments?  

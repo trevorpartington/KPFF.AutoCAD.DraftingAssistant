@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > PreTranslateMessage Event
+Application.PreTranslateMessage Event    Description
+Occurs before a message is translated.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.Core.Application
+
+Visual Basic
+Public static Event PreTranslateMessage As PreTranslateMessageEventHandler
+C#
+public static event PreTranslateMessageEventHandler PreTranslateMessage;
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Application
+
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > Focused Event
+PaletteSet.Focused EventDescription
+This is Focused, a member of class PaletteSet.
+
+Visual Basic
+Public Event Focused As PaletteSetFocusedEventHandler
+C#
+public event PaletteSetFocusedEventHandler Focused;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

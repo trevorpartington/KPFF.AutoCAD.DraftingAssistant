@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class > ExecutionResult Methods > OnCompleted Method
+DocumentCollection.ExecutionResult.OnCompleted MethodDescription
+This is OnCompleted, a member of class ExecutionResult.
+
+Visual Basic
+Public Function OnCompleted(
+    continuation As Action
+) As void
+C#
+public void OnCompleted(
+    Action continuation
+);
+Links
+DocumentCollection.ExecutionResult Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

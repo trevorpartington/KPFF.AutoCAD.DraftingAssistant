@@ -16,6 +16,11 @@ public partial class ConfigurationControl : BaseUserControl
     private List<SheetInfo> _availableSheets = new();
     private List<SheetInfo> _selectedSheets = new();
 
+    /// <summary>
+    /// Gets the current project configuration with selected sheets
+    /// </summary>
+    public ProjectConfiguration? CurrentConfiguration => _currentProject;
+
     public ConfigurationControl() : this(null, null, null, null)
     {
     }
@@ -109,6 +114,7 @@ public partial class ConfigurationControl : BaseUserControl
                 {
                     // Select all sheets by default
                     _selectedSheets = new List<SheetInfo>(_availableSheets);
+                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
                     
                     // Update display to show all sheets are selected
                     var displayText = $"Default Configuration Loaded\n\n" +
@@ -186,6 +192,7 @@ public partial class ConfigurationControl : BaseUserControl
                 if (dialog.ShowDialog() == true)
                 {
                     _selectedSheets = dialog.SelectedSheets;
+                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
                     UpdateConfigurationDisplay($"Selected {_selectedSheets.Count} of {_availableSheets.Count} sheets:\n\n" + 
                                              string.Join("\n", _selectedSheets.Select(s => $"• {s.SheetName} - {s.DrawingTitle}")));
                 }

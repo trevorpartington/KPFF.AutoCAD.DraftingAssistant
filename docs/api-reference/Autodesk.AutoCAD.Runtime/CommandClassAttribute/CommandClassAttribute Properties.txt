@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandClassAttribute Class > CommandClassAttribute Properties
+CommandClassAttribute PropertiesProperties
+Property  Description  
+ Type  
+Returns the Type property value.  
+
+   Comments?  
