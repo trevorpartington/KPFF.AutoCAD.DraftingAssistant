@@ -18,12 +18,33 @@ public class ExternalDrawingManager
 {
     private readonly ILogger _logger;
     private readonly BackupCleanupService _backupCleanupService;
-    private readonly Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+    private Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
 
-    public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService)
+    public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService, string? noteBlockPattern = null)
     {
         _logger = logger;
         _backupCleanupService = backupCleanupService;
+        if (!string.IsNullOrEmpty(noteBlockPattern))
+        {
+            SetNoteBlockPattern(noteBlockPattern);
+        }
+    }
+
+    /// <summary>
+    /// Sets the note block pattern for identifying construction note blocks
+    /// </summary>
+    public void SetNoteBlockPattern(string pattern)
+    {
+        try
+        {
+            _noteBlockPattern = new Regex(pattern, RegexOptions.Compiled);
+            _logger.LogDebug($"Note block pattern updated to: {pattern}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning($"Invalid note block pattern '{pattern}': {ex.Message}. Using default pattern.");
+            _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+        }
     }
 
     /// <summary>

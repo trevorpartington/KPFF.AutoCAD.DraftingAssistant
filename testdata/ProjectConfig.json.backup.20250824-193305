@@ -10,12 +10,12 @@
     "examples": [
       "ABC-123",
       "ABC-12",
-      "ABC-1",
+	  "ABC-1",
       "AB-123",
-      "AB-12",
-      "AB-1",
+	  "AB-12",
+	  "AB-1",	  
       "A-123",
-      "A-12",
+	  "A-12",
       "A-1"
     ]
   },
@@ -25,11 +25,8 @@
     "notesPattern": "{0}_NOTES"
   },
   "constructionNotes": {
-    "multileaderStyleNames": [
-      "ML-STYLE-01",
-      "ML-STYLE-02"
-    ],
-    "noteBlockPattern": "^NT\\d{2}$",
+    "multileaderStyleName": "ML-STYLE-01",
+    "noteBlockPattern": "{0}-NT{1:D2}",
     "maxNotesPerSheet": 24,
     "attributes": {
       "numberAttribute": "Number",

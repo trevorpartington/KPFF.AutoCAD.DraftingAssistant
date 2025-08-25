@@ -66,12 +66,13 @@ public class AutoNotesService
                     }
 
                     // Get all multileaders in model space
-                    string? targetStyle = config.ConstructionNotes?.MultileaderStyleName;
-                    var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyle);
+                    var targetStyles = config.ConstructionNotes?.MultileaderStyleNames;
+                    var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyles);
                     
                     if (allMultileaders.Count == 0)
                     {
-                        _logger.LogInformation($"No multileaders found in model space for style '{targetStyle ?? "any"}'");
+                        var styleNames = targetStyles?.Count > 0 ? string.Join(", ", targetStyles) : "any";
+                        _logger.LogInformation($"No multileaders found in model space for styles '{styleNames}'");
                         return new List<int>();
                     }
 
@@ -272,8 +273,8 @@ public class AutoNotesService
                 }
 
                 // Get multileader information
-                string? targetStyle = config.ConstructionNotes?.MultileaderStyleName;
-                var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyle);
+                var targetStyles = config.ConstructionNotes?.MultileaderStyleNames;
+                var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyles);
 
                 // Get viewport information with detailed boundary data
                 var layoutBlock = transaction.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
@@ -343,10 +344,11 @@ public class AutoNotesService
 
                 transaction.Commit();
 
+                var styleNames = targetStyles?.Count > 0 ? string.Join(", ", targetStyles) : "any";
                 var result = new List<string>
                 {
                     $"Auto Notes Diagnostic for '{sheetName}':",
-                    $"  Target Style: {targetStyle ?? "any"}",
+                    $"  Target Styles: {styleNames}",
                     $"  Multileaders Found: {allMultileaders.Count}",
                     $"  Viewports Found: {viewportCount}",
                     ""

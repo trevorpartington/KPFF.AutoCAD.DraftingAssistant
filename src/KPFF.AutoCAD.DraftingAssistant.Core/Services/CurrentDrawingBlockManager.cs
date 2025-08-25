@@ -16,7 +16,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 public class CurrentDrawingBlockManager
 {
     private readonly ILogger _logger;
-    private readonly Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+    private Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
     private bool _isInitialized = false;
     private readonly Database? _externalDatabase;
     private readonly bool _useExternalDatabase;
@@ -32,14 +32,49 @@ public class CurrentDrawingBlockManager
     }
 
     /// <summary>
+    /// Constructor for current drawing operations with custom note block pattern
+    /// </summary>
+    public CurrentDrawingBlockManager(ILogger logger, string? noteBlockPattern = null)
+    {
+        _logger = logger;
+        _externalDatabase = null;
+        _useExternalDatabase = false;
+        if (!string.IsNullOrEmpty(noteBlockPattern))
+        {
+            SetNoteBlockPattern(noteBlockPattern);
+        }
+    }
+
+    /// <summary>
     /// Constructor for external database operations (new functionality)
     /// </summary>
-    public CurrentDrawingBlockManager(Database externalDatabase, ILogger logger)
+    public CurrentDrawingBlockManager(Database externalDatabase, ILogger logger, string? noteBlockPattern = null)
     {
         _logger = logger;
         _externalDatabase = externalDatabase;
         _useExternalDatabase = true;
         _isInitialized = true; // External database is already initialized
+        if (!string.IsNullOrEmpty(noteBlockPattern))
+        {
+            SetNoteBlockPattern(noteBlockPattern);
+        }
+    }
+
+    /// <summary>
+    /// Sets the note block pattern for identifying construction note blocks
+    /// </summary>
+    public void SetNoteBlockPattern(string pattern)
+    {
+        try
+        {
+            _noteBlockPattern = new Regex(pattern, RegexOptions.Compiled);
+            _logger.LogDebug($"Note block pattern updated to: {pattern}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning($"Invalid note block pattern '{pattern}': {ex.Message}. Using default pattern.");
+            _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+        }
     }
 
     /// <summary>

@@ -83,8 +83,8 @@ public class ProjectConfigurationService : IProjectConfigurationService
             },
             ConstructionNotes = new ConstructionNotesConfiguration
             {
-                MultileaderStyleName = "KPFF_Note_Standard",
-                NoteBlockPattern = "{0}-NT{1:D2}",
+                MultileaderStyleNames = new List<string> { "KPFF_Note_Standard" },
+                NoteBlockPattern = @"^NT\d{2}$",
                 MaxNotesPerSheet = 24,
                 Attributes = new ConstructionNoteAttributes
                 {

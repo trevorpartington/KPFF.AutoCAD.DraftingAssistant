@@ -1,12 +1,12 @@
-<Window x:Class="KPFF.AutoCAD.DraftingAssistant.UI.Dialogs.SheetSelectionDialog"
+<Window x:Class="KPFF.AutoCAD.DraftingAssistant.UI.Dialogs.SeriesSelectionDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Select Sheets"
-        Height="500"
-        Width="350"
+        Title="Select Series"
+        Height="400"
+        Width="300"
         WindowStartupLocation="CenterOwner"
         Background="#2E3440">
     <Window.Resources>
@@ -27,26 +27,35 @@
         
         <!-- Header -->
         <TextBlock Grid.Row="0" 
-                   Text="Select Sheets to Process" 
+                   Text="Select Drawing Series" 
                    Style="{StaticResource DarkTextBlockStyle}"
                    FontSize="16" 
                    FontWeight="Bold" 
                    Margin="0,0,0,15"/>
         
-        <!-- Sheet List -->
+        <!-- Series List -->
         <Border Grid.Row="1" 
                 Style="{StaticResource DarkBorderStyle}"
                 BorderThickness="1" 
                 CornerRadius="5"
                 Background="{StaticResource DarkSurfaceBrush}">
             <ScrollViewer>
-                <ItemsControl x:Name="SheetsItemsControl" Margin="10">
+                <ItemsControl x:Name="SeriesItemsControl" Margin="10">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Margin="0,3,0,3"
+                            <CheckBox Margin="0,5,0,5"
                                       IsChecked="{Binding IsSelected}"
-                                      Content="{Binding DisplayText}"
-                                      Style="{StaticResource DarkCheckBoxStyle}"/>
+                                      Style="{StaticResource DarkCheckBoxStyle}">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding SeriesName}" 
+                                              FontWeight="SemiBold" 
+                                              Style="{StaticResource DarkTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding SheetCountText}" 
+                                              FontSize="11" 
+                                              Opacity="0.8"
+                                              Style="{StaticResource DarkTextBlockStyle}"/>
+                                </StackPanel>
+                            </CheckBox>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -70,14 +79,7 @@
                     Width="80" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"
-                    Click="ClearAllButton_Click"
-                    Margin="0,0,10,0"/>
-            <Button Name="SelectSeriesButton" 
-                    Content="Select Series" 
-                    Width="100" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="SelectSeriesButton_Click"/>
+                    Click="ClearAllButton_Click"/>
         </StackPanel>
         
         <!-- Action Buttons -->
