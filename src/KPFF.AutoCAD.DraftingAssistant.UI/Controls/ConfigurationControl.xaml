@@ -35,32 +35,22 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
                 <Button Grid.Column="0" 
                         Name="SelectSheetsButton" 
-                        Content="Select Sheets" 
+                        Content="Sheets" 
                         Width="100" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="SelectSheetsButton_Click"/>
                 <Button Grid.Column="2" 
                         Name="SelectProjectButton" 
-                        Content="Select Project" 
+                        Content="Project" 
                         Width="100" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
-                        Click="SelectProjectButton_Click"
-                        Margin="0,0,10,0"/>
-                <Button Grid.Column="3" 
-                        Name="ConfigProjectButton" 
-                        Content="Config Project" 
-                        Width="100" 
-                        Height="30"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="ConfigProjectButton_Click"
-                        IsEnabled="False"/>
+                        Click="SelectProjectButton_Click"/>
             </Grid>
             
             <!-- Active Project Status -->

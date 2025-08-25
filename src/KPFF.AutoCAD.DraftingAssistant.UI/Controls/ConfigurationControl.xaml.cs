@@ -13,6 +13,7 @@ public partial class ConfigurationControl : BaseUserControl
     private readonly IProjectConfigurationService _configService;
     private readonly IExcelReader _excelReader;
     private ProjectConfiguration? _currentProject;
+    private string? _currentProjectFilePath;
     private List<SheetInfo> _availableSheets = new();
     private List<SheetInfo> _selectedSheets = new();
 
@@ -73,14 +74,13 @@ public partial class ConfigurationControl : BaseUserControl
                     _currentProject = await _configService.LoadConfigurationAsync(defaultConfigPath);
                     if (_currentProject != null)
                     {
+                        _currentProjectFilePath = defaultConfigPath;
                         ActiveProjectTextBlock.Text = _currentProject.ProjectName;
                         ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
                         
                         await LoadProjectDetails();
                         await LoadAndSelectAllSheetsAsync();
                         
-                        // Enable Config Project button when default project is loaded
-                        ConfigProjectButton.IsEnabled = true;
                     }
                 }
             }
@@ -145,7 +145,7 @@ public partial class ConfigurationControl : BaseUserControl
     {
         try
         {
-            var dialog = new ProjectSelectionDialog
+            var dialog = new ProjectSelectionDialog(_currentProject, _currentProjectFilePath)
             {
                 Owner = Window.GetWindow(this)
             };
@@ -153,13 +153,12 @@ public partial class ConfigurationControl : BaseUserControl
             if (dialog.ShowDialog() == true && dialog.SelectedProject != null)
             {
                 _currentProject = dialog.SelectedProject;
+                _currentProjectFilePath = dialog.SelectedProjectFilePath;
                 ActiveProjectTextBlock.Text = _currentProject.ProjectName;
                 ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
                 
                 await LoadProjectDetails();
                 
-                // Enable Config Project button when a project is loaded
-                ConfigProjectButton.IsEnabled = true;
             }
         }
         catch (Exception ex)
@@ -214,68 +213,7 @@ public partial class ConfigurationControl : BaseUserControl
         }
     }
 
-    private async void ConfigProjectButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (_currentProject == null)
-        {
-            ShowWarningNotification("Please select a project first.");
-            return;
-        }
 
-        try
-        {
-            // Get the path to the configuration file - we need to find where it was loaded from
-            // For now, assume it's the default location or we need to track this
-            var configPath = GetCurrentConfigFilePath();
-            
-            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
-            {
-                ShowErrorNotification("Cannot locate the project configuration file for editing.");
-                return;
-            }
-
-            var dialog = new ProjectConfigWindow(_currentProject, configPath)
-            {
-                Owner = Window.GetWindow(this)
-            };
-
-            if (dialog.ShowDialog() == true && dialog.ConfigurationSaved)
-            {
-                // Configuration was saved, reload the project details
-                _currentProject = dialog.UpdatedConfiguration;
-                if (_currentProject != null)
-                {
-                    ActiveProjectTextBlock.Text = _currentProject.ProjectName;
-                    await LoadProjectDetails();
-                    ShowInfoNotification("Project configuration updated successfully.");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            ShowErrorNotification($"Error opening configuration editor: {ex.Message}");
-        }
-    }
-
-    private string? GetCurrentConfigFilePath()
-    {
-        // Try to determine the configuration file path
-        // Check if we loaded the default project
-        var currentDirectory = Directory.GetCurrentDirectory();
-        var solutionRoot = FindSolutionRoot(currentDirectory);
-        if (solutionRoot != null)
-        {
-            var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "ProjectConfig.json");
-            if (File.Exists(defaultConfigPath))
-            {
-                return defaultConfigPath;
-            }
-        }
-        
-        // If no default found, we'll need to enhance the ProjectSelectionDialog
-        // to remember where configs were loaded from
-        return null;
-    }
 
     private void ShowInfoNotification(string message)
     {
