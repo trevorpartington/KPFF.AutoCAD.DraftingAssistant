@@ -45,13 +45,28 @@ public class MultileaderAnalyzer
     /// <param name="transaction">Transaction for database access</param>
     /// <param name="targetStyleName">Optional style name to filter by (case-insensitive)</param>
     /// <returns>List of multileaders with note information</returns>
-    public List<MultileaderInfo> FindMultileadersInModelSpace(Database database, Transaction transaction, string? targetStyleName = null)
+    public List<MultileaderInfo> FindMultileadersInModelSpace(Database database, Transaction transaction, string? targetStyleName)
+    {
+        var targetStyleNames = !string.IsNullOrWhiteSpace(targetStyleName) ? new[] { targetStyleName } : null;
+        return FindMultileadersInModelSpace(database, transaction, targetStyleNames);
+    }
+
+    /// <summary>
+    /// Finds all multileaders in model space and extracts their note information.
+    /// </summary>
+    /// <param name="database">The drawing database to search</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <param name="targetStyleNames">Optional list of style names to filter by (case-insensitive)</param>
+    /// <returns>List of multileaders with note information</returns>
+    public List<MultileaderInfo> FindMultileadersInModelSpace(Database database, Transaction transaction, IEnumerable<string>? targetStyleNames)
     {
         var multileaders = new List<MultileaderInfo>();
 
         try
         {
-            _logger.LogDebug($"Searching for multileaders in model space (target style: {targetStyleName ?? "any"})");
+            var styleList = targetStyleNames?.ToList();
+            var styleNames = styleList?.Count > 0 ? string.Join(", ", styleList) : "any";
+            _logger.LogDebug($"Searching for multileaders in model space (target styles: {styleNames})");
 
             // Get the model space block table record
             var blockTable = transaction.GetObject(database.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -83,7 +98,7 @@ public class MultileaderAnalyzer
                     
                     try
                     {
-                        var mleaderInfo = AnalyzeMLeader(mleader, transaction, targetStyleName);
+                        var mleaderInfo = AnalyzeMLeader(mleader, transaction, styleList);
                         if (mleaderInfo != null)
                         {
                             multileaders.Add(mleaderInfo);
@@ -113,9 +128,9 @@ public class MultileaderAnalyzer
     /// </summary>
     /// <param name="mleader">The multileader to analyze</param>
     /// <param name="transaction">Transaction for database access</param>
-    /// <param name="targetStyleName">Optional style name to filter by</param>
+    /// <param name="targetStyleNames">Optional list of style names to filter by</param>
     /// <returns>MultileaderInfo if valid note found, null otherwise</returns>
-    private MultileaderInfo? AnalyzeMLeader(MLeader mleader, Transaction transaction, string? targetStyleName)
+    private MultileaderInfo? AnalyzeMLeader(MLeader mleader, Transaction transaction, List<string>? targetStyleNames)
     {
         try
         {
@@ -123,10 +138,11 @@ public class MultileaderAnalyzer
             string styleName = GetMLeaderStyleName(mleader, transaction);
             
             // Filter by style if specified
-            if (!string.IsNullOrWhiteSpace(targetStyleName) && 
-                !string.Equals(styleName, targetStyleName, StringComparison.OrdinalIgnoreCase))
+            if (targetStyleNames?.Count > 0 && 
+                !targetStyleNames.Any(targetStyle => string.Equals(styleName, targetStyle, StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.LogDebug($"Skipping multileader with style '{styleName}' (looking for '{targetStyleName}')");
+                var targetList = string.Join(", ", targetStyleNames);
+                _logger.LogDebug($"Skipping multileader with style '{styleName}' (looking for '{targetList}')");
                 return null;
             }
 

@@ -25,11 +25,8 @@
     "notesPattern": "{0}_NOTES"
   },
   "constructionNotes": {
-    "multileaderStyleNames": [
-      "ML-STYLE-01",
-      "ML-STYLE-02"
-    ],
-    "noteBlockPattern": "^NT\\d{2}$",
+    "multileaderStyleName": "ML-STYLE-01",
+    "noteBlockPattern": "{0}-NT{1:D2}",
     "maxNotesPerSheet": 24,
     "attributes": {
       "numberAttribute": "Number",

@@ -37,11 +37,25 @@ public class TableConfiguration
 
 public class ConstructionNotesConfiguration
 {
-    public string MultileaderStyleName { get; set; } = string.Empty;
-    public string NoteBlockPattern { get; set; } = "{0}-NT{1:D2}";
+    public List<string> MultileaderStyleNames { get; set; } = new() { "ML-STYLE-01" };
+    public string NoteBlockPattern { get; set; } = @"^NT\d{2}$";
     public int MaxNotesPerSheet { get; set; } = 24;
     public ConstructionNoteAttributes Attributes { get; set; } = new();
     public string VisibilityPropertyName { get; set; } = "Visibility";
+    
+    // Legacy property for backward compatibility
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string MultileaderStyleName 
+    { 
+        get => MultileaderStyleNames.FirstOrDefault() ?? string.Empty;
+        set 
+        { 
+            if (!string.IsNullOrEmpty(value))
+            {
+                MultileaderStyleNames = new List<string> { value };
+            }
+        }
+    }
 }
 
 public class ConstructionNoteAttributes

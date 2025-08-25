@@ -26,8 +26,7 @@
   },
   "constructionNotes": {
     "multileaderStyleNames": [
-      "ML-STYLE-01",
-      "ML-STYLE-02"
+      "ML-STYLE-01"
     ],
     "noteBlockPattern": "^NT\\d{2}$",
     "maxNotesPerSheet": 24,

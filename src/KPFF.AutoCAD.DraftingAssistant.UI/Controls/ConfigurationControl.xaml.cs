@@ -78,6 +78,9 @@ public partial class ConfigurationControl : BaseUserControl
                         
                         await LoadProjectDetails();
                         await LoadAndSelectAllSheetsAsync();
+                        
+                        // Enable Config Project button when default project is loaded
+                        ConfigProjectButton.IsEnabled = true;
                     }
                 }
             }
@@ -154,6 +157,9 @@ public partial class ConfigurationControl : BaseUserControl
                 ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
                 
                 await LoadProjectDetails();
+                
+                // Enable Config Project button when a project is loaded
+                ConfigProjectButton.IsEnabled = true;
             }
         }
         catch (Exception ex)
@@ -206,6 +212,75 @@ public partial class ConfigurationControl : BaseUserControl
         {
             ShowErrorNotification($"Error loading sheets: {ex.Message}");
         }
+    }
+
+    private async void ConfigProjectButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentProject == null)
+        {
+            ShowWarningNotification("Please select a project first.");
+            return;
+        }
+
+        try
+        {
+            // Get the path to the configuration file - we need to find where it was loaded from
+            // For now, assume it's the default location or we need to track this
+            var configPath = GetCurrentConfigFilePath();
+            
+            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
+            {
+                ShowErrorNotification("Cannot locate the project configuration file for editing.");
+                return;
+            }
+
+            var dialog = new ProjectConfigWindow(_currentProject, configPath)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dialog.ShowDialog() == true && dialog.ConfigurationSaved)
+            {
+                // Configuration was saved, reload the project details
+                _currentProject = dialog.UpdatedConfiguration;
+                if (_currentProject != null)
+                {
+                    ActiveProjectTextBlock.Text = _currentProject.ProjectName;
+                    await LoadProjectDetails();
+                    ShowInfoNotification("Project configuration updated successfully.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorNotification($"Error opening configuration editor: {ex.Message}");
+        }
+    }
+
+    private string? GetCurrentConfigFilePath()
+    {
+        // Try to determine the configuration file path
+        // Check if we loaded the default project
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var solutionRoot = FindSolutionRoot(currentDirectory);
+        if (solutionRoot != null)
+        {
+            var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "ProjectConfig.json");
+            if (File.Exists(defaultConfigPath))
+            {
+                return defaultConfigPath;
+            }
+        }
+        
+        // If no default found, we'll need to enhance the ProjectSelectionDialog
+        // to remember where configs were loaded from
+        return null;
+    }
+
+    private void ShowInfoNotification(string message)
+    {
+        Logger.LogInformation(message);
+        NotificationService.ShowInformation("Configuration", message);
     }
 
 
