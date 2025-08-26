@@ -19,11 +19,13 @@ public class AutoNotesService
 {
     private readonly ILogger _logger;
     private readonly MultileaderAnalyzer _multileaderAnalyzer;
+    private readonly BlockAnalyzer _blockAnalyzer;
 
     public AutoNotesService(ILogger logger)
     {
         _logger = logger;
         _multileaderAnalyzer = new MultileaderAnalyzer(logger);
+        _blockAnalyzer = new BlockAnalyzer(logger);
     }
 
     /// <summary>
@@ -69,18 +71,24 @@ public class AutoNotesService
                     var targetStyles = config.ConstructionNotes?.MultileaderStyleNames;
                     var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyles);
                     
-                    if (allMultileaders.Count == 0)
+                    // Get all configured blocks in model space
+                    var blockConfigurations = config.ConstructionNotes?.NoteBlocks;
+                    var allBlocks = _blockAnalyzer.FindBlocksInModelSpace(db, transaction, blockConfigurations);
+                    
+                    if (allMultileaders.Count == 0 && allBlocks.Count == 0)
                     {
                         var styleNames = targetStyles?.Count > 0 ? string.Join(", ", targetStyles) : "any";
-                        _logger.LogInformation($"No multileaders found in model space for styles '{styleNames}'");
+                        var blockNames = blockConfigurations?.Count > 0 ? 
+                            string.Join(", ", blockConfigurations.Select(bc => $"{bc.BlockName}→{bc.AttributeName}")) : "any";
+                        _logger.LogInformation($"No multileaders (styles: '{styleNames}') or blocks (configs: '{blockNames}') found in model space");
                         return new List<int>();
                     }
 
-                    // Analyze viewports in the layout
-                    var notesFromViewports = AnalyzeViewportsInLayout(layout, transaction, allMultileaders);
+                    // Analyze viewports in the layout for both multileaders and blocks
+                    var notesFromViewports = AnalyzeViewportsInLayout(layout, transaction, allMultileaders, allBlocks);
 
-                    // Consolidate and return unique note numbers
-                    var uniqueNotes = _multileaderAnalyzer.ConsolidateNoteNumbers(notesFromViewports);
+                    // Consolidate and return unique note numbers from both sources
+                    var uniqueNotes = notesFromViewports.Distinct().OrderBy(n => n).ToList();
                     
                     transaction.Commit();
                     
@@ -149,7 +157,22 @@ public class AutoNotesService
     /// <returns>List of multileaders found within viewport boundaries</returns>
     private List<MultileaderAnalyzer.MultileaderInfo> AnalyzeViewportsInLayout(Layout layout, Transaction transaction, List<MultileaderAnalyzer.MultileaderInfo> allMultileaders)
     {
-        var notesFromViewports = new List<MultileaderAnalyzer.MultileaderInfo>();
+        var noteNumbers = AnalyzeViewportsInLayout(layout, transaction, allMultileaders, new List<BlockAnalyzer.BlockInfo>());
+        // Convert note numbers back to MultileaderInfo objects for backward compatibility
+        return allMultileaders.Where(m => noteNumbers.Contains(m.NoteNumber)).ToList();
+    }
+    
+    /// <summary>
+    /// Analyzes all viewports in a layout to find both multileaders and blocks within their boundaries.
+    /// </summary>
+    /// <param name="layout">The layout to analyze</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <param name="allMultileaders">All multileaders found in model space</param>
+    /// <param name="allBlocks">All blocks found in model space</param>
+    /// <returns>Combined list of notes from both multileaders and blocks within viewport boundaries</returns>
+    private List<int> AnalyzeViewportsInLayout(Layout layout, Transaction transaction, List<MultileaderAnalyzer.MultileaderInfo> allMultileaders, List<BlockAnalyzer.BlockInfo> allBlocks)
+    {
+        var allNoteNumbers = new List<int>();
 
         try
         {
@@ -158,7 +181,7 @@ public class AutoNotesService
             if (layoutBlock == null)
             {
                 _logger.LogWarning($"Could not access block table record for layout '{layout.LayoutName}'");
-                return notesFromViewports;
+                return allNoteNumbers;
             }
 
             int viewportCount = 0;
@@ -185,12 +208,12 @@ public class AutoNotesService
                     
                     try
                     {
-                        var notesInViewport = AnalyzeSingleViewport(viewport, transaction, allMultileaders);
-                        notesFromViewports.AddRange(notesInViewport);
+                        var notesInViewport = AnalyzeSingleViewport(viewport, transaction, allMultileaders, allBlocks);
+                        allNoteNumbers.AddRange(notesInViewport);
                         processedViewports++;
                         
                         // Use viewportIndex instead of viewport.Number for logging (Number may be 0 for inactive layouts)
-                        _logger.LogDebug($"Viewport #{viewportIndex} (Number={viewport.Number}): found {notesInViewport.Count} multileaders");
+                        _logger.LogDebug($"Viewport #{viewportIndex} (Number={viewport.Number}): found {notesInViewport.Count} notes");
                     }
                     catch (Exception ex)
                     {
@@ -206,7 +229,7 @@ public class AutoNotesService
             _logger.LogError($"Error analyzing viewports in layout '{layout.LayoutName}': {ex.Message}", ex);
         }
 
-        return notesFromViewports;
+        return allNoteNumbers;
     }
 
     /// <summary>
@@ -249,6 +272,87 @@ public class AutoNotesService
             _logger.LogError($"Error analyzing viewport {viewport.Number}: {ex.Message}", ex);
             return new List<MultileaderAnalyzer.MultileaderInfo>();
         }
+    }
+
+    /// <summary>
+    /// Analyzes a single viewport to find both multileaders and blocks within its boundaries.
+    /// </summary>
+    /// <param name="viewport">The viewport to analyze</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <param name="allMultileaders">All multileaders found in model space</param>
+    /// <param name="allBlocks">All blocks found in model space</param>
+    /// <returns>List of note numbers found within this viewport's boundary</returns>
+    private List<int> AnalyzeSingleViewport(Viewport viewport, Transaction transaction, List<MultileaderAnalyzer.MultileaderInfo> allMultileaders, List<BlockAnalyzer.BlockInfo> allBlocks)
+    {
+        var noteNumbers = new List<int>();
+
+        try
+        {
+            // Get viewport boundary in model space coordinates
+            var viewportBoundary = ViewportBoundaryCalculator.GetViewportFootprint(viewport, transaction);
+            
+            if (viewportBoundary.Count == 0)
+            {
+                _logger.LogWarning($"Could not calculate boundary for viewport {viewport.Number}");
+                return noteNumbers;
+            }
+
+            _logger.LogDebug($"Viewport {viewport.Number} boundary: {viewportBoundary.Count} points");
+            
+            // Filter multileaders to those within this viewport
+            var multileadersInViewport = _multileaderAnalyzer.FilterMultileadersInViewport(allMultileaders, viewportBoundary);
+            var multileaderNotes = _multileaderAnalyzer.ConsolidateNoteNumbers(multileadersInViewport);
+            
+            // Filter blocks to those within this viewport  
+            var blocksInViewport = FilterBlocksInViewport(allBlocks, viewportBoundary);
+            var blockNotes = _blockAnalyzer.ConsolidateNoteNumbers(blocksInViewport);
+            
+            // Combine results
+            noteNumbers.AddRange(multileaderNotes);
+            noteNumbers.AddRange(blockNotes);
+            
+            _logger.LogDebug($"Viewport {viewport.Number}: found {multileadersInViewport.Count} multileaders and {blocksInViewport.Count} blocks, total {noteNumbers.Count} notes");
+            
+            return noteNumbers;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error analyzing viewport {viewport.Number}: {ex.Message}", ex);
+            return noteNumbers;
+        }
+    }
+
+    /// <summary>
+    /// Filters blocks to those within the specified viewport boundary using point-in-polygon testing.
+    /// </summary>
+    /// <param name="allBlocks">All blocks to filter</param>
+    /// <param name="viewportBoundary">The viewport boundary polygon</param>
+    /// <returns>List of blocks within the boundary</returns>
+    private List<BlockAnalyzer.BlockInfo> FilterBlocksInViewport(List<BlockAnalyzer.BlockInfo> allBlocks, Point3dCollection viewportBoundary)
+    {
+        var blocksInViewport = new List<BlockAnalyzer.BlockInfo>();
+
+        try
+        {
+            foreach (var block in allBlocks)
+            {
+                if (Utilities.PointInPolygonDetector.IsPointInPolygon(block.Location, viewportBoundary))
+                {
+                    blocksInViewport.Add(block);
+                    _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is inside viewport boundary");
+                }
+                else
+                {
+                    _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is outside viewport boundary");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error filtering blocks in viewport: {ex.Message}", ex);
+        }
+
+        return blocksInViewport;
     }
 
     /// <summary>
