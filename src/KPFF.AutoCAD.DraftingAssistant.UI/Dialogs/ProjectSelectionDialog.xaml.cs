@@ -11,10 +11,16 @@ public partial class ProjectSelectionDialog : Window
     private readonly IProjectConfigurationService _configService;
     private readonly IExcelReader _excelReader;
     private ProjectConfiguration? _loadedProject;
+    private string? _configurationFilePath;
 
     public ProjectConfiguration? SelectedProject => _loadedProject;
+    public string? SelectedProjectFilePath => _configurationFilePath;
 
-    public ProjectSelectionDialog()
+    public ProjectSelectionDialog() : this(null, null)
+    {
+    }
+
+    public ProjectSelectionDialog(ProjectConfiguration? currentProject, string? currentProjectFilePath)
     {
         InitializeComponent();
         
@@ -22,6 +28,32 @@ public partial class ProjectSelectionDialog : Window
         var logger = new DebugLogger();
         _configService = new ProjectConfigurationService(logger);
         _excelReader = new PlaceholderExcelReader(logger);
+        
+        // Pre-populate with current project if provided
+        if (currentProject != null && !string.IsNullOrEmpty(currentProjectFilePath))
+        {
+            _loadedProject = currentProject;
+            _configurationFilePath = currentProjectFilePath;
+            ConfigFilePathTextBox.Text = currentProjectFilePath;
+            LoadProjectButton.IsEnabled = true;
+            
+            // Auto-load the project details and enable configure button
+            _ = AutoLoadCurrentProjectAsync();
+        }
+    }
+
+    private async Task AutoLoadCurrentProjectAsync()
+    {
+        try
+        {
+            await DisplayProjectDetails();
+            ConfigureProjectButton.IsEnabled = true;
+            OkButton.IsEnabled = true;
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Error loading current project: {ex.Message}");
+        }
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -36,6 +68,7 @@ public partial class ProjectSelectionDialog : Window
         if (dialog.ShowDialog() == true)
         {
             ConfigFilePathTextBox.Text = dialog.FileName;
+            _configurationFilePath = dialog.FileName;
             LoadProjectButton.IsEnabled = true;
         }
     }
@@ -70,11 +103,36 @@ public partial class ProjectSelectionDialog : Window
         }
     }
 
-    private void ConfigureProjectButton_Click(object sender, RoutedEventArgs e)
+    private async void ConfigureProjectButton_Click(object sender, RoutedEventArgs e)
     {
-        // TODO: Show project configuration editing dialog
-        MessageBox.Show("Project configuration dialog coming soon!", "Not Implemented", 
-            MessageBoxButton.OK, MessageBoxImage.Information);
+        if (_loadedProject == null || string.IsNullOrEmpty(_configurationFilePath))
+        {
+            ShowError("Please load a project first.");
+            return;
+        }
+
+        try
+        {
+            var dialog = new ProjectConfigWindow(_loadedProject, _configurationFilePath)
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true && dialog.ConfigurationSaved)
+            {
+                // Configuration was saved, reload the project details
+                _loadedProject = dialog.UpdatedConfiguration;
+                if (_loadedProject != null)
+                {
+                    await DisplayProjectDetails();
+                    ProjectDetailsTextBlock.Text += "\n\n✓ Project configuration updated successfully.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Error opening configuration editor: {ex.Message}");
+        }
     }
 
     private async Task DisplayProjectDetails()

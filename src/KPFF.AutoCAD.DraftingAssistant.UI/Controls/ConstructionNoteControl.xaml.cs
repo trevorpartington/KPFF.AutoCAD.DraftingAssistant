@@ -154,8 +154,9 @@ public partial class ConstructionNoteControl : BaseUserControl
                     {
                         // Use ExternalDrawingManager for closed drawings
                         autocadLogger.LogDebug($"Using external drawing analysis for closed sheet {sheet.SheetName}");
-                        var styleName = config.ConstructionNotes?.MultileaderStyleName ?? "ML-STYLE-01";
-                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleName);
+                        var styleNames = config.ConstructionNotes?.MultileaderStyleNames ?? new List<string> { "ML-STYLE-01" };
+                        var blockConfigs = config.ConstructionNotes?.NoteBlocks ?? new List<NoteBlockConfiguration>();
+                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleNames, blockConfigs);
                     }
                     else
                     {
@@ -265,10 +266,14 @@ public partial class ConstructionNoteControl : BaseUserControl
                 try
                 {
                     var noteNumbers = await constructionNotesService.GetExcelNotesForSheetAsync(sheet.SheetName, config);
+                    sheetToNotes[sheet.SheetName] = noteNumbers;
                     if (noteNumbers.Count > 0)
                     {
-                        sheetToNotes[sheet.SheetName] = noteNumbers;
                         autocadLogger.LogDebug($"Excel Notes for {sheet.SheetName}: [{string.Join(", ", noteNumbers)}]");
+                    }
+                    else
+                    {
+                        autocadLogger.LogDebug($"No Excel Notes for {sheet.SheetName}, will clear construction note blocks");
                     }
                 }
                 catch (Exception ex)
@@ -277,13 +282,9 @@ public partial class ConstructionNoteControl : BaseUserControl
                 }
             }
 
-            if (sheetToNotes.Count == 0)
-            {
-                UpdateStatus("No Excel Notes found for any selected sheets. Check that sheets have notes configured in the Excel EXCEL_NOTES table.");
-                return;
-            }
-
-            UpdateStatus($"Found Excel Notes on {sheetToNotes.Count} sheets. Processing batch update...\n");
+            var sheetsWithNotes = sheetToNotes.Values.Count(notes => notes.Count > 0);
+            UpdateStatus($"Processing {sheetToNotes.Count} sheets in Excel Notes mode. " +
+                        $"{sheetsWithNotes} sheets have notes, {sheetToNotes.Count - sheetsWithNotes} will be cleared...\n");
 
             // Use the multi-drawing service for batch processing
             var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);

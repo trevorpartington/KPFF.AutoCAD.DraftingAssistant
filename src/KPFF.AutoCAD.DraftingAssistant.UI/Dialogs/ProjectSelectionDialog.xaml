@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Select Project Configuration"
+        Title="Project Settings"
         Height="600"
         Width="500"
         WindowStartupLocation="CenterOwner"
@@ -76,7 +76,7 @@
                     Click="LoadProjectButton_Click"
                     Margin="0,0,10,0"/>
             <Button Name="ConfigureProjectButton" 
-                    Content="Configure Project" 
+                    Content="Project Settings" 
                     Width="120" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"

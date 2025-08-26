@@ -716,9 +716,22 @@ public class ExternalDrawingManager
     /// </summary>
     /// <param name="dwgFilePath">Path to the drawing file</param>
     /// <param name="sheetName">Name of the sheet/layout to analyze</param>
-    /// <param name="multileaderStyleName">Multileader style to filter by</param>
+    /// <param name="multileaderStyleNames">List of multileader styles to filter by</param>
     /// <returns>List of note numbers found in the sheet's viewports</returns>
-    public List<int> GetAutoNotesForClosedDrawing(string dwgFilePath, string sheetName, string multileaderStyleName)
+    public List<int> GetAutoNotesForClosedDrawing(string dwgFilePath, string sheetName, List<string> multileaderStyleNames)
+    {
+        return GetAutoNotesForClosedDrawing(dwgFilePath, sheetName, multileaderStyleNames, new List<NoteBlockConfiguration>());
+    }
+
+    /// <summary>
+    /// Gets Auto Notes for a specific sheet in a closed drawing by analyzing viewports, multileaders, and blocks
+    /// </summary>
+    /// <param name="dwgFilePath">Path to the drawing file</param>
+    /// <param name="sheetName">Name of the sheet/layout to analyze</param>
+    /// <param name="multileaderStyleNames">List of multileader styles to filter by</param>
+    /// <param name="blockConfigurations">List of block configurations to detect</param>
+    /// <returns>List of note numbers found in the sheet's viewports</returns>
+    public List<int> GetAutoNotesForClosedDrawing(string dwgFilePath, string sheetName, List<string> multileaderStyleNames, List<NoteBlockConfiguration> blockConfigurations)
     {
         var noteNumbers = new List<int>();
 
@@ -727,7 +740,8 @@ public class ExternalDrawingManager
             _logger.LogInformation($"=== Getting Auto Notes for closed drawing ===");
             _logger.LogInformation($"DWG Path: {dwgFilePath}");
             _logger.LogInformation($"Sheet: {sheetName}");
-            _logger.LogInformation($"Style: {multileaderStyleName}");
+            _logger.LogInformation($"Styles: {string.Join(", ", multileaderStyleNames ?? new List<string>())}");
+            _logger.LogInformation($"Block Configs: {string.Join(", ", blockConfigurations?.Select(bc => $"{bc.BlockName}→{bc.AttributeName}") ?? new List<string>())}");
 
             _logger.LogDebug("Creating external database...");
             using (var db = new Database(false, true))
@@ -756,9 +770,25 @@ public class ExternalDrawingManager
 
                     _logger.LogDebug($"Found layout '{sheetName}'");
 
-                    // Get viewports in the layout
-                    var viewports = layout.GetViewports();
-                    if (viewports == null || viewports.Count == 0)
+                    // Get viewports using BlockTableRecord iteration (works for all layouts regardless of activation)
+                    var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                    if (layoutBtr == null)
+                    {
+                        _logger.LogWarning($"Could not access BlockTableRecord for layout '{sheetName}'");
+                        return noteNumbers;
+                    }
+
+                    var viewports = new List<ObjectId>();
+                    foreach (ObjectId entityId in layoutBtr)
+                    {
+                        var entity = tr.GetObject(entityId, OpenMode.ForRead);
+                        if (entity is Viewport)
+                        {
+                            viewports.Add(entityId);
+                        }
+                    }
+
+                    if (viewports.Count == 0)
                     {
                         _logger.LogDebug($"No viewports found in layout '{sheetName}'");
                         return noteNumbers;
@@ -787,17 +817,24 @@ public class ExternalDrawingManager
 
                     // Get all multileaders in model space using MultileaderAnalyzer
                     var multileaderAnalyzer = new MultileaderAnalyzer(_logger);
-                    var allMultileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, tr, multileaderStyleName);
+                    var allMultileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, tr, multileaderStyleNames);
+                    _logger.LogDebug($"Found {allMultileaders.Count} multileaders in model space");
                     
-                    if (allMultileaders.Count == 0)
+                    // Get all configured blocks in model space using BlockAnalyzer
+                    var blockAnalyzer = new BlockAnalyzer(_logger);
+                    var allBlocks = blockAnalyzer.FindBlocksInModelSpace(db, tr, blockConfigurations);
+                    _logger.LogDebug($"Found {allBlocks.Count} blocks in model space");
+                    
+                    if (allMultileaders.Count == 0 && allBlocks.Count == 0)
                     {
-                        _logger.LogDebug("No multileaders found in model space");
+                        var styleNames = multileaderStyleNames?.Count > 0 ? string.Join(", ", multileaderStyleNames) : "none";
+                        var blockNames = blockConfigurations?.Count > 0 ? 
+                            string.Join(", ", blockConfigurations.Select(bc => $"{bc.BlockName}→{bc.AttributeName}")) : "none";
+                        _logger.LogDebug($"No multileaders (styles: {styleNames}) or blocks (configs: {blockNames}) found in model space");
                         return noteNumbers;
                     }
 
-                    _logger.LogDebug($"Found {allMultileaders.Count} multileaders in model space");
-
-                    // For each viewport, find multileaders within its bounds
+                    // For each viewport, find multileaders and blocks within its bounds
                     int viewportIndex = 0;
                     foreach (ObjectId vpId in viewports)
                     {
@@ -829,10 +866,14 @@ public class ExternalDrawingManager
                             _logger.LogDebug($"Viewport bounds: {bounds.Value.MinPoint} to {bounds.Value.MaxPoint}");
                             
                             // Log multileader positions for comparison
-                            _logger.LogDebug($"Checking {allMultileaders.Count} multileaders against viewport bounds:");
+                            _logger.LogDebug($"Checking {allMultileaders.Count} multileaders and {allBlocks.Count} blocks against viewport bounds:");
                             foreach (var ml in allMultileaders)
                             {
                                 _logger.LogDebug($"  Multileader {ml.NoteNumber} at: {ml.Location}");
+                            }
+                            foreach (var bl in allBlocks)
+                            {
+                                _logger.LogDebug($"  Block {bl.NoteNumber} ({bl.BlockName}) at: {bl.Location}");
                             }
 
                             // Find multileaders within this viewport's bounds
@@ -842,7 +883,18 @@ public class ExternalDrawingManager
                                 if (IsPointWithinBounds(mleader.Location, bounds.Value))
                                 {
                                     noteNumbers.Add(mleader.NoteNumber);
-                                    _logger.LogDebug($"Found note {mleader.NoteNumber} within viewport bounds");
+                                    _logger.LogDebug($"Found multileader note {mleader.NoteNumber} within viewport bounds");
+                                }
+                            }
+
+                            // Find blocks within this viewport's bounds
+                            foreach (var block in allBlocks)
+                            {
+                                // Check if block location is within viewport bounds
+                                if (IsPointWithinBounds(block.Location, bounds.Value))
+                                {
+                                    noteNumbers.Add(block.NoteNumber);
+                                    _logger.LogDebug($"Found block note {block.NoteNumber} (block: {block.BlockName}) within viewport bounds");
                                 }
                             }
                         }

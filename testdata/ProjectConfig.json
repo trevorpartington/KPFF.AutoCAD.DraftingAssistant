@@ -29,6 +29,12 @@
       "ML-STYLE-01",
       "ML-STYLE-02"
     ],
+    "noteBlocks": [
+      {
+        "blockName": "_TagCircle",
+        "attributeName": "TAGNUMBER"
+      }
+    ],
     "noteBlockPattern": "^NT\\d{2}$",
     "maxNotesPerSheet": 24,
     "attributes": {
