@@ -716,9 +716,9 @@ public class ExternalDrawingManager
     /// </summary>
     /// <param name="dwgFilePath">Path to the drawing file</param>
     /// <param name="sheetName">Name of the sheet/layout to analyze</param>
-    /// <param name="multileaderStyleName">Multileader style to filter by</param>
+    /// <param name="multileaderStyleNames">List of multileader styles to filter by</param>
     /// <returns>List of note numbers found in the sheet's viewports</returns>
-    public List<int> GetAutoNotesForClosedDrawing(string dwgFilePath, string sheetName, string multileaderStyleName)
+    public List<int> GetAutoNotesForClosedDrawing(string dwgFilePath, string sheetName, List<string> multileaderStyleNames)
     {
         var noteNumbers = new List<int>();
 
@@ -727,7 +727,7 @@ public class ExternalDrawingManager
             _logger.LogInformation($"=== Getting Auto Notes for closed drawing ===");
             _logger.LogInformation($"DWG Path: {dwgFilePath}");
             _logger.LogInformation($"Sheet: {sheetName}");
-            _logger.LogInformation($"Style: {multileaderStyleName}");
+            _logger.LogInformation($"Styles: {string.Join(", ", multileaderStyleNames ?? new List<string>())}");
 
             _logger.LogDebug("Creating external database...");
             using (var db = new Database(false, true))
@@ -803,7 +803,7 @@ public class ExternalDrawingManager
 
                     // Get all multileaders in model space using MultileaderAnalyzer
                     var multileaderAnalyzer = new MultileaderAnalyzer(_logger);
-                    var allMultileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, tr, multileaderStyleName);
+                    var allMultileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, tr, multileaderStyleNames);
                     
                     if (allMultileaders.Count == 0)
                     {
