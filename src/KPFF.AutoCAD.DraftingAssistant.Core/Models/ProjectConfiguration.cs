@@ -38,6 +38,7 @@ public class TableConfiguration
 public class ConstructionNotesConfiguration
 {
     public List<string> MultileaderStyleNames { get; set; } = new() { "ML-STYLE-01" };
+    public List<NoteBlockConfiguration> NoteBlocks { get; set; } = new() { new NoteBlockConfiguration() };
     public string NoteBlockPattern { get; set; } = @"^NT\d{2}$";
     public int MaxNotesPerSheet { get; set; } = 24;
     public ConstructionNoteAttributes Attributes { get; set; } = new();
@@ -62,5 +63,11 @@ public class ConstructionNoteAttributes
 {
     public string NumberAttribute { get; set; } = "Number";
     public string NoteAttribute { get; set; } = "Note";
+}
+
+public class NoteBlockConfiguration
+{
+    public string BlockName { get; set; } = "_TagCircle";
+    public string AttributeName { get; set; } = "TAGNUMBER";
 }
 

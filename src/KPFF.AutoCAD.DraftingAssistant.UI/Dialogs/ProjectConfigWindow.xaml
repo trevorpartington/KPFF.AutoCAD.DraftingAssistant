@@ -161,6 +161,29 @@
                             </StackPanel>
                         </GroupBox>
                         
+                        <GroupBox Header="Targeted Construction Note Blocks" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                
+                                <TextBlock Text="Block references that will be processed for construction notes:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,10"/>
+                                
+                                <!-- Configured Blocks List -->
+                                <Border BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="3" Background="{StaticResource DarkSurfaceBrush}">
+                                    <StackPanel Margin="10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Configured Blocks:" Style="{StaticResource DarkTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Name="EditBlocksButton" Content="Edit Blocks..." Width="100" Height="25" Style="{StaticResource DarkButtonStyle}" Click="EditBlocksButton_Click"/>
+                                        </Grid>
+                                        <TextBlock Name="BlocksDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" MinHeight="80" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                            </StackPanel>
+                        </GroupBox>
+                        
                         <GroupBox Header="Construction Note Blocks" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
                             <StackPanel Margin="10">
                                 <TextBlock Text="Configuration and naming conventions for construction note blocks:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,15"/>

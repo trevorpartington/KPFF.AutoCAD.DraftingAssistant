@@ -12,6 +12,7 @@ public partial class ProjectConfigWindow : Window
     private ProjectConfiguration _config;
     private readonly string _configFilePath;
     private List<string> _multileaderStyles;
+    private List<NoteBlockConfiguration> _noteBlocks;
 
     public ProjectConfiguration? UpdatedConfiguration { get; private set; }
     public bool ConfigurationSaved { get; private set; }
@@ -23,6 +24,7 @@ public partial class ProjectConfigWindow : Window
         _configFilePath = configFilePath ?? throw new ArgumentNullException(nameof(configFilePath));
         
         _multileaderStyles = new List<string>();
+        _noteBlocks = new List<NoteBlockConfiguration>();
         
         LoadConfigurationIntoUI();
     }
@@ -43,6 +45,10 @@ public partial class ProjectConfigWindow : Window
         // Construction notes tab - Multileader styles
         _multileaderStyles = _config.ConstructionNotes.MultileaderStyleNames.ToList();
         UpdateStylesDisplay();
+        
+        // Construction notes tab - Note blocks
+        _noteBlocks = _config.ConstructionNotes.NoteBlocks.ToList();
+        UpdateBlocksDisplay();
 
         // Construction notes tab - Block information (informational display)
         MaxNotesDisplayTextBlock.Text = _config.ConstructionNotes.MaxNotesPerSheet.ToString();
@@ -63,6 +69,18 @@ public partial class ProjectConfigWindow : Window
         }
     }
 
+    private void UpdateBlocksDisplay()
+    {
+        if (_noteBlocks.Count == 0)
+        {
+            BlocksDisplayTextBlock.Text = "No blocks configured";
+        }
+        else
+        {
+            BlocksDisplayTextBlock.Text = string.Join("\n", _noteBlocks.Select(nb => $"• {nb.BlockName} → {nb.AttributeName}"));
+        }
+    }
+
     private void SaveConfigurationFromUI()
     {
         // General tab - Project Information
@@ -73,6 +91,9 @@ public partial class ProjectConfigWindow : Window
 
         // Construction notes tab - Multileader styles
         _config.ConstructionNotes.MultileaderStyleNames = _multileaderStyles;
+        
+        // Construction notes tab - Note blocks
+        _config.ConstructionNotes.NoteBlocks = _noteBlocks;
         
         // The block attributes and other settings remain as configured (non-editable in UI)
     }
@@ -122,6 +143,20 @@ public partial class ProjectConfigWindow : Window
         {
             _multileaderStyles = dialog.MultileaderStyles;
             UpdateStylesDisplay();
+        }
+    }
+
+    private void EditBlocksButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new NoteBlocksDialog(_noteBlocks.ToList())
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            _noteBlocks = dialog.NoteBlocks;
+            UpdateBlocksDisplay();
         }
     }
 

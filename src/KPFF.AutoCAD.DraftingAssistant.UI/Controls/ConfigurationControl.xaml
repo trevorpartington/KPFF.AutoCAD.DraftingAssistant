@@ -83,7 +83,7 @@
 
 Select a project configuration file to get started:
 • Click 'Select Project' to browse for a ProjectConfig.json file
-• Use 'Configure Project' to modify project settings
+• Use 'Project Settings' to modify project settings
 • Choose 'Select Sheets' to pick which layouts to process
 
 Once configured, project details and sheet information will appear here."
