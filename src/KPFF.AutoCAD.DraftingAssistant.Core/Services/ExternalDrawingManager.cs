@@ -756,9 +756,25 @@ public class ExternalDrawingManager
 
                     _logger.LogDebug($"Found layout '{sheetName}'");
 
-                    // Get viewports in the layout
-                    var viewports = layout.GetViewports();
-                    if (viewports == null || viewports.Count == 0)
+                    // Get viewports using BlockTableRecord iteration (works for all layouts regardless of activation)
+                    var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                    if (layoutBtr == null)
+                    {
+                        _logger.LogWarning($"Could not access BlockTableRecord for layout '{sheetName}'");
+                        return noteNumbers;
+                    }
+
+                    var viewports = new List<ObjectId>();
+                    foreach (ObjectId entityId in layoutBtr)
+                    {
+                        var entity = tr.GetObject(entityId, OpenMode.ForRead);
+                        if (entity is Viewport)
+                        {
+                            viewports.Add(entityId);
+                        }
+                    }
+
+                    if (viewports.Count == 0)
                     {
                         _logger.LogDebug($"No viewports found in layout '{sheetName}'");
                         return noteNumbers;
