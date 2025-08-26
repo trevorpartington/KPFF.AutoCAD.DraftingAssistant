@@ -155,7 +155,8 @@ public partial class ConstructionNoteControl : BaseUserControl
                         // Use ExternalDrawingManager for closed drawings
                         autocadLogger.LogDebug($"Using external drawing analysis for closed sheet {sheet.SheetName}");
                         var styleNames = config.ConstructionNotes?.MultileaderStyleNames ?? new List<string> { "ML-STYLE-01" };
-                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleNames);
+                        var blockConfigs = config.ConstructionNotes?.NoteBlocks ?? new List<NoteBlockConfiguration>();
+                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleNames, blockConfigs);
                     }
                     else
                     {
