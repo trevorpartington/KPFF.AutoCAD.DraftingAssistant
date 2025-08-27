@@ -986,13 +986,33 @@ public class ExternalDrawingManager
                             string currentValue = attRef.TextString ?? "";
                             if (currentValue != attrData.AttributeValue)
                             {
+                                // Store original position and justification to preserve placement
+                                var originalJustify = attRef.Justify;
+                                var originalPosition = attRef.Position;
+                                var originalAlignmentPoint = attRef.AlignmentPoint;
+                                
+                                // Update the text
                                 attRef.TextString = attrData.AttributeValue;
                                 
-                                // Apply proper attribute alignment
+                                // Restore position based on justification type
+                                if (originalJustify == AttachmentPoint.BaseLeft || 
+                                    originalJustify == AttachmentPoint.BaseAlign || 
+                                    originalJustify == AttachmentPoint.BaseFit)
+                                {
+                                    // Left-justified attributes use Position
+                                    attRef.Position = originalPosition;
+                                }
+                                else
+                                {
+                                    // All other justifications use AlignmentPoint
+                                    attRef.AlignmentPoint = originalAlignmentPoint;
+                                }
+                                
+                                // Apply proper attribute alignment with database context
                                 var originalWdb = HostApplicationServices.WorkingDatabase;
                                 try
                                 {
-                                    _logger.LogDebug($"Switching WorkingDatabase for {attrData.AttributeName} attribute alignment");
+                                    _logger.LogDebug($"Switching WorkingDatabase for {attrData.AttributeName} attribute alignment (justify: {originalJustify})");
                                     HostApplicationServices.WorkingDatabase = db;
                                     attRef.AdjustAlignment(db);
                                 }
