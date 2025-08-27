@@ -1022,8 +1022,11 @@ public class ExternalDrawingManager
                 }
             }
 
+            // Record graphics modification after attribute updates
             if (wasModified)
             {
+                blockRef.RecordGraphicsModified(true);
+                _logger.LogDebug("Applied RecordGraphicsModified to title block reference");
                 _logger.LogInformation($"Title block attributes updated successfully");
             }
             else
