@@ -53,3 +53,21 @@ public class TitleBlockMapping
         AttributeValues = attributeValues ?? new();
     }
 }
+
+/// <summary>
+/// Represents title block attribute data for external drawing updates
+/// Similar to ConstructionNoteData but for title block attributes
+/// </summary>
+public class TitleBlockAttributeData
+{
+    public string AttributeName { get; set; } = string.Empty;
+    public string AttributeValue { get; set; } = string.Empty;
+
+    public TitleBlockAttributeData() { }
+
+    public TitleBlockAttributeData(string attributeName, string attributeValue)
+    {
+        AttributeName = attributeName;
+        AttributeValue = attributeValue;
+    }
+}

@@ -176,7 +176,6 @@ public class MultiDrawingTitleBlockService
         
         try
         {
-            
             if (!File.Exists(fullDwgPath))
             {
                 var errorMsg = $"Drawing file not found: {fullDwgPath}";
@@ -185,10 +184,36 @@ public class MultiDrawingTitleBlockService
                 return;
             }
 
-            // For now, let's log that this functionality needs to be implemented
-            // TODO: Need to extend ExternalDrawingManager to support title block updates
-            _logger.LogWarning($"Title block updates for closed drawings not yet implemented for sheet {sheetName}");
-            result.Failures.Add(new DrawingUpdateFailure(sheetName, fullDwgPath, "Title block updates for closed drawings not yet implemented"));
+            // Convert title block mapping to attribute data for external drawing manager
+            var attributeData = new List<TitleBlockAttributeData>();
+            foreach (var kvp in mapping.AttributeValues)
+            {
+                attributeData.Add(new TitleBlockAttributeData(kvp.Key, kvp.Value));
+            }
+
+            _logger.LogDebug($"Updating closed drawing with {attributeData.Count} title block attributes");
+
+            // Set the title block pattern on the external drawing manager
+            _externalDrawingManager.SetTitleBlockPattern(config.TitleBlocks.TitleBlockPattern);
+
+            // Use external drawing manager for closed drawings with project path for cleanup
+            bool success = _externalDrawingManager.UpdateTitleBlocksInClosedDrawing(
+                fullDwgPath, 
+                sheetName, 
+                attributeData, 
+                config.ProjectDWGFilePath);
+
+            if (success)
+            {
+                result.Successes.Add(new DrawingUpdateSuccess(sheetName, fullDwgPath, DrawingState.Closed, mapping.AttributeValues.Count));
+                _logger.LogDebug($"Successfully updated title blocks for closed sheet {sheetName}");
+            }
+            else
+            {
+                var errorMsg = "External drawing manager failed to update title blocks";
+                _logger.LogError(errorMsg);
+                result.Failures.Add(new DrawingUpdateFailure(sheetName, fullDwgPath, errorMsg));
+            }
 
             await Task.CompletedTask; // Remove async warning
         }
