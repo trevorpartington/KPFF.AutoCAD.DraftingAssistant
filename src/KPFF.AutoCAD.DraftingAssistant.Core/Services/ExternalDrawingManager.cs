@@ -994,6 +994,9 @@ public class ExternalDrawingManager
                                 // Update the text
                                 attRef.TextString = attrData.AttributeValue;
                                 
+                                // CRITICAL: Restore the justify property BEFORE adjusting alignment
+                                attRef.Justify = originalJustify;
+                                
                                 // Restore position based on justification type
                                 if (originalJustify == AttachmentPoint.BaseLeft || 
                                     originalJustify == AttachmentPoint.BaseAlign || 
