@@ -19,6 +19,7 @@ public class ExternalDrawingManager
     private readonly ILogger _logger;
     private readonly BackupCleanupService _backupCleanupService;
     private Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+    private Regex _titleBlockPattern = new Regex(@"^TB_ATT$", RegexOptions.Compiled);
 
     public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService, string? noteBlockPattern = null)
     {
@@ -44,6 +45,23 @@ public class ExternalDrawingManager
         {
             _logger.LogWarning($"Invalid note block pattern '{pattern}': {ex.Message}. Using default pattern.");
             _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
+        }
+    }
+
+    /// <summary>
+    /// Sets the title block pattern for identifying title blocks
+    /// </summary>
+    public void SetTitleBlockPattern(string pattern)
+    {
+        try
+        {
+            _titleBlockPattern = new Regex(pattern, RegexOptions.Compiled);
+            _logger.LogDebug($"Title block pattern updated to: {pattern}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning($"Invalid title block pattern '{pattern}': {ex.Message}. Using default pattern.");
+            _titleBlockPattern = new Regex(@"^TB_ATT$", RegexOptions.Compiled);
         }
     }
 
@@ -159,6 +177,118 @@ public class ExternalDrawingManager
         catch (Exception ex)
         {
             _logger.LogError($"Failed to update closed drawing: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates title blocks in a closed drawing
+    /// Similar to UpdateClosedDrawing but for title block attributes
+    /// </summary>
+    public bool UpdateTitleBlocksInClosedDrawing(string dwgPath, string layoutName, List<TitleBlockAttributeData> attributeData, string? projectDWGFilePath = null)
+    {
+        _logger.LogInformation($"=== ExternalDrawingManager.UpdateTitleBlocksInClosedDrawing ===");
+        _logger.LogInformation($"DWG Path: {dwgPath}");
+        _logger.LogInformation($"Layout: {layoutName}");
+        _logger.LogInformation($"Attribute Count: {attributeData.Count}");
+
+        // Validate inputs
+        if (string.IsNullOrEmpty(dwgPath) || !File.Exists(dwgPath))
+        {
+            _logger.LogError($"Drawing file not found: {dwgPath}");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(layoutName))
+        {
+            _logger.LogError("Layout name cannot be empty");
+            return false;
+        }
+
+        if (attributeData == null)
+        {
+            attributeData = new List<TitleBlockAttributeData>();
+        }
+
+        try
+        {
+            // Create external database and load the drawing
+            _logger.LogDebug("Creating external database...");
+            using (var db = new Database(false, true)) // buildDefaultDrawing=false, noDocument=true
+            {
+                _logger.LogDebug($"Reading DWG file: {Path.GetFileName(dwgPath)}");
+                db.ReadDwgFile(dwgPath, FileOpenMode.OpenForReadAndAllShare, true, null);
+                _logger.LogDebug("DWG file loaded successfully");
+
+                // Start transaction for all operations
+                using (var tr = db.TransactionManager.StartTransaction())
+                {
+                    try
+                    {
+                        // Update title blocks in the external database
+                        bool updateSuccess = UpdateTitleBlocksInExternalDatabase(db, tr, layoutName, attributeData);
+                        
+                        if (updateSuccess)
+                        {
+                            // Commit transaction
+                            tr.Commit();
+                            _logger.LogDebug("Transaction committed successfully");
+                        }
+                        else
+                        {
+                            _logger.LogError("Title block update failed, rolling back transaction");
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error during title block updates: {ex.Message}", ex);
+                        return false;
+                    }
+                }
+
+                // Save to temporary file first to prevent corruption
+                string tempPath = dwgPath + ".tmp";
+                _logger.LogDebug($"Saving to temporary file: {Path.GetFileName(tempPath)}");
+                db.SaveAs(tempPath, DwgVersion.Current);
+                _logger.LogDebug("Successfully saved to temporary file");
+                
+                // Replace original file with updated version
+                if (File.Exists(dwgPath))
+                {
+                    string backupPath = dwgPath + ".bak.beforeupdate";
+                    _logger.LogDebug($"Creating backup: {Path.GetFileName(backupPath)}");
+                    File.Copy(dwgPath, backupPath, true); // Create backup
+                    File.Delete(dwgPath); // Delete original
+                }
+                
+                File.Move(tempPath, dwgPath); // Move temp to original location
+                _logger.LogInformation($"Successfully updated title blocks in closed drawing: {Path.GetFileName(dwgPath)}");
+
+                // Always perform backup cleanup after successful update
+                if (!string.IsNullOrEmpty(projectDWGFilePath))
+                {
+                    try
+                    {
+                        int cleanedCount = _backupCleanupService.CleanupAllBackupFiles(projectDWGFilePath);
+                        if (cleanedCount > 0)
+                        {
+                            _logger.LogInformation($"Auto-cleaned up {cleanedCount} backup files from project directory");
+                        }
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        _logger.LogWarning($"Failed to cleanup backup files: {cleanupEx.Message}");
+                        // Don't fail the entire operation if cleanup fails
+                    }
+                }
+                
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update title blocks in closed drawing: {ex.Message}", ex);
             return false;
         }
     }
@@ -677,7 +807,310 @@ public class ExternalDrawingManager
         }
     }
 
+    /// <summary>
+    /// Updates title blocks within an external database using precise targeting
+    /// </summary>
+    private bool UpdateTitleBlocksInExternalDatabase(Database db, Transaction tr, string layoutName, List<TitleBlockAttributeData> attributeData)
+    {
+        try
+        {
+            _logger.LogDebug($"Updating title blocks in layout: {layoutName}");
+            
+            // Get layout dictionary
+            var layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+            if (!layoutDict.Contains(layoutName))
+            {
+                _logger.LogError($"Layout '{layoutName}' not found in drawing");
+                LogAvailableLayouts(layoutDict, tr);
+                return false;
+            }
 
+            // Get layout and block table record
+            var layoutId = layoutDict.GetAt(layoutName);
+            var layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+            var layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+            _logger.LogDebug($"Found layout '{layoutName}' (BTR: {layoutBtr.Name})");
+
+            // Get all viewport ObjectIds to explicitly exclude them
+            var viewportIds = new HashSet<ObjectId>();
+            var viewports = layout.GetViewports();
+            if (viewports != null)
+            {
+                foreach (ObjectId vpId in viewports)
+                {
+                    viewportIds.Add(vpId);
+                }
+                _logger.LogDebug($"Protected {viewportIds.Count} viewports from modification");
+            }
+
+            // Find title block blocks
+            ObjectId? titleBlockId = null;
+            string foundBlockName = "";
+            
+            foreach (ObjectId objId in layoutBtr)
+            {
+                var entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                
+                // Skip viewports using explicit ObjectId check
+                if (viewportIds.Contains(objId))
+                {
+                    continue;
+                }
+                
+                // Additional entity type check for viewports (double protection)
+                if (entity is Viewport)
+                {
+                    continue;
+                }
+                
+                if (entity is BlockReference blockRef)
+                {
+                    string blockName = GetEffectiveTitleBlockName(blockRef, tr);
+                    
+                    // Check if this is a title block
+                    if (!string.IsNullOrEmpty(blockName) && _titleBlockPattern.IsMatch(blockName))
+                    {
+                        titleBlockId = objId;
+                        foundBlockName = blockName;
+                        _logger.LogInformation($"Found title block: {blockName} (ObjectId: {objId})");
+                        break; // Assume only one title block per layout
+                    }
+                }
+            }
+
+            if (!titleBlockId.HasValue)
+            {
+                _logger.LogError($"No title blocks matching pattern '{_titleBlockPattern}' found in layout {layoutName}");
+                return false;
+            }
+
+            // Update the title block attributes
+            var titleBlockRef = tr.GetObject(titleBlockId.Value, OpenMode.ForWrite) as BlockReference;
+            bool success = UpdateTitleBlockAttributes(titleBlockRef, tr, db, attributeData);
+            
+            if (success)
+            {
+                _logger.LogInformation($"Successfully updated title block {foundBlockName} with {attributeData.Count} attributes");
+            }
+
+            return success;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error updating title blocks in external database: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the effective name of a title block, handling dynamic blocks
+    /// Similar to GetEffectiveBlockName but for title blocks
+    /// </summary>
+    private string GetEffectiveTitleBlockName(BlockReference blockRef, Transaction tr)
+    {
+        try
+        {
+            // Get the base block name first
+            BlockTableRecord btr;
+            if (blockRef.IsDynamicBlock)
+            {
+                btr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+            }
+            else
+            {
+                btr = tr.GetObject(blockRef.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+            }
+            
+            // Skip anonymous/system blocks unless they're title blocks
+            if (btr.Name.StartsWith("*"))
+            {
+                // For dynamic blocks with anonymous definitions, check if parent is title block
+                if (blockRef.IsDynamicBlock)
+                {
+                    var parentBtr = tr.GetObject(blockRef.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                    if (!_titleBlockPattern.IsMatch(parentBtr.Name))
+                    {
+                        _logger.LogDebug($"Skipping anonymous block not tied to title block: {btr.Name} (parent: {parentBtr.Name})");
+                        return string.Empty; // Not our block, skip it
+                    }
+                    return parentBtr.Name;
+                }
+                
+                // Anonymous non-dynamic block - skip it
+                _logger.LogDebug($"Skipping anonymous non-dynamic block: {btr.Name}");
+                return string.Empty;
+            }
+            
+            return btr.Name;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Could not get effective title block name: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Updates attributes in a title block with dynamic attribute mapping
+    /// Similar to UpdateBlockAttributes but handles multiple attribute-value pairs
+    /// </summary>
+    private bool UpdateTitleBlockAttributes(BlockReference blockRef, Transaction tr, Database db, List<TitleBlockAttributeData> attributeData)
+    {
+        try
+        {
+            var attCol = blockRef.AttributeCollection;
+            bool wasModified = false;
+            
+            foreach (var attrData in attributeData)
+            {
+                if (string.IsNullOrEmpty(attrData.AttributeName) || attrData.AttributeValue == null)
+                {
+                    continue;
+                }
+
+                // Generate attribute name variants for case-insensitive matching
+                var candidateNames = GenerateAttributeNameVariants(attrData.AttributeName);
+                bool foundMatch = false;
+
+                foreach (ObjectId attId in attCol)
+                {
+                    var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
+                    if (attRef != null)
+                    {
+                        string tag = attRef.Tag.ToUpper();
+                        
+                        // Check if this attribute matches any of our candidate names
+                        if (candidateNames.Any(candidate => candidate.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            string currentValue = attRef.TextString ?? "";
+                            if (currentValue != attrData.AttributeValue)
+                            {
+                                // Store original position and justification to preserve placement
+                                var originalJustify = attRef.Justify;
+                                var originalPosition = attRef.Position;
+                                var originalAlignmentPoint = attRef.AlignmentPoint;
+                                
+                                // Update the text
+                                attRef.TextString = attrData.AttributeValue;
+                                
+                                // CRITICAL: Restore the justify property BEFORE adjusting alignment
+                                attRef.Justify = originalJustify;
+                                
+                                // Restore position based on justification type
+                                if (originalJustify == AttachmentPoint.BaseLeft || 
+                                    originalJustify == AttachmentPoint.BaseAlign || 
+                                    originalJustify == AttachmentPoint.BaseFit)
+                                {
+                                    // Left-justified attributes use Position
+                                    attRef.Position = originalPosition;
+                                }
+                                else
+                                {
+                                    // All other justifications use AlignmentPoint
+                                    attRef.AlignmentPoint = originalAlignmentPoint;
+                                }
+                                
+                                // Apply proper attribute alignment with database context
+                                var originalWdb = HostApplicationServices.WorkingDatabase;
+                                try
+                                {
+                                    _logger.LogDebug($"Switching WorkingDatabase for {attrData.AttributeName} attribute alignment (justify: {originalJustify})");
+                                    HostApplicationServices.WorkingDatabase = db;
+                                    attRef.AdjustAlignment(db);
+                                }
+                                finally
+                                {
+                                    HostApplicationServices.WorkingDatabase = originalWdb;
+                                }
+                                
+                                wasModified = true;
+                                foundMatch = true;
+                                _logger.LogDebug($"Updated title block attribute '{tag}' = '{attrData.AttributeValue}'");
+                                break; // Found and updated this attribute, move to next
+                            }
+                            else
+                            {
+                                foundMatch = true;
+                                _logger.LogDebug($"Title block attribute '{tag}' already has value '{attrData.AttributeValue}'");
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!foundMatch)
+                {
+                    _logger.LogWarning($"Title block attribute '{attrData.AttributeName}' not found. Tried variants: {string.Join(", ", candidateNames)}");
+                }
+            }
+
+            // Record graphics modification after attribute updates
+            if (wasModified)
+            {
+                blockRef.RecordGraphicsModified(true);
+                _logger.LogDebug("Applied RecordGraphicsModified to title block reference");
+                _logger.LogInformation($"Title block attributes updated successfully");
+            }
+            else
+            {
+                _logger.LogDebug($"No title block attribute changes needed");
+            }
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error updating title block attributes: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Generates attribute name variants for flexible matching
+    /// Similar to construction notes but for title block attributes
+    /// </summary>
+    private List<string> GenerateAttributeNameVariants(string originalName)
+    {
+        var variants = new List<string>();
+        
+        if (string.IsNullOrEmpty(originalName))
+        {
+            return variants;
+        }
+        
+        // Original name
+        variants.Add(originalName);
+        
+        // Uppercase
+        variants.Add(originalName.ToUpper());
+        
+        // Replace spaces with underscores
+        if (originalName.Contains(" "))
+        {
+            var underscoreVersion = originalName.Replace(" ", "_");
+            variants.Add(underscoreVersion);
+            variants.Add(underscoreVersion.ToUpper());
+        }
+        
+        // Remove spaces completely
+        if (originalName.Contains(" "))
+        {
+            var noSpaceVersion = originalName.Replace(" ", "");
+            variants.Add(noSpaceVersion);
+            variants.Add(noSpaceVersion.ToUpper());
+        }
+        
+        // Remove underscores
+        if (originalName.Contains("_"))
+        {
+            var noUnderscoreVersion = originalName.Replace("_", "");
+            variants.Add(noUnderscoreVersion);
+            variants.Add(noUnderscoreVersion.ToUpper());
+        }
+        
+        return variants.Distinct().ToList();
+    }
 
     /// <summary>
     /// Helper method to log available layouts for debugging

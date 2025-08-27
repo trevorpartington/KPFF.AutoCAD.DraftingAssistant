@@ -2564,6 +2564,7 @@ public class DraftingAssistantCommands
         public Task<List<SheetInfo>> ReadSheetIndexAsync(string filePath, ProjectConfiguration config) => Task.FromResult(new List<SheetInfo>());
         public Task<List<ConstructionNote>> ReadConstructionNotesAsync(string filePath, string series, ProjectConfiguration config) => Task.FromResult(new List<ConstructionNote>());
         public Task<List<SheetNoteMapping>> ReadExcelNotesAsync(string filePath, ProjectConfiguration config) => Task.FromResult(new List<SheetNoteMapping>());
+        public Task<List<TitleBlockMapping>> ReadTitleBlockMappingsAsync(string filePath, ProjectConfiguration config) => Task.FromResult(new List<TitleBlockMapping>());
         public Task<bool> FileExistsAsync(string filePath) => Task.FromResult(false);
         public Task<string[]> GetWorksheetNamesAsync(string filePath) => Task.FromResult(Array.Empty<string>());
         public Task<string[]> GetTableNamesAsync(string filePath, string worksheetName) => Task.FromResult(Array.Empty<string>());
@@ -2577,6 +2578,9 @@ public class DraftingAssistantCommands
         public Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null) => Task.FromResult(true);
+        public Task UpdateTitleBlockAsync(string sheetName, TitleBlockMapping mapping, ProjectConfiguration config) => Task.CompletedTask;
+        public Task<bool> ValidateTitleBlockExistsAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(true);
+        public Task<Dictionary<string, string>> GetTitleBlockAttributesAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(new Dictionary<string, string>());
     }
 
     [CommandMethod("TESTMULTIDRAWINGSERVICE")]

@@ -11,6 +11,7 @@ public class ProjectConfiguration
     public SheetNamingConfiguration SheetNaming { get; set; } = new();
     public TableConfiguration Tables { get; set; } = new();
     public ConstructionNotesConfiguration ConstructionNotes { get; set; } = new();
+    public TitleBlockConfiguration TitleBlocks { get; set; } = new();
     
     /// <summary>
     /// Runtime-only property for selected sheets. Not serialized to JSON.

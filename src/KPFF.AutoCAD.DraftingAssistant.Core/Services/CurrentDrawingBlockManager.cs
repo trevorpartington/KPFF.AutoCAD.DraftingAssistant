@@ -1013,4 +1013,288 @@ public class CurrentDrawingBlockManager
             _logger.LogError($"Could not enumerate available layouts: {ex.Message}", ex);
         }
     }
+
+    #region Title Block Operations
+
+    /// <summary>
+    /// Gets title blocks matching the specified pattern in a layout
+    /// </summary>
+    /// <param name="layoutName">Layout name to search in</param>
+    /// <param name="titleBlockPattern">Regex pattern to match title block names (e.g., "^TB_ATT$")</param>
+    /// <returns>List of title block information</returns>
+    public List<TitleBlockInfo> GetTitleBlocks(string layoutName, string titleBlockPattern)
+    {
+        var titleBlocks = new List<TitleBlockInfo>();
+        
+        if (!EnsureInitialized())
+        {
+            _logger.LogError("Failed to initialize AutoCAD context for title block operations");
+            return titleBlocks;
+        }
+
+        try
+        {
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
+            {
+                _logger.LogError($"Database not accessible for title block operations ({(_useExternalDatabase ? "external" : "current")})");
+                return titleBlocks;
+            }
+
+            var titleBlockRegex = new Regex(titleBlockPattern, RegexOptions.Compiled);
+            
+            // For current drawing, lock document. For external database, no locking needed
+            IDisposable? documentLock = null;
+            if (doc != null && !_useExternalDatabase)
+            {
+                documentLock = doc.LockDocument();
+            }
+
+            try
+            {
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    // Get the layout dictionary
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                        return titleBlocks;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                    foreach (ObjectId objId in layoutBtr)
+                    {
+                        Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                        
+                        if (entity is BlockReference blockRef)
+                        {
+                            string blockName = GetEffectiveBlockName(blockRef, tr);
+                            
+                            if (titleBlockRegex.IsMatch(blockName))
+                            {
+                                var attributes = new Dictionary<string, string>();
+                                
+                                // Read all attributes from the title block
+                                AttributeCollection attCol = blockRef.AttributeCollection;
+                                foreach (ObjectId attId in attCol)
+                                {
+                                    AttributeReference attRef = tr.GetObject(attId, OpenMode.ForRead) as AttributeReference;
+                                    if (attRef != null)
+                                    {
+                                        attributes[attRef.Tag] = attRef.TextString ?? "";
+                                    }
+                                }
+
+                                var titleBlockInfo = new TitleBlockInfo
+                                {
+                                    SheetName = layoutName,
+                                    Title = blockName,
+                                    Attributes = attributes,
+                                    IsActive = true,
+                                    LastUpdated = DateTime.Now
+                                };
+
+                                titleBlocks.Add(titleBlockInfo);
+                                _logger.LogDebug($"Found title block '{blockName}' with {attributes.Count} attributes");
+                            }
+                        }
+                    }
+                    
+                    tr.Commit();
+                }
+            }
+            finally
+            {
+                documentLock?.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get title blocks for layout {layoutName}: {ex.Message}", ex);
+        }
+
+        _logger.LogInformation($"Found {titleBlocks.Count} title blocks in layout {layoutName}");
+        return titleBlocks;
+    }
+
+    /// <summary>
+    /// Updates a single title block attribute
+    /// </summary>
+    /// <param name="layoutName">Layout containing the title block</param>
+    /// <param name="blockName">Title block name</param>
+    /// <param name="attributeName">Attribute tag name to update</param>
+    /// <param name="attributeValue">New attribute value</param>
+    /// <returns>True if update was successful</returns>
+    public bool UpdateTitleBlockAttribute(string layoutName, string blockName, string attributeName, string attributeValue)
+    {
+        if (!EnsureInitialized())
+        {
+            _logger.LogError("Failed to initialize AutoCAD context for title block attribute update");
+            return false;
+        }
+
+        try
+        {
+            var (db, doc) = GetDatabaseAndDocument();
+            if (db == null)
+            {
+                _logger.LogError($"Database not accessible for title block update ({(_useExternalDatabase ? "external" : "current")})");
+                return false;
+            }
+
+            // For current drawing, lock document. For external database, no locking needed
+            IDisposable? documentLock = null;
+            if (doc != null && !_useExternalDatabase)
+            {
+                documentLock = doc.LockDocument();
+            }
+
+            try
+            {
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    // Get the layout dictionary
+                    DBDictionary layoutDict = tr.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    
+                    if (!layoutDict.Contains(layoutName))
+                    {
+                        _logger.LogDebug($"Layout '{layoutName}' not found");
+                        return false;
+                    }
+
+                    ObjectId layoutId = layoutDict.GetAt(layoutName);
+                    Layout layout = tr.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    BlockTableRecord layoutBtr = tr.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                    // Find the target title block
+                    BlockReference targetBlockRef = null;
+                    foreach (ObjectId objId in layoutBtr)
+                    {
+                        Entity entity = tr.GetObject(objId, OpenMode.ForRead) as Entity;
+                        
+                        if (entity is BlockReference blockRef)
+                        {
+                            string currentBlockName = GetEffectiveBlockName(blockRef, tr);
+                            
+                            if (currentBlockName.Equals(blockName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                targetBlockRef = tr.GetObject(objId, OpenMode.ForWrite) as BlockReference;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (targetBlockRef == null)
+                    {
+                        _logger.LogDebug($"Title block '{blockName}' not found in layout '{layoutName}'");
+                        return false;
+                    }
+
+                    // Update the attribute
+                    bool attributeUpdated = false;
+                    AttributeCollection attCol = targetBlockRef.AttributeCollection;
+                    
+                    foreach (ObjectId attId in attCol)
+                    {
+                        AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
+                        if (attRef != null && attRef.Tag.Equals(attributeName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string currentValue = attRef.TextString ?? "";
+                            if (currentValue != attributeValue)
+                            {
+                                attRef.TextString = attributeValue ?? "";
+                                
+                                // Handle alignment for external databases
+                                if (_useExternalDatabase)
+                                {
+                                    var originalWdb = HostApplicationServices.WorkingDatabase;
+                                    try
+                                    {
+                                        HostApplicationServices.WorkingDatabase = attRef.Database;
+                                        attRef.AdjustAlignment(attRef.Database);
+                                    }
+                                    finally
+                                    {
+                                        HostApplicationServices.WorkingDatabase = originalWdb;
+                                    }
+                                }
+                                else
+                                {
+                                    attRef.AdjustAlignment(attRef.Database);
+                                }
+                                
+                                targetBlockRef.RecordGraphicsModified(true);
+                                attributeUpdated = true;
+                                _logger.LogDebug($"Updated attribute '{attributeName}' = '{attributeValue}'");
+                            }
+                            break;
+                        }
+                    }
+
+                    if (attributeUpdated)
+                    {
+                        tr.Commit();
+                        return true;
+                    }
+                    
+                    return false;
+                }
+            }
+            finally
+            {
+                documentLock?.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update title block attribute: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets all attributes from title blocks matching the pattern in a layout
+    /// </summary>
+    /// <param name="layoutName">Layout name to search in</param>
+    /// <param name="titleBlockPattern">Regex pattern to match title block names</param>
+    /// <returns>Dictionary of attribute names and values</returns>
+    public Dictionary<string, string> GetTitleBlockAttributes(string layoutName, string titleBlockPattern)
+    {
+        var attributes = new Dictionary<string, string>();
+        
+        if (!EnsureInitialized())
+        {
+            _logger.LogError("Failed to initialize AutoCAD context for getting title block attributes");
+            return attributes;
+        }
+
+        try
+        {
+            var titleBlocks = GetTitleBlocks(layoutName, titleBlockPattern);
+            
+            if (titleBlocks.Count > 0)
+            {
+                // Return attributes from the first title block found
+                attributes = titleBlocks[0].Attributes;
+                _logger.LogDebug($"Retrieved {attributes.Count} attributes from title block in layout {layoutName}");
+            }
+            else
+            {
+                _logger.LogWarning($"No title blocks found matching pattern '{titleBlockPattern}' in layout {layoutName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get title block attributes for layout {layoutName}: {ex.Message}", ex);
+        }
+
+        return attributes;
+    }
+
+    #endregion
 }
