@@ -986,7 +986,6 @@ public class ExternalDrawingManager
                             string currentValue = attRef.TextString ?? "";
                             if (currentValue != attrData.AttributeValue)
                             {
-                                attRef.Justify = AttachmentPoint.MiddleCenter;
                                 attRef.TextString = attrData.AttributeValue;
                                 
                                 // Apply proper attribute alignment
