@@ -283,6 +283,142 @@ public class DrawingOperations : IDrawingOperations
         }
     }
 
+    public async Task UpdateTitleBlockAsync(string sheetName, TitleBlockMapping mapping, ProjectConfiguration config)
+    {
+        try
+        {
+            _logger.LogInformation($"=== UPDATING title block for sheet {sheetName} ====");
+            _logger.LogInformation($"Attributes to update: {string.Join(", ", mapping.AttributeValues.Keys)}");
+            
+            var blockManager = GetBlockManager();
+            
+            // Find title blocks matching the pattern in the layout
+            var titleBlocks = blockManager.GetTitleBlocks(sheetName, config.TitleBlocks.TitleBlockPattern);
+            
+            if (titleBlocks.Count == 0)
+            {
+                _logger.LogWarning($"No title blocks found matching pattern '{config.TitleBlocks.TitleBlockPattern}' in layout {sheetName}");
+                return;
+            }
+            
+            if (titleBlocks.Count > 1)
+            {
+                _logger.LogWarning($"Found {titleBlocks.Count} title blocks in layout {sheetName}, expected 1. Using the first one.");
+            }
+            
+            var titleBlock = titleBlocks[0];
+            _logger.LogInformation($"Found title block: {titleBlock.Title} in layout {sheetName}");
+            
+            // Update title block attributes
+            var successCount = 0;
+            var totalAttributes = mapping.AttributeValues.Count;
+            
+            foreach (var (headerName, cellValue) in mapping.AttributeValues)
+            {
+                try
+                {
+                    // Convert header name to potential attribute names
+                    // "Designed By" -> ["Designed_By", "DESIGNED_BY", "DesignedBy", "DESIGNEDBY"]
+                    var attributeCandidates = GenerateAttributeNameVariants(headerName);
+                    
+                    var updated = false;
+                    foreach (var candidateAttributeName in attributeCandidates)
+                    {
+                        if (blockManager.UpdateTitleBlockAttribute(sheetName, titleBlock.Title, candidateAttributeName, cellValue))
+                        {
+                            _logger.LogDebug($"✓ Updated attribute '{candidateAttributeName}' = '{cellValue}'");
+                            updated = true;
+                            successCount++;
+                            break;
+                        }
+                    }
+                    
+                    if (!updated)
+                    {
+                        _logger.LogDebug($"⚠ No matching attribute found for header '{headerName}' (tried: {string.Join(", ", attributeCandidates)})");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Failed to update attribute for header '{headerName}': {ex.Message}");
+                }
+            }
+            
+            _logger.LogInformation($"Updated {successCount} of {totalAttributes} title block attributes for sheet {sheetName}");
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception updating title block for sheet {sheetName}: {ex.Message}", ex);
+            throw;
+        }
+    }
+
+    public async Task<bool> ValidateTitleBlockExistsAsync(string sheetName, ProjectConfiguration config)
+    {
+        try
+        {
+            _logger.LogDebug($"Validating title block exists for sheet {sheetName}");
+            var blockManager = GetBlockManager();
+            var titleBlocks = blockManager.GetTitleBlocks(sheetName, config.TitleBlocks.TitleBlockPattern);
+            
+            var hasBlock = titleBlocks.Count > 0;
+            _logger.LogDebug($"Sheet {sheetName} has {titleBlocks.Count} title blocks");
+            
+            return await Task.FromResult(hasBlock);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception validating title block for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(false);
+        }
+    }
+
+    public async Task<Dictionary<string, string>> GetTitleBlockAttributesAsync(string sheetName, ProjectConfiguration config)
+    {
+        try
+        {
+            _logger.LogDebug($"Getting title block attributes for sheet {sheetName}");
+            var blockManager = GetBlockManager();
+            var attributes = blockManager.GetTitleBlockAttributes(sheetName, config.TitleBlocks.TitleBlockPattern);
+            
+            _logger.LogDebug($"Retrieved {attributes.Count} title block attributes for sheet {sheetName}");
+            return await Task.FromResult(attributes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception getting title block attributes for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(new Dictionary<string, string>());
+        }
+    }
+
+    /// <summary>
+    /// Generates possible attribute name variants from a header name
+    /// Examples: "Designed By" -> ["Designed_By", "DESIGNED_BY", "DesignedBy", "DESIGNEDBY"]
+    /// </summary>
+    private static List<string> GenerateAttributeNameVariants(string headerName)
+    {
+        var variants = new List<string>();
+        
+        if (string.IsNullOrWhiteSpace(headerName))
+            return variants;
+        
+        // Replace spaces with underscores and create variants
+        var underscoreVersion = headerName.Replace(" ", "_");
+        var noSpaceVersion = headerName.Replace(" ", "");
+        
+        // Add different case combinations
+        variants.Add(underscoreVersion); // Original case with underscores
+        variants.Add(underscoreVersion.ToUpperInvariant()); // Upper case with underscores
+        variants.Add(underscoreVersion.ToLowerInvariant()); // Lower case with underscores
+        variants.Add(noSpaceVersion); // Original case no spaces
+        variants.Add(noSpaceVersion.ToUpperInvariant()); // Upper case no spaces
+        variants.Add(noSpaceVersion.ToLowerInvariant()); // Lower case no spaces
+        
+        // Remove duplicates while preserving order
+        return variants.Distinct().ToList();
+    }
+
     public void Dispose()
     {
         Dispose(true);

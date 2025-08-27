@@ -35,6 +35,12 @@ public class PlaceholderExcelReader : IExcelReader
         return Task.FromResult(new List<SheetNoteMapping>());
     }
 
+    public Task<List<TitleBlockMapping>> ReadTitleBlockMappingsAsync(string filePath, ProjectConfiguration config)
+    {
+        _logger.LogDebug($"PlaceholderExcelReader.ReadTitleBlockMappingsAsync called for {filePath} - returning empty list");
+        return Task.FromResult(new List<TitleBlockMapping>());
+    }
+
     public Task<bool> FileExistsAsync(string filePath)
     {
         _logger.LogDebug($"PlaceholderExcelReader.FileExistsAsync called for {filePath} - returning false");

@@ -47,16 +47,67 @@ public class ExcelReaderService : IExcelReader
 
                 var sheets = new List<SheetInfo>();
                 var dataRange = sheetIndexTable.DataRange;
+                var headerRange = sheetIndexTable.HeadersRow();
+                var columnCount = dataRange.ColumnCount();
+                
+                // Find column positions by header names
+                int sheetColumnIndex = -1;
+                int fileColumnIndex = -1;
+                var attributeColumns = new Dictionary<string, int>();
+                
+                // Scan all headers to find column positions
+                for (int col = 1; col <= columnCount; col++)
+                {
+                    var headerName = headerRange.Cell(col).GetString().Trim();
+                    if (string.IsNullOrEmpty(headerName))
+                        continue;
+                        
+                    if (headerName.Equals("Sheet", StringComparison.OrdinalIgnoreCase))
+                    {
+                        sheetColumnIndex = col;
+                    }
+                    else if (headerName.Equals("File", StringComparison.OrdinalIgnoreCase))
+                    {
+                        fileColumnIndex = col;
+                    }
+                    else
+                    {
+                        // All other columns are potential attributes (Title, Designed By, etc.)
+                        attributeColumns[headerName] = col;
+                    }
+                }
+                
+                if (sheetColumnIndex == -1)
+                {
+                    var errorMsg = "SHEET_INDEX table must have a 'Sheet' column";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetInfo>();
+                }
+                
+                if (fileColumnIndex == -1)
+                {
+                    var errorMsg = "SHEET_INDEX table must have a 'File' column";
+                    _logger.LogError(errorMsg);
+                    return new List<SheetInfo>();
+                }
                 
                 _logger.LogDebug($"Found {dataRange.RowCount()} rows in SHEET_INDEX table");
+                _logger.LogDebug($"Column positions - Sheet: {sheetColumnIndex}, File: {fileColumnIndex}");
+                _logger.LogDebug($"Found {attributeColumns.Count} attribute columns: {string.Join(", ", attributeColumns.Keys)}");
 
                 foreach (var row in dataRange.Rows())
                 {
                     try
                     {
-                        var sheetName = row.Cell(1).GetString().Trim();
-                        var fileName = row.Cell(2).GetString().Trim();
-                        var title = row.Cell(3).GetString().Trim();
+                        var sheetName = row.Cell(sheetColumnIndex).GetString().Trim();
+                        var fileName = row.Cell(fileColumnIndex).GetString().Trim();
+                        
+                        // Get Title from attribute columns if it exists
+                        var title = "";
+                        if (attributeColumns.TryGetValue("Title", out var titleColumnIndex))
+                        {
+                            title = row.Cell(titleColumnIndex).GetString().Trim();
+                        }
 
                         if (string.IsNullOrEmpty(sheetName))
                             continue;
@@ -285,6 +336,128 @@ public class ExcelReaderService : IExcelReader
                 var errorMsg = $"Failed to read Excel notes from {filePath}: {ex.Message}";
                 _logger.LogError(errorMsg, ex);
                 return new List<SheetNoteMapping>();
+            }
+        });
+    }
+
+    public async Task<List<TitleBlockMapping>> ReadTitleBlockMappingsAsync(string filePath, ProjectConfiguration config)
+    {
+        return await Task.Run(() =>
+        {
+            _logger.LogDebug($"Reading title block mappings from {filePath}");
+            
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    var errorMsg = $"Excel file not found: {filePath}";
+                    _logger.LogError(errorMsg);
+                    return new List<TitleBlockMapping>();
+                }
+
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var workbook = new XLWorkbook(stream);
+                
+                // Find SHEET_INDEX table
+                var sheetIndexTable = FindTableByName(workbook, config.Tables.SheetIndex);
+                if (sheetIndexTable == null)
+                {
+                    var errorMsg = $"Table '{config.Tables.SheetIndex}' not found in workbook";
+                    _logger.LogError(errorMsg);
+                    return new List<TitleBlockMapping>();
+                }
+
+                var mappings = new List<TitleBlockMapping>();
+                var dataRange = sheetIndexTable.DataRange;
+                var headerRange = sheetIndexTable.HeadersRow();
+                var columnCount = dataRange.ColumnCount();
+                
+                // Find column positions by header names and treat ALL columns as potential attributes
+                int sheetColumnIndex = -1;
+                int fileColumnIndex = -1;
+                var allColumns = new Dictionary<string, int>();
+                
+                // Scan all headers to find column positions
+                for (int col = 1; col <= columnCount; col++)
+                {
+                    var headerName = headerRange.Cell(col).GetString().Trim();
+                    if (string.IsNullOrEmpty(headerName))
+                        continue;
+                        
+                    // Store all columns as potential attributes
+                    allColumns[headerName] = col;
+                    
+                    // Also track special columns for indexing purposes
+                    if (headerName.Equals("Sheet", StringComparison.OrdinalIgnoreCase))
+                    {
+                        sheetColumnIndex = col;
+                    }
+                    else if (headerName.Equals("File", StringComparison.OrdinalIgnoreCase))
+                    {
+                        fileColumnIndex = col;
+                    }
+                }
+                
+                if (sheetColumnIndex == -1)
+                {
+                    var errorMsg = "SHEET_INDEX table must have a 'Sheet' column";
+                    _logger.LogError(errorMsg);
+                    return new List<TitleBlockMapping>();
+                }
+                
+                if (fileColumnIndex == -1)
+                {
+                    var errorMsg = "SHEET_INDEX table must have a 'File' column";
+                    _logger.LogError(errorMsg);
+                    return new List<TitleBlockMapping>();
+                }
+
+                _logger.LogDebug($"Found Sheet column at index {sheetColumnIndex}, File column at index {fileColumnIndex}");
+                _logger.LogDebug($"Found {allColumns.Count} total columns as attributes: {string.Join(", ", allColumns.Keys)}");
+                _logger.LogDebug($"Processing {dataRange.RowCount()} rows from SHEET_INDEX table");
+
+                foreach (var row in dataRange.Rows())
+                {
+                    try
+                    {
+                        var sheetName = row.Cell(sheetColumnIndex).GetString().Trim();
+                        var fileName = row.Cell(fileColumnIndex).GetString().Trim();
+                        
+                        if (string.IsNullOrEmpty(sheetName) || string.IsNullOrEmpty(fileName))
+                            continue;
+
+                        var attributeValues = new Dictionary<string, string>();
+                        
+                        // Read ALL column values as potential attributes (including Sheet and File)
+                        foreach (var (headerName, columnIndex) in allColumns)
+                        {
+                            var cellValue = row.Cell(columnIndex).GetString().Trim();
+                            attributeValues[headerName] = cellValue;
+                        }
+
+                        if (config.TitleBlocks.LogAttributeMapping)
+                        {
+                            _logger.LogDebug($"Sheet {sheetName} attributes: {string.Join(", ", attributeValues.Select(kv => $"{kv.Key}='{kv.Value}'"))}");
+                        }
+
+                        var mapping = new TitleBlockMapping(sheetName, attributeValues);
+                        mappings.Add(mapping);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Failed to parse title block mapping row: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                _logger.LogInformation($"Successfully read title block mappings for {mappings.Count} sheets with {allColumns.Count} attributes each");
+                return mappings;
+            }
+            catch (Exception ex)
+            {
+                var errorMsg = $"Failed to read title block mappings from {filePath}: {ex.Message}";
+                _logger.LogError(errorMsg, ex);
+                return new List<TitleBlockMapping>();
             }
         });
     }

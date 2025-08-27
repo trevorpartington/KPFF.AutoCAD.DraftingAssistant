@@ -34,4 +34,19 @@ public interface IDrawingOperations : IDisposable
     /// Resets all construction note blocks for a sheet to invisible/empty state
     /// </summary>
     Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null);
+
+    /// <summary>
+    /// Updates title block attributes for a specific layout/sheet
+    /// </summary>
+    Task UpdateTitleBlockAsync(string sheetName, TitleBlockMapping mapping, ProjectConfiguration config);
+
+    /// <summary>
+    /// Validates that title block exists for the specified sheet
+    /// </summary>
+    Task<bool> ValidateTitleBlockExistsAsync(string sheetName, ProjectConfiguration config);
+
+    /// <summary>
+    /// Gets current title block attributes for a sheet
+    /// </summary>
+    Task<Dictionary<string, string>> GetTitleBlockAttributesAsync(string sheetName, ProjectConfiguration config);
 }
