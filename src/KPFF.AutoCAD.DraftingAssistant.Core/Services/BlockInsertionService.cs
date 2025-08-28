@@ -19,6 +19,95 @@ public class BlockInsertionService
     }
 
     /// <summary>
+    /// Inserts a stack of 24 construction note blocks (NT01 through NT24)
+    /// </summary>
+    /// <param name="blockFilePath">Path to the DWG file containing the block</param>
+    /// <returns>True if insertion was successful</returns>
+    public bool InsertConstructionNoteBlockStack(string blockFilePath)
+    {
+        try
+        {
+            _logger.LogInformation($"Starting construction note block stack insertion from {blockFilePath}");
+            
+            var doc = Application.DocumentManager.MdiActiveDocument;
+            var db = doc.Database;
+            var ed = doc.Editor;
+
+            if (!File.Exists(blockFilePath))
+            {
+                _logger.LogError($"Block file not found: {blockFilePath}");
+                ed.WriteMessage($"\nError: Block file not found: {blockFilePath}");
+                return false;
+            }
+
+            // Get insertion point from user for NT01 (the top block)
+            var ppr = ed.GetPoint($"\nSelect insertion point for construction note stack: ");
+            if (ppr.Status != PromptStatus.OK)
+            {
+                _logger.LogInformation("User cancelled block stack insertion");
+                return false;
+            }
+
+            var baseInsertionPoint = ppr.Value;
+            var successfulInsertions = 0;
+
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Import the block definition once (all blocks use the same definition)
+                    var blockDefId = ImportBlockDefinition(db, blockFilePath, "NTXX", tr);
+                    if (blockDefId == ObjectId.Null)
+                    {
+                        _logger.LogError("Failed to import block definition");
+                        return false;
+                    }
+
+                    // Insert all 24 blocks stacked vertically
+                    for (int i = 1; i <= 24; i++)
+                    {
+                        var blockName = $"NT{i:D2}"; // NT01, NT02, etc.
+                        var yOffset = -(i - 1) * 0.5; // 0, -0.5, -1.0, etc.
+                        var insertionPoint = new Point3d(
+                            baseInsertionPoint.X,
+                            baseInsertionPoint.Y + yOffset,
+                            baseInsertionPoint.Z);
+
+                        var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
+                        if (success)
+                        {
+                            successfulInsertions++;
+                            _logger.LogDebug($"Successfully inserted block: {blockName} at {insertionPoint}");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Failed to insert block: {blockName}");
+                        }
+                    }
+
+                    tr.Commit();
+                    
+                    _logger.LogInformation($"Construction note block stack insertion completed. {successfulInsertions}/24 blocks inserted successfully.");
+                    ed.WriteMessage($"\nConstruction note stack inserted: {successfulInsertions}/24 blocks successful.");
+                    
+                    return successfulInsertions > 0;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error during block stack insertion transaction: {ex.Message}", ex);
+                    tr.Abort();
+                    return false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error inserting construction note block stack: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Inserts a construction note block from an external DWG file
     /// </summary>
     /// <param name="blockFilePath">Path to the DWG file containing the block</param>

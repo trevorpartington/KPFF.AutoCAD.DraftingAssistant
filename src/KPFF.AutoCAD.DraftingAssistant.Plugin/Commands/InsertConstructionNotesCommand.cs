@@ -37,16 +37,16 @@ public class InsertConstructionNotesCommand : ICommandHandler
                     return;
                 }
 
-                // Insert the NT01 block (for now, just one block)
-                var success = _blockInsertionService.InsertConstructionNoteBlock(blockFilePath, "NT01");
+                // Insert all 24 construction note blocks (NT01 through NT24)
+                var success = _blockInsertionService.InsertConstructionNoteBlockStack(blockFilePath);
                 
                 if (success)
                 {
-                    _logger.LogInformation("Construction note block inserted successfully");
+                    _logger.LogInformation("Construction note block stack inserted successfully");
                 }
                 else
                 {
-                    _logger.LogError("Failed to insert construction note block");
+                    _logger.LogError("Failed to insert construction note block stack");
                 }
             },
             logger: _logger,
