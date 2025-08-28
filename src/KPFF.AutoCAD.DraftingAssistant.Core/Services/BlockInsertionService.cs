@@ -108,6 +108,78 @@ public class BlockInsertionService
     }
 
     /// <summary>
+    /// Inserts a title block from an external DWG file at the origin (0,0)
+    /// Supports both dynamic and static blocks from TB_ATT.dwg
+    /// </summary>
+    /// <param name="blockFilePath">Path to the TB_ATT.dwg file</param>
+    /// <returns>True if insertion was successful</returns>
+    public bool InsertTitleBlock(string blockFilePath)
+    {
+        try
+        {
+            _logger.LogInformation($"Starting title block insertion from {blockFilePath}");
+            
+            var doc = Application.DocumentManager.MdiActiveDocument;
+            var db = doc.Database;
+            var ed = doc.Editor;
+
+            if (!File.Exists(blockFilePath))
+            {
+                _logger.LogError($"Title block file not found: {blockFilePath}");
+                ed.WriteMessage($"\nError: Title block file not found: {blockFilePath}");
+                return false;
+            }
+
+            // Insert at origin (0,0,0)
+            var insertionPoint = Point3d.Origin;
+            var blockName = "TB_ATT"; // Standard title block name
+
+            using (var tr = db.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Import the block definition
+                    var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName, tr);
+                    if (blockDefId == ObjectId.Null)
+                    {
+                        _logger.LogError("Failed to import title block definition");
+                        ed.WriteMessage("\nError: Failed to import title block definition");
+                        return false;
+                    }
+
+                    // Insert the block reference at origin
+                    var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
+                    if (success)
+                    {
+                        tr.Commit();
+                        _logger.LogInformation($"Successfully inserted title block: {blockName} at {insertionPoint}");
+                        ed.WriteMessage($"\nTitle block '{blockName}' inserted at origin (0,0).");
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogError($"Failed to create title block reference: {blockName}");
+                        ed.WriteMessage("\nError: Failed to create title block reference");
+                        tr.Abort();
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error during title block insertion transaction: {ex.Message}", ex);
+                    tr.Abort();
+                    return false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error inserting title block: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Inserts a construction note block from an external DWG file
     /// </summary>
     /// <param name="blockFilePath">Path to the DWG file containing the block</param>

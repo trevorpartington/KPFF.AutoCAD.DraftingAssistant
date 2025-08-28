@@ -74,6 +74,34 @@ public partial class TitleBlockControl : BaseUserControl
     {
         await ExecuteTitleBlocksUpdate();
     }
+
+    private void InsertTitleBlockButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Logger.LogInformation("Insert Title Block button clicked - executing KPFFINSERTTITLEBLOCK command");
+            
+            // Execute the AutoCAD command to insert title block
+            var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
+            if (doc != null)
+            {
+                // Send the command to AutoCAD for execution
+                doc.SendStringToExecute("KPFFINSERTTITLEBLOCK ", true, false, false);
+                
+                UpdateStatus("Insert Title Block command executed. TB_ATT block will be inserted at 0,0.");
+            }
+            else
+            {
+                Logger.LogError("No active document found for Insert Title Block command");
+                UpdateStatus("ERROR: No active drawing found. Please open a drawing before inserting blocks.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error executing Insert Title Block command: {ex.Message}", ex);
+            UpdateStatus($"ERROR: Failed to execute Insert Title Block command - {ex.Message}");
+        }
+    }
     
     private async Task ExecuteTitleBlocksUpdate()
     {
