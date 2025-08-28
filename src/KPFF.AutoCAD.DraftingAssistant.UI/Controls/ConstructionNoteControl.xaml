@@ -51,7 +51,14 @@
                         Width="120" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
-                        Click="UpdateNotesButton_Click"/>
+                        Click="UpdateNotesButton_Click"
+                        Margin="0,0,10,0"/>
+                <Button Name="InsertBlocksButton" 
+                        Content="Insert Blocks" 
+                        Width="120" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="InsertBlocksButton_Click"/>
             </StackPanel>
         </StackPanel>
         
