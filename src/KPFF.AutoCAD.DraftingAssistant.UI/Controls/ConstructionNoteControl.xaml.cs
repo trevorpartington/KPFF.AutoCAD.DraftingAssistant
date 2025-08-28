@@ -86,6 +86,34 @@ public partial class ConstructionNoteControl : BaseUserControl
         }
     }
 
+    private void InsertBlocksButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Logger.LogInformation("Insert Blocks button clicked - executing KPFFINSERTBLOCKS command");
+            
+            // Execute the AutoCAD command to insert construction note blocks
+            var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
+            if (doc != null)
+            {
+                // Send the command to AutoCAD for execution
+                doc.SendStringToExecute("KPFFINSERTBLOCKS ", true, false, false);
+                
+                UpdateStatus("Insert Blocks command executed. Follow the prompts in AutoCAD to select insertion point.");
+            }
+            else
+            {
+                Logger.LogError("No active document found for Insert Blocks command");
+                UpdateStatus("ERROR: No active drawing found. Please open a drawing before inserting blocks.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error executing Insert Blocks command: {ex.Message}", ex);
+            UpdateStatus($"ERROR: Failed to execute Insert Blocks command - {ex.Message}");
+        }
+    }
+
     
     private async void ExecuteAutoNotesUpdate()
     {

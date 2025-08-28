@@ -21,7 +21,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Button -->
+        <!-- Buttons -->
         <StackPanel Grid.Row="0" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Left" 
@@ -31,7 +31,14 @@
                     Width="140" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"
-                    Click="UpdateTitleBlocksButton_Click"/>
+                    Click="UpdateTitleBlocksButton_Click"
+                    Margin="0,0,10,0"/>
+            <Button Name="InsertTitleBlockButton" 
+                    Content="Insert Block" 
+                    Width="120" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="InsertTitleBlockButton_Click"/>
         </StackPanel>
         
         <!-- Text Readout Area -->

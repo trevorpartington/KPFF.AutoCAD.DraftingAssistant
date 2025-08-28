@@ -28,6 +28,20 @@ public class DraftingAssistantCommands
         ExecuteCommand<TogglePaletteCommandHandler>();
     }
 
+    [CommandMethod("KPFFINSERTBLOCKS")]
+    public void InsertConstructionNoteBlocks()
+    {
+        // Command to insert construction note blocks from external DWG
+        ExecuteCommand<InsertConstructionNotesCommand>();
+    }
+
+    [CommandMethod("KPFFINSERTTITLEBLOCK")]
+    public void InsertTitleBlock()
+    {
+        // Command to insert title block (TB_ATT.dwg) at origin
+        ExecuteCommand<InsertTitleBlockCommand>();
+    }
+
     /// <summary>
     /// Generic method to execute command handlers safely with robust error handling
     /// </summary>
@@ -83,6 +97,10 @@ public class DraftingAssistantCommands
         {
             nameof(TogglePaletteCommandHandler) => (T)(object)new TogglePaletteCommandHandler(
                 compositionRoot.GetService<IPaletteManager>(),
+                compositionRoot.GetService<ILogger>()),
+            nameof(InsertConstructionNotesCommand) => (T)(object)new InsertConstructionNotesCommand(
+                compositionRoot.GetService<ILogger>()),
+            nameof(InsertTitleBlockCommand) => (T)(object)new InsertTitleBlockCommand(
                 compositionRoot.GetService<ILogger>()),
             _ => throw new InvalidOperationException($"Unknown command handler type: {typeof(T).Name}")
         };
