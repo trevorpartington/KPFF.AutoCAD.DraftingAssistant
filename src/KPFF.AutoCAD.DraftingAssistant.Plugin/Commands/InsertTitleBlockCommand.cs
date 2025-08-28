@@ -64,9 +64,12 @@ public class InsertTitleBlockCommand : ICommandHandler
     {
         try
         {
-            // Get the path relative to the project directory
+            // Get the path relative to the project directory (same logic as construction notes)
+            // Assembly is in: ...\bin\Debug\KPFF.AutoCAD.DraftingAssistant.Plugin.dll
+            // We need to go up to the solution root
+            var assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location!;
             var projectDir = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(
-                Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location!))));
+                Path.GetDirectoryName(Path.GetDirectoryName(assemblyLocation)))));
             
             if (projectDir != null)
             {
