@@ -55,15 +55,7 @@ public class BlockInsertionService
             {
                 try
                 {
-                    // Import the block definition once (all blocks use the same definition)
-                    var blockDefId = ImportBlockDefinition(db, blockFilePath, "NTXX", tr);
-                    if (blockDefId == ObjectId.Null)
-                    {
-                        _logger.LogError("Failed to import block definition");
-                        return false;
-                    }
-
-                    // Insert all 24 blocks stacked vertically
+                    // Insert all 24 blocks stacked vertically with unique names
                     for (int i = 1; i <= 24; i++)
                     {
                         var blockName = $"NT{i:D2}"; // NT01, NT02, etc.
@@ -72,6 +64,14 @@ public class BlockInsertionService
                             baseInsertionPoint.X,
                             baseInsertionPoint.Y + yOffset,
                             baseInsertionPoint.Z);
+
+                        // Import each block definition with its unique name
+                        var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName, tr);
+                        if (blockDefId == ObjectId.Null)
+                        {
+                            _logger.LogError($"Failed to import block definition: {blockName}");
+                            continue; // Continue with next block instead of failing completely
+                        }
 
                         var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
                         if (success)
