@@ -35,12 +35,14 @@
       "numberAttribute": "Number",
       "noteAttribute": "Note"
     },
-    "visibilityPropertyName": "Visibility"
+    "visibilityPropertyName": "Visibility",
+    "noteBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\NTXX.dwg"
   },
   "titleBlocks": {
     "titleBlockPattern": "^TB_ATT$",
     "maxAttributesPerTitleBlock": 50,
     "visibilityPropertyName": "Visibility",
-    "logAttributeMapping": false
+    "logAttributeMapping": false,
+    "titleBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\DBRT-TTLB-ATT.dwg"
   }
 }
