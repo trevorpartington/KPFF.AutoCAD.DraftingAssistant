@@ -51,52 +51,56 @@ public class BlockInsertionService
             var baseInsertionPoint = ppr.Value;
             var successfulInsertions = 0;
 
-            using (var tr = db.TransactionManager.StartTransaction())
+            // Perform entire operation with document lock to avoid lock violations
+            using (var docLock = doc.LockDocument())
             {
-                try
+                // Import the block definition
+                var blockDefId = ImportBlockDefinition(db, blockFilePath, "NTXX");
+                if (blockDefId == ObjectId.Null)
                 {
-                    // Insert all 24 blocks stacked vertically with unique names
-                    for (int i = 1; i <= 24; i++)
-                    {
-                        var blockName = $"NT{i:D2}"; // NT01, NT02, etc.
-                        var yOffset = -(i - 1) * 0.5; // 0, -0.5, -1.0, etc.
-                        var insertionPoint = new Point3d(
-                            baseInsertionPoint.X,
-                            baseInsertionPoint.Y + yOffset,
-                            baseInsertionPoint.Z);
-
-                        // Import each block definition with its unique name
-                        var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName, tr);
-                        if (blockDefId == ObjectId.Null)
-                        {
-                            _logger.LogError($"Failed to import block definition: {blockName}");
-                            continue; // Continue with next block instead of failing completely
-                        }
-
-                        var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
-                        if (success)
-                        {
-                            successfulInsertions++;
-                            _logger.LogDebug($"Successfully inserted block: {blockName} at {insertionPoint}");
-                        }
-                        else
-                        {
-                            _logger.LogError($"Failed to insert block: {blockName}");
-                        }
-                    }
-
-                    tr.Commit();
-                    
-                    _logger.LogInformation($"Construction note block stack insertion completed. {successfulInsertions}/24 blocks inserted successfully.");
-                    ed.WriteMessage($"\nConstruction note stack inserted: {successfulInsertions}/24 blocks successful.");
-                    
-                    return successfulInsertions > 0;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error during block stack insertion transaction: {ex.Message}", ex);
-                    tr.Abort();
+                    _logger.LogError("Failed to import block definition");
                     return false;
+                }
+
+                using (var tr = db.TransactionManager.StartTransaction())
+                {
+                    try
+                    {
+                        // Insert all 24 blocks stacked vertically
+                        for (int i = 1; i <= 24; i++)
+                        {
+                            var blockName = $"NT{i:D2}"; // NT01, NT02, etc.
+                            var yOffset = -(i - 1) * 0.5; // 0, -0.5, -1.0, etc.
+                            var insertionPoint = new Point3d(
+                                baseInsertionPoint.X,
+                                baseInsertionPoint.Y + yOffset,
+                                baseInsertionPoint.Z);
+
+                            var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
+                            if (success)
+                            {
+                                successfulInsertions++;
+                                _logger.LogDebug($"Successfully inserted block: {blockName} at {insertionPoint}");
+                            }
+                            else
+                            {
+                                _logger.LogError($"Failed to insert block: {blockName}");
+                            }
+                        }
+
+                        tr.Commit();
+                        
+                        _logger.LogInformation($"Construction note block stack insertion completed. {successfulInsertions}/24 blocks inserted successfully.");
+                        ed.WriteMessage($"\nConstruction note stack inserted: {successfulInsertions}/24 blocks successful.");
+                        
+                        return successfulInsertions > 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error during block stack insertion transaction: {ex.Message}", ex);
+                        tr.Abort();
+                        return false;
+                    }
                 }
             }
         }
@@ -134,41 +138,45 @@ public class BlockInsertionService
             var insertionPoint = Point3d.Origin;
             var blockName = "TB_ATT"; // Standard title block name
 
-            using (var tr = db.TransactionManager.StartTransaction())
+            // Perform entire operation with document lock to avoid lock violations
+            using (var docLock = doc.LockDocument())
             {
-                try
+                // Import the block definition
+                var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName);
+                if (blockDefId == ObjectId.Null)
                 {
-                    // Import the block definition
-                    var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName, tr);
-                    if (blockDefId == ObjectId.Null)
-                    {
-                        _logger.LogError("Failed to import title block definition");
-                        ed.WriteMessage("\nError: Failed to import title block definition");
-                        return false;
-                    }
+                    _logger.LogError("Failed to import title block definition");
+                    ed.WriteMessage("\nError: Failed to import title block definition");
+                    return false;
+                }
 
-                    // Insert the block reference at origin
-                    var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
-                    if (success)
+                using (var tr = db.TransactionManager.StartTransaction())
+                {
+                    try
                     {
-                        tr.Commit();
-                        _logger.LogInformation($"Successfully inserted title block: {blockName} at {insertionPoint}");
-                        ed.WriteMessage($"\nTitle block '{blockName}' inserted at origin (0,0).");
-                        return true;
+                        // Insert the block reference at origin
+                        var success = InsertBlockReference(db, tr, blockDefId, blockName, insertionPoint);
+                        if (success)
+                        {
+                            tr.Commit();
+                            _logger.LogInformation($"Successfully inserted title block: {blockName} at {insertionPoint}");
+                            ed.WriteMessage($"\nTitle block '{blockName}' inserted at origin (0,0).");
+                            return true;
+                        }
+                        else
+                        {
+                            _logger.LogError($"Failed to create title block reference: {blockName}");
+                            ed.WriteMessage("\nError: Failed to create title block reference");
+                            tr.Abort();
+                            return false;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _logger.LogError($"Failed to create title block reference: {blockName}");
-                        ed.WriteMessage("\nError: Failed to create title block reference");
+                        _logger.LogError($"Error during title block insertion transaction: {ex.Message}", ex);
                         tr.Abort();
                         return false;
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error during title block insertion transaction: {ex.Message}", ex);
-                    tr.Abort();
-                    return false;
                 }
             }
         }
@@ -202,47 +210,51 @@ public class BlockInsertionService
                 return false;
             }
 
-            using (var tr = db.TransactionManager.StartTransaction())
+            // Get insertion point from user first
+            var ppr = ed.GetPoint($"\nSelect insertion point for {blockName}: ");
+            if (ppr.Status != PromptStatus.OK)
             {
-                try
-                {
-                    // Import the block definition from the external DWG
-                    var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName, tr);
-                    if (blockDefId == ObjectId.Null)
-                    {
-                        _logger.LogError($"Failed to import block definition: {blockName}");
-                        return false;
-                    }
+                _logger.LogInformation("User cancelled block insertion");
+                return false;
+            }
 
-                    // Get insertion point from user
-                    var ppr = ed.GetPoint($"\nSelect insertion point for {blockName}: ");
-                    if (ppr.Status != PromptStatus.OK)
-                    {
-                        _logger.LogInformation("User cancelled block insertion");
-                        return false;
-                    }
-
-                    // Create and insert the block reference
-                    var success = InsertBlockReference(db, tr, blockDefId, blockName, ppr.Value);
-                    
-                    if (success)
-                    {
-                        tr.Commit();
-                        _logger.LogInformation($"Successfully inserted block: {blockName}");
-                        ed.WriteMessage($"\nBlock {blockName} inserted successfully.");
-                        return true;
-                    }
-                    else
-                    {
-                        _logger.LogError($"Failed to create block reference: {blockName}");
-                        return false;
-                    }
-                }
-                catch (Exception ex)
+            // Perform entire operation with document lock to avoid lock violations
+            using (var docLock = doc.LockDocument())
+            {
+                // Import the block definition
+                var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName);
+                if (blockDefId == ObjectId.Null)
                 {
-                    _logger.LogError($"Error during block insertion transaction: {ex.Message}", ex);
-                    tr.Abort();
+                    _logger.LogError($"Failed to import block definition: {blockName}");
                     return false;
+                }
+
+                using (var tr = db.TransactionManager.StartTransaction())
+                {
+                    try
+                    {
+                        // Create and insert the block reference
+                        var success = InsertBlockReference(db, tr, blockDefId, blockName, ppr.Value);
+                        
+                        if (success)
+                        {
+                            tr.Commit();
+                            _logger.LogInformation($"Successfully inserted block: {blockName}");
+                            ed.WriteMessage($"\nBlock {blockName} inserted successfully.");
+                            return true;
+                        }
+                        else
+                        {
+                            _logger.LogError($"Failed to create block reference: {blockName}");
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error during block insertion transaction: {ex.Message}", ex);
+                        tr.Abort();
+                        return false;
+                    }
                 }
             }
         }
@@ -254,48 +266,70 @@ public class BlockInsertionService
     }
 
     /// <summary>
-    /// Imports a block definition from an external DWG file using Database.Insert
-    /// This properly preserves dynamic blocks with all their properties and attributes
+    /// Imports a dynamic block definition from an external DWG file using Database.Insert
+    /// Operates outside of transaction scope to avoid lock violations
     /// </summary>
-    private ObjectId ImportBlockDefinition(Database targetDb, string blockFilePath, string blockName, Transaction tr)
+    private ObjectId ImportBlockDefinition(Database targetDb, string blockFilePath, string blockName)
     {
         try
         {
-            _logger.LogDebug($"Importing block definition: {blockName} from {blockFilePath}");
+            _logger.LogDebug($"Importing dynamic block definition: {blockName} from {blockFilePath}");
 
-            // Check if block already exists
-            var blockTable = tr.GetObject(targetDb.BlockTableId, OpenMode.ForRead) as BlockTable;
-            if (blockTable != null && blockTable.Has(blockName))
+            // Check if block already exists using a read-only transaction
+            using (var readTr = targetDb.TransactionManager.StartTransaction())
             {
-                _logger.LogDebug($"Block definition {blockName} already exists, using existing definition");
-                return blockTable[blockName];
+                var blockTable = readTr.GetObject(targetDb.BlockTableId, OpenMode.ForRead) as BlockTable;
+                if (blockTable != null && blockTable.Has(blockName))
+                {
+                    _logger.LogDebug($"Block definition {blockName} already exists, using existing definition");
+                    var existingId = blockTable[blockName];
+                    readTr.Commit();
+                    return existingId;
+                }
+                readTr.Commit();
             }
 
-            // Use Database.Insert to import the entire DWG file as a block definition
-            // This is the proper way to preserve dynamic blocks and all their properties
+            // Import dynamic block using Database.Insert outside of main transaction
             using (var sourceDb = new Database(false, true))
             {
-                sourceDb.ReadDwgFile(blockFilePath, FileOpenMode.OpenForReadAndAllShare, true, "");
-                
-                // Insert the entire source database as a block
-                // This preserves dynamic block definitions, attributes, and all properties
-                var insertedBlockId = targetDb.Insert(blockName, sourceDb, false);
-                
-                if (insertedBlockId != ObjectId.Null)
+                try
                 {
-                    _logger.LogDebug($"Successfully imported dynamic block definition: {blockName}");
-                    return insertedBlockId;
+                    _logger.LogDebug($"Reading DWG file: {blockFilePath}");
+                    sourceDb.ReadDwgFile(blockFilePath, FileOpenMode.OpenForReadAndAllShare, true, "");
+                    _logger.LogDebug($"Successfully read DWG file");
                 }
-                else
+                catch (Autodesk.AutoCAD.Runtime.Exception ex)
                 {
-                    _logger.LogError($"Database.Insert failed for block: {blockName}");
+                    _logger.LogError($"Error reading {blockFilePath}: {ex.ErrorStatus} - {ex.Message}");
+                    return ObjectId.Null;
+                }
+
+                try
+                {
+                    // Use Database.Insert to preserve dynamic block properties
+                    var insertedBlockId = targetDb.Insert(blockName, sourceDb, false);
+                    
+                    if (insertedBlockId != ObjectId.Null)
+                    {
+                        _logger.LogDebug($"Successfully imported dynamic block definition: {blockName}");
+                        return insertedBlockId;
+                    }
+                    else
+                    {
+                        _logger.LogError($"Database.Insert returned null ObjectId for block: {blockName}");
+                        return ObjectId.Null;
+                    }
+                }
+                catch (Autodesk.AutoCAD.Runtime.Exception ex)
+                {
+                    _logger.LogError($"Error inserting dynamic block definition {blockName}: {ex.ErrorStatus} - {ex.Message}");
                     return ObjectId.Null;
                 }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error importing block definition: {ex.Message}", ex);
+            _logger.LogError($"Unexpected error importing dynamic block definition: {ex.Message}", ex);
             return ObjectId.Null;
         }
     }
@@ -336,6 +370,39 @@ public class BlockInsertionService
                 blockRef.Dispose();
                 return false;
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error creating block reference: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Creates and inserts a block reference into the specified space with proper attribute synchronization
+    /// Optimized version that accepts the target space directly to avoid lock violations
+    /// </summary>
+    private bool InsertBlockReferenceToSpace(Database db, Transaction tr, ObjectId blockDefId, string blockName, Point3d insertionPoint, BlockTableRecord targetSpace)
+    {
+        try
+        {
+            _logger.LogDebug($"Creating block reference for: {blockName} at {insertionPoint}");
+
+            // Create the block reference
+            var blockRef = new BlockReference(insertionPoint, blockDefId);
+            blockRef.ScaleFactors = new Scale3d(1.0, 1.0, 1.0);
+            blockRef.Rotation = 0.0;
+
+            // Add to the specified space (already opened for write in the transaction)
+            targetSpace.AppendEntity(blockRef);
+            tr.AddNewlyCreatedDBObject(blockRef, true);
+            
+            // Synchronize attributes from the block definition
+            // This is crucial for dynamic blocks to have their attributes available
+            SyncBlockAttributes(db, tr, blockRef, blockDefId);
+            
+            _logger.LogDebug($"Block reference created successfully with attributes: {blockName}");
+            return true;
         }
         catch (Exception ex)
         {

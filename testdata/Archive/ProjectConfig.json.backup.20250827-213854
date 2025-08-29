@@ -26,9 +26,15 @@
   },
   "constructionNotes": {
     "multileaderStyleNames": [
-      "ML-STYLE-01"
+      "ML-STYLE-01",
+      "ML-STYLE-02"
     ],
-    "noteBlocks": [],
+    "noteBlocks": [
+      {
+        "blockName": "_TagCircle",
+        "attributeName": "TAGNUMBER"
+      }
+    ],
     "noteBlockPattern": "^NT\\d{2}$",
     "maxNotesPerSheet": 24,
     "attributes": {
@@ -36,11 +42,5 @@
       "noteAttribute": "Note"
     },
     "visibilityPropertyName": "Visibility"
-  },
-  "titleBlocks": {
-    "titleBlockPattern": "^TB_ATT$",
-    "maxAttributesPerTitleBlock": 50,
-    "visibilityPropertyName": "Visibility",
-    "logAttributeMapping": false
   }
 }

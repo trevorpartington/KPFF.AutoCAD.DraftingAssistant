@@ -26,7 +26,8 @@
   },
   "constructionNotes": {
     "multileaderStyleNames": [
-      "ML-STYLE-01"
+      "ML-STYLE-01",
+      "ML-STYLE-02"
     ],
     "noteBlocks": [],
     "noteBlockPattern": "^NT\\d{2}$",

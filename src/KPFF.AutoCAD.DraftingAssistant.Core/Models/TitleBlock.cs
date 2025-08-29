@@ -38,6 +38,11 @@ public class TitleBlockConfiguration
     /// Whether to log attribute mapping details during processing
     /// </summary>
     public bool LogAttributeMapping { get; set; } = false;
+    
+    /// <summary>
+    /// Path to the title block DWG file for insertion
+    /// </summary>
+    public string TitleBlockFilePath { get; set; } = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\Blocks\DBRT-TTLB-ATT.dwg";
 }
 
 public class TitleBlockMapping

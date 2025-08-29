@@ -138,6 +138,23 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
                     <StackPanel>
                         
+                        <!-- NTXX File Location -->
+                        <GroupBox Header="NTXX File Location" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Specify the location of the NTXX.dwg file for construction note block insertion:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="NTXX Block File:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" Name="NoteBlockFilePathTextBox" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="2" Name="BrowseNoteBlockButton" Content="Browse..." Width="80" Height="25" Style="{StaticResource DarkButtonStyle}" Click="BrowseNoteBlockButton_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
                         <GroupBox Header="Targeted Construction Note Multileaders" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
                             <StackPanel Margin="10">
                                 
@@ -215,6 +232,61 @@
                                     
                                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Visibility Property:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
                                     <TextBlock Grid.Row="4" Grid.Column="1" Name="VisibilityPropertyDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Visibility" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                </Grid>
+                                
+                            </StackPanel>
+                        </GroupBox>
+                        
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Title Blocks Tab -->
+            <TabItem Header="Title Blocks" Style="{StaticResource DarkTabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        
+                        <!-- Title Block Attributes File Location -->
+                        <GroupBox Header="Title Block Attributes File Location" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Specify the location of the title block DWG file for insertion:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Title Block File:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" Name="TitleBlockFilePathTextBox" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="2" Name="BrowseTitleBlockButton" Content="Browse..." Width="80" Height="25" Style="{StaticResource DarkButtonStyle}" Click="BrowseTitleBlockButton_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Title Block Configuration -->
+                        <GroupBox Header="Title Block Configuration" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Configuration settings for title block processing:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,15"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Block Name Pattern:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Name="TitleBlockPatternDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="TB_ATT" FontWeight="SemiBold"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Max Attributes:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Name="MaxTitleBlockAttributesDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="50" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Visibility Property:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Name="TitleBlockVisibilityDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Visibility" FontWeight="SemiBold" Margin="0,10,0,0"/>
                                 </Grid>
                                 
                             </StackPanel>

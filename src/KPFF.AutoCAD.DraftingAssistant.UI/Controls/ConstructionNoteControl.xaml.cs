@@ -349,7 +349,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             }
             
             // Fall back to loading from the default test location
-            var testConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\ProjectConfig.json";
+            var testConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\DBRT_Config.json";
             
             if (File.Exists(testConfigPath))
             {

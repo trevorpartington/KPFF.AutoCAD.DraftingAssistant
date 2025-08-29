@@ -44,6 +44,7 @@ public class ConstructionNotesConfiguration
     public int MaxNotesPerSheet { get; set; } = 24;
     public ConstructionNoteAttributes Attributes { get; set; } = new();
     public string VisibilityPropertyName { get; set; } = "Visibility";
+    public string NoteBlockFilePath { get; set; } = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\Blocks\NTXX.dwg";
     
     // Legacy property for backward compatibility
     [System.Text.Json.Serialization.JsonIgnore]

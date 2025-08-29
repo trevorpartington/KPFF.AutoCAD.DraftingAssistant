@@ -55,6 +55,15 @@ public partial class ProjectConfigWindow : Window
         NumberAttributeDisplayTextBlock.Text = _config.ConstructionNotes.Attributes.NumberAttribute;
         NoteAttributeDisplayTextBlock.Text = _config.ConstructionNotes.Attributes.NoteAttribute;
         VisibilityPropertyDisplayTextBlock.Text = _config.ConstructionNotes.VisibilityPropertyName;
+
+        // Construction notes tab - File paths
+        NoteBlockFilePathTextBox.Text = _config.ConstructionNotes.NoteBlockFilePath;
+
+        // Title blocks tab - File paths and information
+        TitleBlockFilePathTextBox.Text = _config.TitleBlocks.TitleBlockFilePath;
+        TitleBlockPatternDisplayTextBlock.Text = _config.TitleBlocks.TitleBlockPattern;
+        MaxTitleBlockAttributesDisplayTextBlock.Text = _config.TitleBlocks.MaxAttributesPerTitleBlock.ToString();
+        TitleBlockVisibilityDisplayTextBlock.Text = _config.TitleBlocks.VisibilityPropertyName;
     }
 
     private void UpdateStylesDisplay()
@@ -94,6 +103,12 @@ public partial class ProjectConfigWindow : Window
         
         // Construction notes tab - Note blocks
         _config.ConstructionNotes.NoteBlocks = _noteBlocks;
+
+        // Construction notes tab - File paths
+        _config.ConstructionNotes.NoteBlockFilePath = NoteBlockFilePathTextBox.Text.Trim();
+
+        // Title blocks tab - File paths
+        _config.TitleBlocks.TitleBlockFilePath = TitleBlockFilePathTextBox.Text.Trim();
         
         // The block attributes and other settings remain as configured (non-editable in UI)
     }
@@ -238,7 +253,70 @@ public partial class ProjectConfigWindow : Window
         if (_multileaderStyles.Count == 0)
             errors.Add("At least one multileader style is required");
 
+        // Validate construction note block file path
+        if (string.IsNullOrWhiteSpace(NoteBlockFilePathTextBox.Text))
+        {
+            errors.Add("Construction note block file path is required");
+        }
+        else if (!File.Exists(NoteBlockFilePathTextBox.Text))
+        {
+            errors.Add("Construction note block file does not exist");
+        }
+        else if (!Path.GetFileNameWithoutExtension(NoteBlockFilePathTextBox.Text).Equals("NTXX", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add("Construction note block file must be named 'NTXX.dwg'");
+        }
+
+        // Validate title block file path
+        if (string.IsNullOrWhiteSpace(TitleBlockFilePathTextBox.Text))
+        {
+            errors.Add("Title block file path is required");
+        }
+        else if (!File.Exists(TitleBlockFilePathTextBox.Text))
+        {
+            errors.Add("Title block file does not exist");
+        }
+
         return errors;
+    }
+
+    private void BrowseNoteBlockButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select NTXX Construction Note Block File",
+            Filter = "DWG Files (*.dwg)|*.dwg|All Files (*.*)|*.*",
+            InitialDirectory = Path.GetDirectoryName(NoteBlockFilePathTextBox.Text)
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(dialog.FileName);
+            if (fileName.Equals("NTXX", StringComparison.OrdinalIgnoreCase))
+            {
+                NoteBlockFilePathTextBox.Text = dialog.FileName;
+            }
+            else
+            {
+                MessageBox.Show("The selected file must be named 'NTXX.dwg'.", "Invalid File Name", 
+                               MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    private void BrowseTitleBlockButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select Title Block DWG File",
+            Filter = "DWG Files (*.dwg)|*.dwg|All Files (*.*)|*.*",
+            InitialDirectory = Path.GetDirectoryName(TitleBlockFilePathTextBox.Text)
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            TitleBlockFilePathTextBox.Text = dialog.FileName;
+        }
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)

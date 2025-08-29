@@ -1,5 +1,6 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.IO;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
@@ -11,11 +12,13 @@ public class InsertConstructionNotesCommand : ICommandHandler
 {
     private readonly ILogger _logger;
     private readonly BlockInsertionService _blockInsertionService;
+    private readonly IProjectConfigurationService _configService;
 
     public InsertConstructionNotesCommand(ILogger logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _blockInsertionService = new BlockInsertionService(_logger);
+        _configService = new ProjectConfigurationService(new AutoCADLogger());
     }
 
     public string CommandName => "KPFFINSERTBLOCKS";
@@ -24,12 +27,12 @@ public class InsertConstructionNotesCommand : ICommandHandler
     public void Execute()
     {
         ExceptionHandler.TryExecute(
-            action: () =>
+            action: async () =>
             {
                 _logger.LogInformation($"Executing command: {CommandName}");
                 
                 // Path to the construction note block file
-                var blockFilePath = GetConstructionNoteBlockPath();
+                var blockFilePath = await GetConstructionNoteBlockPathAsync();
                 
                 if (string.IsNullOrEmpty(blockFilePath))
                 {
@@ -56,63 +59,46 @@ public class InsertConstructionNotesCommand : ICommandHandler
     }
 
     /// <summary>
-    /// Gets the path to the construction note block DWG file
+    /// Gets the path to the construction note block DWG file from project configuration
     /// </summary>
-    private string GetConstructionNoteBlockPath()
+    private async Task<string> GetConstructionNoteBlockPathAsync()
     {
         try
         {
-            // Get the plugin assembly location to find the testdata folder
-            var assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+            // Try to load the default project configuration
+            var defaultConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\DBRT_Config.json";
             
-            // Navigate to the solution root and find testdata/Blocks
-            var solutionRoot = FindSolutionRoot(assemblyDirectory);
-            if (!string.IsNullOrEmpty(solutionRoot))
+            if (File.Exists(defaultConfigPath))
             {
-                var blockPath = Path.Combine(solutionRoot, "testdata", "Blocks", "NTXX.dwg");
-                if (File.Exists(blockPath))
+                var projectConfig = await _configService.LoadConfigurationAsync(defaultConfigPath);
+                
+                if (projectConfig != null && 
+                    !string.IsNullOrWhiteSpace(projectConfig.ConstructionNotes.NoteBlockFilePath))
                 {
-                    _logger.LogDebug($"Found construction note block at: {blockPath}");
-                    return blockPath;
+                    var configuredPath = projectConfig.ConstructionNotes.NoteBlockFilePath;
+                    
+                    if (File.Exists(configuredPath))
+                    {
+                        _logger.LogDebug($"Using configured construction note block path: {configuredPath}");
+                        return configuredPath;
+                    }
+                    else
+                    {
+                        _logger.LogError($"Configured construction note block file does not exist: {configuredPath}");
+                        return string.Empty;
+                    }
                 }
             }
-
-            // Fallback: try the hardcoded path from the user's request
-            var fallbackPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\Blocks\NTXX.dwg";
-            if (File.Exists(fallbackPath))
-            {
-                _logger.LogDebug($"Using fallback path: {fallbackPath}");
-                return fallbackPath;
-            }
-
-            _logger.LogError($"Construction note block file not found. Searched: {(solutionRoot != null ? Path.Combine(solutionRoot, "testdata", "Blocks", "NTXX.dwg") : "solution root not found")}, {fallbackPath}");
+            
+            // No configuration available
+            _logger.LogError("Construction note block file path not configured. Please configure the NTXX.dwg file location in Project Settings.");
             return string.Empty;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error locating construction note block path: {ex.Message}", ex);
+            _logger.LogError($"Error getting construction note block path: {ex.Message}", ex);
             return string.Empty;
         }
     }
 
-    /// <summary>
-    /// Finds the solution root directory by looking for the .sln file
-    /// </summary>
-    private string? FindSolutionRoot(string? startDirectory)
-    {
-        if (string.IsNullOrEmpty(startDirectory))
-            return null;
-
-        var directory = new DirectoryInfo(startDirectory);
-        while (directory != null)
-        {
-            if (directory.GetFiles("*.sln").Length > 0)
-            {
-                return directory.FullName;
-            }
-            directory = directory.Parent;
-        }
-        return null;
-    }
 }

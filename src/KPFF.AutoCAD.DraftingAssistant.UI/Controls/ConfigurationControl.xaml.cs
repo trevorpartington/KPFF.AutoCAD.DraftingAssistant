@@ -68,7 +68,7 @@ public partial class ConfigurationControl : BaseUserControl
             var solutionRoot = FindSolutionRoot(currentDirectory);
             if (solutionRoot != null)
             {
-                var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "ProjectConfig.json");
+                var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "DBRT Test", "DBRT_Config.json");
                 if (File.Exists(defaultConfigPath))
                 {
                     _currentProject = await _configService.LoadConfigurationAsync(defaultConfigPath);

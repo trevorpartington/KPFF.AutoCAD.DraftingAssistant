@@ -3,6 +3,7 @@ using System.IO;
 using Autodesk.AutoCAD.Geometry;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 
@@ -13,11 +14,13 @@ public class InsertTitleBlockCommand : ICommandHandler
 {
     private readonly ILogger _logger;
     private readonly BlockInsertionService _blockInsertionService;
+    private readonly IProjectConfigurationService _configService;
 
     public InsertTitleBlockCommand(ILogger logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _blockInsertionService = new BlockInsertionService(_logger);
+        _configService = new ProjectConfigurationService(new AutoCADLogger());
     }
 
     public string CommandName => "KPFFINSERTTITLEBLOCK";
@@ -26,12 +29,12 @@ public class InsertTitleBlockCommand : ICommandHandler
     public void Execute()
     {
         ExceptionHandler.TryExecute(
-            action: () =>
+            action: async () =>
             {
                 _logger.LogInformation($"Executing command: {CommandName}");
                 
                 // Path to the title block file
-                var blockFilePath = GetTitleBlockPath();
+                var blockFilePath = await GetTitleBlockPathAsync();
                 
                 if (string.IsNullOrEmpty(blockFilePath))
                 {
@@ -58,36 +61,39 @@ public class InsertTitleBlockCommand : ICommandHandler
     }
 
     /// <summary>
-    /// Gets the path to the title block DWG file
+    /// Gets the path to the title block DWG file from project configuration
     /// </summary>
-    private string? GetTitleBlockPath()
+    private async Task<string?> GetTitleBlockPathAsync()
     {
         try
         {
-            // Get the path relative to the project directory (same logic as construction notes)
-            // Assembly is in: ...\bin\Debug\KPFF.AutoCAD.DraftingAssistant.Plugin.dll
-            // We need to go up to the solution root
-            var assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location!;
-            var projectDir = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(
-                Path.GetDirectoryName(Path.GetDirectoryName(assemblyLocation)))));
+            // Try to load the default project configuration
+            var defaultConfigPath = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\DBRT_Config.json";
             
-            if (projectDir != null)
+            if (File.Exists(defaultConfigPath))
             {
-                var blockFilePath = Path.Combine(projectDir, "testdata", "Blocks", "TB_ATT.dwg");
+                var projectConfig = await _configService.LoadConfigurationAsync(defaultConfigPath);
                 
-                _logger.LogDebug($"Looking for title block at: {blockFilePath}");
-                
-                if (File.Exists(blockFilePath))
+                if (projectConfig != null && 
+                    !string.IsNullOrWhiteSpace(projectConfig.TitleBlocks.TitleBlockFilePath))
                 {
-                    _logger.LogDebug($"Found title block at: {blockFilePath}");
-                    return blockFilePath;
-                }
-                else
-                {
-                    _logger.LogError($"Title block file not found at: {blockFilePath}");
+                    var configuredPath = projectConfig.TitleBlocks.TitleBlockFilePath;
+                    
+                    if (File.Exists(configuredPath))
+                    {
+                        _logger.LogDebug($"Using configured title block path: {configuredPath}");
+                        return configuredPath;
+                    }
+                    else
+                    {
+                        _logger.LogError($"Configured title block file does not exist: {configuredPath}");
+                        return null;
+                    }
                 }
             }
             
+            // No configuration available
+            _logger.LogError("Title block file path not configured. Please configure the title block file location in Project Settings.");
             return null;
         }
         catch (Exception ex)

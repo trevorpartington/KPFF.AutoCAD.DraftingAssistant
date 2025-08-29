@@ -1,8 +1,8 @@
 {
-  "projectName": "Test Project",
-  "clientName": "Test Client",
-  "projectIndexFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\ProjectIndex.xlsx",
-  "projectDWGFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\",
+  "projectName": "Division Street BRT",
+  "clientName": "Spokane Transit Authority",
+  "projectIndexFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\DBRT_Index.xlsx",
+  "projectDWGFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test",
   "sheetNaming": {
     "pattern": "([A-Z]{1,3})-?(\\d{1,3})",
     "seriesGroup": 1,
