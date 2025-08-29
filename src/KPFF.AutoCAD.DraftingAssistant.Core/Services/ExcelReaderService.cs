@@ -435,10 +435,7 @@ public class ExcelReaderService : IExcelReader
                             attributeValues[headerName] = cellValue;
                         }
 
-                        if (config.TitleBlocks.LogAttributeMapping)
-                        {
-                            _logger.LogDebug($"Sheet {sheetName} attributes: {string.Join(", ", attributeValues.Select(kv => $"{kv.Key}='{kv.Value}'"))}");
-                        }
+                        _logger.LogDebug($"Sheet {sheetName} attributes: {string.Join(", ", attributeValues.Select(kv => $"{kv.Key}='{kv.Value}'"))}");
 
                         var mapping = new TitleBlockMapping(sheetName, attributeValues);
                         mappings.Add(mapping);

@@ -59,11 +59,8 @@ public partial class ProjectConfigWindow : Window
         // Construction notes tab - File paths
         NoteBlockFilePathTextBox.Text = _config.ConstructionNotes.NoteBlockFilePath;
 
-        // Title blocks tab - File paths and information
+        // Title blocks tab - File paths
         TitleBlockFilePathTextBox.Text = _config.TitleBlocks.TitleBlockFilePath;
-        TitleBlockPatternDisplayTextBlock.Text = _config.TitleBlocks.TitleBlockPattern;
-        MaxTitleBlockAttributesDisplayTextBlock.Text = _config.TitleBlocks.MaxAttributesPerTitleBlock.ToString();
-        TitleBlockVisibilityDisplayTextBlock.Text = _config.TitleBlocks.VisibilityPropertyName;
     }
 
     private void UpdateStylesDisplay()
@@ -188,10 +185,6 @@ public partial class ProjectConfigWindow : Window
                 return;
             }
 
-            // Create backup of original file
-            var backupPath = $"{_configFilePath}.backup.{DateTime.Now:yyyyMMdd-HHmmss}";
-            File.Copy(_configFilePath, backupPath);
-
             // Save configuration from UI to object
             SaveConfigurationFromUI();
 
@@ -210,7 +203,7 @@ public partial class ProjectConfigWindow : Window
             DialogResult = true;
             Close();
 
-            MessageBox.Show($"Configuration saved successfully!\n\nBackup created: {Path.GetFileName(backupPath)}", 
+            MessageBox.Show("Configuration saved successfully!", 
                            "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)

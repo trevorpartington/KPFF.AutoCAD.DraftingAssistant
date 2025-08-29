@@ -38,7 +38,7 @@ public class DraftingAssistantCommands
     [CommandMethod("KPFFINSERTTITLEBLOCK")]
     public void InsertTitleBlock()
     {
-        // Command to insert title block (TB_ATT.dwg) at origin
+        // Command to insert title block from configured DWG file at origin
         ExecuteCommand<InsertTitleBlockCommand>();
     }
 

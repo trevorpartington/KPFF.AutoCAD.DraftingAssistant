@@ -1020,7 +1020,7 @@ public class CurrentDrawingBlockManager
     /// Gets title blocks matching the specified pattern in a layout
     /// </summary>
     /// <param name="layoutName">Layout name to search in</param>
-    /// <param name="titleBlockPattern">Regex pattern to match title block names (e.g., "^TB_ATT$")</param>
+    /// <param name="titleBlockPattern">Regex pattern to match title block names (e.g., "^PROJ-TITLE-BLK$")</param>
     /// <returns>List of title block information</returns>
     public List<TitleBlockInfo> GetTitleBlocks(string layoutName, string titleBlockPattern)
     {

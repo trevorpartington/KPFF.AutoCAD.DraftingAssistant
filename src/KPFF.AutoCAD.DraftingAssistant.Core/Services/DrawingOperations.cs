@@ -292,12 +292,16 @@ public class DrawingOperations : IDrawingOperations
             
             var blockManager = GetBlockManager();
             
-            // Find title blocks matching the pattern in the layout
-            var titleBlocks = blockManager.GetTitleBlocks(sheetName, config.TitleBlocks.TitleBlockPattern);
+            // Get the title block name from the file path (filename without extension)
+            var titleBlockName = Path.GetFileNameWithoutExtension(config.TitleBlocks.TitleBlockFilePath);
+            var titleBlockPattern = $"^{System.Text.RegularExpressions.Regex.Escape(titleBlockName)}$";
+            
+            // Find title blocks matching the actual name in the layout
+            var titleBlocks = blockManager.GetTitleBlocks(sheetName, titleBlockPattern);
             
             if (titleBlocks.Count == 0)
             {
-                _logger.LogWarning($"No title blocks found matching pattern '{config.TitleBlocks.TitleBlockPattern}' in layout {sheetName}");
+                _logger.LogWarning($"No title blocks found with name '{titleBlockName}' in layout {sheetName}");
                 return;
             }
             
@@ -360,7 +364,10 @@ public class DrawingOperations : IDrawingOperations
         {
             _logger.LogDebug($"Validating title block exists for sheet {sheetName}");
             var blockManager = GetBlockManager();
-            var titleBlocks = blockManager.GetTitleBlocks(sheetName, config.TitleBlocks.TitleBlockPattern);
+            // Get the title block name from the file path (filename without extension)
+            var titleBlockName = Path.GetFileNameWithoutExtension(config.TitleBlocks.TitleBlockFilePath);
+            var titleBlockPattern = $"^{System.Text.RegularExpressions.Regex.Escape(titleBlockName)}$";
+            var titleBlocks = blockManager.GetTitleBlocks(sheetName, titleBlockPattern);
             
             var hasBlock = titleBlocks.Count > 0;
             _logger.LogDebug($"Sheet {sheetName} has {titleBlocks.Count} title blocks");
@@ -380,7 +387,10 @@ public class DrawingOperations : IDrawingOperations
         {
             _logger.LogDebug($"Getting title block attributes for sheet {sheetName}");
             var blockManager = GetBlockManager();
-            var attributes = blockManager.GetTitleBlockAttributes(sheetName, config.TitleBlocks.TitleBlockPattern);
+            // Get the title block name from the file path (filename without extension)
+            var titleBlockName = Path.GetFileNameWithoutExtension(config.TitleBlocks.TitleBlockFilePath);
+            var titleBlockPattern = $"^{System.Text.RegularExpressions.Regex.Escape(titleBlockName)}$";
+            var attributes = blockManager.GetTitleBlockAttributes(sheetName, titleBlockPattern);
             
             _logger.LogDebug($"Retrieved {attributes.Count} title block attributes for sheet {sheetName}");
             return await Task.FromResult(attributes);

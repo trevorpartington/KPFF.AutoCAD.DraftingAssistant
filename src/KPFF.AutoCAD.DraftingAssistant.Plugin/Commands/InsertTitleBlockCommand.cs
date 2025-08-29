@@ -8,7 +8,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
 
 /// <summary>
-/// Command to insert title block (TB_ATT.dwg) at origin (0,0)
+/// Command to insert title block from configured DWG file at origin (0,0)
 /// </summary>
 public class InsertTitleBlockCommand : ICommandHandler
 {
@@ -24,7 +24,7 @@ public class InsertTitleBlockCommand : ICommandHandler
     }
 
     public string CommandName => "KPFFINSERTTITLEBLOCK";
-    public string Description => "Insert title block (TB_ATT.dwg) at origin (0,0)";
+    public string Description => "Insert title block from configured DWG file at origin (0,0)";
 
     public void Execute()
     {
@@ -42,7 +42,7 @@ public class InsertTitleBlockCommand : ICommandHandler
                     return;
                 }
 
-                // Insert the TB_ATT block at origin (0,0)
+                // Insert the title block at origin (0,0)
                 var success = _blockInsertionService.InsertTitleBlock(blockFilePath);
                 
                 if (success)

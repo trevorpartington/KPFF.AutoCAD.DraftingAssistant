@@ -22,13 +22,15 @@
         </Grid.RowDefinitions>
         
         <!-- Radio Buttons and Update Button -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Vertical" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             
             <!-- Radio Buttons -->
-            <StackPanel Orientation="Horizontal" 
+            <StackPanel Grid.Row="0" 
+                        Orientation="Horizontal" 
                         HorizontalAlignment="Left" 
                         Margin="0,0,0,15">
                 <RadioButton Name="AutoNotesRadioButton" 
@@ -43,24 +45,24 @@
                             Style="{StaticResource DarkRadioButtonStyle}"/>
             </StackPanel>
             
-            
             <!-- Action Buttons -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Grid Grid.Row="1" Margin="0,0,0,10">
                 <Button Name="UpdateNotesButton" 
                         Content="Update Notes" 
                         Width="120" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="UpdateNotesButton_Click"
-                        Margin="0,0,10,0"/>
+                        HorizontalAlignment="Left"/>
                 <Button Name="InsertBlocksButton" 
                         Content="Insert Blocks" 
                         Width="120" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
-                        Click="InsertBlocksButton_Click"/>
-            </StackPanel>
-        </StackPanel>
+                        Click="InsertBlocksButton_Click"
+                        HorizontalAlignment="Right"/>
+            </Grid>
+        </Grid>
         
         <!-- Text Readout Area -->
         <Border Grid.Row="1" 

@@ -194,7 +194,10 @@ public class MultiDrawingTitleBlockService
             _logger.LogDebug($"Updating closed drawing with {attributeData.Count} title block attributes");
 
             // Set the title block pattern on the external drawing manager
-            _externalDrawingManager.SetTitleBlockPattern(config.TitleBlocks.TitleBlockPattern);
+            // Get the title block name from the file path (filename without extension)
+            var titleBlockName = System.IO.Path.GetFileNameWithoutExtension(config.TitleBlocks.TitleBlockFilePath);
+            var titleBlockPattern = $"^{System.Text.RegularExpressions.Regex.Escape(titleBlockName)}$";
+            _externalDrawingManager.SetTitleBlockPattern(titleBlockPattern);
 
             // Use external drawing manager for closed drawings with project path for cleanup
             bool success = _externalDrawingManager.UpdateTitleBlocksInClosedDrawing(

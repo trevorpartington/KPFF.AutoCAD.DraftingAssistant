@@ -263,34 +263,6 @@
                             </StackPanel>
                         </GroupBox>
                         
-                        <!-- Title Block Configuration -->
-                        <GroupBox Header="Title Block Configuration" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
-                            <StackPanel Margin="10">
-                                <TextBlock Text="Configuration settings for title block processing:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,15"/>
-                                
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Block Name Pattern:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Name="TitleBlockPatternDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="TB_ATT" FontWeight="SemiBold"/>
-                                    
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Max Attributes:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Name="MaxTitleBlockAttributesDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="50" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Visibility Property:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Name="TitleBlockVisibilityDisplayTextBlock" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Visibility" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                                </Grid>
-                                
-                            </StackPanel>
-                        </GroupBox>
                         
                     </StackPanel>
                 </ScrollViewer>

@@ -54,22 +54,23 @@ public class BlockInsertionService
             // Perform entire operation with document lock to avoid lock violations
             using (var docLock = doc.LockDocument())
             {
-                // Import the block definition
-                var blockDefId = ImportBlockDefinition(db, blockFilePath, "NTXX");
-                if (blockDefId == ObjectId.Null)
-                {
-                    _logger.LogError("Failed to import block definition");
-                    return false;
-                }
-
                 using (var tr = db.TransactionManager.StartTransaction())
                 {
                     try
                     {
-                        // Insert all 24 blocks stacked vertically
+                        // Insert all 24 blocks stacked vertically, each with unique name
                         for (int i = 1; i <= 24; i++)
                         {
                             var blockName = $"NT{i:D2}"; // NT01, NT02, etc.
+                            
+                            // Import each block with its unique name
+                            var blockDefId = ImportBlockDefinition(db, blockFilePath, blockName);
+                            if (blockDefId == ObjectId.Null)
+                            {
+                                _logger.LogError($"Failed to import block definition: {blockName}");
+                                continue;
+                            }
+                            
                             var yOffset = -(i - 1) * 0.5; // 0, -0.5, -1.0, etc.
                             var insertionPoint = new Point3d(
                                 baseInsertionPoint.X,
@@ -113,9 +114,9 @@ public class BlockInsertionService
 
     /// <summary>
     /// Inserts a title block from an external DWG file at the origin (0,0)
-    /// Supports both dynamic and static blocks from TB_ATT.dwg
+    /// Supports both dynamic and static blocks from the specified DWG file.
     /// </summary>
-    /// <param name="blockFilePath">Path to the TB_ATT.dwg file</param>
+    /// <param name="blockFilePath">Path to the title block DWG file (created with WBLOCK)</param>
     /// <returns>True if insertion was successful</returns>
     public bool InsertTitleBlock(string blockFilePath)
     {
@@ -136,7 +137,10 @@ public class BlockInsertionService
 
             // Insert at origin (0,0,0)
             var insertionPoint = Point3d.Origin;
-            var blockName = "TB_ATT"; // Standard title block name
+            
+            // The block name is the same as the DWG filename (without extension)
+            var blockName = Path.GetFileNameWithoutExtension(blockFilePath);
+            _logger.LogInformation($"Using title block: {blockName}");
 
             // Perform entire operation with document lock to avoid lock violations
             using (var docLock = doc.LockDocument())
@@ -410,6 +414,7 @@ public class BlockInsertionService
             return false;
         }
     }
+
 
     /// <summary>
     /// Synchronizes attributes from the block definition to the block reference

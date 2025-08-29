@@ -198,14 +198,14 @@ public partial class ConstructionNoteControl : BaseUserControl
                         noteNumbers = await constructionNotesService.GetAutoNotesForSheetAsync(sheet.SheetName, config);
                     }
 
+                    sheetToNotes[sheet.SheetName] = noteNumbers;
                     if (noteNumbers.Count > 0)
                     {
-                        sheetToNotes[sheet.SheetName] = noteNumbers;
                         autocadLogger.LogDebug($"Auto Notes for {sheet.SheetName}: [{string.Join(", ", noteNumbers)}]");
                     }
                     else
                     {
-                        autocadLogger.LogDebug($"No Auto Notes detected for {sheet.SheetName}");
+                        autocadLogger.LogDebug($"No Auto Notes for {sheet.SheetName}, will clear construction note blocks");
                     }
                 }
                 catch (Exception ex)
@@ -214,13 +214,9 @@ public partial class ConstructionNoteControl : BaseUserControl
                 }
             }
 
-            if (sheetToNotes.Count == 0)
-            {
-                UpdateStatus("No Auto Notes detected on any selected sheets. Check that sheets have viewports with multileaders using the configured style.");
-                return;
-            }
-
-            UpdateStatus($"Found Auto Notes on {sheetToNotes.Count} sheets. Processing batch update...\n");
+            var sheetsWithNotes = sheetToNotes.Values.Count(notes => notes.Count > 0);
+            UpdateStatus($"Processing {sheetToNotes.Count} sheets in Auto Notes mode. " +
+                        $"{sheetsWithNotes} sheets have notes, {sheetToNotes.Count - sheetsWithNotes} will be cleared...\n");
 
             // Use the multi-drawing service for batch processing
             var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);

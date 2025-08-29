@@ -6,7 +6,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
 /// <summary>
 /// Title block service that coordinates Excel reading and drawing operations for title blocks
-/// Handles reading title block data from SHEET_INDEX table and updating TB_ATT blocks
+/// Handles reading title block data from SHEET_INDEX table and updating title blocks
 /// </summary>
 public class TitleBlockService : ITitleBlockService
 {

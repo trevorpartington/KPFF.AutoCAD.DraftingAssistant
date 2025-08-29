@@ -22,24 +22,22 @@
         </Grid.RowDefinitions>
         
         <!-- Buttons -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
+        <Grid Grid.Row="0" Margin="0,0,0,20">
             <Button Name="UpdateTitleBlocksButton" 
-                    Content="Update Title Blocks" 
-                    Width="140" 
+                    Content="Update TB Attributes" 
+                    Width="150" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"
                     Click="UpdateTitleBlocksButton_Click"
-                    Margin="0,0,10,0"/>
+                    HorizontalAlignment="Left"/>
             <Button Name="InsertTitleBlockButton" 
-                    Content="Insert Block" 
-                    Width="120" 
+                    Content="Insert TB Attributes" 
+                    Width="150" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"
-                    Click="InsertTitleBlockButton_Click"/>
-        </StackPanel>
+                    Click="InsertTitleBlockButton_Click"
+                    HorizontalAlignment="Right"/>
+        </Grid>
         
         <!-- Text Readout Area -->
         <Border Grid.Row="1" 

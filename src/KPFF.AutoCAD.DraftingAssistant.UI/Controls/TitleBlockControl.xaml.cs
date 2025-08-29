@@ -85,10 +85,10 @@ public partial class TitleBlockControl : BaseUserControl
             var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
             if (doc != null)
             {
-                // Send the command to AutoCAD for execution
-                doc.SendStringToExecute("KPFFINSERTTITLEBLOCK ", true, false, false);
+                // Send the command to AutoCAD for execution with newline to complete the command
+                doc.SendStringToExecute("KPFFINSERTTITLEBLOCK\n", true, false, false);
                 
-                UpdateStatus("Insert Title Block command executed. TB_ATT block will be inserted at 0,0.");
+                UpdateStatus("Insert Title Block command executed. Title block will be inserted at 0,0.");
             }
             else
             {
@@ -290,7 +290,7 @@ public partial class TitleBlockControl : BaseUserControl
                                "2. Select the sheets you want to update\n" +
                                "3. Click 'Update Title Blocks' to apply changes\n\n" +
                                "The system will read title block data from the SHEET_INDEX table\n" +
-                               "and update TB_ATT blocks across all selected drawings.");
+                               "and update title blocks across all selected drawings.");
                 });
             });
         }

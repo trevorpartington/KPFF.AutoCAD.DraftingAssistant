@@ -20,27 +20,8 @@ public class TitleBlockInfo
 public class TitleBlockConfiguration
 {
     /// <summary>
-    /// Regex pattern to match title block block names (e.g., "^TB_ATT$")
-    /// </summary>
-    public string TitleBlockPattern { get; set; } = @"^TB_ATT$";
-    
-    /// <summary>
-    /// Maximum number of attributes to process per title block
-    /// </summary>
-    public int MaxAttributesPerTitleBlock { get; set; } = 50;
-    
-    /// <summary>
-    /// Property name for visibility control (if applicable)
-    /// </summary>
-    public string VisibilityPropertyName { get; set; } = "Visibility";
-    
-    /// <summary>
-    /// Whether to log attribute mapping details during processing
-    /// </summary>
-    public bool LogAttributeMapping { get; set; } = false;
-    
-    /// <summary>
-    /// Path to the title block DWG file for insertion
+    /// Path to the title block DWG file for insertion. This file IS the block (created with WBLOCK).
+    /// The system will use whatever block name exists in this file.
     /// </summary>
     public string TitleBlockFilePath { get; set; } = @"C:\Users\trevorp\Dev\KPFF.AutoCAD.DraftingAssistant\testdata\DBRT Test\Blocks\DBRT-TTLB-ATT.dwg";
 }

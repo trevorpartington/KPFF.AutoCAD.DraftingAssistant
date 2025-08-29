@@ -19,7 +19,7 @@ public class ExternalDrawingManager
     private readonly ILogger _logger;
     private readonly BackupCleanupService _backupCleanupService;
     private Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
-    private Regex _titleBlockPattern = new Regex(@"^TB_ATT$", RegexOptions.Compiled);
+    private Regex _titleBlockPattern = new Regex(@".*", RegexOptions.Compiled); // Will be set by configuration
 
     public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService, string? noteBlockPattern = null)
     {
@@ -61,7 +61,7 @@ public class ExternalDrawingManager
         catch (ArgumentException ex)
         {
             _logger.LogWarning($"Invalid title block pattern '{pattern}': {ex.Message}. Using default pattern.");
-            _titleBlockPattern = new Regex(@"^TB_ATT$", RegexOptions.Compiled);
+            _titleBlockPattern = new Regex(@".*", RegexOptions.Compiled); // Default pattern, should be overridden
         }
     }
 
