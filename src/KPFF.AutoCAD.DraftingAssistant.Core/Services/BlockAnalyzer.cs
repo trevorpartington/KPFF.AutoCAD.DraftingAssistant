@@ -129,6 +129,13 @@ public class BlockAnalyzer
     {
         try
         {
+            // Check if the block's layer is frozen
+            if (IsLayerFrozen(blockRef.LayerId, transaction))
+            {
+                _logger.LogDebug($"Skipping block reference on frozen layer");
+                return null;
+            }
+
             // Get the effective block name (handles dynamic blocks)
             string blockName = GetEffectiveBlockName(blockRef, transaction);
             
@@ -291,5 +298,34 @@ public class BlockAnalyzer
             _logger.LogError($"Error consolidating note numbers: {ex.Message}", ex);
             return new List<int>();
         }
+    }
+
+    /// <summary>
+    /// Checks if a layer is frozen globally.
+    /// </summary>
+    /// <param name="layerId">The ObjectId of the layer to check</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>True if the layer is frozen, false otherwise</returns>
+    private bool IsLayerFrozen(ObjectId layerId, Transaction transaction)
+    {
+        try
+        {
+            var layerRecord = transaction.GetObject(layerId, OpenMode.ForRead) as LayerTableRecord;
+            if (layerRecord != null)
+            {
+                bool isFrozen = layerRecord.IsFrozen;
+                if (isFrozen)
+                {
+                    _logger.LogDebug($"Layer '{layerRecord.Name}' is globally frozen");
+                }
+                return isFrozen;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error checking if layer is frozen: {ex.Message}");
+        }
+        
+        return false;
     }
 }

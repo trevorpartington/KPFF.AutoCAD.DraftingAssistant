@@ -134,6 +134,13 @@ public class MultileaderAnalyzer
     {
         try
         {
+            // Check if the multileader's layer is frozen
+            if (IsLayerFrozen(mleader.LayerId, transaction))
+            {
+                _logger.LogDebug($"Skipping multileader on frozen layer");
+                return null;
+            }
+
             // Get style name for filtering
             string styleName = GetMLeaderStyleName(mleader, transaction);
             
@@ -382,5 +389,34 @@ public class MultileaderAnalyzer
         }
 
         return uniqueNotes;
+    }
+
+    /// <summary>
+    /// Checks if a layer is frozen globally.
+    /// </summary>
+    /// <param name="layerId">The ObjectId of the layer to check</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>True if the layer is frozen, false otherwise</returns>
+    private bool IsLayerFrozen(ObjectId layerId, Transaction transaction)
+    {
+        try
+        {
+            var layerRecord = transaction.GetObject(layerId, OpenMode.ForRead) as LayerTableRecord;
+            if (layerRecord != null)
+            {
+                bool isFrozen = layerRecord.IsFrozen;
+                if (isFrozen)
+                {
+                    _logger.LogDebug($"Layer '{layerRecord.Name}' is globally frozen");
+                }
+                return isFrozen;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error checking if layer is frozen: {ex.Message}");
+        }
+        
+        return false;
     }
 }
