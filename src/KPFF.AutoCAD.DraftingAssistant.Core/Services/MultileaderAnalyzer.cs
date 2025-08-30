@@ -325,12 +325,14 @@ public class MultileaderAnalyzer
     }
 
     /// <summary>
-    /// Filters multileaders to only those within the specified viewport boundaries.
+    /// Filters multileaders to only those within the specified viewport boundaries and not on frozen layers.
     /// </summary>
     /// <param name="multileaders">List of multileaders to filter</param>
     /// <param name="viewportBoundary">Viewport boundary polygon</param>
-    /// <returns>Filtered list of multileaders within the viewport</returns>
-    public List<MultileaderInfo> FilterMultileadersInViewport(List<MultileaderInfo> multileaders, Point3dCollection viewportBoundary)
+    /// <param name="viewport">Viewport for checking viewport-specific frozen layers</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>Filtered list of multileaders within the viewport and visible</returns>
+    public List<MultileaderInfo> FilterMultileadersInViewport(List<MultileaderInfo> multileaders, Point3dCollection viewportBoundary, Viewport? viewport = null, Transaction? transaction = null)
     {
         if (viewportBoundary == null || viewportBoundary.Count < 3)
         {
@@ -339,22 +341,36 @@ public class MultileaderAnalyzer
         }
 
         var filteredList = new List<MultileaderInfo>();
+        int skippedBoundary = 0;
+        int skippedFrozen = 0;
 
         foreach (var mleader in multileaders)
         {
             try
             {
+                // First check if within viewport boundary
                 bool isInside = Utilities.PointInPolygonDetector.IsPointInPolygon(mleader.Location, viewportBoundary);
                 
-                if (isInside)
+                if (!isInside)
                 {
-                    filteredList.Add(mleader);
-                    _logger.LogDebug($"Multileader {mleader} is inside viewport boundary");
-                }
-                else
-                {
+                    skippedBoundary++;
                     _logger.LogDebug($"Multileader {mleader} is outside viewport boundary");
+                    continue;
                 }
+
+                // Then check if layer is frozen in this viewport
+                if (viewport != null && transaction != null)
+                {
+                    if (IsLayerFrozenInViewport(mleader.MultileaderId, viewport, transaction))
+                    {
+                        skippedFrozen++;
+                        _logger.LogDebug($"Multileader {mleader} is on layer frozen in viewport");
+                        continue;
+                    }
+                }
+
+                filteredList.Add(mleader);
+                _logger.LogDebug($"Multileader {mleader} is inside viewport boundary and visible");
             }
             catch (Exception ex)
             {
@@ -362,7 +378,7 @@ public class MultileaderAnalyzer
             }
         }
 
-        _logger.LogInformation($"Filtered {filteredList.Count} multileaders from {multileaders.Count} total within viewport boundary");
+        _logger.LogInformation($"Filtered {filteredList.Count} multileaders from {multileaders.Count} total (skipped {skippedBoundary} outside boundary, {skippedFrozen} on frozen layers)");
         return filteredList;
     }
 
@@ -418,5 +434,58 @@ public class MultileaderAnalyzer
         }
         
         return false;
+    }
+
+    /// <summary>
+    /// Checks if a layer is frozen in a specific viewport (includes both global and viewport-specific freezing).
+    /// </summary>
+    /// <param name="entityId">The ObjectId of the entity to check</param>
+    /// <param name="viewport">The viewport to check</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>True if the layer is frozen in the viewport, false otherwise</returns>
+    private bool IsLayerFrozenInViewport(ObjectId entityId, Viewport viewport, Transaction transaction)
+    {
+        try
+        {
+            var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
+            if (entity == null) return false;
+
+            var layerId = entity.LayerId;
+            
+            // Check global freezing first
+            var layerRecord = transaction.GetObject(layerId, OpenMode.ForRead) as LayerTableRecord;
+            if (layerRecord?.IsFrozen == true)
+            {
+                _logger.LogDebug($"Layer '{layerRecord.Name}' is globally frozen");
+                return true;
+            }
+            
+            // Check viewport-specific freezing (attempt for all databases)
+            try
+            {
+                var frozenLayers = viewport.GetFrozenLayers();
+                var isActiveDb = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Database == viewport.Database;
+                _logger.LogDebug($"Successfully accessed viewport frozen layers (count: {frozenLayers.Count}, {(isActiveDb ? "active" : "side")} database)");
+                
+                if (frozenLayers.Contains(layerId))
+                {
+                    _logger.LogDebug($"Layer '{layerRecord?.Name}' is frozen in viewport {viewport.Number}");
+                    return true;
+                }
+            }
+            catch (Exception vpEx)
+            {
+                var isActiveDb = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Database == viewport.Database;
+                _logger.LogDebug($"Unable to check viewport frozen layers ({(isActiveDb ? "active" : "side")} database): {vpEx.Message}");
+                // Continue with global layer checking only
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error checking if layer is frozen in viewport: {ex.Message}");
+            return false;
+        }
     }
 }

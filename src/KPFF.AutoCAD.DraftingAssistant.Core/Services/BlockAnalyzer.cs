@@ -301,6 +301,56 @@ public class BlockAnalyzer
     }
 
     /// <summary>
+    /// Filters blocks to those within the specified viewport boundary and not on frozen layers.
+    /// </summary>
+    /// <param name="allBlocks">All blocks to filter</param>
+    /// <param name="viewportBoundary">The viewport boundary polygon</param>
+    /// <param name="viewport">Viewport for checking viewport-specific frozen layers</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>List of blocks within the boundary and visible</returns>
+    public List<BlockInfo> FilterBlocksInViewport(List<BlockInfo> allBlocks, Point3dCollection viewportBoundary, Viewport? viewport = null, Transaction? transaction = null)
+    {
+        var blocksInViewport = new List<BlockInfo>();
+        int skippedBoundary = 0;
+        int skippedFrozen = 0;
+
+        try
+        {
+            foreach (var block in allBlocks)
+            {
+                // First check if within viewport boundary
+                if (!Utilities.PointInPolygonDetector.IsPointInPolygon(block.Location, viewportBoundary))
+                {
+                    skippedBoundary++;
+                    _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is outside viewport boundary");
+                    continue;
+                }
+
+                // Then check if layer is frozen in this viewport
+                if (viewport != null && transaction != null)
+                {
+                    if (IsLayerFrozenInViewport(block.BlockId, viewport, transaction))
+                    {
+                        skippedFrozen++;
+                        _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) is on layer frozen in viewport");
+                        continue;
+                    }
+                }
+
+                blocksInViewport.Add(block);
+                _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is inside viewport boundary and visible");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error filtering blocks in viewport: {ex.Message}", ex);
+        }
+
+        _logger.LogInformation($"Filtered {blocksInViewport.Count} blocks from {allBlocks.Count} total (skipped {skippedBoundary} outside boundary, {skippedFrozen} on frozen layers)");
+        return blocksInViewport;
+    }
+
+    /// <summary>
     /// Checks if a layer is frozen globally.
     /// </summary>
     /// <param name="layerId">The ObjectId of the layer to check</param>
@@ -327,5 +377,58 @@ public class BlockAnalyzer
         }
         
         return false;
+    }
+
+    /// <summary>
+    /// Checks if a layer is frozen in a specific viewport (includes both global and viewport-specific freezing).
+    /// </summary>
+    /// <param name="entityId">The ObjectId of the entity to check</param>
+    /// <param name="viewport">The viewport to check</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <returns>True if the layer is frozen in the viewport, false otherwise</returns>
+    private bool IsLayerFrozenInViewport(ObjectId entityId, Viewport viewport, Transaction transaction)
+    {
+        try
+        {
+            var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
+            if (entity == null) return false;
+
+            var layerId = entity.LayerId;
+            
+            // Check global freezing first
+            var layerRecord = transaction.GetObject(layerId, OpenMode.ForRead) as LayerTableRecord;
+            if (layerRecord?.IsFrozen == true)
+            {
+                _logger.LogDebug($"Layer '{layerRecord.Name}' is globally frozen");
+                return true;
+            }
+            
+            // Check viewport-specific freezing (attempt for all databases)
+            try
+            {
+                var frozenLayers = viewport.GetFrozenLayers();
+                var isActiveDb = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Database == viewport.Database;
+                _logger.LogDebug($"Successfully accessed viewport frozen layers (count: {frozenLayers.Count}, {(isActiveDb ? "active" : "side")} database)");
+                
+                if (frozenLayers.Contains(layerId))
+                {
+                    _logger.LogDebug($"Layer '{layerRecord?.Name}' is frozen in viewport {viewport.Number}");
+                    return true;
+                }
+            }
+            catch (Exception vpEx)
+            {
+                var isActiveDb = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Database == viewport.Database;
+                _logger.LogDebug($"Unable to check viewport frozen layers ({(isActiveDb ? "active" : "side")} database): {vpEx.Message}");
+                // Continue with global layer checking only
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error checking if layer is frozen in viewport: {ex.Message}");
+            return false;
+        }
     }
 }

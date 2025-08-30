@@ -68,7 +68,9 @@ public partial class TitleBlockControl : BaseUserControl
         var logger = new DebugLogger();
         var drawingAccessService = new DrawingAccessService(logger);
         var backupCleanupService = new BackupCleanupService(logger);
-        var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
+        var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+        var blockAnalyzer = new BlockAnalyzer(logger);
+        var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
         var excelReaderService = new ExcelReaderService(logger);
         var titleBlockService = new TitleBlockService(logger, excelReaderService, new DrawingOperations(logger));
         
@@ -125,7 +127,9 @@ public partial class TitleBlockControl : BaseUserControl
             // Create production-ready multi-drawing service
             var drawingAccessService = new DrawingAccessService(autocadLogger);
             var backupCleanupService = new BackupCleanupService(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService);
+            var multileaderAnalyzer = new MultileaderAnalyzer(autocadLogger);
+            var blockAnalyzer = new BlockAnalyzer(autocadLogger);
+            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var titleBlockService = new TitleBlockService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             

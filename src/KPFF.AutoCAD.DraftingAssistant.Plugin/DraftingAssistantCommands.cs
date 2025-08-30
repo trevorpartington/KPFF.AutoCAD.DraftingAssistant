@@ -2547,7 +2547,9 @@ public class DraftingAssistantCommands
             // Create ExternalDrawingManager and perform update
             ed.WriteMessage("\nStarting external drawing update...\n");
             var backupCleanupService = new BackupCleanupService(logger);
-            var externalManager = new ExternalDrawingManager(logger, backupCleanupService);
+            var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+            var blockAnalyzer = new BlockAnalyzer(logger);
+            var externalManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
             bool success = externalManager.UpdateClosedDrawing(dwgPath, layoutName, testNotes);
 
             if (success)
@@ -3108,7 +3110,9 @@ public class DraftingAssistantCommands
             
             var drawingAccessService = new DrawingAccessService(logger);
             var backupCleanupService = new BackupCleanupService(logger);
-            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
+            var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+            var blockAnalyzer = new BlockAnalyzer(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
             var mockExcelReader = new MockExcelReader();
             var mockDrawingOperations = new MockDrawingOperations();
             var constructionNotesService = new ConstructionNotesService(logger, mockExcelReader, mockDrawingOperations);
@@ -3297,7 +3301,9 @@ public class DraftingAssistantCommands
             
             var drawingAccessService = new DrawingAccessService(logger);
             var backupCleanupService = new BackupCleanupService(logger);
-            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService);
+            var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+            var blockAnalyzer = new BlockAnalyzer(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
             var excelReaderService = new ExcelReaderService(logger);
             var drawingOperations = new DrawingOperations(logger);
             var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, drawingOperations);

@@ -299,12 +299,12 @@ public class AutoNotesService
 
             _logger.LogDebug($"Viewport {viewport.Number} boundary: {viewportBoundary.Count} points");
             
-            // Filter multileaders to those within this viewport
-            var multileadersInViewport = _multileaderAnalyzer.FilterMultileadersInViewport(allMultileaders, viewportBoundary);
+            // Filter multileaders to those within this viewport and not on frozen layers
+            var multileadersInViewport = _multileaderAnalyzer.FilterMultileadersInViewport(allMultileaders, viewportBoundary, viewport, transaction);
             var multileaderNotes = _multileaderAnalyzer.ConsolidateNoteNumbers(multileadersInViewport);
             
-            // Filter blocks to those within this viewport  
-            var blocksInViewport = FilterBlocksInViewport(allBlocks, viewportBoundary);
+            // Filter blocks to those within this viewport and not on frozen layers  
+            var blocksInViewport = _blockAnalyzer.FilterBlocksInViewport(allBlocks, viewportBoundary, viewport, transaction);
             var blockNotes = _blockAnalyzer.ConsolidateNoteNumbers(blocksInViewport);
             
             // Combine results
@@ -320,39 +320,6 @@ public class AutoNotesService
             _logger.LogError($"Error analyzing viewport {viewport.Number}: {ex.Message}", ex);
             return noteNumbers;
         }
-    }
-
-    /// <summary>
-    /// Filters blocks to those within the specified viewport boundary using point-in-polygon testing.
-    /// </summary>
-    /// <param name="allBlocks">All blocks to filter</param>
-    /// <param name="viewportBoundary">The viewport boundary polygon</param>
-    /// <returns>List of blocks within the boundary</returns>
-    private List<BlockAnalyzer.BlockInfo> FilterBlocksInViewport(List<BlockAnalyzer.BlockInfo> allBlocks, Point3dCollection viewportBoundary)
-    {
-        var blocksInViewport = new List<BlockAnalyzer.BlockInfo>();
-
-        try
-        {
-            foreach (var block in allBlocks)
-            {
-                if (Utilities.PointInPolygonDetector.IsPointInPolygon(block.Location, viewportBoundary))
-                {
-                    blocksInViewport.Add(block);
-                    _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is inside viewport boundary");
-                }
-                else
-                {
-                    _logger.LogDebug($"Block {block.BlockName} (note {block.NoteNumber}) at {block.Location} is outside viewport boundary");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error filtering blocks in viewport: {ex.Message}", ex);
-        }
-
-        return blocksInViewport;
     }
 
     /// <summary>

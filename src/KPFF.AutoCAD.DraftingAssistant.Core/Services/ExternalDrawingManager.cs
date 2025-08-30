@@ -18,13 +18,17 @@ public class ExternalDrawingManager
 {
     private readonly ILogger _logger;
     private readonly BackupCleanupService _backupCleanupService;
+    private readonly MultileaderAnalyzer _multileaderAnalyzer;
+    private readonly BlockAnalyzer _blockAnalyzer;
     private Regex _noteBlockPattern = new Regex(@"^NT\d{2}$", RegexOptions.Compiled);
     private Regex _titleBlockPattern = new Regex(@".*", RegexOptions.Compiled); // Will be set by configuration
 
-    public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService, string? noteBlockPattern = null)
+    public ExternalDrawingManager(ILogger logger, BackupCleanupService backupCleanupService, MultileaderAnalyzer multileaderAnalyzer, BlockAnalyzer blockAnalyzer, string? noteBlockPattern = null)
     {
         _logger = logger;
         _backupCleanupService = backupCleanupService;
+        _multileaderAnalyzer = multileaderAnalyzer;
+        _blockAnalyzer = blockAnalyzer;
         if (!string.IsNullOrEmpty(noteBlockPattern))
         {
             SetNoteBlockPattern(noteBlockPattern);
@@ -1288,47 +1292,34 @@ public class ExternalDrawingManager
 
                             _logger.LogDebug($"Processing viewport {vpId} (index: {viewportIndex}, Number: {viewport.Number})");
 
-                            // Get viewport bounds in model space
-                            var bounds = ViewportBoundaryCalculator.GetViewportBounds(viewport, tr);
-                            if (!bounds.HasValue)
+                            // Get viewport boundary polygon for filtering 
+                            var viewportBoundary = ViewportBoundaryCalculator.GetViewportFootprint(viewport, tr);
+                            if (viewportBoundary == null || viewportBoundary.Count < 3)
                             {
-                                _logger.LogWarning($"Could not calculate bounds for viewport {vpId} (Number: {viewport.Number})");
+                                _logger.LogWarning($"Could not calculate boundary for viewport {vpId} (Number: {viewport.Number})");
                                 continue;
                             }
 
-                            _logger.LogDebug($"Viewport bounds: {bounds.Value.MinPoint} to {bounds.Value.MaxPoint}");
+                            _logger.LogDebug($"Viewport boundary calculated with {viewportBoundary.Count} points");
                             
-                            // Log multileader positions for comparison
-                            _logger.LogDebug($"Checking {allMultileaders.Count} multileaders and {allBlocks.Count} blocks against viewport bounds:");
-                            foreach (var ml in allMultileaders)
+                            // Log multileader and block counts for comparison
+                            _logger.LogDebug($"Checking {allMultileaders.Count} multileaders and {allBlocks.Count} blocks against viewport boundary:");
+
+                            // Use analyzer filtering methods that include frozen layer checking
+                            var filteredMultileaders = _multileaderAnalyzer.FilterMultileadersInViewport(allMultileaders, viewportBoundary, viewport, tr);
+                            var filteredBlocks = _blockAnalyzer.FilterBlocksInViewport(allBlocks, viewportBoundary, viewport, tr);
+
+                            // Add filtered note numbers to results
+                            foreach (var mleader in filteredMultileaders)
                             {
-                                _logger.LogDebug($"  Multileader {ml.NoteNumber} at: {ml.Location}");
-                            }
-                            foreach (var bl in allBlocks)
-                            {
-                                _logger.LogDebug($"  Block {bl.NoteNumber} ({bl.BlockName}) at: {bl.Location}");
+                                noteNumbers.Add(mleader.NoteNumber);
+                                _logger.LogDebug($"Found multileader note {mleader.NoteNumber} within viewport and visible");
                             }
 
-                            // Find multileaders within this viewport's bounds
-                            foreach (var mleader in allMultileaders)
+                            foreach (var block in filteredBlocks)
                             {
-                                // Check if multileader location is within viewport bounds
-                                if (IsPointWithinBounds(mleader.Location, bounds.Value))
-                                {
-                                    noteNumbers.Add(mleader.NoteNumber);
-                                    _logger.LogDebug($"Found multileader note {mleader.NoteNumber} within viewport bounds");
-                                }
-                            }
-
-                            // Find blocks within this viewport's bounds
-                            foreach (var block in allBlocks)
-                            {
-                                // Check if block location is within viewport bounds
-                                if (IsPointWithinBounds(block.Location, bounds.Value))
-                                {
-                                    noteNumbers.Add(block.NoteNumber);
-                                    _logger.LogDebug($"Found block note {block.NoteNumber} (block: {block.BlockName}) within viewport bounds");
-                                }
+                                noteNumbers.Add(block.NoteNumber);
+                                _logger.LogDebug($"Found block note {block.NoteNumber} (block: {block.BlockName}) within viewport and visible");
                             }
                         }
                         catch (Exception ex)
