@@ -75,8 +75,13 @@ public partial class ConfigurationControl : BaseUserControl
                     if (_currentProject != null)
                     {
                         _currentProjectFilePath = defaultConfigPath;
-                        ActiveProjectTextBlock.Text = _currentProject.ProjectName;
-                        ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                        
+                        // Ensure UI updates happen on the UI thread
+                        Dispatcher.BeginInvoke(() =>
+                        {
+                            ActiveProjectTextBlock.Text = _currentProject.ProjectName;
+                            ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                        });
                         
                         await LoadProjectDetails();
                         await LoadAndSelectAllSheetsAsync();

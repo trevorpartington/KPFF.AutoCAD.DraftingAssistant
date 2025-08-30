@@ -551,22 +551,78 @@ public partial class ConstructionNoteControl : BaseUserControl
         var multileaderStyle = config?.ConstructionNotes?.MultileaderStyleName ?? "Not configured";
         
         var displayText = $"Construction Notes Information\n\n" +
-                         $"Multileader Style(s): {multileaderStyle}\n" +
-                         $"Selected Sheet(s):\n";
+                         $"Multileader Style(s): {multileaderStyle}\n\n";
         
-        if (selectedSheets.Count > 0)
+        // Show sheet selection mode
+        if (ApplyToCurrentSheetCheckBox.IsChecked == true)
         {
-            foreach (var sheet in selectedSheets)
+            var currentLayoutName = GetCurrentLayoutName();
+            displayText += $"Mode: Apply to current sheet only\n";
+            if (!string.IsNullOrEmpty(currentLayoutName))
             {
-                displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
+                displayText += $"Current Sheet: {currentLayoutName}\n\n";
+                if (selectedSheets.Count > 0)
+                {
+                    var sheet = selectedSheets[0];
+                    displayText += $"Target Sheet: {sheet.SheetName} - {sheet.DrawingTitle}\n";
+                }
+                else
+                {
+                    displayText += $"WARNING: Current sheet '{currentLayoutName}' not found in project index\n";
+                }
+            }
+            else
+            {
+                displayText += "WARNING: Could not determine current sheet\n";
             }
         }
         else
         {
-            displayText += "  No sheets selected\n";
+            displayText += $"Mode: Apply to selected sheets ({selectedSheets.Count} sheets)\n";
+            displayText += $"Selected Sheet(s):\n";
+            
+            if (selectedSheets.Count > 0)
+            {
+                var displayLimit = 5; // Show first 5 sheets
+                foreach (var sheet in selectedSheets.Take(displayLimit))
+                {
+                    displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
+                }
+                
+                if (selectedSheets.Count > displayLimit)
+                {
+                    displayText += $"  ... and {selectedSheets.Count - displayLimit} more sheets\n";
+                }
+            }
+            else
+            {
+                displayText += "  No sheets selected\n";
+            }
         }
         
         UpdateStatus(displayText);
+    }
+
+    private async void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        await RefreshSheetSelectionDisplay();
+    }
+
+    private async Task RefreshSheetSelectionDisplay()
+    {
+        try
+        {
+            var config = await LoadProjectConfigurationAsync();
+            if (config != null)
+            {
+                var selectedSheets = await GetSelectedSheetsAsync(config);
+                UpdateInfoDisplay(config, selectedSheets);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error refreshing sheet selection display: {ex.Message}", ex);
+        }
     }
 
     private string? GetCurrentLayoutName()

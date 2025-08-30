@@ -318,24 +318,117 @@ public partial class TitleBlockControl : BaseUserControl
     {
         try
         {
-            await Task.Run(() =>
+            var config = await LoadProjectConfigurationAsync();
+            if (config != null)
             {
-                // Update initial status
-                Dispatcher.BeginInvoke(() =>
+                var selectedSheets = await GetSelectedSheetsAsync(config);
+                UpdateInfoDisplay(config, selectedSheets);
+            }
+            else
+            {
+                await Task.Run(() =>
                 {
-                    UpdateStatus("Ready to update title blocks.\n\n" +
-                               "1. Configure your project in the Configuration tab\n" +
-                               "2. Select the sheets you want to update\n" +
-                               "3. Click 'Update Title Blocks' to apply changes\n\n" +
-                               "The system will read title block data from the SHEET_INDEX table\n" +
-                               "and update title blocks across all selected drawings.");
+                    // Update initial status
+                    Dispatcher.BeginInvoke(() =>
+                    {
+                        UpdateStatus("Ready to update title blocks.\n\n" +
+                                   "1. Configure your project in the Configuration tab\n" +
+                                   "2. Select the sheets you want to update\n" +
+                                   "3. Click 'Update Title Blocks' to apply changes\n\n" +
+                                   "The system will read title block data from the SHEET_INDEX table\n" +
+                                   "and update title blocks across all selected drawings.");
+                    });
                 });
-            });
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError($"Failed to load initial display: {ex.Message}", ex);
         }
+    }
+
+    private async void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        await RefreshSheetSelectionDisplay();
+    }
+
+    private async Task RefreshSheetSelectionDisplay()
+    {
+        try
+        {
+            var config = await LoadProjectConfigurationAsync();
+            if (config != null)
+            {
+                var selectedSheets = await GetSelectedSheetsAsync(config);
+                UpdateInfoDisplay(config, selectedSheets);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error refreshing sheet selection display: {ex.Message}", ex);
+        }
+    }
+
+    private void UpdateInfoDisplay(ProjectConfiguration? config, List<SheetInfo> selectedSheets)
+    {
+        var displayText = $"Title Block Management\n\n";
+        
+        if (config != null)
+        {
+            displayText += $"Project: {config.ProjectName}\n\n";
+        }
+        
+        // Show sheet selection mode
+        if (ApplyToCurrentSheetCheckBox.IsChecked == true)
+        {
+            var currentLayoutName = GetCurrentLayoutName();
+            displayText += $"Mode: Apply to current sheet only\n";
+            if (!string.IsNullOrEmpty(currentLayoutName))
+            {
+                displayText += $"Current Sheet: {currentLayoutName}\n\n";
+                if (selectedSheets.Count > 0)
+                {
+                    var sheet = selectedSheets[0];
+                    displayText += $"Target Sheet: {sheet.SheetName} - {sheet.DrawingTitle}\n";
+                }
+                else
+                {
+                    displayText += $"WARNING: Current sheet '{currentLayoutName}' not found in project index\n";
+                }
+            }
+            else
+            {
+                displayText += "WARNING: Could not determine current sheet\n";
+            }
+        }
+        else
+        {
+            displayText += $"Mode: Apply to selected sheets ({selectedSheets.Count} sheets)\n";
+            displayText += $"Selected Sheet(s):\n";
+            
+            if (selectedSheets.Count > 0)
+            {
+                var displayLimit = 5; // Show first 5 sheets
+                foreach (var sheet in selectedSheets.Take(displayLimit))
+                {
+                    displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
+                }
+                
+                if (selectedSheets.Count > displayLimit)
+                {
+                    displayText += $"  ... and {selectedSheets.Count - displayLimit} more sheets\n";
+                }
+            }
+            else
+            {
+                displayText += "  No sheets selected\n";
+            }
+        }
+        
+        displayText += "\nTitle block data will be read from the SHEET_INDEX table\n" +
+                      "and applied across all target drawings.";
+        
+        UpdateStatus(displayText);
     }
 
     private void UpdateStatus(string message)
