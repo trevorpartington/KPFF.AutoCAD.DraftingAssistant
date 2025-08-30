@@ -86,7 +86,13 @@ public static class ViewportBoundaryCalculator
         Matrix3d rotation = Matrix3d.Rotation(-vp.TwistAngle, Vector3d.ZAxis, Point3d.Origin);
         Point3d rotatedPoint = scaledPoint.TransformBy(rotation);
         
-        return rotatedPoint;
+        // Step 3: Translate by ViewTarget (critical for drawings with real-world coordinates)
+        Point3d finalPoint = new Point3d(
+            rotatedPoint.X + vp.ViewTarget.X,
+            rotatedPoint.Y + vp.ViewTarget.Y,
+            rotatedPoint.Z + vp.ViewTarget.Z);
+        
+        return finalPoint;
     }
 
     /// <summary>
@@ -285,7 +291,7 @@ public static class ViewportBoundaryCalculator
                 0);
             var sampleCornerModel = TransformPaperToModel(sampleCornerPaper, viewport);
 
-            return $"Viewport Transformation Diagnostics (Simplified Approach):\n" +
+            return $"Viewport Transformation Diagnostics (Corrected Approach):\n" +
                    $"  Center Point (Paper): {viewport.CenterPoint}\n" +
                    $"  Dimensions (Paper): {viewport.Width:F3} x {viewport.Height:F3}\n" +
                    $"  View Center: {viewport.ViewCenter}\n" +
@@ -301,6 +307,9 @@ public static class ViewportBoundaryCalculator
                    $"  1. Build rectangle in paper space around ViewCenter\n" +
                    $"  2. Scale from ViewCenter by {1.0/viewport.CustomScale:F1}\n" +
                    $"  3. Rotate around origin (0,0) by {-viewport.TwistAngle * 180.0 / Math.PI:F2}° (negative TwistAngle)\n" +
+                   $"  4. Translate by ViewTarget: ({viewport.ViewTarget.X:F2}, {viewport.ViewTarget.Y:F2}, {viewport.ViewTarget.Z:F2})\n" +
+                   $"  \n" +
+                   $"  ViewTarget Offset: {(viewport.ViewTarget.DistanceTo(Point3d.Origin)):F2} units from origin\n" +
                    $"  \n" +
                    $"  Sample Corner Transformation (top-right):\n" +
                    $"  Paper Space: {sampleCornerPaper}\n" +

@@ -1661,6 +1661,496 @@ public class DraftingAssistantCommands
         }
     }
 
+    [CommandMethod("TESTPRECISION")]
+    public void TestPrecision()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+        var db = doc.Database;
+
+        ed.WriteMessage("\n=== PRECISION DIAGNOSTIC TEST ===\n");
+
+        try
+        {
+            using (var transaction = db.TransactionManager.StartTransaction())
+            {
+                // Get the current layout
+                var layoutManager = LayoutManager.Current;
+                var currentLayoutName = layoutManager.CurrentLayout;
+                ed.WriteMessage($"Current layout: {currentLayoutName}\n");
+
+                // Step 1: Find all multileaders with target styles
+                var logger = new DebugLogger();
+                var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+                var targetStyles = new[] { "ML-STYLE-01", "ML-STYLE-02" };
+                var multileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyles);
+                
+                ed.WriteMessage($"\nFound {multileaders.Count} multileaders with target styles:\n");
+                foreach (var ml in multileaders)
+                {
+                    ed.WriteMessage($"  - Note {ml.NoteNumber} at ({ml.Location.X:F6}, {ml.Location.Y:F6}) | Style: '{ml.StyleName}'\n");
+                }
+
+                if (multileaders.Count == 0)
+                {
+                    ed.WriteMessage("❌ No multileaders found - cannot test precision\n");
+                    return;
+                }
+
+                // Step 2: Analyze viewports in current layout
+                ed.WriteMessage("\n--- VIEWPORT ANALYSIS ---\n");
+                var layoutDict = transaction.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                var layoutId = (ObjectId)layoutDict[currentLayoutName];
+                if (layoutId == ObjectId.Null)
+                {
+                    ed.WriteMessage("❌ Cannot access current layout\n");
+                    return;
+                }
+
+                var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                var layoutBlock = transaction.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                
+                if (layoutBlock == null)
+                {
+                    ed.WriteMessage("❌ Cannot access layout block\n");
+                    return;
+                }
+
+                int viewportCount = 0;
+                int precisionIssuesFound = 0;
+
+                foreach (ObjectId entityId in layoutBlock)
+                {
+                    var entity = transaction.GetObject(entityId, OpenMode.ForRead);
+                    if (entity is Viewport viewport && viewport.Number > 1)
+                    {
+                        viewportCount++;
+                        ed.WriteMessage($"\n=== VIEWPORT #{viewportCount} ===\n");
+                        
+                        // Show viewport properties
+                        ed.WriteMessage($"Center: ({viewport.CenterPoint.X:F6}, {viewport.CenterPoint.Y:F6})\n");
+                        ed.WriteMessage($"ViewCenter: ({viewport.ViewCenter.X:F6}, {viewport.ViewCenter.Y:F6})\n");
+                        ed.WriteMessage($"Scale: {viewport.CustomScale:F10} (1\" = {(1/viewport.CustomScale):F2}')\n");
+                        ed.WriteMessage($"Twist Angle: {viewport.TwistAngle:F10} rad ({viewport.TwistAngle * 180.0 / Math.PI:F6}°)\n");
+                        ed.WriteMessage($"Dimensions: {viewport.Width:F6} x {viewport.Height:F6}\n");
+
+                        // Test precision differences
+                        var precisionResults = TestViewportPrecision(viewport, multileaders, ed);
+                        precisionIssuesFound += precisionResults;
+                    }
+                }
+
+                ed.WriteMessage($"\n=== SUMMARY ===\n");
+                ed.WriteMessage($"Viewports analyzed: {viewportCount}\n");
+                ed.WriteMessage($"Multileaders tested: {multileaders.Count}\n");
+                ed.WriteMessage($"Precision issues found: {precisionIssuesFound}\n");
+                
+                if (precisionIssuesFound > 0)
+                {
+                    ed.WriteMessage("🔍 PRECISION LOSS DETECTED! This is likely causing the Auto Notes failure.\n");
+                    ed.WriteMessage("💡 Recommendation: Implement high-precision calculations or rotate around viewport center.\n");
+                }
+                else
+                {
+                    ed.WriteMessage("✅ No significant precision issues found. The problem may be elsewhere.\n");
+                }
+
+                transaction.Commit();
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR in TESTPRECISION: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+
+        ed.WriteMessage("\n=== TESTPRECISION COMPLETE ===\n");
+    }
+
+    private int TestViewportPrecision(Viewport viewport, List<MultileaderAnalyzer.MultileaderInfo> multileaders, Editor ed)
+    {
+        int issuesFound = 0;
+
+        try
+        {
+            // Get viewport footprint using current (double) precision
+            var currentFootprint = ViewportBoundaryCalculator.GetViewportFootprint(viewport);
+            ed.WriteMessage($"Current method footprint: {currentFootprint.Count} points\n");
+            
+            if (currentFootprint.Count >= 4)
+            {
+                // Show the corners
+                ed.WriteMessage("  Corners (double precision):\n");
+                for (int i = 0; i < Math.Min(4, currentFootprint.Count); i++)
+                {
+                    var pt = currentFootprint[i];
+                    ed.WriteMessage($"    [{i}]: ({pt.X:F6}, {pt.Y:F6})\n");
+                }
+            }
+
+            // Calculate high-precision version
+            var highPrecisionFootprint = GetViewportFootprintHighPrecision(viewport);
+            ed.WriteMessage($"High precision footprint: {highPrecisionFootprint.Count} points\n");
+            
+            if (highPrecisionFootprint.Count >= 4)
+            {
+                ed.WriteMessage("  Corners (decimal precision):\n");
+                for (int i = 0; i < Math.Min(4, highPrecisionFootprint.Count); i++)
+                {
+                    var pt = highPrecisionFootprint[i];
+                    ed.WriteMessage($"    [{i}]: ({pt.X:F6}, {pt.Y:F6})\n");
+                }
+
+                // Compare precision differences
+                if (currentFootprint.Count == highPrecisionFootprint.Count)
+                {
+                    double maxDifference = 0;
+                    for (int i = 0; i < currentFootprint.Count; i++)
+                    {
+                        double diffX = Math.Abs(currentFootprint[i].X - highPrecisionFootprint[i].X);
+                        double diffY = Math.Abs(currentFootprint[i].Y - highPrecisionFootprint[i].Y);
+                        maxDifference = Math.Max(maxDifference, Math.Max(diffX, diffY));
+                    }
+                    
+                    ed.WriteMessage($"  Max coordinate difference: {maxDifference:E6}\n");
+                    if (maxDifference > 1e-6) // If difference > 1 micrometer
+                    {
+                        ed.WriteMessage($"  ⚠️  SIGNIFICANT PRECISION DIFFERENCE: {maxDifference:E6}\n");
+                        issuesFound++;
+                    }
+                }
+            }
+
+            // Test each multileader
+            ed.WriteMessage("  Testing multileaders:\n");
+            foreach (var ml in multileaders)
+            {
+                // Test with current precision
+                bool insideCurrent = IsPointInPolygon(ml.Location, currentFootprint);
+                bool insideHighPrecision = IsPointInPolygon(ml.Location, highPrecisionFootprint);
+                
+                ed.WriteMessage($"    Note {ml.NoteNumber}: Current={insideCurrent}, HighPrec={insideHighPrecision}");
+                
+                if (insideCurrent != insideHighPrecision)
+                {
+                    ed.WriteMessage(" ❌ PRECISION MISMATCH!");
+                    issuesFound++;
+                }
+                else
+                {
+                    ed.WriteMessage(" ✅");
+                }
+                ed.WriteMessage("\n");
+
+                // Show distance to boundary
+                var minDist = GetMinDistanceToPolygon(ml.Location, currentFootprint);
+                ed.WriteMessage($"      Distance to boundary: {minDist:F6}\n");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"    Error testing viewport precision: {ex.Message}\n");
+        }
+
+        return issuesFound;
+    }
+
+    private List<Point3d> GetViewportFootprintHighPrecision(Viewport viewport)
+    {
+        var points = new List<Point3d>();
+
+        try
+        {
+            // Use decimal for high-precision calculations
+            decimal halfW = (decimal)(viewport.Width / 2.0);
+            decimal halfH = (decimal)(viewport.Height / 2.0);
+            decimal centerX = (decimal)viewport.ViewCenter.X;
+            decimal centerY = (decimal)viewport.ViewCenter.Y;
+            decimal scaleFactor = 1.0m / (decimal)viewport.CustomScale;
+
+            // Build corners in paper space with decimal precision
+            var paperCorners = new[]
+            {
+                new { X = centerX - halfW, Y = centerY - halfH }, // BL
+                new { X = centerX - halfW, Y = centerY + halfH }, // TL  
+                new { X = centerX + halfW, Y = centerY + halfH }, // TR
+                new { X = centerX + halfW, Y = centerY - halfH }, // BR
+            };
+
+            foreach (var corner in paperCorners)
+            {
+                // Transform with high precision
+                decimal fromCenterX = corner.X - centerX;
+                decimal fromCenterY = corner.Y - centerY;
+                
+                // Scale
+                decimal scaledFromCenterX = fromCenterX * scaleFactor;
+                decimal scaledFromCenterY = fromCenterY * scaleFactor;
+                
+                decimal scaledX = centerX + scaledFromCenterX;
+                decimal scaledY = centerY + scaledFromCenterY;
+
+                // For rotation, still need to use double for trig functions
+                if (Math.Abs(viewport.TwistAngle) > 1e-10)
+                {
+                    // Rotate around origin (this is where precision loss occurs)
+                    double angle = -viewport.TwistAngle;
+                    decimal cosAngle = (decimal)Math.Cos(angle);
+                    decimal sinAngle = (decimal)Math.Sin(angle);
+                    
+                    decimal rotatedX = scaledX * cosAngle - scaledY * sinAngle;
+                    decimal rotatedY = scaledX * sinAngle + scaledY * cosAngle;
+                    
+                    points.Add(new Point3d((double)rotatedX, (double)rotatedY, 0));
+                }
+                else
+                {
+                    points.Add(new Point3d((double)scaledX, (double)scaledY, 0));
+                }
+            }
+        }
+        catch (System.Exception)
+        {
+            // Fallback to current method
+            return ViewportBoundaryCalculator.GetViewportFootprint(viewport).Cast<Point3d>().ToList();
+        }
+
+        return points;
+    }
+
+    private bool IsPointInPolygon(Point3d testPoint, Point3dCollection polygon)
+    {
+        if (polygon.Count < 3) return false;
+        
+        var points = new Point3dCollection();
+        foreach (Point3d pt in polygon)
+            points.Add(pt);
+        return PointInPolygonDetector.IsPointInPolygon(testPoint, points);
+    }
+
+    private bool IsPointInPolygon(Point3d testPoint, List<Point3d> polygon)
+    {
+        if (polygon.Count < 3) return false;
+        var points = new Point3dCollection();
+        foreach (var pt in polygon)
+            points.Add(pt);
+        return PointInPolygonDetector.IsPointInPolygon(testPoint, points);
+    }
+
+    private double GetMinDistanceToPolygon(Point3d testPoint, Point3dCollection polygon)
+    {
+        if (polygon.Count < 2) return double.MaxValue;
+
+        double minDist = double.MaxValue;
+        for (int i = 0; i < polygon.Count; i++)
+        {
+            var p1 = polygon[i];
+            var p2 = polygon[(i + 1) % polygon.Count];
+            
+            var dist = GetDistanceToLineSegment(testPoint, p1, p2);
+            minDist = Math.Min(minDist, dist);
+        }
+        
+        return minDist;
+    }
+
+    private double GetDistanceToLineSegment(Point3d point, Point3d lineStart, Point3d lineEnd)
+    {
+        var A = point.X - lineStart.X;
+        var B = point.Y - lineStart.Y;
+        var C = lineEnd.X - lineStart.X;
+        var D = lineEnd.Y - lineStart.Y;
+
+        var dot = A * C + B * D;
+        var lenSq = C * C + D * D;
+        
+        if (lenSq == 0) return Math.Sqrt(A * A + B * B); // Line is a point
+
+        var param = dot / lenSq;
+
+        double xx, yy;
+        if (param < 0)
+        {
+            xx = lineStart.X;
+            yy = lineStart.Y;
+        }
+        else if (param > 1)
+        {
+            xx = lineEnd.X;
+            yy = lineEnd.Y;
+        }
+        else
+        {
+            xx = lineStart.X + param * C;
+            yy = lineStart.Y + param * D;
+        }
+
+        var dx = point.X - xx;
+        var dy = point.Y - yy;
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    [CommandMethod("TESTVIEWPORTBOUNDS")]
+    public void TestViewportBounds()
+    {
+        var doc = Application.DocumentManager.MdiActiveDocument;
+        var ed = doc.Editor;
+        var db = doc.Database;
+
+        ed.WriteMessage("\n=== VIEWPORT BOUNDS DIAGNOSTIC ===\n");
+
+        try
+        {
+            using (var transaction = db.TransactionManager.StartTransaction())
+            {
+                // Get the current layout
+                var layoutManager = LayoutManager.Current;
+                var currentLayoutName = layoutManager.CurrentLayout;
+                ed.WriteMessage($"Current layout: {currentLayoutName}\n");
+
+                // Find all multileaders with target styles
+                var logger = new DebugLogger();
+                var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+                var targetStyles = new[] { "ML-STYLE-01", "ML-STYLE-02" };
+                var multileaders = multileaderAnalyzer.FindMultileadersInModelSpace(db, transaction, targetStyles);
+                
+                ed.WriteMessage($"\nFound {multileaders.Count} multileaders with target styles:\n");
+                foreach (var ml in multileaders)
+                {
+                    ed.WriteMessage($"  - Note {ml.NoteNumber} at ({ml.Location.X:F6}, {ml.Location.Y:F6}) | Style: '{ml.StyleName}'\n");
+                }
+
+                // Get current layout viewports
+                var layoutDict = transaction.GetObject(db.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                var layoutId = (ObjectId)layoutDict[currentLayoutName];
+                var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                var layoutBlock = transaction.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+                
+                int viewportCount = 0;
+                foreach (ObjectId entityId in layoutBlock)
+                {
+                    var entity = transaction.GetObject(entityId, OpenMode.ForRead);
+                    if (entity is Viewport viewport && viewport.Number > 1)
+                    {
+                        viewportCount++;
+                        ed.WriteMessage($"\n=== VIEWPORT #{viewportCount} ===\n");
+                        
+                        // Show basic viewport properties
+                        ed.WriteMessage($"Center: ({viewport.CenterPoint.X:F6}, {viewport.CenterPoint.Y:F6})\n");
+                        ed.WriteMessage($"ViewCenter: ({viewport.ViewCenter.X:F6}, {viewport.ViewCenter.Y:F6})\n");
+                        ed.WriteMessage($"Scale: {viewport.CustomScale:F10} (1\" = {(1/viewport.CustomScale):F2}')\n");
+                        ed.WriteMessage($"Twist Angle: {viewport.TwistAngle:F10} rad ({viewport.TwistAngle * 180.0 / Math.PI:F6}°)\n");
+                        ed.WriteMessage($"Dimensions: {viewport.Width:F6} x {viewport.Height:F6}\n");
+                        ed.WriteMessage($"NonRectClip: {viewport.NonRectClipOn}, ClipEntityValid: {viewport.NonRectClipEntityId.IsValid}\n");
+
+                        // Use the actual ViewportBoundaryCalculator from Auto Notes
+                        ed.WriteMessage("\n--- USING ACTUAL AUTO NOTES VIEWPORT CALCULATOR ---\n");
+                        try
+                        {
+                            var footprint = ViewportBoundaryCalculator.GetViewportFootprint(viewport, transaction);
+                            ed.WriteMessage($"Calculated footprint: {footprint.Count} points\n");
+                            
+                            if (footprint.Count > 0)
+                            {
+                                ed.WriteMessage("Viewport boundary vertices (in order):\n");
+                                for (int i = 0; i < footprint.Count; i++)
+                                {
+                                    var pt = footprint[i];
+                                    ed.WriteMessage($"  [{i}]: ({pt.X:F6}, {pt.Y:F6})\n");
+                                }
+
+                                // Calculate bounding box
+                                var bounds = ViewportBoundaryCalculator.GetViewportBounds(viewport, transaction);
+                                if (bounds.HasValue)
+                                {
+                                    ed.WriteMessage($"\nBounding box:\n");
+                                    ed.WriteMessage($"  Min: ({bounds.Value.MinPoint.X:F6}, {bounds.Value.MinPoint.Y:F6})\n");
+                                    ed.WriteMessage($"  Max: ({bounds.Value.MaxPoint.X:F6}, {bounds.Value.MaxPoint.Y:F6})\n");
+                                    ed.WriteMessage($"  Size: {bounds.Value.MaxPoint.X - bounds.Value.MinPoint.X:F6} x {bounds.Value.MaxPoint.Y - bounds.Value.MinPoint.Y:F6}\n");
+                                }
+
+                                // Test each multileader against the viewport boundary using Auto Notes logic
+                                ed.WriteMessage($"\n--- TESTING MULTILEADERS AGAINST VIEWPORT BOUNDARY ---\n");
+                                foreach (var ml in multileaders)
+                                {
+                                    bool isInside = IsPointInViewportFootprint(ml.Location, footprint);
+                                    double minDistance = CalculateMinDistanceToFootprint(ml.Location, footprint);
+                                    
+                                    string insideStatus = isInside ? "✅ INSIDE" : "❌ OUTSIDE";
+                                    ed.WriteMessage($"  Note {ml.NoteNumber} at ({ml.Location.X:F6}, {ml.Location.Y:F6}): {insideStatus}\n");
+                                    ed.WriteMessage($"    Distance to boundary: {minDistance:F6}\n");
+                                    
+                                    if (isInside)
+                                    {
+                                        ed.WriteMessage($"    → This multileader SHOULD be detected by Auto Notes\n");
+                                    }
+                                    else
+                                    {
+                                        ed.WriteMessage($"    → This multileader should NOT be detected by Auto Notes\n");
+                                    }
+                                }
+
+                                // Show diagnostic information from ViewportBoundaryCalculator
+                                ed.WriteMessage($"\n--- VIEWPORT TRANSFORMATION DIAGNOSTICS ---\n");
+                                var diagnostics = ViewportBoundaryCalculator.GetTransformationDiagnostics(viewport);
+                                ed.WriteMessage($"{diagnostics}\n");
+                            }
+                            else
+                            {
+                                ed.WriteMessage("❌ No viewport footprint calculated\n");
+                            }
+                        }
+                        catch (System.Exception ex)
+                        {
+                            ed.WriteMessage($"❌ Error calculating viewport footprint: {ex.Message}\n");
+                            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+                        }
+                    }
+                }
+
+                if (viewportCount == 0)
+                {
+                    ed.WriteMessage("❌ No viewports found in current layout\n");
+                }
+
+                transaction.Commit();
+            }
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\nERROR in TESTVIEWPORTBOUNDS: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+
+        ed.WriteMessage("\n=== TESTVIEWPORTBOUNDS COMPLETE ===\n");
+    }
+
+    private bool IsPointInViewportFootprint(Point3d testPoint, Point3dCollection footprint)
+    {
+        if (footprint.Count < 3) return false;
+        
+        // Use the same PointInPolygonDetector that Auto Notes uses
+        return PointInPolygonDetector.IsPointInPolygon(testPoint, footprint);
+    }
+
+    private double CalculateMinDistanceToFootprint(Point3d testPoint, Point3dCollection footprint)
+    {
+        if (footprint.Count < 2) return double.MaxValue;
+
+        double minDistance = double.MaxValue;
+        
+        for (int i = 0; i < footprint.Count; i++)
+        {
+            var p1 = footprint[i];
+            var p2 = footprint[(i + 1) % footprint.Count];
+            
+            double distance = GetDistanceToLineSegment(testPoint, p1, p2);
+            minDistance = Math.Min(minDistance, distance);
+        }
+        
+        return minDistance;
+    }
+
     [CommandMethod("SELECTVIEWPORT")]
     public void SelectViewport()
     {
