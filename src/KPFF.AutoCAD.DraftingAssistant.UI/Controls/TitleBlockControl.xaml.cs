@@ -11,6 +11,7 @@ public partial class TitleBlockControl : BaseUserControl
     private readonly ITitleBlockService _titleBlockService;
     private readonly IProjectConfigurationService _configService;
     private readonly MultiDrawingTitleBlockService _multiDrawingService;
+    private readonly SharedUIStateService _sharedUIState;
 
     public TitleBlockControl() : this(null, null, null, null)
     {
@@ -31,6 +32,15 @@ public partial class TitleBlockControl : BaseUserControl
         
         // Initialize multi-drawing service
         _multiDrawingService = GetMultiDrawingService();
+        
+        // Initialize shared UI state
+        _sharedUIState = SharedUIStateService.Instance;
+        
+        // Subscribe to shared state changes
+        _sharedUIState.OnApplyToCurrentSheetOnlyChanged += OnSharedApplyToCurrentSheetOnlyChanged;
+        
+        // Initialize checkbox with shared state
+        ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
         
         // Load initial display information
         _ = LoadInitialDisplayAsync();
@@ -349,7 +359,19 @@ public partial class TitleBlockControl : BaseUserControl
 
     private async void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
     {
+        // Update shared state - this will notify other tabs
+        _sharedUIState.ApplyToCurrentSheetOnly = ApplyToCurrentSheetCheckBox.IsChecked == true;
         await RefreshSheetSelectionDisplay();
+    }
+
+    private async void OnSharedApplyToCurrentSheetOnlyChanged(bool applyToCurrentSheetOnly)
+    {
+        // Update checkbox when shared state changes from other tabs
+        if (ApplyToCurrentSheetCheckBox.IsChecked != applyToCurrentSheetOnly)
+        {
+            ApplyToCurrentSheetCheckBox.IsChecked = applyToCurrentSheetOnly;
+            await RefreshSheetSelectionDisplay();
+        }
     }
 
     private async Task RefreshSheetSelectionDisplay()

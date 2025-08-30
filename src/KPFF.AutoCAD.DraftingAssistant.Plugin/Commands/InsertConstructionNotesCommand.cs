@@ -70,16 +70,18 @@ public class InsertConstructionNotesCommand : ICommandHandler
             
             if (File.Exists(defaultConfigPath))
             {
+                _logger.LogInformation($"Loading configuration from: {defaultConfigPath}");
                 var projectConfig = await _configService.LoadConfigurationAsync(defaultConfigPath);
                 
                 if (projectConfig != null && 
                     !string.IsNullOrWhiteSpace(projectConfig.ConstructionNotes.NoteBlockFilePath))
                 {
                     var configuredPath = projectConfig.ConstructionNotes.NoteBlockFilePath;
+                    _logger.LogInformation($"Found configured construction note block path: {configuredPath}");
                     
                     if (File.Exists(configuredPath))
                     {
-                        _logger.LogDebug($"Using configured construction note block path: {configuredPath}");
+                        _logger.LogInformation($"Using configured construction note block path: {configuredPath}");
                         return configuredPath;
                     }
                     else
@@ -88,6 +90,14 @@ public class InsertConstructionNotesCommand : ICommandHandler
                         return string.Empty;
                     }
                 }
+                else
+                {
+                    _logger.LogWarning("Configuration loaded but noteBlockFilePath is empty or null");
+                }
+            }
+            else
+            {
+                _logger.LogError($"Configuration file does not exist: {defaultConfigPath}");
             }
             
             // No configuration available
