@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using Microsoft.Win32;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 
@@ -37,10 +38,10 @@ public partial class ProjectConfigWindow : Window
         ExcelFilePathTextBox.Text = _config.ProjectIndexFilePath;
         DwgFilePathTextBox.Text = _config.ProjectDWGFilePath;
 
-        // General tab - Excel Index Tables (informational) - hardcoded display as requested
-        SheetIndexTableTextBlock.Text = _config.Tables.SheetIndex;
-        ExcelNotesTableTextBlock.Text = _config.Tables.ExcelNotes;
-        // NotesPatternTextBlock.Text is already set in XAML to "ABC_NOTES, AB_NOTES, A_NOTES"
+        // General tab - Excel Index Tables (informational) - now displayed as static content
+        
+        // General tab - Series length configuration
+        LoadSeriesLengthSetting();
 
         // Construction notes tab - Multileader styles
         _multileaderStyles = _config.ConstructionNotes.MultileaderStyleNames.ToList();
@@ -94,6 +95,12 @@ public partial class ProjectConfigWindow : Window
         _config.ClientName = ClientNameTextBox.Text.Trim();
         _config.ProjectIndexFilePath = ExcelFilePathTextBox.Text.Trim();
         _config.ProjectDWGFilePath = DwgFilePathTextBox.Text.Trim();
+        
+        // General tab - Series length configuration
+        if (SeriesDetectionComboBox.SelectedItem is ComboBoxItem selectedItem)
+        {
+            _config.SheetNaming.SeriesLength = int.Parse(selectedItem.Tag.ToString()!);
+        }
 
         // Construction notes tab - Multileader styles
         _config.ConstructionNotes.MultileaderStyleNames = _multileaderStyles;
@@ -316,5 +323,104 @@ public partial class ProjectConfigWindow : Window
     {
         DialogResult = false;
         Close();
+    }
+
+    private void LoadSeriesLengthSetting()
+    {
+        // Set the combobox selection based on the series length
+        SeriesDetectionComboBox.SelectedIndex = Math.Max(0, Math.Min(_config.SheetNaming.SeriesLength, 8));
+        UpdateSeriesPreview();
+    }
+
+    private void SeriesDetectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateSeriesPreview();
+    }
+
+    private void UpdateSeriesPreview()
+    {
+        if (SeriesDetectionComboBox.SelectedItem is ComboBoxItem selectedItem)
+        {
+            var seriesLength = int.Parse(selectedItem.Tag.ToString()!);
+            var examples = new[]
+            {
+                "ABC-123",
+                "PV-104A", 
+                "L85-UCP300",
+                "A1"
+            };
+
+            var previews = new List<string>();
+            foreach (var example in examples)
+            {
+                var parts = SimulateSeriesExtraction(example, seriesLength);
+                if (parts.Length == 2)
+                {
+                    previews.Add($"{example} → Series: {parts[0]}, Number: {parts[1]}");
+                }
+            }
+
+            SeriesPreviewTextBlock.Text = string.Join("\n", previews);
+        }
+    }
+
+    private string[] SimulateSeriesExtraction(string sheetName, int seriesLength)
+    {
+        if (seriesLength == 0)
+        {
+            // Simulate auto-detect logic (simplified)
+            if (sheetName.Contains('-'))
+            {
+                var parts = sheetName.Split('-');
+                if (parts.Length >= 2)
+                {
+                    var series = parts[0];
+                    var number = string.Join("", parts.Skip(1));
+                    return new[] { series, number };
+                }
+            }
+            else
+            {
+                // Simple regex-like extraction for non-hyphenated
+                var letterPart = "";
+                var numberPart = "";
+                var foundNumber = false;
+                
+                for (int i = 0; i < sheetName.Length; i++)
+                {
+                    if (char.IsDigit(sheetName[i]) && !foundNumber)
+                    {
+                        foundNumber = true;
+                        letterPart = sheetName.Substring(0, i);
+                        numberPart = sheetName.Substring(i);
+                        break;
+                    }
+                }
+                
+                if (foundNumber)
+                {
+                    return new[] { letterPart, numberPart };
+                }
+                else
+                {
+                    return new[] { sheetName, "" };
+                }
+            }
+        }
+        else
+        {
+            // Manual series length - preserve hyphens
+            if (sheetName.Length <= seriesLength)
+            {
+                return new[] { sheetName, "" };
+            }
+            
+            var series = sheetName.Substring(0, seriesLength);
+            var number = sheetName.Substring(seriesLength);
+            
+            return new[] { series, number };
+        }
+
+        return Array.Empty<string>();
     }
 }

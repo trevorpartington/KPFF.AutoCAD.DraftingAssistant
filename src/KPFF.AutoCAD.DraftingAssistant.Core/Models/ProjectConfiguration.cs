@@ -26,6 +26,11 @@ public class SheetNamingConfiguration
     public int SeriesGroup { get; set; } = 1;
     public int NumberGroup { get; set; } = 2;
     public string[] Examples { get; set; } = Array.Empty<string>();
+    
+    /// <summary>
+    /// Manual series length override. 0 = Auto Detect (default)
+    /// </summary>
+    public int SeriesLength { get; set; } = 0;
 }
 
 
