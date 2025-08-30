@@ -26,6 +26,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
             <!-- Radio Buttons -->
@@ -62,6 +63,14 @@
                         Click="InsertBlocksButton_Click"
                         HorizontalAlignment="Right"/>
             </Grid>
+            
+            <!-- Apply to Current Sheet Checkbox -->
+            <CheckBox Name="ApplyToCurrentSheetCheckBox" 
+                      Grid.Row="2" 
+                      Content="Apply to current sheet only" 
+                      Style="{StaticResource DarkCheckBoxStyle}"
+                      HorizontalAlignment="Left"
+                      Margin="0,5,0,0"/>
         </Grid>
         
         <!-- Text Readout Area -->

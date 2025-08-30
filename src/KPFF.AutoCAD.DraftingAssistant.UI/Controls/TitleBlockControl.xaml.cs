@@ -266,6 +266,44 @@ public partial class TitleBlockControl : BaseUserControl
     {
         try
         {
+            // Check if "Apply to current sheet only" is checked
+            if (ApplyToCurrentSheetCheckBox.IsChecked == true)
+            {
+                var currentLayoutName = GetCurrentLayoutName();
+                if (!string.IsNullOrEmpty(currentLayoutName))
+                {
+                    // Get all sheets to find the one that matches the current layout
+                    List<SheetInfo> availableSheets;
+                    if (config.SelectedSheets.Count > 0)
+                    {
+                        availableSheets = config.SelectedSheets;
+                    }
+                    else
+                    {
+                        var reader = new ExcelReaderService((IApplicationLogger)Logger);
+                        availableSheets = await reader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+                    }
+                    
+                    // Find the sheet that matches the current layout
+                    var currentSheet = availableSheets.FirstOrDefault(s => s.SheetName == currentLayoutName);
+                    if (currentSheet != null)
+                    {
+                        Logger.LogInformation($"Applying to current sheet only: {currentLayoutName}");
+                        return new List<SheetInfo> { currentSheet };
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Current layout '{currentLayoutName}' not found in sheet list");
+                        return new List<SheetInfo>();
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("Could not determine current layout name");
+                    return new List<SheetInfo>();
+                }
+            }
+            
             // Return the selected sheets from configuration
             return await Task.FromResult(config.SelectedSheets ?? new List<SheetInfo>());
         }
@@ -307,5 +345,23 @@ public partial class TitleBlockControl : BaseUserControl
             TitleBlockTextBlock.Text = message;
             TitleBlockTextBlock.UpdateLayout();
         }
+    }
+
+    private string? GetCurrentLayoutName()
+    {
+        try
+        {
+            var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
+            if (doc != null)
+            {
+                var layoutManager = Autodesk.AutoCAD.DatabaseServices.LayoutManager.Current;
+                return layoutManager.CurrentLayout;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning($"Failed to get current layout name: {ex.Message}");
+        }
+        return null;
     }
 }
