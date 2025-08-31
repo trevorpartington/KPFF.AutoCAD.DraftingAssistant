@@ -7,6 +7,7 @@ using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Plugin.Commands;
+using KPFF.AutoCAD.DraftingAssistant.Plugin.Services;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 using System.IO;
@@ -3470,6 +3471,371 @@ public class DraftingAssistantCommands
         {
             ed.WriteMessage($"\nERROR in TESTPRODUCTIONBATCH: {ex.Message}\n");
             ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+        }
+    }
+
+    /// <summary>
+    /// Test command for plotting functionality
+    /// Tests the complete plotting pipeline with verbose output
+    /// </summary>
+    [CommandMethod("KPFFTESTPLOT")]
+    public async void TestPlotting()
+    {
+        Document doc = Application.DocumentManager.MdiActiveDocument;
+        Editor ed = doc.Editor;
+        
+        try
+        {
+            ed.WriteMessage("\n=== KPFF PLOTTING SYSTEM TEST ===\n");
+            
+            var logger = new AutoCADLogger();
+            
+            // Step 1: Initialize Services
+            ed.WriteMessage("\n--- STEP 1: INITIALIZING PLOTTING SERVICES ---\n");
+            
+            var excelReaderService = new ExcelReaderService(logger);
+            var drawingOperations = new DrawingOperations(logger);
+            var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, drawingOperations);
+            var plotManager = new PlotManager(logger);
+            var plottingService = new PlottingService(logger, constructionNotesService, drawingOperations, excelReaderService, plotManager);
+            
+            ed.WriteMessage("✓ ExcelReaderService created\n");
+            ed.WriteMessage("✓ DrawingOperations created\n");
+            ed.WriteMessage("✓ ConstructionNotesService created\n");
+            ed.WriteMessage("✓ PlottingService created\n");
+            ed.WriteMessage("✓ PlotManager created\n");
+            
+            // Step 2: Load Current Project Configuration
+            ed.WriteMessage("\n--- STEP 2: LOADING CURRENT PROJECT CONFIGURATION ---\n");
+            
+            // Try to load the current project configuration
+            ProjectConfiguration? config = null;
+            
+            try
+            {
+                var configService = new ProjectConfigurationService((IApplicationLogger)logger);
+                
+                // Get the document directory and look for configuration files
+                var documentPath = Path.GetDirectoryName(doc.Name) ?? "";
+                ed.WriteMessage($"Looking for project configuration in: {documentPath}\n");
+                
+                // Try common configuration file names
+                var configFileNames = new[] { "ProjectConfig.json", "DBRT_Config.json" };
+                string? configPath = null;
+                
+                foreach (var fileName in configFileNames)
+                {
+                    var testPath = Path.Combine(documentPath, fileName);
+                    if (File.Exists(testPath))
+                    {
+                        configPath = testPath;
+                        ed.WriteMessage($"✓ Found configuration file: {fileName}\n");
+                        break;
+                    }
+                }
+                
+                if (configPath == null)
+                {
+                    ed.WriteMessage($"❌ No project configuration found in: {documentPath}\n");
+                    ed.WriteMessage("Searched for: " + string.Join(", ", configFileNames) + "\n");
+                    ed.WriteMessage("Please configure a project using the UI first\n");
+                    return;
+                }
+                
+                config = await configService.LoadConfigurationAsync(configPath);
+                
+                if (config != null)
+                {
+                    ed.WriteMessage($"✓ Loaded current project: {config.ProjectName}\n");
+                    
+                    // Ensure plotting configuration exists
+                    if (config.Plotting == null)
+                    {
+                        config.Plotting = new PlottingConfiguration();
+                    }
+                    
+                    // Set default plotting output directory if not configured
+                    if (string.IsNullOrEmpty(config.Plotting.OutputDirectory))
+                    {
+                        config.Plotting.OutputDirectory = Path.Combine(config.ProjectDWGFilePath, "PlotOutput");
+                    }
+                    
+                    config.Plotting.EnablePlotting = true;
+                    config.Plotting.DefaultPlotFormat = "PDF";
+                }
+                else
+                {
+                    ed.WriteMessage("❌ No current project configuration found\n");
+                    ed.WriteMessage("Please configure a project using the UI first\n");
+                    return;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ed.WriteMessage($"❌ Error loading project configuration: {ex.Message}\n");
+                ed.WriteMessage("Please configure a project using the UI first\n");
+                return;
+            }
+            
+            ed.WriteMessage($"📂 Project DWG path: {config.ProjectDWGFilePath}\n");
+            ed.WriteMessage($"📋 Excel file path: {config.ProjectIndexFilePath}\n");
+            ed.WriteMessage($"📄 Plot output path: {config.Plotting.OutputDirectory}\n");
+            
+            // Ensure output directory exists
+            Directory.CreateDirectory(config.Plotting.OutputDirectory);
+            ed.WriteMessage($"✓ Output directory created/verified\n");
+            
+            // Step 3: Load Sheet Data
+            ed.WriteMessage("\n--- STEP 3: LOADING SHEET DATA ---\n");
+            
+            if (!File.Exists(config.ProjectIndexFilePath))
+            {
+                ed.WriteMessage($"❌ Excel file not found: {config.ProjectIndexFilePath}\n");
+                ed.WriteMessage("Cannot proceed without project index file\n");
+                return;
+            }
+            
+            var sheetInfos = await excelReaderService.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+            ed.WriteMessage($"✓ Loaded {sheetInfos.Count} sheets from Excel index\n");
+            
+            if (sheetInfos.Count == 0)
+            {
+                ed.WriteMessage("❌ No sheets found in Excel index\n");
+                return;
+            }
+            
+            // Show first few sheets
+            ed.WriteMessage("Sample sheets loaded:\n");
+            foreach (var sheet in sheetInfos.Take(5))
+            {
+                ed.WriteMessage($"  • {sheet.SheetName}: {sheet.DWGFileName} - {sheet.DrawingTitle}\n");
+            }
+            
+            // Step 4: Select Test Sheets
+            ed.WriteMessage("\n--- STEP 4: SELECTING TEST SHEETS ---\n");
+            
+            // Use first 2 sheets for testing
+            var testSheets = sheetInfos.Take(2).Select(s => s.SheetName).ToList();
+            ed.WriteMessage($"Selected {testSheets.Count} sheets for testing:\n");
+            foreach (var sheetName in testSheets)
+            {
+                ed.WriteMessage($"  • {sheetName}\n");
+            }
+            
+            // Step 5: Validate Plotting Prerequisites
+            ed.WriteMessage("\n--- STEP 5: VALIDATING PLOTTING PREREQUISITES ---\n");
+            
+            var validation = await plottingService.ValidateSheetsForPlottingAsync(testSheets, config);
+            
+            ed.WriteMessage($"Validation result: {(validation.IsValid ? "✓ VALID" : "❌ INVALID")}\n");
+            ed.WriteMessage($"Valid sheets: {validation.ValidSheets.Count}\n");
+            ed.WriteMessage($"Invalid sheets: {validation.InvalidSheets.Count}\n");
+            ed.WriteMessage($"Total issues: {validation.Issues.Count}\n");
+            
+            if (validation.Issues.Count > 0)
+            {
+                ed.WriteMessage("Issues found:\n");
+                foreach (var issue in validation.Issues)
+                {
+                    var severity = issue.IsWarning ? "⚠ WARNING" : "❌ ERROR";
+                    ed.WriteMessage($"  {severity} - {issue.SheetName}: {issue.Description}\n");
+                }
+            }
+            
+            if (!validation.IsValid)
+            {
+                ed.WriteMessage("Cannot proceed due to validation failures\n");
+                return;
+            }
+            
+            // Step 6: Get Plot Settings for Test Sheets
+            ed.WriteMessage("\n--- STEP 6: EXAMINING PLOT SETTINGS ---\n");
+            
+            foreach (var sheetName in validation.ValidSheets)
+            {
+                var plotSettings = await plottingService.GetDefaultPlotSettingsAsync(sheetName, config);
+                if (plotSettings != null)
+                {
+                    ed.WriteMessage($"📋 {sheetName} plot settings:\n");
+                    ed.WriteMessage($"    Drawing: {Path.GetFileName(plotSettings.DrawingPath)}\n");
+                    ed.WriteMessage($"    Layout: {plotSettings.LayoutName}\n");
+                    ed.WriteMessage($"    Device: {plotSettings.PlotDevice}\n");
+                    ed.WriteMessage($"    Paper: {plotSettings.PaperSize}\n");
+                    ed.WriteMessage($"    Scale: {plotSettings.PlotScale}\n");
+                    ed.WriteMessage($"    Area: {plotSettings.PlotArea}\n");
+                    ed.WriteMessage($"    Centered: {plotSettings.PlotCentered}\n");
+                }
+                else
+                {
+                    ed.WriteMessage($"❌ Could not get plot settings for {sheetName}\n");
+                }
+            }
+            
+            // Step 7: Test Individual Plot Operations
+            ed.WriteMessage("\n--- STEP 7: TESTING INDIVIDUAL PLOT OPERATIONS ---\n");
+            
+            foreach (var sheetName in validation.ValidSheets.Take(1)) // Just test first sheet
+            {
+                ed.WriteMessage($"\n🖨 Testing plot operation for {sheetName}...\n");
+                
+                var sheetInfo = sheetInfos.First(s => s.SheetName == sheetName);
+                var drawingPath = Path.Combine(config.ProjectDWGFilePath, sheetInfo.DWGFileName);
+                if (!sheetInfo.DWGFileName.EndsWith(".dwg", StringComparison.OrdinalIgnoreCase))
+                {
+                    drawingPath += ".dwg";
+                }
+                
+                var outputPath = Path.Combine(config.Plotting.OutputDirectory, $"{sheetName}_TEST.pdf");
+                
+                ed.WriteMessage($"  Source: {Path.GetFileName(drawingPath)}\n");
+                ed.WriteMessage($"  Layout: {sheetName}\n");
+                ed.WriteMessage($"  Output: {Path.GetFileName(outputPath)}\n");
+                
+                if (!File.Exists(drawingPath))
+                {
+                    ed.WriteMessage($"  ❌ Drawing file not found: {drawingPath}\n");
+                    continue;
+                }
+                
+                try
+                {
+                    var plotSuccess = await plotManager.PlotLayoutToPdfAsync(drawingPath, sheetName, outputPath);
+                    
+                    if (plotSuccess)
+                    {
+                        ed.WriteMessage($"  ✅ Plot successful!\n");
+                        if (File.Exists(outputPath))
+                        {
+                            var fileInfo = new FileInfo(outputPath);
+                            ed.WriteMessage($"  📄 PDF created: {fileInfo.Length} bytes\n");
+                        }
+                    }
+                    else
+                    {
+                        ed.WriteMessage($"  ❌ Plot failed\n");
+                    }
+                }
+                catch (System.Exception plotEx)
+                {
+                    ed.WriteMessage($"  ❌ Plot exception: {plotEx.Message}\n");
+                }
+            }
+            
+            // Step 8: Test Complete Plot Service Workflow
+            ed.WriteMessage("\n--- STEP 8: TESTING COMPLETE PLOT WORKFLOW ---\n");
+            
+            var plotJobSettings = new PlotJobSettings
+            {
+                UpdateConstructionNotes = false,  // Skip for initial test
+                UpdateTitleBlocks = false,        // Skip for initial test
+                ApplyToCurrentSheetOnly = false,
+                OutputDirectory = config.Plotting.OutputDirectory
+            };
+            
+            ed.WriteMessage($"Plot job settings:\n");
+            ed.WriteMessage($"  Update Construction Notes: {plotJobSettings.UpdateConstructionNotes}\n");
+            ed.WriteMessage($"  Update Title Blocks: {plotJobSettings.UpdateTitleBlocks}\n");
+            ed.WriteMessage($"  Apply to Current Sheet Only: {plotJobSettings.ApplyToCurrentSheetOnly}\n");
+            ed.WriteMessage($"  Output Directory: {plotJobSettings.OutputDirectory}\n");
+            
+            // Create a progress reporter
+            var progress = new Progress<PlotProgress>(p =>
+            {
+                ed.WriteMessage($"  📊 {p.CurrentOperation}: {p.CurrentSheet} ({p.CompletedSheets}/{p.TotalSheets}) - {p.ProgressPercentage}%\n");
+            });
+            
+            ed.WriteMessage($"\n🖨 Starting batch plot of {validation.ValidSheets.Count} sheets...\n");
+            
+            var plotResult = await plottingService.PlotSheetsAsync(validation.ValidSheets, config, plotJobSettings, progress);
+            
+            // Step 9: Report Results
+            ed.WriteMessage("\n--- STEP 9: PLOT RESULTS ---\n");
+            
+            ed.WriteMessage($"Overall Success: {(plotResult.Success ? "✅ YES" : "❌ NO")}\n");
+            ed.WriteMessage($"Total Sheets: {plotResult.TotalSheets}\n");
+            ed.WriteMessage($"Successful: {plotResult.SuccessfulSheets.Count}\n");
+            ed.WriteMessage($"Failed: {plotResult.FailedSheets.Count}\n");
+            ed.WriteMessage($"Success Rate: {plotResult.SuccessRate:F1}%\n");
+            
+            if (plotResult.SuccessfulSheets.Count > 0)
+            {
+                ed.WriteMessage($"\n✅ SUCCESSFUL PLOTS:\n");
+                foreach (var sheet in plotResult.SuccessfulSheets)
+                {
+                    var outputFile = Path.Combine(config.Plotting.OutputDirectory, $"{sheet}.pdf");
+                    var exists = File.Exists(outputFile);
+                    ed.WriteMessage($"  • {sheet}: {(exists ? "✅ PDF created" : "❓ PDF status unknown")}\n");
+                }
+            }
+            
+            if (plotResult.FailedSheets.Count > 0)
+            {
+                ed.WriteMessage($"\n❌ FAILED PLOTS:\n");
+                foreach (var failure in plotResult.FailedSheets)
+                {
+                    ed.WriteMessage($"  • {failure.SheetName}: {failure.ErrorMessage}\n");
+                    if (!string.IsNullOrEmpty(failure.ExceptionDetails))
+                    {
+                        ed.WriteMessage($"    Details: {failure.ExceptionDetails}\n");
+                    }
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(plotResult.ErrorMessage))
+            {
+                ed.WriteMessage($"\nGeneral Error: {plotResult.ErrorMessage}\n");
+            }
+            
+            // Step 10: Summary
+            ed.WriteMessage("\n--- STEP 10: TEST SUMMARY ---\n");
+            
+            ed.WriteMessage($"📋 Configuration: {(config.Plotting.EnablePlotting ? "✅" : "❌")} Plotting enabled\n");
+            ed.WriteMessage($"📂 Output Directory: {(Directory.Exists(config.Plotting.OutputDirectory) ? "✅" : "❌")} {config.Plotting.OutputDirectory}\n");
+            ed.WriteMessage($"📄 Sheet Validation: {(validation.IsValid ? "✅" : "❌")} {validation.ValidSheets.Count} valid sheets\n");
+            ed.WriteMessage($"🖨 Plot Operations: {(plotResult.Success ? "✅" : "❌")} {plotResult.SuccessRate:F1}% success rate\n");
+            
+            var outputFiles = Directory.GetFiles(config.Plotting.OutputDirectory, "*.pdf");
+            ed.WriteMessage($"📁 Output Files: {outputFiles.Length} PDF files in output directory\n");
+            
+            if (outputFiles.Length > 0)
+            {
+                ed.WriteMessage("Generated PDFs:\n");
+                foreach (var file in outputFiles.Take(5))
+                {
+                    var fileInfo = new FileInfo(file);
+                    ed.WriteMessage($"  • {Path.GetFileName(file)} ({fileInfo.Length} bytes)\n");
+                }
+                if (outputFiles.Length > 5)
+                {
+                    ed.WriteMessage($"  ... and {outputFiles.Length - 5} more files\n");
+                }
+            }
+            
+            ed.WriteMessage("\n=== KPFF PLOTTING TEST COMPLETE ===\n");
+            
+            if (plotResult.Success && plotResult.SuccessRate >= 100)
+            {
+                ed.WriteMessage("🎉 PLOTTING SYSTEM FULLY OPERATIONAL!\n");
+            }
+            else if (plotResult.Success && plotResult.SuccessRate >= 50)
+            {
+                ed.WriteMessage("✅ PLOTTING SYSTEM WORKING (with some issues to resolve)\n");
+            }
+            else
+            {
+                ed.WriteMessage("❌ PLOTTING SYSTEM NEEDS DEBUGGING\n");
+            }
+            
+            ed.WriteMessage($"\nNext steps:\n");
+            ed.WriteMessage($"- Check output files in: {config.Plotting.OutputDirectory}\n");
+            ed.WriteMessage($"- Review any error messages above\n");
+            ed.WriteMessage($"- Test with construction notes/title block updates if needed\n");
+        }
+        catch (System.Exception ex)
+        {
+            ed.WriteMessage($"\n💥 CRITICAL ERROR in KPFFTESTPLOT: {ex.Message}\n");
+            ed.WriteMessage($"Stack trace: {ex.StackTrace}\n");
+            ed.WriteMessage("\nThis indicates a fundamental issue with the plotting system setup.\n");
         }
     }
 }

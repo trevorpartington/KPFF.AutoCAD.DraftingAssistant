@@ -12,6 +12,7 @@ public class ProjectConfiguration
     public TableConfiguration Tables { get; set; } = new();
     public ConstructionNotesConfiguration ConstructionNotes { get; set; } = new();
     public TitleBlockConfiguration TitleBlocks { get; set; } = new();
+    public PlottingConfiguration Plotting { get; set; } = new();
     
     /// <summary>
     /// Runtime-only property for selected sheets. Not serialized to JSON.
@@ -77,4 +78,23 @@ public class NoteBlockConfiguration
     public string BlockName { get; set; } = "_TagCircle";
     public string AttributeName { get; set; } = "TAGNUMBER";
 }
+
+public class PlottingConfiguration
+{
+    /// <summary>
+    /// Output directory for plot files
+    /// </summary>
+    public string OutputDirectory { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Whether plotting is enabled for this project
+    /// </summary>
+    public bool EnablePlotting { get; set; } = true;
+    
+    /// <summary>
+    /// Default plot format (PDF, DWF, etc.)
+    /// </summary>
+    public string DefaultPlotFormat { get; set; } = "PDF";
+}
+
 

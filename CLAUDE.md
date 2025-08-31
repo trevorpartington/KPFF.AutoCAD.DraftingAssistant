@@ -205,3 +205,76 @@ The construction notes system supports all drawing scenarios:
 - **Closed**: Drawing file exists on disk but is not open
 
 Both Auto Notes and Excel Notes work seamlessly across all three drawing states with proper attribute alignment and viewport protection.
+
+## Plotting System
+
+### Overview
+The plotting system provides seamless batch plotting capabilities that integrate with the existing construction notes and title block features. Users can plot selected sheets using each sheet's default page setup with optional pre-plot updates.
+
+### Key Features
+- **Simple PDF Plotting**: Uses each sheet's existing page setup, outputs to `{sheetname}.pdf`
+- **Optional Pre-Plot Updates**: Checkbox options to update construction notes and/or title blocks before plotting
+- **Multi-Drawing Support**: Works with active, inactive, and closed drawings
+- **Synchronized UI State**: "Apply to current sheet only" checkbox state persists across all tabs
+- **Comprehensive Error Handling**: Failed plots are skipped and logged with detailed error information
+
+### File Structure
+
+#### Project Configuration
+- **ProjectConfig.json**: Plotting configuration section includes:
+  - Output directory path for generated PDFs
+  - Default plot format settings
+  - Enable/disable plotting for project
+
+### User Interface
+
+#### Plotting Tab Layout
+```
+[☐ Update Construction Notes] [☐ Update Title Blocks]
+[☐ Apply to current sheet only]
+[Plot] button
+─────────────────────────────────────────────────────
+[Results and progress display area]
+```
+
+### Technical Implementation
+
+#### Plot Workflow
+1. **Pre-Plot Phase**:
+   - Validate selected sheets (layout exists, drawing accessible)
+   - Open closed drawings if needed
+   - Update construction notes (if checkbox enabled) - uses Construction Notes tab radio button selection (Auto/Excel)
+   - Update title blocks (if checkbox enabled)
+
+2. **Plot Phase**:
+   - For each sheet: use existing page setup to generate PDF
+   - Skip sheets that fail validation or plotting
+   - Track progress and errors in real-time
+
+3. **Post-Plot Phase**:
+   - Close temporarily opened drawings
+   - Display comprehensive results with success/failure summary
+   - Log all errors for troubleshooting
+
+#### Error Handling Strategy
+- **Missing Plot Device**: Skip sheet, log error in job summary
+- **Drawing Access Issues**: Skip sheet, log specific error
+- **Page Setup Problems**: Skip sheet, continue with remaining sheets
+- **File Overwriting**: Always overwrite existing PDFs with same name
+
+#### Integration Points
+- **Construction Notes**: Checks Construction Notes tab radio button state (Auto Notes vs Excel Notes)
+- **Title Blocks**: Uses existing title block update service
+- **Shared UI State**: Synchronizes "Apply to current sheet only" across all tabs
+- **External Drawing Manager**: Handles closed/inactive drawing operations
+
+### Development Dependencies
+- **AutoCAD .NET PlottingServices**: Core plotting functionality using `PlotFactory.CreatePublishEngine()`
+- **Existing Services**: Integrates with `ConstructionNotesService` and title block operations
+- **Project Configuration**: Extends existing configuration system with plotting settings
+
+### Current Status (Plotting Branch)
+- ✅ Core data models and interfaces defined
+- ✅ Project configuration extended with plotting settings
+- 🔄 **In Progress**: Service implementation and UI updates
+- ⏳ **Planned**: AutoCAD API integration and testing

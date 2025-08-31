@@ -62,6 +62,13 @@ public partial class ProjectConfigWindow : Window
 
         // Title blocks tab - File paths
         TitleBlockFilePathTextBox.Text = _config.TitleBlocks.TitleBlockFilePath;
+        
+        // Plotting tab - Settings
+        EnablePlottingCheckBox.IsChecked = _config.Plotting.EnablePlotting;
+        PlotOutputDirectoryTextBox.Text = _config.Plotting.OutputDirectory;
+        
+        // Plotting tab - Format settings
+        DefaultPlotFormatComboBox.SelectedValue = _config.Plotting.DefaultPlotFormat;
     }
 
     private void UpdateStylesDisplay()
@@ -113,6 +120,11 @@ public partial class ProjectConfigWindow : Window
 
         // Title blocks tab - File paths
         _config.TitleBlocks.TitleBlockFilePath = TitleBlockFilePathTextBox.Text.Trim();
+        
+        // Plotting tab - Settings
+        _config.Plotting.EnablePlotting = EnablePlottingCheckBox.IsChecked == true;
+        _config.Plotting.OutputDirectory = PlotOutputDirectoryTextBox.Text.Trim();
+        _config.Plotting.DefaultPlotFormat = DefaultPlotFormatComboBox.SelectedValue?.ToString() ?? "PDF";
         
         // The block attributes and other settings remain as configured (non-editable in UI)
     }
@@ -316,6 +328,23 @@ public partial class ProjectConfigWindow : Window
         if (dialog.ShowDialog() == true)
         {
             TitleBlockFilePathTextBox.Text = dialog.FileName;
+        }
+    }
+
+    private void BrowseOutputDirectoryButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select Plot Output Directory (Choose any file in the target directory)",
+            Filter = "All Files (*.*)|*.*",
+            InitialDirectory = Directory.Exists(PlotOutputDirectoryTextBox.Text.Trim()) 
+                ? PlotOutputDirectoryTextBox.Text.Trim() 
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        };
+
+        if (dialog.ShowDialog() == true && !string.IsNullOrEmpty(dialog.FileName))
+        {
+            PlotOutputDirectoryTextBox.Text = Path.GetDirectoryName(dialog.FileName);
         }
     }
 
