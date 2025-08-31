@@ -174,9 +174,9 @@ public class PlotManager : IPlotManager
             
             if (result)
             {
-                // The Publisher API creates files as {DrawingName}-{LayoutName}.pdf
+                // The Publisher API creates files using the Title field we set (which is the sheet name)
                 // We need to rename it to match the requested output path
-                var publishedFile = Path.Combine(tempOutputDir, $"{Path.GetFileNameWithoutExtension(drawingPath)}-{layoutName}.pdf");
+                var publishedFile = Path.Combine(tempOutputDir, $"{layoutName}.pdf");
                 
                 if (File.Exists(publishedFile))
                 {
