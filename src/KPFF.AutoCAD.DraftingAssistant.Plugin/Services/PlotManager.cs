@@ -68,7 +68,7 @@ public class PlotManager : IPlotManager
                 {
                     DwgName = drawingPath,
                     Layout = sheet.SheetName,
-                    Title = sheet.DrawingTitle ?? sheet.SheetName,
+                    Title = sheet.SheetName, // Use sheet name for unique PDF filenames
                     Nps = string.Empty, // Use layout's saved page setup
                     NpsSourceDwg = string.Empty
                 };
