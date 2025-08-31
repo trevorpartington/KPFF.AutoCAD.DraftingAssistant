@@ -35,13 +35,15 @@
                           Content="Update construction notes before plotting" 
                           Style="{StaticResource DarkCheckBoxStyle}"
                           HorizontalAlignment="Left"
-                          Margin="0,0,0,5"/>
+                          Margin="0,0,0,5"
+                          IsChecked="True"/>
                 
                 <CheckBox Name="UpdateTitleBlocksCheckBox" 
                           Content="Update title blocks before plotting" 
                           Style="{StaticResource DarkCheckBoxStyle}"
                           HorizontalAlignment="Left"
-                          Margin="0,0,0,5"/>
+                          Margin="0,0,0,5"
+                          IsChecked="True"/>
                 
                 <CheckBox Name="ApplyToCurrentSheetCheckBox" 
                           Content="Apply to current sheet only" 

@@ -39,8 +39,8 @@ public partial class ConfigurationControl : BaseUserControl
         _configService = configService ?? GetConfigurationService();
         _excelReader = excelReader ?? GetExcelReaderService();
         
-        // Load default project configuration
-        _ = LoadDefaultProjectAsync();
+        // Load default project configuration when the control is fully loaded
+        this.Loaded += ConfigurationControl_Loaded;
     }
 
     private static IProjectConfigurationService GetConfigurationService()
@@ -301,6 +301,13 @@ public partial class ConfigurationControl : BaseUserControl
         Logger.LogWarning(message);
         NotificationService.ShowWarning("Configuration Warning", message);
         UpdateConfigurationDisplay($"WARNING: {message}");
+    }
+
+    private async void ConfigurationControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Only load default project after the control is fully loaded and palette is created
+        // This prevents any potential issues during palette initialization
+        await LoadDefaultProjectAsync();
     }
 
 }

@@ -42,8 +42,8 @@ public partial class TitleBlockControl : BaseUserControl
         // Initialize checkbox with shared state
         ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
         
-        // Load initial display information
-        _ = LoadInitialDisplayAsync();
+        // Load initial display information when the control is fully loaded
+        this.Loaded += TitleBlockControl_Loaded;
     }
 
     private static ITitleBlockService GetTitleBlockService()
@@ -482,5 +482,12 @@ public partial class TitleBlockControl : BaseUserControl
             Logger.LogWarning($"Failed to get current layout name: {ex.Message}");
         }
         return null;
+    }
+
+    private async void TitleBlockControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Only load initial display after the control is fully loaded and palette is created
+        // This prevents AutoCAD API access during palette initialization
+        await LoadInitialDisplayAsync();
     }
 }

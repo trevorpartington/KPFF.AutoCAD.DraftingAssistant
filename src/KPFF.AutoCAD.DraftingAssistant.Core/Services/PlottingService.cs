@@ -355,14 +355,20 @@ public class PlottingService : IPlottingService
                     TotalSheets = 1
                 });
 
-                _logger.LogDebug($"Updating construction notes for sheet {sheetName}");
+                _logger.LogDebug($"Updating construction notes for sheet {sheetName} using {(plotSettings.IsAutoNotesMode ? "Auto Notes" : "Excel Notes")} mode");
 
-                // Note: Construction notes mode (Auto vs Excel) is determined by the UI state
-                // The ConstructionNotesService will need to be enhanced to accept a mode parameter
-                // or check the UI state directly. For now, we'll use a placeholder approach.
+                List<int> noteNumbers;
+                if (plotSettings.IsAutoNotesMode)
+                {
+                    // Get notes using Auto Notes mode
+                    noteNumbers = await _constructionNotesService.GetAutoNotesForSheetAsync(sheetName, config);
+                }
+                else
+                {
+                    // Get notes using Excel Notes mode
+                    noteNumbers = await _constructionNotesService.GetExcelNotesForSheetAsync(sheetName, config);
+                }
                 
-                // Get notes using Auto Notes (this will need UI integration to determine mode)
-                var noteNumbers = await _constructionNotesService.GetAutoNotesForSheetAsync(sheetName, config);
                 await _constructionNotesService.UpdateConstructionNoteBlocksAsync(sheetName, noteNumbers, config);
             }
 

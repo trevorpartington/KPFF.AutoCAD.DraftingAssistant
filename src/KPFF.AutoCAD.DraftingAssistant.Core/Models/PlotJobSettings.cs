@@ -21,6 +21,11 @@ public class PlotJobSettings
     public bool ApplyToCurrentSheetOnly { get; set; } = false;
 
     /// <summary>
+    /// Construction notes mode (true = Auto Notes, false = Excel Notes)
+    /// </summary>
+    public bool IsAutoNotesMode { get; set; } = true;
+
+    /// <summary>
     /// Output directory for plot files (uses project configuration if not specified)
     /// </summary>
     public string? OutputDirectory { get; set; }

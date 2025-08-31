@@ -16,6 +16,7 @@ public class SharedUIStateService : ISharedUIStateService
     public static SharedUIStateService Instance => _instance.Value;
 
     private bool _applyToCurrentSheetOnly = false;
+    private bool _constructionNotesMode = true; // true = Auto Notes, false = Excel Notes
 
     /// <summary>
     /// Gets or sets whether operations should apply to the current sheet only
@@ -35,10 +36,33 @@ public class SharedUIStateService : ISharedUIStateService
     }
 
     /// <summary>
+    /// Gets or sets the construction notes mode (true = Auto Notes, false = Excel Notes)
+    /// This setting is shared between Construction Notes tab and Plotting tab
+    /// </summary>
+    public bool IsAutoNotesMode
+    {
+        get => _constructionNotesMode;
+        set
+        {
+            if (_constructionNotesMode != value)
+            {
+                _constructionNotesMode = value;
+                OnConstructionNotesModeChanged?.Invoke(value);
+            }
+        }
+    }
+
+    /// <summary>
     /// Event raised when the ApplyToCurrentSheetOnly setting changes
     /// Subscribe to this event to update UI controls when the setting changes from other tabs
     /// </summary>
     public event Action<bool>? OnApplyToCurrentSheetOnlyChanged;
+
+    /// <summary>
+    /// Event raised when the construction notes mode changes
+    /// Subscribe to this event to sync radio button states between tabs
+    /// </summary>
+    public event Action<bool>? OnConstructionNotesModeChanged;
 
     private SharedUIStateService()
     {

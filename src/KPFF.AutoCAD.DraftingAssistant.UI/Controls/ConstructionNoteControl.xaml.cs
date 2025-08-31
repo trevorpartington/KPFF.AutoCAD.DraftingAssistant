@@ -38,12 +38,17 @@ public partial class ConstructionNoteControl : BaseUserControl
         
         // Subscribe to shared state changes
         _sharedUIState.OnApplyToCurrentSheetOnlyChanged += OnSharedApplyToCurrentSheetOnlyChanged;
+        _sharedUIState.OnConstructionNotesModeChanged += OnSharedConstructionNotesModeChanged;
         
         // Initialize checkbox with shared state
         ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
         
-        // Load initial display information
-        _ = LoadInitialDisplayAsync();
+        // Initialize radio buttons with shared state
+        AutoNotesRadioButton.IsChecked = _sharedUIState.IsAutoNotesMode;
+        ExcelNotesRadioButton.IsChecked = !_sharedUIState.IsAutoNotesMode;
+        
+        // Load initial display information when the control is fully loaded
+        this.Loaded += ConstructionNoteControl_Loaded;
     }
 
     private static IConstructionNotesService GetConstructionNotesService()
@@ -669,5 +674,33 @@ public partial class ConstructionNoteControl : BaseUserControl
             Logger.LogWarning($"Failed to get current layout name: {ex.Message}");
         }
         return null;
+    }
+
+    private void RadioButton_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        // Update shared state when radio buttons change
+        // Null check needed because XAML can trigger this before constructor completes
+        if (_sharedUIState != null)
+        {
+            var isAutoMode = AutoNotesRadioButton.IsChecked == true;
+            _sharedUIState.IsAutoNotesMode = isAutoMode;
+        }
+    }
+
+    private void OnSharedConstructionNotesModeChanged(bool isAutoNotesMode)
+    {
+        // Update radio buttons if they don't match shared state
+        if (AutoNotesRadioButton.IsChecked != isAutoNotesMode)
+        {
+            AutoNotesRadioButton.IsChecked = isAutoNotesMode;
+            ExcelNotesRadioButton.IsChecked = !isAutoNotesMode;
+        }
+    }
+
+    private async void ConstructionNoteControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Only load initial display after the control is fully loaded and palette is created
+        // This prevents AutoCAD API access during palette initialization
+        await LoadInitialDisplayAsync();
     }
 }
