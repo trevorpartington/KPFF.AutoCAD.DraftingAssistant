@@ -239,22 +239,76 @@ The plotting system provides seamless batch plotting capabilities that integrate
 
 ### Technical Implementation
 
+#### Publisher API Architecture
+The plotting system uses AutoCAD's Publisher API with Drawing Set Description (DSD) files for batch plotting operations. This approach provides superior performance and reliability compared to individual plot operations.
+
+**Key Components:**
+- **Publisher API**: AutoCAD's native batch plotting system
+- **DsdEntry**: Represents a single sheet to plot (drawing path, layout name, page setup)
+- **DsdData**: Collection of DsdEntry objects with output settings
+- **DsdEntryCollection**: Container for multiple sheets to plot together
+
+#### Plot Architecture Decision
+- **Batch Operations (Multiple Sheets)**: Uses Publisher API with DsdData for optimal performance
+- **Single Sheet Operations**: Uses Publisher API internally for consistency
+- **Legacy Support**: Maintains existing `PlotLayoutToPdfAsync` interface for backward compatibility
+
 #### Plot Workflow
-1. **Pre-Plot Phase**:
+1. **Sheet Filtering Phase**:
+   - Apply "Apply to current sheet only" filter if enabled
    - Validate selected sheets (layout exists, drawing accessible)
-   - Open closed drawings if needed
+
+2. **Pre-Plot Phase**:
    - Update construction notes (if checkbox enabled) - uses Construction Notes tab radio button selection (Auto/Excel)
    - Update title blocks (if checkbox enabled)
+   - Perform pre-plot updates for all sheets before plotting begins
 
-2. **Plot Phase**:
-   - For each sheet: use existing page setup to generate PDF
+3. **Plot Phase**:
+   - **Batch Mode** (Multiple sheets): Use `PublishSheetsToPdfAsync` with Publisher API
+   - **Individual Mode** (Fallback): Use legacy plotting for single sheets or fallback scenarios
+   - Honor each layout's saved page setup automatically
    - Skip sheets that fail validation or plotting
    - Track progress and errors in real-time
 
-3. **Post-Plot Phase**:
-   - Close temporarily opened drawings
+4. **Post-Plot Phase**:
+   - Clean up temporary files
    - Display comprehensive results with success/failure summary
    - Log all errors for troubleshooting
+
+#### Publisher API Benefits
+- **No Layout Switching Required**: Eliminates `eInvalidPlotInfo` and `eSetFailed` errors
+- **Handles All Drawing States**: Works with open/active, open/inactive, and closed drawings seamlessly
+- **Better Performance**: Native batch plotting without UI flicker
+- **Automatic Page Setup**: Uses each layout's saved plot settings without override
+- **Robust Error Handling**: Built-in validation and error recovery
+
+#### Implementation Details
+```csharp
+// Build DSD entries for batch plotting
+var dsdEntries = new List<DsdEntry>();
+foreach (var sheet in sheets)
+{
+    var entry = new DsdEntry
+    {
+        DwgName = sheet.DWGFileName,           // Full path to drawing
+        Layout = sheet.SheetName,             // Layout name to plot
+        Title = sheet.DrawingTitle,           // Display title
+        Nps = string.Empty,                   // Use layout's saved page setup
+        NpsSourceDwg = string.Empty
+    };
+    dsdEntries.Add(entry);
+}
+
+// Execute batch plot
+using (var dsdData = new DsdData())
+{
+    dsdData.ProjectPath = outputDirectory;
+    dsdData.SheetType = SheetType.SinglePdf;  // Individual PDFs
+    dsdData.SetDsdEntryCollection(dsdCollection);
+    
+    Application.Publisher.PublishExecute(dsdData, plotConfig);
+}
+```
 
 #### Error Handling Strategy
 - **Missing Plot Device**: Skip sheet, log error in job summary
@@ -269,12 +323,16 @@ The plotting system provides seamless batch plotting capabilities that integrate
 - **External Drawing Manager**: Handles closed/inactive drawing operations
 
 ### Development Dependencies
-- **AutoCAD .NET PlottingServices**: Core plotting functionality using `PlotFactory.CreatePublishEngine()`
+- **AutoCAD .NET PlottingServices**: Plot device and validation (`PlotConfig`, `PlotConfigManager`)
+- **AutoCAD .NET Publishing**: Publisher API for batch operations (`Publisher`, `DsdData`, `DsdEntry`)
 - **Existing Services**: Integrates with `ConstructionNotesService` and title block operations
 - **Project Configuration**: Extends existing configuration system with plotting settings
 
-### Current Status (Plotting Branch)
-- ✅ Core data models and interfaces defined
-- ✅ Project configuration extended with plotting settings
-- 🔄 **In Progress**: Service implementation and UI updates
-- ⏳ **Planned**: AutoCAD API integration and testing
+### Current Status
+- ✅ Publisher API implementation completed
+- ✅ Batch plotting with DSD entries
+- ✅ Pre-plot operations (Construction Notes and Title Blocks)
+- ✅ "Apply to current sheet only" functionality
+- ✅ Multi-drawing support (open/active, open/inactive, closed)
+- ✅ Error handling and progress reporting
+- ✅ Backward compatibility with existing interfaces

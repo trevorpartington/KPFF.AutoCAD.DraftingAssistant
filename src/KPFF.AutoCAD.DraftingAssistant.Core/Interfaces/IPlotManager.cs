@@ -8,7 +8,15 @@ namespace KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 public interface IPlotManager
 {
     /// <summary>
-    /// Plots a layout from a drawing file to PDF
+    /// Plots multiple sheets to PDF using the Publisher API (recommended for batch operations)
+    /// </summary>
+    /// <param name="sheets">Collection of sheets to plot</param>
+    /// <param name="outputDirectory">Directory for output PDF files</param>
+    /// <returns>True if all plots succeeded, false otherwise</returns>
+    Task<bool> PublishSheetsToPdfAsync(IEnumerable<SheetInfo> sheets, string outputDirectory);
+
+    /// <summary>
+    /// Plots a layout from a drawing file to PDF (legacy method)
     /// </summary>
     /// <param name="drawingPath">Full path to the drawing file</param>
     /// <param name="layoutName">Name of the layout to plot</param>

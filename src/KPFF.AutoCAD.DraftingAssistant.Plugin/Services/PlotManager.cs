@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.PlottingServices;
+using Autodesk.AutoCAD.Publishing;
 using Autodesk.AutoCAD.Runtime;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
@@ -9,7 +10,7 @@ using System.IO;
 namespace KPFF.AutoCAD.DraftingAssistant.Plugin.Services;
 
 /// <summary>
-/// AutoCAD-specific plotting manager that handles the actual plot operations
+/// AutoCAD-specific plotting manager that handles the actual plot operations using the Publisher API
 /// </summary>
 public class PlotManager : IPlotManager
 {
@@ -21,7 +22,131 @@ public class PlotManager : IPlotManager
     }
 
     /// <summary>
-    /// Plots a layout from a drawing file to PDF
+    /// Plots multiple sheets to PDF using the Publisher API (recommended for batch operations)
+    /// </summary>
+    /// <param name="sheets">Collection of sheets to plot</param>
+    /// <param name="outputDirectory">Directory for output PDF files</param>
+    /// <returns>True if all plots succeeded, false otherwise</returns>
+    public async Task<bool> PublishSheetsToPdfAsync(IEnumerable<SheetInfo> sheets, string outputDirectory)
+    {
+        await Task.Delay(1); // Make this truly async but execute synchronously
+
+        try
+        {
+            var sheetList = sheets.ToList();
+            if (!sheetList.Any())
+            {
+                _logger.LogWarning("No sheets provided for publishing");
+                return false;
+            }
+
+            _logger.LogDebug($"Publishing {sheetList.Count} sheets to {outputDirectory}");
+
+            // Ensure output directory exists
+            Directory.CreateDirectory(outputDirectory);
+
+            // Build DSD entries for each sheet
+            var dsdEntries = new List<DsdEntry>();
+            foreach (var sheet in sheetList)
+            {
+                // Build the full path to the drawing file
+                var drawingPath = Path.Combine(Path.GetDirectoryName(sheet.DWGFileName) ?? "", Path.GetFileName(sheet.DWGFileName));
+                if (!Path.IsPathFullyQualified(drawingPath))
+                {
+                    // If DWGFileName is not a full path, we'll need the project path
+                    // For now, assume it's a relative path from the current directory
+                    drawingPath = Path.GetFullPath(sheet.DWGFileName);
+                }
+                
+                if (!File.Exists(drawingPath))
+                {
+                    _logger.LogError($"Drawing file not found: {drawingPath}");
+                    continue;
+                }
+
+                var entry = new DsdEntry
+                {
+                    DwgName = drawingPath,
+                    Layout = sheet.SheetName,
+                    Title = sheet.DrawingTitle ?? sheet.SheetName,
+                    Nps = string.Empty, // Use layout's saved page setup
+                    NpsSourceDwg = string.Empty
+                };
+                
+                dsdEntries.Add(entry);
+                _logger.LogDebug($"Added DSD entry: {drawingPath} - {sheet.SheetName}");
+            }
+
+            if (!dsdEntries.Any())
+            {
+                _logger.LogError("No valid sheets found for publishing");
+                return false;
+            }
+
+            // Create DSD data for publishing
+            using (var dsdData = new DsdData())
+            {
+                dsdData.ProjectPath = outputDirectory;
+                dsdData.SheetType = SheetType.SinglePdf; // Individual PDFs per sheet
+                dsdData.NoOfCopies = 1;
+                dsdData.LogFilePath = Path.Combine(outputDirectory, "PlotLog.txt");
+                
+                // Set DSD entries
+                using (var dsdCollection = new DsdEntryCollection())
+                {
+                    foreach (var entry in dsdEntries)
+                    {
+                        dsdCollection.Add(entry);
+                    }
+                    dsdData.SetDsdEntryCollection(dsdCollection);
+                }
+
+                // Set publishing options
+                dsdData.SetUnrecognizedData("PromptForName", "FALSE");
+                dsdData.SetUnrecognizedData("IncludeLayer", "TRUE");
+                dsdData.SetUnrecognizedData("ShowPlotProgress", "FALSE");
+
+                // Set background plotting to false for better control
+                object oldBackgroundPlot = Application.GetSystemVariable("BACKGROUNDPLOT");
+                
+                try
+                {
+                    Application.SetSystemVariable("BACKGROUNDPLOT", 0);
+                    _logger.LogDebug("Set BACKGROUNDPLOT to 0");
+
+                    // Get PDF plot configuration
+                    PlotConfig plotConfig = PlotConfigManager.SetCurrentConfig("DWG to PDF.pc3");
+                    _logger.LogDebug("Using plot config: DWG to PDF.pc3");
+
+                    // Execute the publish operation
+                    _logger.LogDebug("Starting Publisher.PublishExecute...");
+                    Application.Publisher.PublishExecute(dsdData, plotConfig);
+                    
+                    _logger.LogInformation($"Successfully published {dsdEntries.Count} sheets to {outputDirectory}");
+                    return true;
+                }
+                catch (System.Exception publishEx)
+                {
+                    _logger.LogError($"Publisher execution failed: {publishEx.Message}", publishEx);
+                    return false;
+                }
+                finally
+                {
+                    // Restore original BACKGROUNDPLOT setting
+                    Application.SetSystemVariable("BACKGROUNDPLOT", oldBackgroundPlot);
+                    _logger.LogDebug("Restored original BACKGROUNDPLOT setting");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError($"Publish operation failed: {ex.Message}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Plots a layout from a drawing file to PDF (legacy method - use PublishSheetsToPdfAsync for better performance)
     /// </summary>
     /// <param name="drawingPath">Full path to the drawing file</param>
     /// <param name="layoutName">Name of the layout to plot</param>
@@ -29,243 +154,68 @@ public class PlotManager : IPlotManager
     /// <returns>True if plot succeeded, false otherwise</returns>
     public async Task<bool> PlotLayoutToPdfAsync(string drawingPath, string layoutName, string outputPath)
     {
-        // AutoCAD API calls must be on the main thread, so we'll use Task.FromResult instead of Task.Run
-        await Task.Delay(1); // Make this truly async but execute synchronously
+        // Use the new Publisher API approach for better reliability
+        var outputDir = Path.GetDirectoryName(outputPath) ?? Path.GetTempPath();
         
+        // Create a single sheet object for this plot operation
+        var sheet = new SheetInfo
         {
+            SheetName = layoutName,
+            DWGFileName = drawingPath,
+            DrawingTitle = $"{Path.GetFileNameWithoutExtension(drawingPath)} - {layoutName}"
+        };
+        
+        var tempOutputDir = Path.Combine(outputDir, "temp_" + Guid.NewGuid().ToString("N")[..8]);
+        
+        try
+        {
+            // Use the Publisher API to plot the sheet
+            var result = await PublishSheetsToPdfAsync(new[] { sheet }, tempOutputDir);
+            
+            if (result)
+            {
+                // The Publisher API creates files as {DrawingName}-{LayoutName}.pdf
+                // We need to rename it to match the requested output path
+                var publishedFile = Path.Combine(tempOutputDir, $"{Path.GetFileNameWithoutExtension(drawingPath)}-{layoutName}.pdf");
+                
+                if (File.Exists(publishedFile))
+                {
+                    // Ensure output directory exists
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+                    
+                    // Move the file to the requested location
+                    if (File.Exists(outputPath))
+                    {
+                        File.Delete(outputPath);
+                    }
+                    File.Move(publishedFile, outputPath);
+                    
+                    _logger.LogInformation($"Successfully plotted layout '{layoutName}' to '{outputPath}'");
+                    return true;
+                }
+                else
+                {
+                    _logger.LogError($"Published file not found at expected location: {publishedFile}");
+                    return false;
+                }
+            }
+            
+            return false;
+        }
+        finally
+        {
+            // Clean up temporary directory
             try
             {
-                _logger.LogDebug($"Starting plot operation for layout '{layoutName}' from '{drawingPath}' to '{outputPath}'");
-                
-                // Check if drawing file exists
-                if (!File.Exists(drawingPath))
+                if (Directory.Exists(tempOutputDir))
                 {
-                    _logger.LogError($"Drawing file not found: {drawingPath}");
-                    return false;
-                }
-                _logger.LogDebug($"Drawing file exists: {drawingPath}");
-
-                // Check if a plot is already in progress
-                if (PlotFactory.ProcessPlotState != ProcessPlotState.NotPlotting)
-                {
-                    _logger.LogError("Another plot operation is already in progress");
-                    return false;
-                }
-
-                Database? targetDatabase = null;
-                Document? targetDocument = null;
-                bool wasDrawingAlreadyOpen = false;
-
-                try
-                {
-                    _logger.LogDebug("Checking if drawing is already open...");
-                    // Check if drawing is already open
-                    targetDocument = GetOpenDocument(drawingPath);
-                    if (targetDocument != null)
-                    {
-                        _logger.LogDebug($"Drawing {drawingPath} is already open");
-                        wasDrawingAlreadyOpen = true;
-                        targetDatabase = targetDocument.Database;
-                    }
-                    else
-                    {
-                        // Open the drawing
-                        _logger.LogDebug($"Opening drawing {drawingPath} from disk...");
-                        targetDatabase = new Database(false, true);
-                        _logger.LogDebug("Created new database instance");
-                        targetDatabase.ReadDwgFile(drawingPath, FileOpenMode.OpenForReadAndAllShare, true, "");
-                        _logger.LogDebug("Successfully read DWG file");
-                    }
-
-                    _logger.LogDebug("Starting transaction...");
-                    using (var transaction = targetDatabase.TransactionManager.StartTransaction())
-                    {
-                        _logger.LogDebug("Transaction started successfully");
-                        // Get the layout manager and find the specified layout
-                        var layoutManager = LayoutManager.Current;
-                        _logger.LogDebug("Getting layout dictionary...");
-                        var layoutDict = transaction.GetObject(targetDatabase.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
-                        _logger.LogDebug($"Layout dictionary retrieved: {layoutDict != null}");
-                        
-                        if (layoutDict == null)
-                        {
-                            _logger.LogError($"Layout dictionary is null in drawing {drawingPath}");
-                            return false;
-                        }
-                        
-                        if (!layoutDict.Contains(layoutName))
-                        {
-                            _logger.LogError($"Layout '{layoutName}' not found in drawing {drawingPath}");
-                            
-                            // Log available layouts for debugging
-                            _logger.LogDebug("Available layouts:");
-                            foreach (var entry in layoutDict)
-                            {
-                                _logger.LogDebug($"  - {entry.Key}");
-                            }
-                            return false;
-                        }
-
-                        var layoutId = layoutDict.GetAt(layoutName);
-                        var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
-                        
-                        if (layout == null)
-                        {
-                            _logger.LogError($"Could not open layout '{layoutName}' from drawing {drawingPath}");
-                            return false;
-                        }
-
-                        // Create plot info
-                        using (var plotInfo = new PlotInfo())
-                        {
-                            plotInfo.Layout = layout.ObjectId;
-
-                            // Create plot settings based on the layout
-                            using (var plotSettings = new PlotSettings(layout.ModelType))
-                            {
-                                plotSettings.CopyFrom(layout);
-
-                                // Validate plot settings
-                                var plotSettingsValidator = PlotSettingsValidator.Current;
-
-                                // Set plot device AND media in the correct order (device + media together first)
-                                try
-                                {
-                                    // Try common PDF device names with the layout's existing media
-                                    var pdfDevices = new[] { "DWG To PDF.pc3", "PDF.pc3", "AutoCAD PDF (General Documentation).pc3" };
-                                    var mediaName = layout.CanonicalMediaName;
-                                    bool deviceSet = false;
-
-                                    foreach (var device in pdfDevices)
-                                    {
-                                        try
-                                        {
-                                            // Set BOTH device and media in one call - this is the correct AutoCAD API pattern
-                                            plotSettingsValidator.SetPlotConfigurationName(plotSettings, device, mediaName);
-                                            deviceSet = true;
-                                            _logger.LogDebug($"Using plot device: {device} with media: {mediaName ?? "default"}");
-                                            break;
-                                        }
-                                        catch
-                                        {
-                                            // Try next device
-                                            continue;
-                                        }
-                                    }
-
-                                    if (!deviceSet)
-                                    {
-                                        _logger.LogWarning("No PDF plot device found, using layout's default device");
-                                    }
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    _logger.LogWarning($"Could not set PDF plot device: {ex.Message}");
-                                }
-
-                                // AFTER setting device+media, now set plot type
-                                try
-                                {
-                                    plotSettingsValidator.SetPlotType(plotSettings, Autodesk.AutoCAD.DatabaseServices.PlotType.Layout);
-                                    _logger.LogDebug("Plot type set to Layout");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    _logger.LogWarning($"Could not set plot type: {ex.Message}");
-                                }
-
-                                // AFTER plot type, now set centering - this should work now
-                                try
-                                {
-                                    plotSettingsValidator.SetPlotCentered(plotSettings, true);
-                                    _logger.LogDebug("Plot centering enabled");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    _logger.LogWarning($"Could not set plot centering: {ex.Message}");
-                                    // Continue without centering
-                                }
-
-                                // Override plot settings in plot info
-                                plotInfo.OverrideSettings = plotSettings;
-
-                                // Validate plot info
-                                using (var plotInfoValidator = new PlotInfoValidator())
-                                {
-                                    plotInfoValidator.MediaMatchingPolicy = MatchingPolicy.MatchEnabled;
-                                    plotInfoValidator.Validate(plotInfo);
-
-                                    // Create plot engine and execute plot
-                                    _logger.LogDebug("Creating plot engine...");
-                                    using (var plotEngine = PlotFactory.CreatePublishEngine())
-                                    {
-                                        try
-                                        {
-                                            // Set background plotting to false for better control
-                                            Application.SetSystemVariable("BACKGROUNDPLOT", 0);
-                                            _logger.LogDebug("Set BACKGROUNDPLOT to 0");
-
-                                            // Begin plotting
-                                            _logger.LogDebug("Beginning plot...");
-                                            plotEngine.BeginPlot(null, null);
-
-                                            // Define plot output
-                                            _logger.LogDebug($"Beginning document for output: {outputPath}");
-                                            plotEngine.BeginDocument(plotInfo, 
-                                                Path.GetFileNameWithoutExtension(drawingPath), 
-                                                null, 1, true, outputPath);
-
-                                            // Plot the page
-                                            _logger.LogDebug("Plotting page...");
-                                            using (var plotPageInfo = new PlotPageInfo())
-                                            {
-                                                plotEngine.BeginPage(plotPageInfo, plotInfo, true, null);
-                                                plotEngine.BeginGenerateGraphics(null);
-                                                plotEngine.EndGenerateGraphics(null);
-                                                plotEngine.EndPage(null);
-                                            }
-
-                                            // End plotting
-                                            _logger.LogDebug("Ending plot...");
-                                            plotEngine.EndDocument(null);
-                                            plotEngine.EndPlot(null);
-
-                                            _logger.LogInformation($"Successfully plotted layout '{layoutName}' to '{outputPath}'");
-                                            // Don't return here - let the transaction commit first
-                                        }
-                                        catch (System.Exception plotEx)
-                                        {
-                                            _logger.LogError($"Plot engine error: {plotEx.Message}", plotEx);
-                                            throw;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        transaction.Commit();
-                        _logger.LogDebug("Transaction committed successfully");
-                        // Plot succeeded and transaction committed
-                        return true;
-                    }
-                }
-                finally
-                {
-                    // Clean up - only dispose database if we opened it
-                    if (!wasDrawingAlreadyOpen && targetDatabase != null)
-                    {
-                        targetDatabase.Dispose();
-                    }
+                    Directory.Delete(tempOutputDir, true);
                 }
             }
-            catch (System.Exception ex)
+            catch (System.Exception cleanupEx)
             {
-                _logger.LogError($"Plot operation failed for layout '{layoutName}' in '{drawingPath}': {ex.Message}", ex);
-                return false;
+                _logger.LogWarning($"Could not clean up temporary directory: {cleanupEx.Message}");
             }
-
-            // This should not be reached in normal flow
-            return false;
         }
     }
 
@@ -279,89 +229,92 @@ public class PlotManager : IPlotManager
     {
         await Task.Delay(1); // Make this truly async but execute synchronously
         
+        try
         {
+            _logger.LogDebug($"Reading plot settings for layout '{layoutName}' from '{drawingPath}'");
+
+            Database? targetDatabase = null;
+            Document? targetDocument = null;
+            bool wasDrawingAlreadyOpen = false;
+
             try
             {
-                _logger.LogDebug($"Reading plot settings for layout '{layoutName}' from '{drawingPath}'");
-
-                Database? targetDatabase = null;
-                Document? targetDocument = null;
-                bool wasDrawingAlreadyOpen = false;
-
-                try
+                // Check if drawing is already open
+                targetDocument = GetOpenDocument(drawingPath);
+                if (targetDocument != null)
                 {
-                    // Check if drawing is already open
-                    targetDocument = GetOpenDocument(drawingPath);
-                    if (targetDocument != null)
-                    {
-                        wasDrawingAlreadyOpen = true;
-                        targetDatabase = targetDocument.Database;
-                    }
-                    else
-                    {
-                        // Open the drawing
-                        targetDatabase = new Database(false, true);
-                        targetDatabase.ReadDwgFile(drawingPath, FileOpenMode.OpenForReadAndAllShare, true, "");
-                    }
-
-                    using (var transaction = targetDatabase.TransactionManager.StartTransaction())
-                    {
-                        // Get the layout
-                        var layoutDict = transaction.GetObject(targetDatabase.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
-                        
-                        if (layoutDict == null || !layoutDict.Contains(layoutName))
-                        {
-                            _logger.LogWarning($"Layout '{layoutName}' not found in drawing {drawingPath}");
-                            return null;
-                        }
-
-                        var layoutId = layoutDict.GetAt(layoutName);
-                        var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
-                        
-                        if (layout == null)
-                        {
-                            return null;
-                        }
-
-                        return new SheetPlotSettings
-                        {
-                            SheetName = layoutName,
-                            LayoutName = layoutName,
-                            DrawingPath = drawingPath,
-                            PlotDevice = layout.PlotConfigurationName ?? "Default",
-                            PaperSize = layout.CanonicalMediaName ?? "Unknown",
-                            PlotScale = GetPlotScaleString(layout),
-                            PlotArea = GetPlotAreaString(layout.PlotType),
-                            PlotCentered = layout.PlotCentered
-                        };
-                    }
+                    wasDrawingAlreadyOpen = true;
+                    targetDatabase = targetDocument.Database;
                 }
-                finally
+                else
                 {
-                    // Clean up - only dispose database if we opened it
-                    if (!wasDrawingAlreadyOpen && targetDatabase != null)
+                    // Open the drawing
+                    targetDatabase = new Database(false, true);
+                    targetDatabase.ReadDwgFile(drawingPath, FileOpenMode.OpenForReadAndAllShare, true, "");
+                }
+
+                using (var transaction = targetDatabase.TransactionManager.StartTransaction())
+                {
+                    // Get the layout
+                    var layoutDict = transaction.GetObject(targetDatabase.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    
+                    if (layoutDict == null || !layoutDict.Contains(layoutName))
                     {
-                        targetDatabase.Dispose();
+                        _logger.LogError($"Layout '{layoutName}' not found in drawing {drawingPath}");
+                        return null;
                     }
+
+                    var layoutId = layoutDict.GetAt(layoutName);
+                    var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                    
+                    if (layout == null)
+                    {
+                        _logger.LogError($"Could not open layout '{layoutName}' from drawing {drawingPath}");
+                        return null;
+                    }
+
+                    // Extract plot settings information
+                    var settings = new SheetPlotSettings
+                    {
+                        DrawingPath = drawingPath,
+                        LayoutName = layoutName,
+                        PlotDevice = layout.PlotConfigurationName ?? "None",
+                        PaperSize = layout.CanonicalMediaName ?? "Auto",
+                        PlotScale = GetPlotScaleString(layout),
+                        PlotArea = GetPlotAreaString(layout.PlotType),
+                        PlotCentered = layout.PlotCentered
+                    };
+
+                    transaction.Commit();
+                    return settings;
                 }
             }
-            catch (System.Exception ex)
+            finally
             {
-                _logger.LogError($"Failed to read plot settings for layout '{layoutName}' in '{drawingPath}': {ex.Message}", ex);
-                return null;
+                // If we opened a drawing, dispose it
+                if (!wasDrawingAlreadyOpen && targetDatabase != null)
+                {
+                    targetDatabase.Dispose();
+                }
             }
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError($"Failed to read plot settings for '{layoutName}' in '{drawingPath}': {ex.Message}", ex);
+            return null;
         }
     }
 
     /// <summary>
-    /// Gets an open document by file path, if it exists
+    /// Helper method to find an already open document
     /// </summary>
-    private static Document? GetOpenDocument(string filePath)
+    private static Document? GetOpenDocument(string drawingPath)
     {
-        var documents = Application.DocumentManager;
-        foreach (Document doc in documents)
+        string normalizedPath = Path.GetFullPath(drawingPath);
+        
+        foreach (Document doc in Application.DocumentManager)
         {
-            if (string.Equals(doc.Name, filePath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Path.GetFullPath(doc.Name), normalizedPath, StringComparison.OrdinalIgnoreCase))
             {
                 return doc;
             }

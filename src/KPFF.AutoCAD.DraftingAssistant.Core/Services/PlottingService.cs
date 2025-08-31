@@ -38,6 +38,33 @@ public class PlottingService : IPlottingService
         
         try
         {
+            // Filter sheets if ApplyToCurrentSheetOnly is enabled
+            if (plotSettings.ApplyToCurrentSheetOnly)
+            {
+                var currentLayout = GetCurrentLayoutName();
+                if (!string.IsNullOrEmpty(currentLayout))
+                {
+                    // Only include the current layout if it's in the selected sheets
+                    if (sheetNames.Contains(currentLayout, StringComparer.OrdinalIgnoreCase))
+                    {
+                        sheetNames = new List<string> { currentLayout };
+                        _logger.LogDebug($"ApplyToCurrentSheetOnly enabled: filtering to current sheet '{currentLayout}'");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Current layout '{currentLayout}' not found in selected sheets, no sheets will be plotted");
+                        result.ErrorMessage = $"Current layout '{currentLayout}' is not in the selected sheet list";
+                        return result;
+                    }
+                }
+                else
+                {
+                    _logger.LogError("Could not determine current layout for ApplyToCurrentSheetOnly option");
+                    result.ErrorMessage = "Could not determine current layout";
+                    return result;
+                }
+            }
+
             _logger.LogInformation($"Starting plot job for {sheetNames.Count} sheets");
             
             // Validate sheets before starting
@@ -56,55 +83,85 @@ public class PlottingService : IPlottingService
             var totalSheets = validation.ValidSheets.Count;
             var currentSheetIndex = 0;
 
-            foreach (var sheetName in validation.ValidSheets)
+            // Perform pre-plot updates first (if needed)
+            if (plotSettings.UpdateConstructionNotes || plotSettings.UpdateTitleBlocks)
             {
-                currentSheetIndex++;
+                foreach (var sheetName in validation.ValidSheets)
+                {
+                    currentSheetIndex++;
+                    
+                    try
+                    {
+                        // Report progress for pre-plot updates
+                        progressCallback?.Report(new PlotProgress
+                        {
+                            CurrentSheet = sheetName,
+                            CurrentOperation = "Pre-plot updates",
+                            ProgressPercentage = (int)((double)currentSheetIndex / totalSheets * 50),
+                            CompletedSheets = 0,
+                            TotalSheets = totalSheets
+                        });
+
+                        _logger.LogDebug($"Performing pre-plot updates for sheet {sheetName} ({currentSheetIndex}/{totalSheets})");
+                        await PerformPrePlotUpdatesAsync(sheetName, config, plotSettings, progressCallback);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Pre-plot updates failed for sheet {sheetName}: {ex.Message}");
+                        // Continue with plotting even if pre-plot updates fail
+                    }
+                }
                 
+                // Reset for plotting phase
+                currentSheetIndex = 0;
+            }
+
+            // Use batch plotting with Publisher API if PlotManager supports it
+            if (_plotManager != null && validation.ValidSheets.Count > 1)
+            {
                 try
                 {
-                    // Report progress
+                    _logger.LogDebug($"Using batch plotting for {validation.ValidSheets.Count} sheets");
+                    
                     progressCallback?.Report(new PlotProgress
                     {
-                        CurrentSheet = sheetName,
-                        CurrentOperation = "Processing sheet",
-                        ProgressPercentage = (int)((double)currentSheetIndex / totalSheets * 100),
-                        CompletedSheets = currentSheetIndex - 1,
+                        CurrentSheet = "Batch plotting",
+                        CurrentOperation = "Plotting to PDF",
+                        ProgressPercentage = 75,
+                        CompletedSheets = 0,
                         TotalSheets = totalSheets
                     });
 
-                    _logger.LogDebug($"Processing sheet {sheetName} ({currentSheetIndex}/{totalSheets})");
-
-                    // Pre-plot updates
-                    await PerformPrePlotUpdatesAsync(sheetName, config, plotSettings, progressCallback);
-
-                    // Plot the sheet
-                    var plotSuccess = await PlotSingleSheetAsync(sheetName, config, plotSettings, progressCallback);
+                    // Build sheet collection for batch plotting
+                    var sheetsToPlot = await BuildSheetCollectionAsync(validation.ValidSheets, config);
+                    var outputDirectory = plotSettings.OutputDirectory ?? config.Plotting.OutputDirectory;
                     
-                    if (plotSuccess)
+                    var batchResult = await _plotManager.PublishSheetsToPdfAsync(sheetsToPlot, outputDirectory);
+                    
+                    if (batchResult)
                     {
-                        result.SuccessfulSheets.Add(sheetName);
-                        _logger.LogDebug($"Successfully plotted sheet {sheetName}");
+                        // All sheets succeeded
+                        result.SuccessfulSheets.AddRange(validation.ValidSheets);
+                        _logger.LogInformation($"Batch plot successful for all {validation.ValidSheets.Count} sheets");
                     }
                     else
                     {
-                        result.FailedSheets.Add(new SheetPlotError
-                        {
-                            SheetName = sheetName,
-                            ErrorMessage = "Plot operation failed"
-                        });
-                        _logger.LogWarning($"Failed to plot sheet {sheetName}");
+                        // Batch plot failed - fall back to individual plotting
+                        _logger.LogWarning("Batch plotting failed, falling back to individual sheet plotting");
+                        await PlotSheetsIndividuallyAsync(validation.ValidSheets, config, plotSettings, progressCallback, result);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error processing sheet {sheetName}: {ex.Message}", ex);
-                    result.FailedSheets.Add(new SheetPlotError
-                    {
-                        SheetName = sheetName,
-                        ErrorMessage = ex.Message,
-                        ExceptionDetails = ex.ToString()
-                    });
+                    _logger.LogError($"Batch plotting failed: {ex.Message}", ex);
+                    // Fall back to individual plotting
+                    await PlotSheetsIndividuallyAsync(validation.ValidSheets, config, plotSettings, progressCallback, result);
                 }
+            }
+            else
+            {
+                // Plot sheets individually (single sheet or no PlotManager)
+                await PlotSheetsIndividuallyAsync(validation.ValidSheets, config, plotSettings, progressCallback, result);
             }
 
             result.Success = result.SuccessfulSheets.Count > 0;
@@ -403,6 +460,132 @@ public class PlottingService : IPlottingService
         {
             _logger.LogError($"Failed to plot sheet {sheetName}: {ex.Message}", ex);
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Builds a collection of SheetInfo objects for batch plotting
+    /// </summary>
+    private async Task<List<SheetInfo>> BuildSheetCollectionAsync(List<string> sheetNames, ProjectConfiguration config)
+    {
+        var sheets = new List<SheetInfo>();
+        var sheetInfoList = await _excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+
+        foreach (var sheetName in sheetNames)
+        {
+            var sheetInfo = sheetInfoList.FirstOrDefault(s => s.SheetName.Equals(sheetName, StringComparison.OrdinalIgnoreCase));
+            if (sheetInfo == null)
+            {
+                _logger.LogWarning($"Sheet info not found for {sheetName}, skipping");
+                continue;
+            }
+
+            // Update the DWGFileName to include the full path
+            var drawingPath = Path.Combine(config.ProjectDWGFilePath, sheetInfo.DWGFileName);
+            if (!string.IsNullOrEmpty(sheetInfo.DWGFileName) && !sheetInfo.DWGFileName.EndsWith(".dwg", StringComparison.OrdinalIgnoreCase))
+            {
+                drawingPath += ".dwg";
+            }
+
+            // Clone the sheet info and update the path
+            var sheetWithPath = new SheetInfo
+            {
+                SheetName = sheetInfo.SheetName,
+                DWGFileName = drawingPath,
+                DrawingTitle = sheetInfo.DrawingTitle,
+                ProjectNumber = sheetInfo.ProjectNumber,
+                Scale = sheetInfo.Scale,
+                SheetType = sheetInfo.SheetType,
+                IssueDate = sheetInfo.IssueDate,
+                DesignedBy = sheetInfo.DesignedBy,
+                CheckedBy = sheetInfo.CheckedBy,
+                DrawnBy = sheetInfo.DrawnBy,
+                AdditionalProperties = sheetInfo.AdditionalProperties
+            };
+            
+            sheets.Add(sheetWithPath);
+        }
+
+        return sheets;
+    }
+
+    /// <summary>
+    /// Plots sheets individually (fallback method or for single sheet operations)
+    /// </summary>
+    private async Task PlotSheetsIndividuallyAsync(
+        List<string> sheetNames, 
+        ProjectConfiguration config, 
+        PlotJobSettings plotSettings, 
+        IProgress<PlotProgress>? progressCallback, 
+        PlotResult result)
+    {
+        var totalSheets = sheetNames.Count;
+        var currentSheetIndex = 0;
+
+        foreach (var sheetName in sheetNames)
+        {
+            currentSheetIndex++;
+            
+            try
+            {
+                // Report progress
+                progressCallback?.Report(new PlotProgress
+                {
+                    CurrentSheet = sheetName,
+                    CurrentOperation = "Plotting to PDF",
+                    ProgressPercentage = (int)((double)currentSheetIndex / totalSheets * 100),
+                    CompletedSheets = currentSheetIndex - 1,
+                    TotalSheets = totalSheets
+                });
+
+                _logger.LogDebug($"Plotting sheet {sheetName} ({currentSheetIndex}/{totalSheets})");
+
+                // Plot the sheet
+                var plotSuccess = await PlotSingleSheetAsync(sheetName, config, plotSettings, progressCallback);
+                
+                if (plotSuccess)
+                {
+                    result.SuccessfulSheets.Add(sheetName);
+                    _logger.LogDebug($"Successfully plotted sheet {sheetName}");
+                }
+                else
+                {
+                    result.FailedSheets.Add(new SheetPlotError
+                    {
+                        SheetName = sheetName,
+                        ErrorMessage = "Plot operation failed"
+                    });
+                    _logger.LogWarning($"Failed to plot sheet {sheetName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error plotting sheet {sheetName}: {ex.Message}", ex);
+                result.FailedSheets.Add(new SheetPlotError
+                {
+                    SheetName = sheetName,
+                    ErrorMessage = ex.Message,
+                    ExceptionDetails = ex.ToString()
+                });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the current active layout name
+    /// </summary>
+    private string? GetCurrentLayoutName()
+    {
+        try
+        {
+            // Try to get the current layout from AutoCAD
+            var layoutManager = Autodesk.AutoCAD.DatabaseServices.LayoutManager.Current;
+            return layoutManager?.CurrentLayout;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get current layout name: {ex.Message}", ex);
+            return null;
         }
     }
 }
