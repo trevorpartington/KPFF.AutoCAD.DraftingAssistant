@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > Commit Method
+Transaction.Commit MethodDescription
+This function commits the changes made in all the DBObjects opened during the Transaction, and then closes them.
+
+Visual Basic
+Public virtual Function Commit() As void
+C#
+public virtual void Commit();
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

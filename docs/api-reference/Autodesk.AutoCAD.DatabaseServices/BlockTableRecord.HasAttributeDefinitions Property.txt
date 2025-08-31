@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > HasAttributeDefinitions Property
+BlockTableRecord.HasAttributeDefinitions PropertyDescription
+ 
+
+Returns true if the block table record contains attribute definitions.
+
+Visual Basic
+Public Property HasAttributeDefinitions() As bool
+C#
+public bool HasAttributeDefinitions;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

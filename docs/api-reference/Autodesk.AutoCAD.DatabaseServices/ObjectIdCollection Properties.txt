@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Properties
+ObjectIdCollection PropertiesProperties
+Property  Description  
+ Count  
+Accesses the total number of objects in the collection.  
+
+   Comments?  

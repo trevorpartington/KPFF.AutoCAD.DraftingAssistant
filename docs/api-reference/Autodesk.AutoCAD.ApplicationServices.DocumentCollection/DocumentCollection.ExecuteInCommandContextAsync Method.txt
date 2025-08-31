@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > ExecuteInCommandContextAsync Method
+DocumentCollection.ExecuteInCommandContextAsync Method    Description
+Allows a void function to be called from the command context.
+
+Visual Basic
+Public Function ExecuteInCommandContextAsync(
+    callback As Func<object, System.Threading.Tasks.Task>, 
+    data As object
+) As ExecutionResult
+C#
+public ExecutionResult ExecuteInCommandContextAsync(
+    Func<object, System.Threading.Tasks.Task> callback, 
+    object data
+);
+Parameters
+Parameters  Description  
+Func<object, System.Threading.Tasks.Task> callback  Input System.Threading.Tasks.Task object.  
+object data  Input any data that should be used for the function call.  
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

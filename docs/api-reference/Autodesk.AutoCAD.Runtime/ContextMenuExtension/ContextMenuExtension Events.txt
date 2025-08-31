@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.Windows Namespace > ContextMenuExtension Class > ContextMenuExtension Events
+ContextMenuExtension EventsEvents
+Event  Description  
+ Popup  Occurs when the ContextMenuExtension object is displayed by AutoCAD.  
+
+   Comments?  

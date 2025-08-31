@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > ContextMenuExtension Class > ContextMenuExtension Properties > Title Property
+ContextMenuExtension.Title PropertyDescription
+Gets a string representing title.
+
+Visual Basic
+Public Property Title() As string
+C#
+public string Title;
+Conditions
+Read / Write
+
+Links
+ContextMenuExtension Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

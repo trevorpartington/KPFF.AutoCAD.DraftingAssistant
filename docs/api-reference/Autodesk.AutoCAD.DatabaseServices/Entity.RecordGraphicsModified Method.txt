@@ -1,0 +1,27 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Entity Class > Entity Methods > RecordGraphicsModified Method
+Entity.RecordGraphicsModified MethodDescription
+ 
+
+This method sets the entity's state to indicate whether or not the entity should be updated on screen when it is closed. If the entity is set not to update, then any changes made will appear the next time the entity is regenerated. 
+
+If setModified is false and the entity is currently set to update its graphics on close (which is its default state), then this function sets the entity so that it will not update on screen when it is closed and objectModified notification is sent to all entity type reactors attached to the entity. 
+
+ 
+
+If setModified is true, then the entity is set to update on screen when it is closed.
+
+Visual Basic
+Public Function RecordGraphicsModified(
+    setModified As [MarshalAs(UnmanagedType.U1)] bool
+) As void
+C#
+public void RecordGraphicsModified(
+    [MarshalAs(UnmanagedType.U1)] bool setModified
+);
+Parameters
+Parameters  Description  
+[MarshalAs(UnmanagedType.U1)] bool setModified  Input Boolean value to indicate if the entity's graphics should be updated on screen when the object is closed  
+
+Links
+Entity Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

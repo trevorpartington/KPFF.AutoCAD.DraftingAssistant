@@ -1,0 +1,19 @@
+Overview of Transaction ManagementTransaction ManagementNesting Transactions 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Transaction Manager
+ 
+ 
+ 
+The transaction manager is a global manager object, similar to the editor, that is in charge of maintaining transactions. It is an instance of AcTransactionManager and is maintained in the system registry. You can obtain it from the system registry using the macro actrTransactionManager, which expands to
+
+#define actrTransactionManager  \
+AcTransactionManager::cast(
+    acrxSysRegistry()->at(AC_TRANSACTION_MANAGER_OBJ))
+The transaction manager should be used to start, end, or abort transactions. It can also provide information such as the number of active transactions at any moment (see the following section, Nesting Transactions) and a list of all the objects whose pointers have been obtained in all the transactions. The transaction manager maintains a list of reactors to notify clients of events such as the start, end, or abort of a transaction. 
+
+In addition to these managerial capabilities, the transaction manager can also be used to obtain pointers from object IDs. When this is done, the object is associated with the top (most recent) transaction. The transaction manager can also be used to queue up all the objects in all the transactions for graphics update and to flush the queue.
+
+The transaction manager object is created and managed by the system. You should not delete it. 
+
+Please send us your comment about this page
+

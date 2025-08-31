@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > Load Event
+PaletteSet.Load EventDescription
+Occurs when the palette set data is loaded from XML.
+
+Visual Basic
+Public Event Load As PalettePersistEventHandler
+C#
+public event PalettePersistEventHandler Load;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsValid Property
+ObjectId.IsValid PropertyDescription
+Assesses if the object ID is associated with a database that is currently in memory. If the object ID is associated with a database that is no longer available (in other words, has been deleted), then the value is false.
+
+Visual Basic
+Public Property IsValid() As bool
+C#
+public bool IsValid;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

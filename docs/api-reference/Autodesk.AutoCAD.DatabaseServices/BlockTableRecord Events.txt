@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Events
+BlockTableRecord EventsEvents
+Event  Description  
+ BlockInsertionPoints  
+This event occurs during the insertion of a block for which an application has defined custom insertion points.  
+
+   Comments?  

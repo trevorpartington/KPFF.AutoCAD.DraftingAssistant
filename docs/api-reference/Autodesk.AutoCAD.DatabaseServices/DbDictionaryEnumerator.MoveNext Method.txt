@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Methods > MoveNext Method
+DbDictionaryEnumerator.MoveNext MethodDescription
+ 
+
+This function attempts to advance the iterator one entry in the dictionary. If another entry is found, it returns true; otherwise, it returns false.
+
+Visual Basic
+Public virtual Function MoveNext() As bool
+C#
+public virtual bool MoveNext();
+Links
+DbDictionaryEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

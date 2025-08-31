@@ -1,0 +1,14 @@
+Transaction BoundariesTransaction ManagementNewly Created Objects and Transactions 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Obtaining Pointers to Objects in a Transaction
+ 
+ 
+ 
+Both AcTransactionManager::getObject() and AcTransaction::getObject() can be used to obtain object pointers from object IDs. Pointers thus obtained are associated with the most recent transaction. Trying to obtain a pointer using any other transaction results in an error. Also, pointers thus obtained are valid until the transaction they are associated with, or one of the containing transactions, is aborted. When the outermost transaction ends, changes on all the valid pointers up to that moment are committed. 
+
+Both of the getObject() functions take an argument of the type AcDb::OpenMode and you can get an object pointer for read, write, or notify. All of these requests succeed except for one case: if the object is notifying and the request is to obtain a pointer for write (that is, with an intention of modifying it), an error (eWasNotifying) is returned. An object should not be modified while it is notifying others of its state. 
+
+If you use the getObject() function to obtain an object pointer, you should never call close() on that object pointer. Calling close() is valid only if you obtained the pointer using acdbOpenObject() or the object was newly created. For more information on when you can call close() on an object pointer, see Newly Created Objects and Transactions and Mixing the Transaction Model with the Open and Close Mechanism. 
+
+Please send us your comment about this page
+

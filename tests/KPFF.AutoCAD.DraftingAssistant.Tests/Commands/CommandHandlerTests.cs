@@ -21,42 +21,14 @@ public class CommandHandlerTests
     }
 
     [Fact]
-    public void ShowPaletteCommandHandler_Should_Have_Correct_Properties()
+    public void TogglePaletteCommandHandler_Should_Have_Correct_Properties()
     {
         // Arrange
-        var handler = new ShowPaletteCommandHandler(_mockPaletteManager.Object, _mockLogger.Object);
+        var handler = new TogglePaletteCommandHandler(_mockPaletteManager.Object, _mockLogger.Object);
 
         // Assert
-        Assert.Equal(CommandNames.DraftingAssistant, handler.CommandName);
+        Assert.Equal(CommandNames.Kpff, handler.CommandName);
         Assert.False(string.IsNullOrEmpty(handler.Description));
-    }
-
-    [Fact]
-    public void ShowPaletteCommandHandler_Execute_Should_Call_PaletteManager_Show()
-    {
-        // Arrange
-        var handler = new ShowPaletteCommandHandler(_mockPaletteManager.Object, _mockLogger.Object);
-
-        // Act
-        handler.Execute();
-
-        // Assert
-        _mockPaletteManager.Verify(pm => pm.Show(), Times.Once);
-        _mockLogger.Verify(l => l.LogInformation(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public void HidePaletteCommandHandler_Execute_Should_Call_PaletteManager_Hide()
-    {
-        // Arrange
-        var handler = new HidePaletteCommandHandler(_mockPaletteManager.Object, _mockLogger.Object);
-
-        // Act
-        handler.Execute();
-
-        // Assert
-        _mockPaletteManager.Verify(pm => pm.Hide(), Times.Once);
-        _mockLogger.Verify(l => l.LogInformation(It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
@@ -74,12 +46,12 @@ public class CommandHandlerTests
     }
 
     [Fact]
-    public void CommandHandlers_Should_Throw_ArgumentNullException_For_Null_Dependencies()
+    public void TogglePaletteCommandHandler_Should_Throw_ArgumentNullException_For_Null_Dependencies()
     {
         // Assert
         Assert.Throws<ArgumentNullException>(() => 
-            new ShowPaletteCommandHandler(null!, _mockLogger.Object));
+            new TogglePaletteCommandHandler(null!, _mockLogger.Object));
         Assert.Throws<ArgumentNullException>(() => 
-            new ShowPaletteCommandHandler(_mockPaletteManager.Object, null!));
+            new TogglePaletteCommandHandler(_mockPaletteManager.Object, null!));
     }
 }

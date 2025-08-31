@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > Operators
+OperatorsOperators
+Operator  Description  
+ !=  Returns true if a does not equal b.  
+ <  Returns true if value1 is less than value2.  
+ ==  Returns true if a equals b.  
+ >  Returns true if value1 is greater than value2.  
+
+   Comments?  

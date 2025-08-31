@@ -1,0 +1,28 @@
+Protocol Extensions for Dynamic BlocksProtocol Extensions for Dynamic BlocksAcRxProtocolReactor Macros 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > Protocol Extensions for Dynamic Blocks > 
+Protocol Reactor Framework
+ 
+ 
+ 
+The AcRxProtocolReactor framework uses the AcRx protocol extension mechanism to associate reactorlike objects with AcRx classes. This framework consists of a set of base classes and macros that facilitate registering classes derived from AcRxProtocolReactor with an AcRx class.
+
+Primary objects defined by the framework include
+
+A global protocol reactor factory object (an instance of the AcRxProtocolReactorFactory class)
+Multiple protocol reactor manager objects (instances of the AcRxProtocolReactorManager class)
+A base class for protocol reactors (the AcRxProtocolReactor class)
+Protocol reactor lists (instances of the AcRxProtocolReactorList class)
+List iterators (instances of the AcRxProtocolReactorListIterator class)
+Protocol reactors derive from the AcRxProtocolReactor class. This base class simply provides runtime type identification. Reactors derived from the AcRxProtocolReactor class expose event models by adding specialized notification callback functions. For instance, ObjectARX provides reactor classes for adding grips, insertions points, and alignment points to block definitions.
+
+To receive event notifications, applications derive from the desired reactor classes. They then use an AcRxProtocolReactorManager object to attach instances of their derived classes to the appropriate AcRx classes. 
+
+Each AcRx class has at most one AcRxProtocolReactorManager object. If no AcRxProtocolReactorManager object is associated with an AcRx class when an application requests it, the application must call upon the global AcRxProtocolReactorFactory object to create one. The factory object automatically registers the new manager object with the specified AcRx class and returns the new AcRxProtocolReactorManager pointer to the calling application.
+
+An AcRxProtocolReactorManager object maintains lists of reactor objects registered with its associated AcRx class. These lists are objects of the AcRxProtocolReactorList class. Each manager maintains a separate list for every reactor class type that is registered with its AcRx class. An application uses AcRxProtocolReactorManager pointers to add its custom reactor objects to the appropriate lists. Unlike normal protocol extensions, more than one object of a protocol reactor class may be associated with a single AcRx object, as shown in the following figure:
+
+
+Applications are responsible for allocating and deallocating reactor objects. After allocating a reactor, an application adds it to a reactor list. Before it unloads, an application should remove its reactors from the reactor lists and free the associated memory. Although an application typically allocates reactors when it loads and deallocates them when it unloads, the actual timing is left up to the application. 
+
+Please send us your comment about this page
+

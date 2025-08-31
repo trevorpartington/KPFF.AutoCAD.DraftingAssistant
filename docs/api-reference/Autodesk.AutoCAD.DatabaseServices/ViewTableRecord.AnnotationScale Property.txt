@@ -1,0 +1,20 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > AnnotationScale Property
+ViewTableRecord.AnnotationScale PropertyDescription
+ 
+
+This function returns a pointer to the AnnotationScale object associated with the viewport. 
+
+ 
+
+The controlling application must explicitly delete the memory of the returned pointer to AcDbAnnotationScale. Otherwise, a small memory leak will result.
+
+Visual Basic
+Public Property AnnotationScale() As Autodesk.AutoCAD.DatabaseServices.AnnotationScale
+C#
+public Autodesk.AutoCAD.DatabaseServices.AnnotationScale AnnotationScale;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class > ExecutionResult Properties
+ExecutionResult PropertiesProperties
+Property  Description  
+ IsCompleted  This is IsCompleted, a member of class ExecutionResult.  
+
+   Comments?  

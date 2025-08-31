@@ -1,0 +1,25 @@
+An MDI-Aware Example ApplicationAdvanced TopicsOverview of Transaction Management 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > 
+Transaction Management
+ 
+ 
+ 
+This section describes the transaction model, which can be used to operate on AcDb objects. In this model, multiple operations on multiple objects are grouped together into one atomic operation called a transaction. 
+
+Transactions can be nested and can be ended or aborted at the discretion of the client. This model can be used in conjunction with the regular per-object open and close mechanism described in Database Objects. 
+
+Topics in this section
+Overview of Transaction Management
+Transaction Manager
+Nesting Transactions
+Transaction Boundaries
+Obtaining Pointers to Objects in a Transaction
+Newly Created Objects and Transactions
+Commit-Time Guidelines
+Undo and Transactions
+Mixing the Transaction Model with the Open and Close Mechanism
+Transactions and Graphics Generation
+Transaction Reactors
+Example of Nested Transactions
+Please send us your comment about this page
+

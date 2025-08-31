@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > ToString > ToString() Method
+ObjectId.ToString() MethodDescription
+Returns an equivalent string representation of this object.
+
+Visual Basic
+Public sealed override Function ToString() As string
+C#
+public sealed override string ToString();
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

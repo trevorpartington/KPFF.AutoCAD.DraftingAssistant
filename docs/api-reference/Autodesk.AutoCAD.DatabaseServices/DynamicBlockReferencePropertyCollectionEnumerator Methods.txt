@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollectionEnumerator Class > DynamicBlockReferencePropertyCollectionEnumerator Methods
+DynamicBlockReferencePropertyCollectionEnumerator MethodsMethods
+Method  Description  
+ MoveNext  
+This method moves the current pointer to the next item, or to the end marker if the current item is... more  
+ Reset  
+This method resets the current pointer to the first item in the collection.  
+
+   Comments?  

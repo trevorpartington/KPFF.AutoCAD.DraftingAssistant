@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > ExtensionApplicationAttribute Class
+ExtensionApplicationAttribute ClassDescription
+ 
+
+This class defines a custom attribute that marks an assembly as an ObjectDBX/AutoCAD extension. The type that this attribute represents must implement the IExtensionApplication interface. When the assembly is loaded, this attribute is used to create an instance of the application's entry point type.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.ExtensionApplicationAttribute
+Visual Basic
+Public sealed Class ExtensionApplicationAttribute
+Inherits Attribute
+C#
+public sealed class ExtensionApplicationAttribute : Attribute;
+Links
+ExtensionApplicationAttribute Properties
+   Comments?  

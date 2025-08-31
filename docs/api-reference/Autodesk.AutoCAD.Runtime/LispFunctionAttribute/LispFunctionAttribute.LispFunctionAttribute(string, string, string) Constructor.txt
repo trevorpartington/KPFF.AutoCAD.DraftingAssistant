@@ -1,0 +1,27 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Constructor > LispFunctionAttribute(string, string, string) Constructor
+LispFunctionAttribute.LispFunctionAttribute(string, string, string) ConstructorDescription
+ 
+
+Constructs an object of the given name, localized ID, and help topic.
+
+Visual Basic
+Public Sub New(
+    globalName As string, 
+    localizedNameId As string, 
+    helpTopic As string
+)
+C#
+public LispFunctionAttribute(
+    string globalName, 
+    string localizedNameId, 
+    string helpTopic
+);
+Parameters
+Parameters  Description  
+string globalName  Input global name of the Lisp function.  
+string localizedNameId  Input the localized name of the Lisp function.  
+string helpTopic  Input help topic string for this function.  
+
+Links
+LispFunctionAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

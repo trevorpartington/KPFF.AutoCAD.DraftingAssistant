@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class > LispFunctionAttribute Properties > LocalizedNameId Property
+LispFunctionAttribute.LocalizedNameId PropertyDescription
+ 
+
+Returns the LocalizedNameId property value.
+
+Visual Basic
+Public virtual Property LocalizedNameId() As string
+C#
+public virtual string LocalizedNameId;
+Conditions
+Read-only
+
+Links
+LispFunctionAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

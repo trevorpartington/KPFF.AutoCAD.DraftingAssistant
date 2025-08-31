@@ -1,0 +1,28 @@
+Create and Edit AutoCAD Entities (.NET)Create and Edit AutoCAD Entities (.NET)Work With ObjectIds (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Create and Edit AutoCAD Entities (.NET) > 
+Open and Close Objects (.NET)
+ 
+ 
+ 
+Whether you are working with objects such as lines, circles and polyline or a symbol table and its records, you need to open the object for read or write. When querying an object you want to open the object for read, but if you are going to make changes to the object you will want to open it for write. 
+
+Topics in this section
+Work With ObjectIds (.NET)
+Use Transactions With the Transaction Manager (.NET)
+Open and Close Objects Without the Transaction Manager (.NET)
+Upgrade and Downgrade Open Objects (.NET)
+An object's current open mode can be changed from read to write or write to read by upgrading or downgrading the object. 
+
+About Using the Dynamic Language Runtime (.NET)
+The AutoCAD Managed .NET API allows you to utilize the Dynamic Language Runtime (DLR) that was introduced with .NET 4.0. 
+
+Related Concepts
+Create and Edit AutoCAD Entities (.NET)
+Work With ObjectIds (.NET)
+Use Transactions With the Transaction Manager (.NET)
+Open and Close Objects Without the Transaction Manager (.NET)
+Upgrade and Downgrade Open Objects (.NET)
+About Using the Dynamic Language Runtime (.NET)
+Dispose Objects (.NET)
+Please send us your comment about this page
+

@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Constructor > PaletteSet(string, Guid) Constructor
+PaletteSet.PaletteSet(string, Guid) ConstructorDescription
+Constructs a new palette set with the given name and tool ID.
+
+Visual Basic
+Public Sub New(
+    name As string, 
+    toolID As Guid
+)
+C#
+public PaletteSet(
+    string name, 
+    Guid toolID
+);
+Parameters
+Parameters  Description  
+string name  Input name of palette set  
+Guid toolID  Input ID of tool GUID  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

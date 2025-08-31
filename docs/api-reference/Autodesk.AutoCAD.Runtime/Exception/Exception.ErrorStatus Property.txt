@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Properties > ErrorStatus Property
+Exception.ErrorStatus PropertyDescription
+ 
+
+Returns the ErrorStatus property value.
+
+Visual Basic
+Public Property ErrorStatus() As Autodesk.AutoCAD.Runtime.ErrorStatus
+C#
+public Autodesk.AutoCAD.Runtime.ErrorStatus ErrorStatus;
+Conditions
+Read / Write
+
+Links
+Exception Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

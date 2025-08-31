@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class > DynamicBlockReferencePropertyCollection Methods > GetEnumerator Method
+DynamicBlockReferencePropertyCollection.GetEnumerator MethodDescription
+ 
+
+Returns an enumerator object for this collection.
+
+Visual Basic
+Public Function GetEnumerator() As IEnumerator
+C#
+public IEnumerator GetEnumerator();
+Links
+DynamicBlockReferencePropertyCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

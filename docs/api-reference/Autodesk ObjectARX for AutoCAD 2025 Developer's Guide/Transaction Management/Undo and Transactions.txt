@@ -1,0 +1,10 @@
+Commit-Time GuidelinesTransaction ManagementMixing the Transaction Model with the Open and Close Mechanism 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Undo and Transactions
+ 
+ 
+ 
+The transaction model uses AutoCAD's undo mechanism and AcDbObject::cancel() in implementing AcTransactionManager::abortTransaction(). This requires that you do not include any operation that uses AutoCAD's subcommand undo mechanism in a transaction. This will confuse AcDbTransactionManager::abortTransaction() and might produce unexpected results. Examples of operations that use the subcommand undo mechanism are the PEDIT and SPLINEDIT commands.
+
+Please send us your comment about this page
+

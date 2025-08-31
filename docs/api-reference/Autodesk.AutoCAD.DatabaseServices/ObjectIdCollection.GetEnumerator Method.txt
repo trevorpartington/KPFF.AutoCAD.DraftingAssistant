@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > GetEnumerator Method
+ObjectIdCollection.GetEnumerator MethodDescription
+ 
+
+Returns an enumerator object for this collection.
+
+Visual Basic
+Public Function GetEnumerator() As IEnumerator
+C#
+public IEnumerator GetEnumerator();
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

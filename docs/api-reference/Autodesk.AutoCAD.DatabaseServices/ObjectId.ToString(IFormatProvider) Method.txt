@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > ToString > ToString(IFormatProvider) Method
+ObjectId.ToString(IFormatProvider) MethodDescription
+Returns an equivalent string representation of this object, in the culture-specific format defined by provider. See the Microsoft .NET API documentation for details.
+
+Visual Basic
+Public Function ToString(
+    provider As IFormatProvider
+) As string
+C#
+public string ToString(
+    IFormatProvider provider
+);
+Parameters
+Parameters  Description  
+IFormatProvider provider  Input culture definition  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

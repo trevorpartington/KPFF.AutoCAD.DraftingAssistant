@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Copy Method
+DBDictionary.Copy MethodDescription
+ 
+
+Copies the Dictionary object.
+
+Visual Basic
+Protected virtual Function Copy() As DBDictionary
+C#
+protected virtual DBDictionary Copy();
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

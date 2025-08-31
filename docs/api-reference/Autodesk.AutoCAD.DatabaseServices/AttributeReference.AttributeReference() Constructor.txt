@@ -1,0 +1,25 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Constructor > AttributeReference() Constructor
+AttributeReference.AttributeReference() ConstructorDescription
+ 
+
+Default constructor. Initializes the field length to 0, the flags to 0 (that is, non-constant, visible, not preset, and not verifiable), and the tag to 0. In addition, all the initializations for a default new DBText object take place.
+
+Visual Basic
+Public Sub New()
+Public Sub New(
+    position As Point3d, 
+    value As string, 
+    tag As string, 
+    style As ObjectId
+)
+C#
+public AttributeReference();
+public AttributeReference(
+    Point3d position, 
+    string value, 
+    string tag, 
+    ObjectId style
+);
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

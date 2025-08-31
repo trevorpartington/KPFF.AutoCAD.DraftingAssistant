@@ -70,7 +70,14 @@
                     Width="80" 
                     Height="30"
                     Style="{StaticResource DarkButtonStyle}"
-                    Click="ClearAllButton_Click"/>
+                    Click="ClearAllButton_Click"
+                    Margin="0,0,10,0"/>
+            <Button Name="SelectSeriesButton" 
+                    Content="Select Series" 
+                    Width="100" 
+                    Height="30"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="SelectSeriesButton_Click"/>
         </StackPanel>
         
         <!-- Action Buttons -->

@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.Windows Namespace > ContextMenuExtension Class
+ContextMenuExtension ClassDescription
+ 
+
+This type allows users to extend various context (shortcut) menus in AutoCAD. There are 3 scenarios where this class can be used: 
+
+
+Extending the default context (shortcut) menu. (See Application.AddDefaultContextMenuExtension>.) 
+Extending the object context (shortcut) menu. (See Application.AddObjectContextMenuExtension>.) 
+Extending the command context (shortcut) menu. (See CommandMethod.ContextMenuExtension>.) 
+
+Class Hierarchy
+Autodesk.AutoCAD.Windows.Menu
+    Autodesk.AutoCAD.Windows.ContextMenuExtension
+Visual Basic
+Public Class ContextMenuExtension
+Inherits Menu
+Inherits IDisposable
+C#
+public class ContextMenuExtension : Menu, IDisposable;
+Links
+ContextMenuExtension Properties, ContextMenuExtension Events
+   Comments?  

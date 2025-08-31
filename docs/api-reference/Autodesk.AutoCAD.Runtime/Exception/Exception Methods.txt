@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Methods
+Exception MethodsMethods
+Method  Description  
+ GetObjectData  This method calls its superclass version, and then adds a value named AcadErrorStatus to the data in info.  
+
+   Comments?  

@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > Add Method > Add(string, Control) Method
+PaletteSet.Add(string, Control) MethodDescription
+Adds palette set window.
+
+Visual Basic
+Public Function Add(
+    name As string, 
+    control As Control
+) As Palette
+C#
+public Palette Add(
+    string name, 
+    Control control
+);
+Parameters
+Parameters  Description  
+string name  Input palette name  
+Control control  Input palette control  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

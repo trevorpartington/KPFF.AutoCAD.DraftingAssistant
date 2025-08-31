@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Properties
+AttributeCollection PropertiesProperties
+Property  Description  
+ Count  
+Accesses the number of items in the collection.  
+
+   Comments?  

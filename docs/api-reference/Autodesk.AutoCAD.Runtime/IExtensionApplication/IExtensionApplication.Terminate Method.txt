@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Runtime Namespace > IExtensionApplication Interface > IExtensionApplication Methods > Terminate Method
+IExtensionApplication.Terminate MethodDescription
+This is Terminate, a member of class IExtensionApplication.
+
+Visual Basic
+Function Terminate() As void
+C#
+void Terminate();
+Links
+IExtensionApplication Interface, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

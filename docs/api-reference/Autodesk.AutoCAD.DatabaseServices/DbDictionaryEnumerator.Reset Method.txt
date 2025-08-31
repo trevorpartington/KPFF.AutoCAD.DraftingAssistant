@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Methods > Reset Method
+DbDictionaryEnumerator.Reset MethodDescription
+ 
+
+Resets the iterating position.
+
+Visual Basic
+Public virtual Function Reset() As void
+C#
+public virtual void Reset();
+Links
+DbDictionaryEnumerator Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

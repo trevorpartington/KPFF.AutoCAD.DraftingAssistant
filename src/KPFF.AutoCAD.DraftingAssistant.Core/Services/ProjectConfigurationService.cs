@@ -83,8 +83,8 @@ public class ProjectConfigurationService : IProjectConfigurationService
             },
             ConstructionNotes = new ConstructionNotesConfiguration
             {
-                MultileaderStyleName = "KPFF_Note_Standard",
-                NoteBlockPattern = "{0}-NT{1:D2}",
+                MultileaderStyleNames = new List<string> { "KPFF_Note_Standard" },
+                NoteBlockPattern = @"^NT\d{2}$",
                 MaxNotesPerSheet = 24,
                 Attributes = new ConstructionNoteAttributes
                 {
@@ -145,11 +145,21 @@ public class ProjectConfigurationService : IProjectConfigurationService
 
     public string[] ExtractSeriesFromSheetName(string sheetName, SheetNamingConfiguration namingConfig)
     {
-        if (string.IsNullOrEmpty(sheetName) || string.IsNullOrEmpty(namingConfig.Pattern))
+        if (string.IsNullOrEmpty(sheetName))
             return Array.Empty<string>();
 
         try
         {
+            // If manual series length is specified, use it
+            if (namingConfig.SeriesLength > 0)
+            {
+                return ExtractSeriesUsingLength(sheetName, namingConfig.SeriesLength);
+            }
+            
+            // Otherwise, use regex pattern (auto-detect)
+            if (string.IsNullOrEmpty(namingConfig.Pattern))
+                return Array.Empty<string>();
+                
             var regex = new Regex(namingConfig.Pattern);
             var match = regex.Match(sheetName);
             
@@ -169,5 +179,20 @@ public class ProjectConfigurationService : IProjectConfigurationService
         }
 
         return Array.Empty<string>();
+    }
+    
+    private string[] ExtractSeriesUsingLength(string sheetName, int seriesLength)
+    {
+        // Extract based on exact character count, preserving hyphens
+        if (sheetName.Length <= seriesLength)
+        {
+            // If the sheet name is shorter than or equal to series length, treat whole thing as series
+            return new[] { sheetName, "" };
+        }
+        
+        var series = sheetName.Substring(0, seriesLength);
+        var number = sheetName.Substring(seriesLength);
+        
+        return new[] { series, number };
     }
 }

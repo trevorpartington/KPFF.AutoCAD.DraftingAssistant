@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Constructor
+DBDictionary.DBDictionary ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+C#
+public DBDictionary();
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

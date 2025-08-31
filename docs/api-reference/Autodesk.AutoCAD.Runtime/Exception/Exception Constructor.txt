@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Constructor
+Exception ConstructorOverload List
+Method  Description  
+ Exception.Exception ()  
+Default constructor.  
+ Exception.Exception (Autodesk.AutoCAD.Runtime.ErrorStatus)  
+Default constructor.  
+ Exception.Exception (Autodesk.AutoCAD.Runtime.ErrorStatus, string)  
+Default constructor.  
+ Exception.Exception (Autodesk.AutoCAD.Runtime.ErrorStatus, string, System.Exception)  
+Default constructor.  
+ Exception.Exception (SerializationInfo, StreamingContext)  
+Default constructor.  
+
+   Comments?  

@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Constructor > PaletteSet(string) Constructor
+PaletteSet.PaletteSet(string) ConstructorDescription
+Constructs a new palette set with the given name.
+
+Visual Basic
+Public Sub New(
+    name As string
+)
+C#
+public PaletteSet(
+    string name
+);
+Parameters
+Parameters  Description  
+string name  Input name of palette set  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

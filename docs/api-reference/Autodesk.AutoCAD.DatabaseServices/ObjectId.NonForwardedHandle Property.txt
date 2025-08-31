@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > NonForwardedHandle Property
+ObjectId.NonForwardedHandle PropertyDescription
+If this object ID is in an xref database and the object associated with this object ID has been redirected to the host database, then the value of this property is the handle in the xref database. If the object associated with this objectId is not from an xref database or is not redirected, then this method is the same as ObjectId.Handle.
+
+Visual Basic
+Public Property NonForwardedHandle() As Autodesk.AutoCAD.DatabaseServices.Handle
+C#
+public Autodesk.AutoCAD.DatabaseServices.Handle NonForwardedHandle;
+Conditions
+Read-ONLY
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

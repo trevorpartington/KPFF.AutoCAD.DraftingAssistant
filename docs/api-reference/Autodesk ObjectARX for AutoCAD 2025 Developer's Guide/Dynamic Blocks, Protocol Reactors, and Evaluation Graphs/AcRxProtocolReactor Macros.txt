@@ -1,0 +1,33 @@
+Protocol Reactor FrameworkProtocol Extensions for Dynamic BlocksCustom Insertion Points for Block References 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > Protocol Extensions for Dynamic Blocks > 
+AcRxProtocolReactor Macros
+ 
+ 
+ 
+To simplify the registration and storage of protocol reactor class objects, the protocol reactor API provides a set of convenience macros. These macros return pointers to the principal framework components and typically reduce several lines of complex code to a single line. The following macros are defined in the rxprotevnt.h header file:
+
+acrxProtocolReactors 
+Returns a pointer to the singleton AcRxProtocolReactorFactory object
+
+ACRX_PROTOCOL_REACTOR_MANAGER_AT(acrxClass) 
+Uses the acrxProtocolReactors macro to get a pointer to the AcRxProtocolReactorManager object for the specified AcRx class
+
+ACRX_PROTOCOL_REACTOR_LIST_AT(acrxClass, reactorClass) 
+Uses the ACRX_PROTOCOL_REACTOR_MANAGER_AT to query the reactor manager for the specified AcRx class. Returns a pointer to its list of reactors for the specified reactor class.
+
+For example, if you have created a protocol reactor class named AsdkInsertionPoints that derives from the AcDbBlockInsertionPoints class, you would use the following code to instantiate a class object and register it with the proper reactor manager:
+
+AsdkInsertionPoints* pPts = NULL;
+pPts = new AsdkInsertionPoints();
+ACRX_PROTOCOL_REACTOR_LIST_AT(AcDbBlockTableRecord::desc(),
+	AsdkInsertionPoints::desc())->addReactor(pPts);
+When you have finished using the reactor, or when your application exits, you remove the reactor and destroy it.
+
+if (pPts)
+{
+ACRX_PROTOCOL_REACTOR_LIST_AT(AcDbBlockTableRecord::desc(), 
+    AsdkInsertionPoints::desc())->removeReactor(pPts);
+delete pPts;
+}
+Please send us your comment about this page
+

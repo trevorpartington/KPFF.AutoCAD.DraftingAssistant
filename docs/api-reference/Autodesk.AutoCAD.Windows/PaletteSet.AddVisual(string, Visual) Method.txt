@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > AddVisual Method > AddVisual(string, Visual) Method
+PaletteSet.AddVisual(string, Visual) MethodDescription
+Adds a visual window.
+
+Visual Basic
+Public Function AddVisual(
+    name As string, 
+    control As Visual
+) As Palette
+C#
+public Palette AddVisual(
+    string name, 
+    Visual control
+);
+Parameters
+Parameters  Description  
+string name  Input palette name  
+Visual control  Input visual control  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

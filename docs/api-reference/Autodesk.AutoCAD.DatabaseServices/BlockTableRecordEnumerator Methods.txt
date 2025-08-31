@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecordEnumerator Class > BlockTableRecordEnumerator Methods
+BlockTableRecordEnumerator MethodsMethods
+Method  Description  
+ MoveNext  
+This function returns true if the enumerator has been positioned past either end of the block.  
+
+   Comments?  

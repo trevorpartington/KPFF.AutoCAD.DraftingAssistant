@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > GlobalName Property
+CommandMethodAttribute.GlobalName PropertyDescription
+ 
+
+Returns the GlobalName property value.
+
+Visual Basic
+Public virtual Property GlobalName() As string
+C#
+public virtual string GlobalName;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

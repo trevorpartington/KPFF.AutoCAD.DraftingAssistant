@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > XrefStatus Property
+BlockTableRecord.XrefStatus PropertyDescription
+ 
+
+Retrieves the xref status of the block table record on which this method is called.
+
+Visual Basic
+Public Property XrefStatus() As Autodesk.AutoCAD.DatabaseServices.XrefStatus
+C#
+public Autodesk.AutoCAD.DatabaseServices.XrefStatus XrefStatus;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

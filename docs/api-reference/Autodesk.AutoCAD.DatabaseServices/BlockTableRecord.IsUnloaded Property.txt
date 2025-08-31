@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsUnloaded Property
+BlockTableRecord.IsUnloaded PropertyDescription
+ 
+
+Returns true if this block table record is an xref that is currently unloaded
+
+Visual Basic
+Public Property IsUnloaded() As bool
+C#
+public bool IsUnloaded;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

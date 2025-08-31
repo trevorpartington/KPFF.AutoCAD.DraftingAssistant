@@ -1,0 +1,33 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > AddVisualBrowser Method
+PaletteSet.AddVisualBrowser Method    Description
+Adds a visual browser control to a palette. 
+
+Note: Related to the Blocks palette. 
+
+Visual Basic
+Public Function AddVisualBrowser(
+    name As string, 
+    control As Visual, 
+    htmlPage As string, 
+    scriptableName As string, 
+    bShowBrowserFirst As [MarshalAs(UnmanagedType.U1)] bool
+) As Palette
+C#
+public Palette AddVisualBrowser(
+    string name, 
+    Visual control, 
+    string htmlPage, 
+    string scriptableName, 
+    [MarshalAs(UnmanagedType.U1)] bool bShowBrowserFirst
+);
+Parameters
+Parameters  Description  
+string name  Input palette name  
+Visual control  Input visual control  
+string htmlPage  Input string that indicates the HTML page to load  
+string scriptableName  Input string that sets the name for the control to use in a script  
+[MarshalAs(UnmanagedType.U1)] bool bShowBrowserFirst  Input Boolean that specifies whether the HTML page should be displayed  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

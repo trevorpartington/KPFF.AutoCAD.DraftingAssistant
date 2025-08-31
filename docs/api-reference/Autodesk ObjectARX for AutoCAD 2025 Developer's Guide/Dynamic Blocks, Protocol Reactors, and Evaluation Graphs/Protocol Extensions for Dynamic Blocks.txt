@@ -1,0 +1,16 @@
+Dynamic Block API OverviewDynamic Blocks, Protocol Reactors, and Evaluation GraphsProtocol Reactor Framework 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > 
+Protocol Extensions for Dynamic Blocks
+ 
+ 
+ 
+Dynamic blocks use the AcRx protocol extension mechanism to extend classic blocks. For instance, applications can add grips to dynamic block entities by implementing the appropriate protocol extension class and registering it with the existing AcDbBlockReference class.
+
+Protocol extensions for dynamic blocks introduce the concept of protocol extension reactors. These reactors leverage the ObjectARX ® notification framework to let applications participate in behaviors that they otherwise would not be able to access. Applications derive custom classes from protocol reactor classes in order to process dynamic block notifications. An application must register its custom reactors with the AcRx protocol extension reactor framework.
+
+Topics in this section
+Protocol Reactor Framework
+AcRxProtocolReactor Macros
+Custom Insertion Points for Block References
+Please send us your comment about this page
+

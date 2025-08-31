@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Style Property
+PaletteSet.Style PropertyDescription
+Returns the palette set style.
+
+Visual Basic
+Public Property Style() As PaletteSetStyles
+C#
+public PaletteSetStyles Style;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,64 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Entity Class > Entity Properties
+Entity PropertiesProperties
+Property  Description  
+ BlockId  
+Accesses the ObjectId of the entity's owner, which must be a BlockTableRecord  
+ BlockName  
+Accesses the name of the owner block.  
+ CastShadows  
+Accesses whether the entity can cast shadows.  
+ CloneMeForDragging  
+Accesses whether a clone should be created for use in a dragging operation. AutoCAD has always created a clone in... more  
+ CollisionType  
+Accesses the collision detection treatment for this entity. Subclasses may override this method to customize how the class interacts in... more  
+ Color  
+Accesses the full true color information for the entity within an instance of Color.  
+ ColorIndex  
+Accesses the AutoCAD color number of the entity.  
+ CompoundObjectTransform  
+Accesses the transformation matrix used for nested objects.  
+ Ecs  
+Accesses a transformation matrix that can be used to transform vectors or points from the object's object coordinate system (OCS)... more  
+ EdgeStyleId  Get and set the edge-only visual style object ID.  
+ EntityColor  
+Accesses the color settings of the entity in an EntityColor form.  
+ FaceStyleId  Get and set the face-only visual style object ID.  
+ ForceAnnoAllVisible  
+Accesses the current ANNOALLVISIBLE value for the database
+See the System Variables section of the AutoCAD Command Reference for information... more  
+ GeometricExtents  Accesses the corner points (in WCS coordinates) of a box (with edges parallel to the WCS X, Y, and Z... more  
+ Hyperlinks  
+Accesses a collection of hyperlinks associated with the object.  
+ IsPlanar  
+Assesses if a plane contains the entity.  
+ Layer  
+Accesses the name string in the LayerTableRecord object referenced by the entity.  
+ LayerId  
+Accesses the ObjectId of the LayerTableRecord referenced by the entity.  
+ Linetype  
+Accesses the name string in the LinetypeTableRecord object referenced by the entity.  
+ LinetypeId  
+Accesses the ObjectId of the LinetypeTableRecord referenced by the entity.  
+ LinetypeScale  
+Accesses the linetype scale factor for the entity.  
+ LineWeight  
+Accesses the LineWeight of the entity.  
+ Material  
+Accesses the material name.  
+ MaterialId  
+Accesses the ID of the associated Material object.  
+ MaterialMapper  
+Accesses the Mapper that is use to map a material to the entity  
+ PlotStyleName  
+Accesses the plotstyle name string of the entity.  
+ PlotStyleNameId  
+Accesses the object ID of the PlaceHolder object referenced by the entity.  
+ ReceiveShadows  
+Accesses whether this entity can receive shadows.  
+ Transparency  
+Accesses the transparency value for the entity.  
+ Visible  
+Accesses the visibility of an entity.  
+ VisualStyleId  Get and set the full visual style object ID.  
+
+   Comments?  

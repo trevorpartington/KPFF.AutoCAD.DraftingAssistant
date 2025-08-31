@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > EndExtraction Event
+Application.EndExtraction Event    Description
+Wraps the AcDwgExtractor::ExtractorReactor::endExtraction() ObjectARX function. Called at the end of the extraction process. 
+
+Gives clients an opportunity to add extra properties to extraction results. 
+
+Note: For APS Design Automation Use only. 
+
+Visual Basic
+Public static Event EndExtraction As EndExtractionEventHandler
+C#
+public static event EndExtractionEventHandler EndExtraction;
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

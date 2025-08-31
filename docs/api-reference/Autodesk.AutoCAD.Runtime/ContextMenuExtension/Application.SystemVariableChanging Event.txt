@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > SystemVariableChanging Event
+Application.SystemVariableChanging Event    Description
+ 
+
+Wraps the AcEditorReactor.sysVarWillChange() ObjectARX function. This callback indicates that an attempt is being made to change the varName system variable. This callback provides applications with the ability to find out what the original value of the system variable was before the value changed. 
+
+ 
+
+This callback is always called when a system variable is changed directly through the SETVAR command or by entering the variable name at the command line. For other built-in AutoCAD commands that provoke system variable changes, this notification is not guaranteed. If a system variable is changed through the API, sysVarChanged() is called only if the new value is valid.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.Core.Application
+
+Visual Basic
+Public static Event SystemVariableChanging As Autodesk.AutoCAD.ApplicationServices.SystemVariableChangingEventHandler
+C#
+public static event Autodesk.AutoCAD.ApplicationServices.SystemVariableChangingEventHandler SystemVariableChanging;
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Application
+
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

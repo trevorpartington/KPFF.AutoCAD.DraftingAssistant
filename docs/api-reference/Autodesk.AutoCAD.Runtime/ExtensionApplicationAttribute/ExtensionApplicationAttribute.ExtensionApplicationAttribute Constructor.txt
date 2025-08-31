@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.Runtime Namespace > ExtensionApplicationAttribute Class > ExtensionApplicationAttribute Constructor
+ExtensionApplicationAttribute.ExtensionApplicationAttribute ConstructorDescription
+ 
+
+Constructs an attribute through an entry point.
+
+Visual Basic
+Public Sub New(
+    entryPointType As System.Type
+)
+C#
+public ExtensionApplicationAttribute(
+    System.Type entryPointType
+);
+Parameters
+Parameters  Description  
+System.Type entryPointType  Input a type of entry point  
+
+Links
+ExtensionApplicationAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

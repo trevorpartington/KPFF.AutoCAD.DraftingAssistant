@@ -1,0 +1,39 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > AssumeOwnershipOf Method
+BlockTableRecord.AssumeOwnershipOf MethodDescription
+ 
+
+This method causes the invoked block table record to assume the ownership of all the entities listed in the input entitiesToMove collection, and provides an optimized way of moving entities between block table records.
+
+Visual Basic
+Public Function AssumeOwnershipOf(
+    entitiesToMove As ObjectIdCollection
+) As void
+C#
+public void AssumeOwnershipOf(
+    ObjectIdCollection entitiesToMove
+);
+Parameters
+Parameters  Description  
+ObjectIdCollection entitiesToMove  Input a collection of entities to change ownership of  
+
+Conditions
+This action takes place only after all of the following conditions are verified: 
+
+
+The function is able to open all entities specified in entitiesToMove and write to them. 
+All entities reside in the same database as the target block table record. 
+The current entity owners are all instances of BlockTableRecord. 
+ 
+
+If all these conditions are met, then the ownership of all the entities is switched, the transaction for the prior owner block table records (BTRs) is closed, the entities are marked as modifed, and the change is recorded in the entities’ undo filers. 
+
+ 
+
+Viewports and vertex, attribute or other AutoCAD subentities, or bracket entities are not supported. This is an all-or-nothing operation, that is, if one entity cannot be moved, none of them will be moved.
+
+Notes
+Calling this function on an entity that is already open for write will cause AutoCAD to terminate.
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,50 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class
+DBDictionary ClassDescription
+This .NET class wraps the AcDbDictionary ObjectARX class. 
+
+DBDictionary is a database-resident object dictionary, which maintains a map between text strings and database objects. An instance of this class represents a single object, such as Drawing Symbol Table, to which objects derived from DBObject may be added, accessed, and removed. Entries in an DBDictionary must be unique. Entries consist of a unique DBObject and string, which comprises the entry's key name. The key may be either an explicit null-terminated text string, or an asterisk (' * ') as the first character in the string to signify an anonymous entry. An anonymous entry's key will be constructed internally by appending an 'A' plus a unique integer value to the asterisk; for example, '*A13'. 
+
+When an object is placed in a dictionary, the dictionary is established as the object's owner, the lookup key string is associated with the object's object ID, and the dictionary itself is attached to the object as a persistent reactor so that the dictionary is notified when the object is erased.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.DBDictionary
+        Autodesk.AutoCAD.DatabaseServices.DictionaryWithDefaultDictionary
+Visual Basic
+Public Class DBDictionary
+Inherits DBObject
+Inherits IDictionary
+C#
+public class DBDictionary : DBObject, IDictionary;
+Notes
+Dictionary names honor the rules for symbol names. These general rules are: 
+
+Names may be as long as you need them to be (longer than 32 characters, as defined by previous versions of AutoCAD). 
+Names may contain additional characters, such as the space character (' '), the apostrophe ('''), and so on. 
+Names are treated case-insensitively. 
+Names can not contain the following illegal characters: 
+vertical bar ('|') 
+asterisk ('*'), except as noted above 
+backslash ('') 
+colon (':') 
+semicolon (';') 
+angle brackets ('>', '<') 
+question mark ('?') 
+double quote ('"') 
+comma (',') 
+equal sign ('=') 
+grave accent ('`') 
+ 
+
+When you're retrieving the key name of a dictionary entry and you are not the person that added that key, then you should make no assumption about the length or contents of the name. For example, if you create a dictionary and only place names of 20 characters in length into the dictionary, then you can safely assume that the dictionary will only contain names of 20 characters. If you are retrieving the key names from a dictionary that you did not create and may be updated by AutoCAD or other ARX programs, then you should be prepared to handle arbitrarily long names 
+
+Object pointers retrieved from the database represent individual objects that are currently opened in the requested mode. The return status indicates the status for opening the entry object. If the status is not Acad.eOk, the returned pointer is NULL. 
+
+Objects added to the dictionary must not have a presence in the database; that is, they must have NULL handles. 
+
+When a dictionary is erased, all the objects within it are erased as well. When a dictionary is unerased, all its contents are unerased as well.
+
+Links
+DBDictionary Methods, DBDictionary Properties
+See Also
+   Comments?  

@@ -1,0 +1,44 @@
+General Development Compatibility (ObjectARX/.NET)General Development Compatibility (ObjectARX/.NET)About Managed .NET Compatibility 
+Autodesk ObjectARX for AutoCAD 2025: Migration Guide > General Development Compatibility (ObjectARX/.NET) > 
+About ObjectARX Compatibility
+ 
+ 
+ 
+ObjectARX applications are often associated with internal and third-party applications that add new functionality to the AutoCAD-based product. 
+
+When migrating to the latest release, not all ObjectARX applications might work. While ObjectARX is designed to be supported across multiple releases, based on the targeted release of the application, developers can choose to limit an ObjectARX application to a single release. 
+
+The following table lists the ObjectARX SDK versions that are supported by AutoCAD-based product release. 
+
+Release  Release Number  Supported ObjectARX SDK  
+AutoCAD 2025  25.0  AutoCAD 2025  
+AutoCAD 2024  24.3  AutoCAD 2024, AutoCAD 2023, AutoCAD 2022, AutoCAD 2021  
+AutoCAD 2023  24.2  AutoCAD 2023, AutoCAD 2022, AutoCAD 2021  
+AutoCAD 2022  24.1  AutoCAD 2022, AutoCAD 2021  
+AutoCAD 2021  24.0  AutoCAD 2021  
+AutoCAD 2020  23.1  AutoCAD 2020, AutoCAD 2019  
+AutoCAD 2019  23.0  AutoCAD 2019  
+AutoCAD 2018  22.0  AutoCAD 2018  
+AutoCAD 2017  21.0  AutoCAD 2017  
+AutoCAD 2016  20.1  AutoCAD 2016, AutoCAD 2015  
+AutoCAD 2015  20.0  AutoCAD 2015  
+AutoCAD 2014  19.1  AutoCAD 2014, AutoCAD 2013  
+AutoCAD 2013  19.0  AutoCAD 2013  
+AutoCAD 2012  18.2  AutoCAD 2012, AutoCAD 2011, AutoCAD 2010  
+AutoCAD 2011  18.1  AutoCAD 2011, AutoCAD 2010  
+AutoCAD 2010  18.0  AutoCAD 2010  
+AutoCAD 2009  17.2  AutoCAD 2009, AutoCAD 2008, AutoCAD 2007  
+AutoCAD 2008  17.1  AutoCAD 2008, AutoCAD 2007  
+AutoCAD 2007  17.0  AutoCAD 2007  
+AutoCAD 2006  16.2  AutoCAD 2006, AutoCAD 2005, AutoCAD 2004  
+AutoCAD 2005  16.1  AutoCAD 2005, AutoCAD 2004  
+AutoCAD 2004  16.0  AutoCAD 2004  
+AutoCAD 2002  15.2  AutoCAD 2002, AutoCAD 2000i, AutoCAD 2000  
+AutoCAD 2000i  15.1  AutoCAD 2000i, AutoCAD 2000  
+AutoCAD 2000  15.0  AutoCAD 2000  
+
+Changes to the ObjectARX SDK can be found in the What’s New and Migration Guide section of the ObjectARX Reference Guide (<drive>:\<objectarx install folder>\docs\arxref.chm). 
+
+NOTE:Starting with AutoCAD 2014-based products, custom applications must work under secure mode; when the SECURELOAD system variable is set to 1 or 2. When operating under secure mode, the AutoCAD-based product is restricted to loading and executing files that contain code from trusted locations; trusted locations are specified by the TRUSTEDPATHS system variable. For more information, see About Security and Protecting Against Viruses. 
+Please send us your comment about this page
+

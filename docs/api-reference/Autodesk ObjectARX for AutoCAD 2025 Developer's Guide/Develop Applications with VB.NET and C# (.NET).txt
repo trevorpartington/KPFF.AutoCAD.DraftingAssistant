@@ -1,0 +1,21 @@
+Register COM Based Events (.NET)Handle Errors (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide >  
+Develop Applications with VB.NET and C# (.NET)
+ 
+ 
+ 
+Many programming tasks involve more than simply working with the AutoCAD .NET API object model. This chapter provides a brief overview of handling errors and distributing your application to others. 
+
+Remember, the Microsoft documentation for VB.NET and C# contains more information on these topics. 
+
+Topics in this section
+Handle Errors (.NET)
+Distribute Your Application (.NET)
+Securing Managed .NET Applications (.NET)
+Cybersecurity attacks are one of the leading causes of intellectual property (IP) and productivity loss. 
+
+Related Concepts
+Handle Errors (.NET)
+Distribute Your Application (.NET)
+Please send us your comment about this page
+

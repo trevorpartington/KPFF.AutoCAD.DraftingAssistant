@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > BlockScaling Property
+BlockTableRecord.BlockScaling PropertyDescription
+ 
+
+Specifies whether block references associated with this block table record can be uniformly or non-uniformly scaled.
+
+Visual Basic
+Public Property BlockScaling() As Autodesk.AutoCAD.DatabaseServices.BlockScaling
+C#
+public Autodesk.AutoCAD.DatabaseServices.BlockScaling BlockScaling;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

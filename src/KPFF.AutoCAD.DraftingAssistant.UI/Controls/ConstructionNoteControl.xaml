@@ -22,35 +22,58 @@
         </Grid.RowDefinitions>
         
         <!-- Radio Buttons and Update Button -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Vertical" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             
             <!-- Radio Buttons -->
-            <StackPanel Orientation="Horizontal" 
+            <StackPanel Grid.Row="0" 
+                        Orientation="Horizontal" 
                         HorizontalAlignment="Left" 
                         Margin="0,0,0,15">
                 <RadioButton Name="AutoNotesRadioButton" 
                             Content="Auto Notes" 
                             GroupName="NotesMode"
+                            IsChecked="True"
                             Style="{StaticResource DarkRadioButtonStyle}"
                             Margin="0,0,20,0"/>
                 <RadioButton Name="ExcelNotesRadioButton" 
                             Content="Excel Notes" 
                             GroupName="NotesMode"
-                            IsChecked="True"
                             Style="{StaticResource DarkRadioButtonStyle}"/>
             </StackPanel>
             
-            <!-- Update Button -->
-            <Button Name="UpdateNotesButton" 
-                    Content="Update Notes" 
-                    Width="120" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="UpdateNotesButton_Click"/>
-        </StackPanel>
+            <!-- Action Buttons -->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Button Name="UpdateNotesButton" 
+                        Content="Update Notes" 
+                        Width="120" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="UpdateNotesButton_Click"
+                        HorizontalAlignment="Left"/>
+                <Button Name="InsertBlocksButton" 
+                        Content="Insert Blocks" 
+                        Width="120" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="InsertBlocksButton_Click"
+                        HorizontalAlignment="Right"/>
+            </Grid>
+            
+            <!-- Apply to Current Sheet Checkbox -->
+            <CheckBox Name="ApplyToCurrentSheetCheckBox" 
+                      Grid.Row="2" 
+                      Content="Apply to current sheet only" 
+                      Style="{StaticResource DarkCheckBoxStyle}"
+                      HorizontalAlignment="Left"
+                      Margin="0,5,0,0"
+                      Checked="ApplyToCurrentSheetCheckBox_CheckedChanged"
+                      Unchecked="ApplyToCurrentSheetCheckBox_CheckedChanged"/>
+        </Grid>
         
         <!-- Text Readout Area -->
         <Border Grid.Row="1" 

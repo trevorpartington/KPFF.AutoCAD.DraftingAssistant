@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollectionEnumerator Class > DynamicBlockReferencePropertyCollectionEnumerator Properties
+DynamicBlockReferencePropertyCollectionEnumerator PropertiesProperties
+Property  Description  
+ Current  
+Accesses the current item.  
+
+   Comments?  

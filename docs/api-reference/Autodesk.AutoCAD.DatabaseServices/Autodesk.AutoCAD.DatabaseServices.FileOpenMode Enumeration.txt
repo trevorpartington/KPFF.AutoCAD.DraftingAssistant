@@ -1,0 +1,31 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > FileOpenMode Enumeration
+Autodesk.AutoCAD.DatabaseServices.FileOpenMode EnumerationDescription
+ 
+
+This .NET enum wraps the AcDbDatabase::OpenMode ObjectARX enum. 
+
+This enumerated type provides the mode values used to specify how a database resident object is to be opened.
+
+Visual Basic
+Public Enum FileOpenMode
+  OpenForReadAndAllShare = 3
+  OpenForReadAndReadShare = 1
+  OpenForReadAndWriteNoShare = 2
+  OpenTryForReadShare = 4
+End Enum
+C#
+public enum FileOpenMode {
+  OpenForReadAndAllShare = 3,
+  OpenForReadAndReadShare = 1,
+  OpenForReadAndWriteNoShare = 2,
+  OpenTryForReadShare = 4
+}
+Members
+Members  Description  
+OpenForReadAndAllShare = 3  Open for read and allow read and write sharing (same as _SH_DENYNO). Using this value withDatabase.ReadDwgFile() allows other applications full access to the file when the file is opened by this call. This call will open a file for reading when the same file is already opened for writing.
+Using this mode with Database.ReadDwgFile() does not lock out other applications from writing to the file. It is not safe to do a lazy load in such circumstances. Performing a lazy load means that pieces of the drawing are read-in only as needed. This feature, combined with the possibility of other applications updating the drawing file under this mode, can cause inconsistent reads and other errors. So, when Database.ReadDwgFile()> is used with this mode, ReadDwgFile will call Database.CloseInput() in order to fully read in the file and release the file handle (i.e. no lazy load). without the call to CloseInput().  
+OpenForReadAndReadShare = 1  Open for read and allow read sharing (same as _SH_DENYWR). Using this value with Database.ReadDwgFile() gives the same behavior as in previous releases of ObjectARX, and prevents other applications from writing to the file. Also, if the file was already opened by another application for writing, then Database.ReadDwgFile() will fail.  
+OpenForReadAndWriteNoShare = 2  Open for read/write and allow no sharing (same as _SH_DENYRW). Using this value with Database.ReadDwgFile prevents other applications from reading and writing to the file when the file is opened by Database.ReadDwgFile. An Database.ReadDwgFile call using this mode will fail if any other application has the drawing file open, or if the drawing file is read-only.  
+OpenTryForReadShare = 4  This value causes the database to first try opening the file using ForReadAndReadShare, and if that fails, then to try again using ForReadAndAllShare.  
+
+   Comments?  

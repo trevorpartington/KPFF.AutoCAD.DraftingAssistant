@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Windows;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 
@@ -48,6 +49,73 @@ public partial class SheetSelectionDialog : Window
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
+    }
+
+    private void SelectSeriesButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // Get currently selected series from sheets
+            var currentlySelectedSeries = GetSelectedSeries();
+            
+            // Get all available sheets for series selection
+            var allSheets = Sheets.Select(s => s.Sheet).ToList();
+            
+            var seriesDialog = new SeriesSelectionDialog(allSheets, currentlySelectedSeries)
+            {
+                Owner = this
+            };
+            
+            if (seriesDialog.ShowDialog() == true)
+            {
+                var selectedSeries = seriesDialog.SelectedSeries.ToHashSet();
+                
+                // Update sheet selections based on selected series
+                UpdateSheetSelectionsBySeries(selectedSeries);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening series selection: {ex.Message}", 
+                           "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private List<string> GetSelectedSeries()
+    {
+        var selectedSeries = new HashSet<string>();
+        var sheetNamePattern = new Regex(@"^([A-Z]{1,3})", RegexOptions.IgnoreCase);
+        
+        foreach (var sheet in Sheets.Where(s => s.IsSelected))
+        {
+            var match = sheetNamePattern.Match(sheet.Sheet.SheetName);
+            if (match.Success)
+            {
+                selectedSeries.Add(match.Groups[1].Value.ToUpper());
+            }
+        }
+        
+        return selectedSeries.ToList();
+    }
+
+    private void UpdateSheetSelectionsBySeries(HashSet<string> selectedSeries)
+    {
+        var sheetNamePattern = new Regex(@"^([A-Z]{1,3})", RegexOptions.IgnoreCase);
+        
+        foreach (var sheet in Sheets)
+        {
+            var match = sheetNamePattern.Match(sheet.Sheet.SheetName);
+            if (match.Success)
+            {
+                var seriesName = match.Groups[1].Value.ToUpper();
+                sheet.IsSelected = selectedSeries.Contains(seriesName);
+            }
+            else
+            {
+                // If sheet name doesn't match pattern, leave it unselected
+                sheet.IsSelected = false;
+            }
+        }
     }
 }
 

@@ -21,17 +21,33 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Button -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
-            <Button Name="UpdateTitleBlocksButton" 
-                    Content="Update Title Blocks" 
-                    Width="140" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="UpdateTitleBlocksButton_Click"/>
+        <!-- Buttons -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <Grid Margin="0,0,0,10">
+                <Button Name="UpdateTitleBlocksButton" 
+                        Content="Update TB Attributes" 
+                        Width="150" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="UpdateTitleBlocksButton_Click"
+                        HorizontalAlignment="Left"/>
+                <Button Name="InsertTitleBlockButton" 
+                        Content="Insert TB Attributes" 
+                        Width="150" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="InsertTitleBlockButton_Click"
+                        HorizontalAlignment="Right"/>
+            </Grid>
+            
+            <!-- Apply to Current Sheet Checkbox -->
+            <CheckBox Name="ApplyToCurrentSheetCheckBox" 
+                      Content="Apply to current sheet only" 
+                      Style="{StaticResource DarkCheckBoxStyle}"
+                      HorizontalAlignment="Left"
+                      Margin="0,5,0,0"
+                      Checked="ApplyToCurrentSheetCheckBox_CheckedChanged"
+                      Unchecked="ApplyToCurrentSheetCheckBox_CheckedChanged"/>
         </StackPanel>
         
         <!-- Text Readout Area -->

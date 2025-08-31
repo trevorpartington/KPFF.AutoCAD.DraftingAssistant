@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > GetEnumerator Method
+PaletteSet.GetEnumerator MethodDescription
+Returns the IEnumerator interface to enumerate the elements of the collection.
+
+Visual Basic
+Public Function GetEnumerator() As IEnumerator
+C#
+public IEnumerator GetEnumerator();
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

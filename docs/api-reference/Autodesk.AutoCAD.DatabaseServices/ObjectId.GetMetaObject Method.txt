@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > GetMetaObject Method
+ObjectId.GetMetaObject MethodDescription
+This is GetMetaObject, a member of class ObjectId.
+
+Visual Basic
+Public Function GetMetaObject(
+    parameter As Expression
+) As DynamicMetaObject
+C#
+public DynamicMetaObject GetMetaObject(
+    Expression parameter
+);
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

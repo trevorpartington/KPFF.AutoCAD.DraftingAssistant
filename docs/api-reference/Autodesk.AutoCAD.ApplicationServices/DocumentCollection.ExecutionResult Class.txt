@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class
+DocumentCollection.ExecutionResult ClassDescription
+This is class Autodesk.AutoCAD.ApplicationServices.DocumentCollection.ExecutionResult.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentCollection.ExecutionResult
+Visual Basic
+Public sealed Class ExecutionResult
+Inherits INotifyCompletion
+C#
+public sealed class ExecutionResult : INotifyCompletion;
+Links
+ExecutionResult Methods, ExecutionResult Properties
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > ExtensionApplicationAttribute Class > ExtensionApplicationAttribute Properties > Type Property
+ExtensionApplicationAttribute.Type PropertyDescription
+ 
+
+Returns the Type property value.
+
+Visual Basic
+Public Property Type() As System.Type
+C#
+public System.Type Type;
+Conditions
+Read-only
+
+Links
+ExtensionApplicationAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsResident Property
+ObjectId.IsResident PropertyDescription
+Assesses if the object associated with this objectId is resident in memory.
+
+Visual Basic
+Public Property IsResident() As bool
+C#
+public bool IsResident;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

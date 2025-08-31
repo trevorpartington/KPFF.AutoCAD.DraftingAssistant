@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeCollection Class > AttributeCollection Properties > Count Property
+AttributeCollection.Count PropertyDescription
+ 
+
+Accesses the number of items in the collection.
+
+Visual Basic
+Public virtual Property Count() As Integer
+C#
+public virtual int Count;
+Conditions
+Read-only
+
+Links
+AttributeCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

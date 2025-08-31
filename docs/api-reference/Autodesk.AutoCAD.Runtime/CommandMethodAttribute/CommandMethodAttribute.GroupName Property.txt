@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > GroupName Property
+CommandMethodAttribute.GroupName PropertyDescription
+ 
+
+Returns the GroupName property value.
+
+Visual Basic
+Public virtual Property GroupName() As string
+C#
+public virtual string GroupName;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

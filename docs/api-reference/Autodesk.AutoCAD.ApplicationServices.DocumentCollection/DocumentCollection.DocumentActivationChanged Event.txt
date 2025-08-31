@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentActivationChanged Event
+DocumentCollection.DocumentActivationChanged EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentActivationChanged() ObjectARX function. 
+
+ 
+
+This notification is sent for changes caused by DocumentActivation or DocumentDestroyed.
+
+Visual Basic
+Public Event DocumentActivationChanged As DocumentActivationChangedEventHandler
+C#
+public event DocumentActivationChangedEventHandler DocumentActivationChanged;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

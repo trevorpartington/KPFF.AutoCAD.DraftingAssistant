@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.Runtime Namespace > LispFunctionAttribute Class
+LispFunctionAttribute ClassDescription
+ 
+
+This class extends the Attribute and ICommandLine interfaces. It defines the attributes for a Lisp callable function.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.ICommandLineCallable
+    Autodesk.AutoCAD.Runtime.LispFunctionAttribute
+Visual Basic
+Public sealed Class LispFunctionAttribute
+Inherits Attribute
+Inherits ICommandLineCallable
+C#
+public sealed class LispFunctionAttribute : Attribute, ICommandLineCallable;
+Links
+LispFunctionAttribute Constructor, LispFunctionAttribute Properties
+   Comments?  

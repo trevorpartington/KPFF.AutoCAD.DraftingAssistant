@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class > DynamicBlockReferencePropertyCollection Methods
+DynamicBlockReferencePropertyCollection MethodsMethods
+Method  Description  
+ CopyTo  
+Copies objects in array to this collection, starting from index.  
+ GetEnumerator  
+Returns an enumerator object for this collection.  
+
+   Comments?  

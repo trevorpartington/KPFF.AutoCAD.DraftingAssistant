@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Constructor
+PaletteSet ConstructorOverload List
+Method  Description  
+ PaletteSet.PaletteSet (string)  Constructs a new palette set with the given name.  
+ PaletteSet.PaletteSet (string, Guid)  Constructs a new palette set with the given name and tool ID.  
+
+   Comments?  

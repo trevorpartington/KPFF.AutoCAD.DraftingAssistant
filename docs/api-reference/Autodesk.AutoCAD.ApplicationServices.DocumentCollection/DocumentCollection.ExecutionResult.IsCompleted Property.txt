@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes > DocumentCollection.ExecutionResult Class > ExecutionResult Properties > IsCompleted Property
+DocumentCollection.ExecutionResult.IsCompleted PropertyDescription
+This is IsCompleted, a member of class ExecutionResult.
+
+Visual Basic
+Public Property IsCompleted() As bool
+C#
+public bool IsCompleted;
+Links
+DocumentCollection.ExecutionResult Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

@@ -1,0 +1,25 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > AddVisual Method > AddVisual(string, Visual, [MarshalAs(UnmanagedType.U1)] bool) Method
+PaletteSet.AddVisual(string, Visual, [MarshalAs(UnmanagedType.U1)] bool) MethodDescription
+Adds a visual window and controls whether the content is resized to the palette.
+
+Visual Basic
+Public Function AddVisual(
+    name As string, 
+    control As Visual, 
+    bResizeContentToPaletteSize As [MarshalAs(UnmanagedType.U1)] bool
+) As Palette
+C#
+public Palette AddVisual(
+    string name, 
+    Visual control, 
+    [MarshalAs(UnmanagedType.U1)] bool bResizeContentToPaletteSize
+);
+Parameters
+Parameters  Description  
+string name  Input palette name  
+Visual control  Input visual control  
+[MarshalAs(UnmanagedType.U1)] bool bResizeContentToPaletteSize  Input Boolean that determines whether the content should be resized to fit the palette  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

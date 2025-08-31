@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsDynamicBlock Property
+BlockTableRecord.IsDynamicBlock PropertyDescription
+ 
+
+Returns true if the block table record is a dynamic block.
+
+Visual Basic
+Public Property IsDynamicBlock() As bool
+C#
+public bool IsDynamicBlock;
+Conditions
+Read-only
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

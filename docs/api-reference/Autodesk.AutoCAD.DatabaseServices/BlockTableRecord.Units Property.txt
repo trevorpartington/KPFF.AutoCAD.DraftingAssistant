@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > Units Property
+BlockTableRecord.Units PropertyDescription
+ 
+
+Accesses the units value.
+
+Visual Basic
+Public Property Units() As Autodesk.AutoCAD.DatabaseServices.UnitsValue
+C#
+public Autodesk.AutoCAD.DatabaseServices.UnitsValue Units;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

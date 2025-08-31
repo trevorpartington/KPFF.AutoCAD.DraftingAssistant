@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsNull Property
+ObjectId.IsNull PropertyDescription
+Assesses if the object ID has a null value.
+
+Visual Basic
+Public Property IsNull() As bool
+C#
+public bool IsNull;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

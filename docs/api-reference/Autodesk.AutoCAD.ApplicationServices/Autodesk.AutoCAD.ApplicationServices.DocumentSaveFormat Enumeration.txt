@@ -1,0 +1,109 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentSaveFormat Enumeration
+Autodesk.AutoCAD.ApplicationServices.DocumentSaveFormat Enumeration    Description
+Save formats possible for documents. Wraps the AcApDocument::SaveFormat enum.
+
+Class
+Autodesk.AutoCAD.ApplicationServices
+
+Visual Basic
+Public Enum DocumentSaveFormat
+  Native = &H40
+  R12Dxf = 1
+  R13Dwg = 4
+  R13Dxf = 5
+  R14Dwg = 8
+  R14Dxf = 9
+  R2000Dwg = 12
+  R2000Dxf = 13
+  R2000Standard = 15
+  R2000Template = 14
+  R2000Xml = &H10
+  R2004Dwg = &H18
+  R2004Dxf = &H19
+  R2004Standard = &H1b
+  R2004Template = &H1a
+  R2007Dwg = &H24
+  R2007Dxf = &H25
+  R2007Standard = &H27
+  R2007Template = &H26
+  R2010Dwg = &H30
+  R2010Dxf = &H31
+  R2010Standard = &H33
+  R2010Template = 50
+  R2013Dwg = 60
+  R2013Dxf = &H3d
+  R2013Standard = &H3f
+  R2013Template = &H3e
+  R2018Dwg = &H40
+  R2018Dxf = &H41
+  R2018Standard = &H43
+  R2018Template = &H42
+  Unknown = -1
+End Enum
+Members
+Members  Description  
+Native = 0x40  Current dwg version  
+R12Dxf = 1  AutoCAD R12/LT2 DXF (*.dxf)  
+R13Dwg = 4  AutoCAD R13/LT95 Drawing (*.dwg)  
+R13Dxf = 5  AutoCAD R13/LT95 DXF (*.dxf)  
+R14Dwg = 8  AutoCAD R14/LT97 Drawing (*.dwg)  
+R14Dxf = 9  AutoCAD R14/LT97 DXF (*.dxf)  
+R2000Dwg = 12  AutoCAD 2000 Drawing (*.dwg)  
+R2000Dxf = 13  AutoCAD 2000 DXF (*.dxf)  
+R2000Standard = 15  AutoCAD 2000(+) Drawing Standard File (*.dws)  
+R2000Template = 14  AutoCAD 2000 Drawing Template File (*.dwt)  
+R2000Xml = 0x10  2000(+) = DesignXML v1.0 File (*.xml)  
+R2004Dwg = 0x18  AutoCAD 2004 Drawing (*.dwg)  
+R2004Dxf = 0x19  AutoCAD 2004 DXF (*.dxf)  
+R2004Standard = 0x1b  AutoCAD 2004 Drawing Standard File (*.dws)  
+R2004Template = 0x1a  AutoCAD 2004 Template File (*.dwt)  
+R2007Dwg = 0x24  AutoCAD 2007 Drawing (*.dwg).  
+R2007Dxf = 0x25  AutoCAD 2007 DXF (*.dxf).  
+R2007Standard = 0x27  AutoCAD 2007 Drawing Standard File (*.dws)  
+R2007Template = 0x26  AutoCAD 2007 Template File (*.dwt)  
+R2010Dwg = 0x30  AutoCAD 2010 Drawing (*.dwg)  
+R2010Dxf = 0x31  AutoCAD 2010 DXF (*.dxf).  
+R2010Standard = 0x33  AutoCAD 2010 Standard File (*.dws)  
+R2010Template = 50  AutoCAD 2010 Template File (*.dwt)  
+R2013Dwg = 60  AutoCAD 2013 Drawing (*.dwg)  
+R2013Dxf = 0x3d  AutoCAD 2013 DXF (*.dxf)  
+R2013Standard = 0x3f  AutoCAD 2013 Drawing Standard File (*.dws)  
+R2013Template = 0x3e  AutoCAD 2013 Template File (*.dwt)  
+R2018Dwg = 0x40  AutoCAD 2018 Drawing (*.dwg)  
+R2018Dxf = 0x41  AutoCAD 2018 DXF (*.dxf)  
+R2018Standard = 0x43  AutoCAD 2018 Drawing Standard File (*.dws)  
+R2018Template = 0x42  AutoCAD 2018 Template File (*.dwt)  
+Unknown = -1  Invalid format  
+
+Previous Declaration
+public enum DocumentSaveFormat {
+Native = 60,
+R12Dxf = 1,
+R13Dwg = 4,
+R13Dxf = 5,
+R14Dwg = 8,
+R14Dxf = 9,
+R2000Dwg = 12,
+R2000Dxf = 13,
+R2000Standard = 15,
+R2000Template = 14,
+R2000Xml = 0x10,
+R2004Dwg = 0x18,
+R2004Dxf = 0x19,
+R2004Standard = 0x1b,
+R2004Template = 0x1a,
+R2007Dwg = 0x24,
+R2007Dxf = 0x25,
+R2007Standard = 0x27,
+R2007Template = 0x26,
+R2010Dwg = 0x30,
+R2010Dxf = 0x31,
+R2010Standard = 0x33,
+R2010Template = 50,
+R2013Dwg = 60,
+R2013Dxf = 0x3d,
+R2013Standard = 0x3f,
+R2013Template = 0x3e,
+Unknown = -1
+}
+   Comments?  

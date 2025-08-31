@@ -1,0 +1,24 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > CopyTo Method
+ObjectIdCollection.CopyTo MethodDescription
+ 
+
+Copies objects in array to this collection, starting from index.
+
+Visual Basic
+Public Function CopyTo(
+    array As ObjectId[], 
+    index As Integer
+) As void
+C#
+public void CopyTo(
+    ObjectId\[\] array, 
+    int index
+);
+Parameters
+Parameters  Description  
+ObjectId[] array  Array to copy from  
+int index  Index to begin at  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

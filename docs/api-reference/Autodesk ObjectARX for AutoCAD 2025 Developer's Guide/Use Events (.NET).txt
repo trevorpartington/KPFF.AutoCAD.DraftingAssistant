@@ -1,0 +1,24 @@
+Publish Layouts (.NET)Understand AutoCAD Events (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide >  
+Use Events (.NET)
+ 
+ 
+ 
+Events are notifications, or messages, that are sent out by AutoCAD® to inform you about the current state of the session, or alert you that something has happened. For example, when a drawing is saved the BeginSave event is triggered. There are other events triggered when a drawing is closed, a command is started or even when a system variable is changed. Given this information you could write a subroutine, or event handler, that uses these events to track changes to a drawing or the amount of time a user spends working on a particular drawing. 
+
+Topics in this section
+Understand AutoCAD Events (.NET)
+Guidelines for Event Handlers (.NET)
+Register and Unregister Events (.NET)
+Register COM Based Events (.NET)
+Related Concepts
+Understand AutoCAD Events (.NET)
+Guidelines for Event Handlers (.NET)
+Register and Unregister Events (.NET)
+Handle Application Events (.NET)
+Handle Document Events (.NET)
+Handle DocumentCollection Events (.NET)
+Handle Object Events (.NET)
+Register COM Based Events (.NET)
+Please send us your comment about this page
+

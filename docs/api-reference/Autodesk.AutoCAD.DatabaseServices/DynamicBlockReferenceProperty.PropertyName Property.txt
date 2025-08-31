@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > PropertyName Property
+DynamicBlockReferenceProperty.PropertyName PropertyDescription
+ 
+
+Accesses the name of the property.
+
+Visual Basic
+Public Property PropertyName() As string
+C#
+public string PropertyName;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

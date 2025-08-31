@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > ToString
+ToStringOverload List
+Method  Description  
+ ObjectId.ToString ()  Returns an equivalent string representation of this object.  
+ ObjectId.ToString (IFormatProvider)  Returns an equivalent string representation of this object, in the culture-specific format defined by provider. See the Microsoft .NET... more  
+
+   Comments?  

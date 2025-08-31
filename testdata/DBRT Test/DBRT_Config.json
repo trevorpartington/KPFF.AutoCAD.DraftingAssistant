@@ -1,0 +1,49 @@
+{
+  "projectName": "Division Street BRT",
+  "clientName": "Spokane Transit Authority",
+  "projectIndexFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\DBRT_Index.xlsx",
+  "projectDWGFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test",
+  "sheetNaming": {
+    "pattern": "([A-Z]{1,3})-?(\\d{1,3})",
+    "seriesGroup": 1,
+    "numberGroup": 2,
+    "examples": [
+      "ABC-123",
+      "ABC-12",
+      "ABC-1",
+      "AB-123",
+      "AB-12",
+      "AB-1",
+      "A-123",
+      "A-12",
+      "A-1"
+    ]
+  },
+  "tables": {
+    "sheetIndex": "SHEET_INDEX",
+    "excelNotes": "EXCEL_NOTES",
+    "notesPattern": "{0}_NOTES"
+  },
+  "constructionNotes": {
+    "multileaderStyleNames": [
+      "Arw-Straight-Hex_Anno_WSDOT"
+    ],
+    "noteBlocks": [
+      {
+        "blockName": "_TagHexagon",
+        "attributeName": "TAGNUMBER"
+      }
+    ],
+    "noteBlockPattern": "^NT\\d{2}$",
+    "maxNotesPerSheet": 24,
+    "attributes": {
+      "numberAttribute": "Number",
+      "noteAttribute": "Note"
+    },
+    "visibilityPropertyName": "Visibility",
+    "noteBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\NTXX.dwg"
+  },
+  "titleBlocks": {
+    "titleBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\DBRT-TTLB-ATT.dwg"
+  }
+}

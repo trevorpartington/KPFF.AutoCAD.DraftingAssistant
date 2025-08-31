@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionEventArgs Class
+DocumentCollectionEventArgs ClassDescription
+This class provides data for various events of the DocumentCollection class.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentCollectionEventArgs
+Visual Basic
+Public sealed Class DocumentCollectionEventArgs
+Inherits EventArgs
+C#
+public sealed class DocumentCollectionEventArgs : EventArgs;
+Links
+DocumentCollectionEventArgs Properties
+   Comments?  

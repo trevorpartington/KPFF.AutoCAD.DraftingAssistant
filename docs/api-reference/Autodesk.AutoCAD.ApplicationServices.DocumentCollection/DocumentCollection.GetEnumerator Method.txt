@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > GetEnumerator Method
+DocumentCollection.GetEnumerator MethodDescription
+ 
+
+Returns an enumerator object for this collection.
+
+Visual Basic
+Public Function GetEnumerator() As IEnumerator
+C#
+public IEnumerator GetEnumerator();
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

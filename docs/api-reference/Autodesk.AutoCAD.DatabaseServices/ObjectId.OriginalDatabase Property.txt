@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > OriginalDatabase Property
+ObjectId.OriginalDatabase PropertyDescription
+If this object ID is in an xref database and the object associated with this object ID has been redirected to the host database, then this property will return a pointer to the xref database. If the object associated with this object ID is not from an xref database or is not redirected, then this property's value is the same as ObjectId.Database.
+
+Visual Basic
+Public Property OriginalDatabase() As Autodesk.AutoCAD.DatabaseServices.Database
+C#
+public Autodesk.AutoCAD.DatabaseServices.Database OriginalDatabase;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

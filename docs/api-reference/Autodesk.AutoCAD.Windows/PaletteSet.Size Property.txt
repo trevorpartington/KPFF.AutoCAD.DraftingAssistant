@@ -1,0 +1,14 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties > Size Property
+PaletteSet.Size PropertyDescription
+Actual size of the palette set window.
+
+Visual Basic
+Public Property Size() As System.Drawing.Size
+C#
+public System.Drawing.Size Size;
+Conditions
+Read / Write
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DbDictionaryEnumerator Class > DbDictionaryEnumerator Properties
+DbDictionaryEnumerator PropertiesProperties
+Property  Description  
+ Current  
+Accesses the current iterated position.  
+ Entry  
+Accesses the Entry property value.  
+ Key  
+Accesses the Key value for the iterated entry.  
+ Value  
+Accesses the value.  
+
+   Comments?  

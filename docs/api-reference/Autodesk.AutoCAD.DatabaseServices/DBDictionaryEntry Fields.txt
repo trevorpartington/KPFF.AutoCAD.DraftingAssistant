@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Fields
+DBDictionaryEntry FieldsFields
+Field  Description  
+ m_key  
+Stores the key of an entry.  
+ m_value  
+Stores the object ID of an entry.  
+
+   Comments?  

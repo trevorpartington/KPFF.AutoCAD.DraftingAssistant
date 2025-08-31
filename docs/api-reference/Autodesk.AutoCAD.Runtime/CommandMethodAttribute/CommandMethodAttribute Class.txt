@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class
+CommandMethodAttribute ClassDescription
+This class marks an instance or static function as a command. Command methods may be defined only in a class that is marked with the CommandClass attribute.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.ICommandLineCallable
+    Autodesk.AutoCAD.Runtime.CommandMethodAttribute
+Visual Basic
+Public sealed Class CommandMethodAttribute
+Inherits Attribute
+Inherits ICommandLineCallable
+C#
+public sealed class CommandMethodAttribute : Attribute, ICommandLineCallable;
+Links
+CommandMethodAttribute Constructor, CommandMethodAttribute Properties
+   Comments?  

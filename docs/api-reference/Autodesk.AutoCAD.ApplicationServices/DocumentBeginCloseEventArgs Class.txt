@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentBeginCloseEventArgs Class
+DocumentBeginCloseEventArgs ClassDescription
+ 
+
+This class provides data for the BeginDocumentClose event of a Document.
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentBeginCloseEventArgs
+Visual Basic
+Public sealed Class DocumentBeginCloseEventArgs
+Inherits EventArgs
+C#
+public sealed class DocumentBeginCloseEventArgs : EventArgs;
+Links
+DocumentBeginCloseEventArgs Methods
+   Comments?  

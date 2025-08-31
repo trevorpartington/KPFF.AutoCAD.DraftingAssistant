@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentClosedEventArgs Class > DocumentClosedEventArgs Properties
+DocumentClosedEventArgs PropertiesProperties
+Property  Description  
+ RecentDocument  This is RecentDocument, a member of class DocumentClosedEventArgs.  
+
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > PreviewIcon Property
+BlockTableRecord.PreviewIcon PropertyDescription
+ 
+
+Accesses the preview icon.
+
+Visual Basic
+Public Property PreviewIcon() As Bitmap
+C#
+public Bitmap PreviewIcon;
+Conditions
+Read / Write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

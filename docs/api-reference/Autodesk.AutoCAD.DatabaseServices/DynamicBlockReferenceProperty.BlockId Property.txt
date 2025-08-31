@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferenceProperty Class > DynamicBlockReferenceProperty Properties > BlockId Property
+DynamicBlockReferenceProperty.BlockId PropertyDescription
+ 
+
+Accesses the ObjectId of the dynamic block reference containing the property represented by the DynamicBlockReferenceProperty.
+
+Visual Basic
+Public Property BlockId() As ObjectId
+C#
+public ObjectId BlockId;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferenceProperty Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

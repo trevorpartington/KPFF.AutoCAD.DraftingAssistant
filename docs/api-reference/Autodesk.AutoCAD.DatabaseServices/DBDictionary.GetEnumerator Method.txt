@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > GetEnumerator Method
+DBDictionary.GetEnumerator MethodDescription
+ 
+
+This function returns a new enumerator.
+
+Visual Basic
+Public Function GetEnumerator() As DbDictionaryEnumerator
+C#
+public DbDictionaryEnumerator GetEnumerator();
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

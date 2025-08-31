@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > FloatControl Method > FloatControl(System.Windows.Point) Method
+PaletteSet.FloatControl(System.Windows.Point) Method    Description
+Makes the PaletteSet floating.
+
+Visual Basic
+Public Function FloatControl(
+    pointOnScreen As System.Windows.Point
+) As void
+Parameters
+Parameters  Description  
+System.Windows.Point pointOnScreen  Top left positon on the screen where PaletteSet will be positioned.  
+
+Previous Declaration
+public void FloatControl(
+Point pointOnScreen
+);
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

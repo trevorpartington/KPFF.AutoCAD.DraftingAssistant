@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Properties
+Exception PropertiesProperties
+Property  Description  
+ ErrorStatus  
+Returns the ErrorStatus property value.  
+
+   Comments?  

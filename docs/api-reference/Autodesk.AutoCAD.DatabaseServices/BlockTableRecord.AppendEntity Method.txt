@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Methods > AppendEntity Method
+BlockTableRecord.AppendEntity MethodDescription
+ 
+
+Adds entity to the database and the block table record.
+
+Visual Basic
+Public Function AppendEntity(
+    entity As [CallerMustClose] Entity
+) As ObjectId
+C#
+public ObjectId AppendEntity(
+    [CallerMustClose] Entity entity
+);
+Parameters
+Parameters  Description  
+[CallerMustClose] Entity entity  Input the object to append (must not be NULL)  
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

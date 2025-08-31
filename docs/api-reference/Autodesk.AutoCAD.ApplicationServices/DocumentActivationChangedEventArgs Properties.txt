@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentActivationChangedEventArgs Class > DocumentActivationChangedEventArgs Properties
+DocumentActivationChangedEventArgs PropertiesProperties
+Property  Description  
+ NewValue  
+Assesses if the document is activated.  
+
+   Comments?  

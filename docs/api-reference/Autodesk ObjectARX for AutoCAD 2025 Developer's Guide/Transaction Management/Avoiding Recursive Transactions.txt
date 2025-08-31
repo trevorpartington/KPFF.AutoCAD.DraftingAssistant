@@ -1,0 +1,14 @@
+Nesting TransactionsNesting TransactionsTransaction Boundaries 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > Nesting Transactions > 
+Avoiding Recursive Transactions
+ 
+ 
+ 
+The transaction management mechanism in AutoCAD relies on the fact that transactions are not recursive. While one transaction is ending (or aborting), you should not attempt to start and end (or abort) another transaction. Doing so can lead to unpredictable and unstable results.
+
+To avoid problems, before attempting to start a transaction, check to see if it is safe to do so. To do this, implement a transaction reactor and set a flag to indicate whether AutoCAD is in the middle of a transaction end (or abort) operation. Other portions of your code that work with transactions should check this flag before attempting to start a transaction.
+
+Because various operations in AutoCAD use transaction management, and those operations trigger various kinds of notifications, it is especially important that you use your notification code to see if it is safe to start a transaction before doing so.
+
+Please send us your comment about this page
+

@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentToBeDeactivated Event
+DocumentCollection.DocumentToBeDeactivated EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentToBeDeactivated() ObjectARX function. 
+
+ 
+
+This notification is sent when a document is about to be deactivated.
+
+Visual Basic
+Public Event DocumentToBeDeactivated As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentToBeDeactivated;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

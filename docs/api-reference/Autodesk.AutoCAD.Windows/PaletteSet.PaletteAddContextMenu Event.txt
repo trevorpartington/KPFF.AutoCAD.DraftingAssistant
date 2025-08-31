@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > PaletteAddContextMenu Event
+PaletteSet.PaletteAddContextMenu EventDescription
+Occurs when the palette is given a context menu.
+
+Visual Basic
+Public Event PaletteAddContextMenu As PaletteAddContextMenuEventHandler
+C#
+public event PaletteAddContextMenuEventHandler PaletteAddContextMenu;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

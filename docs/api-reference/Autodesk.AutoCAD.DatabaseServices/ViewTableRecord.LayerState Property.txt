@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > LayerState Property
+ViewTableRecord.LayerState PropertyDescription
+ 
+
+Returns the name of the layer state. The caller is responsible for creating the layer state and storing it into the ACAD_LAYERSTATES dictionary. Passing in null will clear the layer state from the view.
+
+Visual Basic
+Public Property LayerState() As string
+C#
+public string LayerState;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Events > PaletteSetHostMoved Event
+PaletteSet.PaletteSetHostMoved Event    Description
+Occurs after a palette has changed locations.
+
+Visual Basic
+Public Event PaletteSetHostMoved As PaletteSetMoveEventHandler
+C#
+public event PaletteSetMoveEventHandler PaletteSetHostMoved;
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Properties > Count Property
+DocumentCollection.Count PropertyDescription
+ 
+
+Accesses the number of documents.
+
+Visual Basic
+Public Property Count() As Integer
+C#
+public int Count;
+Conditions
+Read-only
+
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

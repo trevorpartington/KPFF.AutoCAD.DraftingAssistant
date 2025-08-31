@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > GetObject
+GetObjectOverload List
+Method  Description  
+ ObjectId.GetObject (Autodesk.AutoCAD.DatabaseServices.OpenMode)  Returns the object associated with this ID.  
+ ObjectId.GetObject (Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool)  Returns the object associated with this ID.  
+ ObjectId.GetObject (Autodesk.AutoCAD.DatabaseServices.OpenMode, [MarshalAs(UnmanagedType.U1)] bool, [MarshalAs(UnmanagedType.U1)] bool)  Returns the object associated with this ID.  
+
+   Comments?  

@@ -1,0 +1,12 @@
+Custom Insertion Points for Block ReferencesDynamic Blocks, Protocol Reactors, and Evaluation GraphsEvaluation of Interobject Relationships 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Dynamic Blocks, Protocol Reactors, and Evaluation Graphs > 
+Dynamic Block Properties
+ 
+ 
+ 
+Dynamic block applications may query and set dynamic block properties by using the AcDbDynBlockReference and AcDbDynBlockReferenceProperty classes. An AcDbDynBlockReference object is initialized by constructing it with the object ID of a dynamic block reference. This establishes the object as a wrapper for the given reference. 
+
+Once the AcDbDynBlockReference object is properly initialized, the application can call the AcDbDynBlockReference::getBlockProperties() function to get an array of the reference's properties. Each AcDbDynBlockReferenceProperty object in the returned array represents a single property on the dynamic block reference. These objects can be used to perform a variety of operations on the properties they represent. See the ObjectARX Reference for more information on the AcDbDynBlockReference and AcDbDynBlockReferenceProperty classes.
+
+Please send us your comment about this page
+

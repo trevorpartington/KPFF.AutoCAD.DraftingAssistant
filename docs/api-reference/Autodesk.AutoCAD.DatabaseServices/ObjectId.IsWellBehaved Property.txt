@@ -1,0 +1,18 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Properties > IsWellBehaved Property
+ObjectId.IsWellBehaved Property    Description
+Checks, in a safe way (using an exception handler), whether this AcDbObjectId is "well behaved". 
+
+true if this id is well-behaved, false otherwise. 
+
+Well-behaved ids may be null, valid or "stale", or they may be a garbage value, which happens to fail gracefully (without crashing) when operated on.
+
+Visual Basic
+Public Property IsWellBehaved() As bool
+C#
+public bool IsWellBehaved;
+Conditions
+Read-only
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

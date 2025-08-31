@@ -1,0 +1,12 @@
+Newly Created Objects and TransactionsTransaction ManagementUndo and Transactions 
+Autodesk ObjectARX for AutoCAD 2025: Developer's Guide > Advanced Topics > Transaction Management > 
+Commit-Time Guidelines
+ 
+ 
+ 
+When the outermost transaction ends, the transaction manager fires an endCalledOnOutermostTransaction() notification (see Transaction Reactors) and begins the commit process, in which modifications on all the objects associated with the transaction are committed to the database. Each object is committed individually, one after another, until all of them are committed. During this operation, do not modify any of the objects involved in the commit process and do not start any new transactions. If you do so, AutoCAD will abort with the error message eInProcessOfCommitting.
+
+You can modify individual objects after each has been committed, but it is recommended that you cache the IDs of the objects you want to modify and wait until you receive the transactionEnded() notification signaling the end of all the transactions, then do the modifications.
+
+Please send us your comment about this page
+

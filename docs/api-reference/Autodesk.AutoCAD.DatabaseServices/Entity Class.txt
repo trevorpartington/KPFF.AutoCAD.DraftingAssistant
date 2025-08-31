@@ -1,0 +1,55 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Entity Class
+Entity ClassDescription
+This .NET class wraps the AcDbEntity ObjectARX class. It is the base class for all database objects having a graphical representation.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DBObject
+    Autodesk.AutoCAD.DatabaseServices.Entity
+        Autodesk.AutoCAD.DatabaseServices.BlockBegin
+        Autodesk.AutoCAD.DatabaseServices.BlockEnd
+        Autodesk.AutoCAD.DatabaseServices.BlockReference
+        Autodesk.AutoCAD.DatabaseServices.Body
+        Autodesk.AutoCAD.DatabaseServices.Curve
+        Autodesk.AutoCAD.DatabaseServices.DBPoint
+        Autodesk.AutoCAD.DatabaseServices.DBText
+        Autodesk.AutoCAD.DatabaseServices.DetailSymbol
+        Autodesk.AutoCAD.DatabaseServices.Dimension
+        Autodesk.AutoCAD.DatabaseServices.Face
+        Autodesk.AutoCAD.DatabaseServices.FeatureControlFrame
+        Autodesk.AutoCAD.DatabaseServices.GeoPositionMarker
+        Autodesk.AutoCAD.DatabaseServices.Hatch
+        Autodesk.AutoCAD.DatabaseServices.Image
+        Autodesk.AutoCAD.DatabaseServices.Light
+        Autodesk.AutoCAD.DatabaseServices.MLeader
+        Autodesk.AutoCAD.DatabaseServices.Mline
+        Autodesk.AutoCAD.DatabaseServices.MText
+        Autodesk.AutoCAD.DatabaseServices.Ole2Frame
+        Autodesk.AutoCAD.DatabaseServices.PointCloud
+        Autodesk.AutoCAD.DatabaseServices.PointCloudEx
+        Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh
+        Autodesk.AutoCAD.DatabaseServices.PolygonMesh
+        Autodesk.AutoCAD.DatabaseServices.ProxyEntity
+        Autodesk.AutoCAD.DatabaseServices.Region
+        Autodesk.AutoCAD.DatabaseServices.Section
+        Autodesk.AutoCAD.DatabaseServices.SectionSymbol
+        Autodesk.AutoCAD.DatabaseServices.SequenceEnd
+        Autodesk.AutoCAD.DatabaseServices.Shape
+        Autodesk.AutoCAD.DatabaseServices.Solid
+        Autodesk.AutoCAD.DatabaseServices.Solid3d
+        Autodesk.AutoCAD.DatabaseServices.SubDMesh
+        Autodesk.AutoCAD.DatabaseServices.Surface
+        Autodesk.AutoCAD.DatabaseServices.UnderlayReference
+        Autodesk.AutoCAD.DatabaseServices.Vertex
+        Autodesk.AutoCAD.DatabaseServices.ViewBorder
+        Autodesk.AutoCAD.DatabaseServices.Viewport
+Visual Basic
+Public abstract Class Entity
+Inherits DBObject
+C#
+public abstract class Entity : DBObject;
+Links
+Entity Methods, Entity Properties
+See Also
+RXObject
+
+   Comments?  

@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > AttributeReference Class > AttributeReference Methods > UpdateMTextAttribute Method
+AttributeReference.UpdateMTextAttribute MethodDescription
+ 
+
+Updates the internal MText entity from the basic AttributeReference properties.
+
+Visual Basic
+Public Function UpdateMTextAttribute() As void
+C#
+public void UpdateMTextAttribute();
+Links
+AttributeReference Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

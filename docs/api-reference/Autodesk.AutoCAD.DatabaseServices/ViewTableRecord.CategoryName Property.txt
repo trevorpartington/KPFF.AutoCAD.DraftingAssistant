@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ViewTableRecord Class > ViewTableRecord Properties > CategoryName Property
+ViewTableRecord.CategoryName PropertyDescription
+ 
+
+Returns the name of the category of the view.
+
+Visual Basic
+Public Property CategoryName() As string
+C#
+public string CategoryName;
+Conditions
+Read / Write
+
+Links
+ViewTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

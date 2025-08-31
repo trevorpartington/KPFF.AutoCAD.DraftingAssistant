@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionExtension Class
+DocumentCollectionExtension ClassDescription
+ 
+
+Class Hierarchy
+Autodesk.AutoCAD.ApplicationServices.DocumentCollectionExtension
+Visual Basic
+Public static Class DocumentCollectionExtension
+C#
+public static class DocumentCollectionExtension;
+Links
+DocumentCollectionExtension Methods
+   Comments?  

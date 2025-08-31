@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Events > DocumentCreateStarted Event
+DocumentCollection.DocumentCreateStarted EventDescription
+ 
+
+Wraps the AcApDocManagerReactor.documentCreateStarted() ObjectARX function. 
+
+ 
+
+This notification is sent when a document is first instantiated and no database is yet available.
+
+Visual Basic
+Public Event DocumentCreateStarted As DocumentCollectionEventHandler
+C#
+public event DocumentCollectionEventHandler DocumentCreateStarted;
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

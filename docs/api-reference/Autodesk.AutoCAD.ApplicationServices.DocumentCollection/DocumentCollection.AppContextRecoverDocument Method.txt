@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Methods > AppContextRecoverDocument Method
+DocumentCollection.AppContextRecoverDocument MethodDescription
+This is AppContextRecoverDocument, a member of class DocumentCollection.
+
+Visual Basic
+Public Function AppContextRecoverDocument(
+    fileName As string
+) As void
+C#
+public void AppContextRecoverDocument(
+    string fileName
+);
+Links
+DocumentCollection Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

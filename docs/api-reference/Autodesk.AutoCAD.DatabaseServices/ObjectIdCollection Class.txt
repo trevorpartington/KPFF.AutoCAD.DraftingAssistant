@@ -1,0 +1,17 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class
+ObjectIdCollection ClassDescription
+ 
+
+This class contains a collection of Object IDs.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.ObjectIdCollection
+Visual Basic
+Public sealed Class ObjectIdCollection
+Inherits DisposableWrapper
+Inherits IList
+C#
+public sealed class ObjectIdCollection : DisposableWrapper, IList;
+Links
+ObjectIdCollection Constructor, ObjectIdCollection Methods, ObjectIdCollection Properties
+   Comments?  

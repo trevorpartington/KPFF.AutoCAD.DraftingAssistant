@@ -1,0 +1,22 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > GetDocumentWindow Method
+DocumentExtension.GetDocumentWindow Method    Description
+Gets the window associated with a Document object.
+
+Visual Basic
+Public static Function GetDocumentWindow(
+    document As this Document
+) As DocumentWindow
+C#
+public static DocumentWindow GetDocumentWindow(
+    this Document document
+);
+Parameters
+Parameters  Description  
+this Document document  Input Document object  
+
+Returns
+DocumentWindow object
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

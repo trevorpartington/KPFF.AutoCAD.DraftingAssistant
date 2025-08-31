@@ -26,27 +26,32 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
             <!-- Action Buttons -->
-            <StackPanel Grid.Row="0" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Left" 
-                        Margin="0,0,0,15">
-                <Button Name="SelectProjectButton" 
-                        Content="Select Project" 
-                        Width="100" 
-                        Height="30"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="SelectProjectButton_Click"
-                        Margin="0,0,10,0"/>
-                <Button Name="SelectSheetsButton" 
-                        Content="Select Sheets" 
+            <Grid Grid.Row="0" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" 
+                        Name="SelectSheetsButton" 
+                        Content="Sheets" 
                         Width="100" 
                         Height="30"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="SelectSheetsButton_Click"/>
-            </StackPanel>
+                <Button Grid.Column="2" 
+                        Name="SelectProjectButton" 
+                        Content="Project" 
+                        Width="100" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="SelectProjectButton_Click"/>
+            </Grid>
             
             <!-- Active Project Status -->
             <StackPanel Grid.Row="1" 
@@ -63,6 +68,7 @@
                           VerticalAlignment="Center"
                           Foreground="White"/>
             </StackPanel>
+            
         </Grid>
         
         <!-- Text Readout Area -->
@@ -77,7 +83,7 @@
 
 Select a project configuration file to get started:
 • Click 'Select Project' to browse for a ProjectConfig.json file
-• Use 'Configure Project' to modify project settings
+• Use 'Project Configuration' to modify project settings
 • Choose 'Select Sheets' to pick which layouts to process
 
 Once configured, project details and sheet information will appear here."

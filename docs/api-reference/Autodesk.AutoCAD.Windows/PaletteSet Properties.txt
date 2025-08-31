@@ -1,0 +1,28 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Properties
+PaletteSet PropertiesProperties
+Property  Description  
+ Anchored  Returns the Anchored property value.  
+ AutoRollUp  Returns the AutoRollUp property value.  
+ Count  Returns the Count property value.  
+ DarkThemedIcon  Provides access to the 16x16 palette set icon used when the dark theme is active.  
+ DeviceIndependentLocation  This is DeviceIndependentLocation, a member of class PaletteSet.  
+ DeviceIndependentMinimumSize  This is DeviceIndependentMinimumSize, a member of class PaletteSet.  
+ DeviceIndependentSize  This is DeviceIndependentSize, a member of class PaletteSet.  
+ Dock  Returns the Dock property value.  
+ DockEnabled  Controls if the palette set can be docked by the user.  
+ Icon  This is Icon, a member of class PaletteSet.  
+ KeepFocus  Gets or sets whether the palette set will keep the input focus even when AutoCAD requests the focus.  
+ LargeDarkThemedIcon  Provides access to the 32x32 palette set icon used when the dark theme is active.  
+ LargeLightThemedIcon  Provides access to the 32x32 palette set icon used when the light theme is active.  
+ LightThemedIcon  Provides access to the 16x16 palette set icon used when the light theme is active.  
+ Location  Location of the palette set window.  
+ MinimumSize  Minimum size of the palette set window.  
+ Name  Name of the palette set window.  
+ Opacity  Opacity of the palette set window.  
+ RolledUp  Returns the RolledUp property value  
+ Size  Actual size of the palette set window.  
+ Style  Returns the palette set style.  
+ TitleBarLocation  Location of the palette set window title bar.  
+ Visible  True if the palette set window is visible; otherwise false.  
+
+   Comments?  

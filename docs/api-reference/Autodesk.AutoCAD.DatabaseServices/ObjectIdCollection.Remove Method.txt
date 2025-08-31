@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectIdCollection Class > ObjectIdCollection Methods > Remove Method
+ObjectIdCollection.Remove MethodDescription
+ 
+
+Removes the object represented by value from this collection.
+
+Visual Basic
+Public Function Remove(
+    value As ObjectId
+) As void
+C#
+public void Remove(
+    ObjectId value
+);
+Parameters
+Parameters  Description  
+ObjectId value  Object to remove  
+
+Links
+ObjectIdCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

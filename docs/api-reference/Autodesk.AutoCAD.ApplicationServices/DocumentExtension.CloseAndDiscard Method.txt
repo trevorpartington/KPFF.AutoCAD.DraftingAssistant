@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentExtension Class > DocumentExtension Methods > CloseAndDiscard Method
+DocumentExtension.CloseAndDiscard Method    Description
+ 
+
+Closes the document without saving it.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.DocumentExtension
+
+Visual Basic
+Public static Function CloseAndDiscard(
+    doc As this Document
+) As void
+C#
+public static void CloseAndDiscard(
+    this Document doc
+);
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Document
+
+Links
+DocumentExtension Class, Autodesk.AutoCAD.ApplicationServices Namespace
+   Comments?  

@@ -1,0 +1,42 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > ReadDwgFile Method > ReadDwgFile(IntPtr, [MarshalAs(UnmanagedType.U1)] bool, string) Method
+Database.ReadDwgFile(IntPtr, [MarshalAs(UnmanagedType.U1)] bool, string) MethodDescription
+ 
+
+Reads the drawing file specified by drawingFile into the database object executing this function. 
+
+This function uses the "lazy-load" mechanism, which means that pieces of the drawing are read in only as needed. So, the drawing file is left open until the database object is deleted, at which point the database destructor closes the drawing file. It always tries to open files with read access. It fails if read access is not available. 
+
+ 
+
+The allowCPConversion argument controls the behavior when the user tries to read a dwg file where the NLS files are not available to convert from the codepage of the drawing to the codepage of the system (for example, a Japanese drawing on an English OS). If allowCPConversion is false, AutoCAD will pop up a dialog explaining the situation and asking if the user wants to allow some kind of default conversion, which might cause a data loss. If allowCPConversion is true, the file will be opened and the conversion will happen silently. 
+
+ 
+
+If password is NULL, the user is prompted for a password if one is required and if no applicable password exists in the password cache. 
+
+ 
+
+Warning
+This function should only be used on a newly created Database that was created with its constructor's buildDefaultDrawing argument set to false. If this method is used on an Database that was created with buildDefaultDrawing set to true, or an Database that already has information in it (for any reason including a previous call to this function), then memory leaks, or worse, will result.
+
+Visual Basic
+Public Function ReadDwgFile(
+    drawingFile As IntPtr, 
+    allowCPConversion As [MarshalAs(UnmanagedType.U1)] bool, 
+    password As string
+) As void
+C#
+public void ReadDwgFile(
+    IntPtr drawingFile, 
+    [MarshalAs(UnmanagedType.U1)] bool allowCPConversion, 
+    string password
+);
+Parameters
+Parameters  Description  
+IntPtr drawingFile  Input pointer to DWG file to read  
+[MarshalAs(UnmanagedType.U1)] bool allowCPConversion  Input Boolean indicating whether to allow codepage conversion  
+string password  Input string containing a DWG password  
+
+Links
+Database Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

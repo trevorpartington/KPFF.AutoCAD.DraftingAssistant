@@ -1,0 +1,12 @@
+Paper Size and Units (.NET)Layout Settings (.NET)Plot Area (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Define Layouts and Plot (.NET) > Layouts (.NET) > Layout Settings (.NET) > 
+Plot Origin (.NET)
+ 
+ 
+ 
+The plot origin is the lower-left corner of the specified plotted area and can be queried with the PlotOrigin property. Typically, the plot origin is set to (0, 0). However, a plot can be centered on the sheet of paper. The PlotCentered property returns if the plot is currently centered; if TRUE the plot is centered. Centering the plot alters the plot origin. 
+
+Related Concepts
+Layout Settings (.NET)
+Please send us your comment about this page
+

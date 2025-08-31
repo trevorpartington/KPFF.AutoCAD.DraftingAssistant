@@ -13,8 +13,14 @@ public partial class ConfigurationControl : BaseUserControl
     private readonly IProjectConfigurationService _configService;
     private readonly IExcelReader _excelReader;
     private ProjectConfiguration? _currentProject;
+    private string? _currentProjectFilePath;
     private List<SheetInfo> _availableSheets = new();
     private List<SheetInfo> _selectedSheets = new();
+
+    /// <summary>
+    /// Gets the current project configuration with selected sheets
+    /// </summary>
+    public ProjectConfiguration? CurrentConfiguration => _currentProject;
 
     public ConfigurationControl() : this(null, null, null, null)
     {
@@ -62,17 +68,24 @@ public partial class ConfigurationControl : BaseUserControl
             var solutionRoot = FindSolutionRoot(currentDirectory);
             if (solutionRoot != null)
             {
-                var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "ProjectConfig.json");
+                var defaultConfigPath = Path.Combine(solutionRoot, "testdata", "DBRT Test", "DBRT_Config.json");
                 if (File.Exists(defaultConfigPath))
                 {
                     _currentProject = await _configService.LoadConfigurationAsync(defaultConfigPath);
                     if (_currentProject != null)
                     {
-                        ActiveProjectTextBlock.Text = _currentProject.ProjectName;
-                        ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                        _currentProjectFilePath = defaultConfigPath;
+                        
+                        // Ensure UI updates happen on the UI thread
+                        Dispatcher.BeginInvoke(() =>
+                        {
+                            ActiveProjectTextBlock.Text = _currentProject.ProjectName;
+                            ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                        });
                         
                         await LoadProjectDetails();
                         await LoadAndSelectAllSheetsAsync();
+                        
                     }
                 }
             }
@@ -109,6 +122,7 @@ public partial class ConfigurationControl : BaseUserControl
                 {
                     // Select all sheets by default
                     _selectedSheets = new List<SheetInfo>(_availableSheets);
+                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
                     
                     // Update display to show all sheets are selected
                     var displayText = $"Default Configuration Loaded\n\n" +
@@ -136,7 +150,7 @@ public partial class ConfigurationControl : BaseUserControl
     {
         try
         {
-            var dialog = new ProjectSelectionDialog
+            var dialog = new ProjectSelectionDialog(_currentProject, _currentProjectFilePath)
             {
                 Owner = Window.GetWindow(this)
             };
@@ -144,10 +158,12 @@ public partial class ConfigurationControl : BaseUserControl
             if (dialog.ShowDialog() == true && dialog.SelectedProject != null)
             {
                 _currentProject = dialog.SelectedProject;
+                _currentProjectFilePath = dialog.SelectedProjectFilePath;
                 ActiveProjectTextBlock.Text = _currentProject.ProjectName;
                 ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
                 
                 await LoadProjectDetails();
+                
             }
         }
         catch (Exception ex)
@@ -186,6 +202,7 @@ public partial class ConfigurationControl : BaseUserControl
                 if (dialog.ShowDialog() == true)
                 {
                     _selectedSheets = dialog.SelectedSheets;
+                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
                     UpdateConfigurationDisplay($"Selected {_selectedSheets.Count} of {_availableSheets.Count} sheets:\n\n" + 
                                              string.Join("\n", _selectedSheets.Select(s => $"• {s.SheetName} - {s.DrawingTitle}")));
                 }
@@ -199,6 +216,14 @@ public partial class ConfigurationControl : BaseUserControl
         {
             ShowErrorNotification($"Error loading sheets: {ex.Message}");
         }
+    }
+
+
+
+    private void ShowInfoNotification(string message)
+    {
+        Logger.LogInformation(message);
+        NotificationService.ShowInformation("Configuration", message);
     }
 
 
@@ -250,12 +275,14 @@ public partial class ConfigurationControl : BaseUserControl
             }
 
             UpdateConfigurationDisplay(string.Join("\n", details));
+            
         }
         catch (Exception ex)
         {
             UpdateConfigurationDisplay($"Error loading project details: {ex.Message}");
         }
     }
+
 
     private void UpdateConfigurationDisplay(string text)
     {
@@ -275,4 +302,5 @@ public partial class ConfigurationControl : BaseUserControl
         NotificationService.ShowWarning("Configuration Warning", message);
         UpdateConfigurationDisplay($"WARNING: {message}");
     }
+
 }

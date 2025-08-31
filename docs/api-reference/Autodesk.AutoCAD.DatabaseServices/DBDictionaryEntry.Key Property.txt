@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionaryEntry Structure > DBDictionaryEntry Properties > Key Property
+DBDictionaryEntry.Key PropertyDescription
+ 
+
+Accesses the Key property value.
+
+Visual Basic
+Public Property Key() As string
+C#
+public string Key;
+Conditions
+Read / Write
+
+Links
+DBDictionaryEntry Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,8 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Database Class > Database Methods > SaveAs Method
+SaveAs MethodOverload List
+Method  Description  
+ Database.SaveAs (string, [MarshalAs(UnmanagedType.U1)] bool, DwgVersion, Autodesk.AutoCAD.DatabaseServices.SecurityParameters)  Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is... more  
+ Database.SaveAs (string, Autodesk.AutoCAD.DatabaseServices.SecurityParameters)  Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is... more  
+ Database.SaveAs (string, DwgVersion)  Runs the save process on the database and writes the drawing information out to fileName. The fileName argument is... more  
+
+   Comments?  

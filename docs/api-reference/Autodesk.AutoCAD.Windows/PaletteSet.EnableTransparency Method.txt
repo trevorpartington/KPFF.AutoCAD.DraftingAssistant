@@ -1,0 +1,23 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > EnableTransparency Method
+PaletteSet.EnableTransparency MethodDescription
+This function is equivalent to CAdUiPaletteSet::SetAllowTransparency(). 
+
+Sets whether to enable or disable transparency for the palette set. 
+
+A return of true indicates the function was successful.
+
+Visual Basic
+Public Function EnableTransparency(
+    value As [MarshalAs(UnmanagedType.U1)] bool
+) As bool
+C#
+public bool EnableTransparency(
+    [MarshalAs(UnmanagedType.U1)] bool value
+);
+Parameters
+Parameters  Description  
+[MarshalAs(UnmanagedType.U1)] bool value  Input true to enable transparency  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > ContextMenuExtensionType Property
+CommandMethodAttribute.ContextMenuExtensionType PropertyDescription
+ 
+
+Returns the ContextMenuExtensionType property value.
+
+Visual Basic
+Public virtual Property ContextMenuExtensionType() As Type
+C#
+public virtual Type ContextMenuExtensionType;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

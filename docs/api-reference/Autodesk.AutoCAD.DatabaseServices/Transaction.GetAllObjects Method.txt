@@ -1,0 +1,11 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > Transaction Class > Transaction Methods > GetAllObjects Method
+Transaction.GetAllObjects MethodDescription
+This function returns all the objects currently open in the transaction.
+
+Visual Basic
+Public Function GetAllObjects() As DBObjectCollection
+C#
+public DBObjectCollection GetAllObjects();
+Links
+Transaction Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollectionEnumerator Class
+DynamicBlockReferencePropertyCollectionEnumerator ClassDescription
+ 
+
+This class enumerates the properties in a DynamicBlockReferencePropertyCollection.
+
+Class Hierarchy
+Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferencePropertyCollectionEnumerator
+Visual Basic
+Public sealed Class DynamicBlockReferencePropertyCollectionEnumerator
+Inherits IEnumerator
+C#
+public sealed class DynamicBlockReferencePropertyCollectionEnumerator : IEnumerator;
+Links
+DynamicBlockReferencePropertyCollectionEnumerator Methods, DynamicBlockReferencePropertyCollectionEnumerator Properties
+   Comments?  

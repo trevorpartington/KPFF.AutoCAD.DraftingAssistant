@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > QuitWillStart Event
+Application.QuitWillStart Event    Description
+ 
+
+Wraps the AcEditorReactor.quitWillStart() ObjectARX function. This notification occurs just after the beginQuit() notification if it has not been vetoed and just before shutdown processing begins.
+
+Class
+Autodesk.AutoCAD.ApplicationServices.Core.Application
+
+Visual Basic
+Public static Event QuitWillStart As EventHandler
+C#
+public static event EventHandler QuitWillStart;
+Previous Class
+Autodesk.AutoCAD.ApplicationServices.Application
+
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  

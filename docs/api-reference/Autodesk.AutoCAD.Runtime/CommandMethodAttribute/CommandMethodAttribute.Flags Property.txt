@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.Runtime Namespace > CommandMethodAttribute Class > CommandMethodAttribute Properties > Flags Property
+CommandMethodAttribute.Flags PropertyDescription
+ 
+
+Returns the Flags property value.
+
+Visual Basic
+Public virtual Property Flags() As CommandFlags
+C#
+public virtual CommandFlags Flags;
+Conditions
+Read-only
+
+Links
+CommandMethodAttribute Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

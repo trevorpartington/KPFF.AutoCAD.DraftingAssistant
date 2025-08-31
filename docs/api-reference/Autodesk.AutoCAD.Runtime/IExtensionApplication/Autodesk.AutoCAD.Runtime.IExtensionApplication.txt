@@ -1,0 +1,13 @@
+Autodesk.AutoCAD.Runtime Namespace > IExtensionApplication Interface
+IExtensionApplication InterfaceDescription
+This is class Autodesk.AutoCAD.Runtime.IExtensionApplication.
+
+Class Hierarchy
+Autodesk.AutoCAD.Runtime.IExtensionApplication
+Visual Basic
+Public Interface IExtensionApplication
+C#
+public interface IExtensionApplication;
+Links
+IExtensionApplication Methods
+   Comments?  

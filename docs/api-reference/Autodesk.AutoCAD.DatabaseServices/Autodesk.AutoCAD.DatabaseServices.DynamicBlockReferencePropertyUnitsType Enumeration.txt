@@ -1,0 +1,30 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyUnitsType Enumeration
+Autodesk.AutoCAD.DatabaseServices.DynamicBlockReferencePropertyUnitsType EnumerationDescription
+ 
+
+This .NET class wraps the AcDbDynBlockReferenceProperty::UnitsType ObjectARX enum. 
+
+Describes the units (if any) of the property. Clients can use this information to format the property in their user interface.
+
+Visual Basic
+Public Enum DynamicBlockReferencePropertyUnitsType
+  NoUnits
+  Angular
+  Distance
+  Area
+End Enum
+C#
+public enum DynamicBlockReferencePropertyUnitsType {
+  NoUnits,
+  Angular,
+  Distance,
+  Area
+}
+Members
+Members  Description  
+NoUnits  No units defined.  
+Angular  Property represents an angle between two vectors.  
+Distance  Property represents a distance between two points.  
+Area  Property represents a two-dimensional area.  
+
+   Comments?  

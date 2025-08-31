@@ -141,8 +141,9 @@ Projects use consistent naming patterns that are configurable:
 - Auto-detection with user validation fallback
 
 #### Construction Note Blocks
-Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX`
-- Examples: "101-NT01", "1-NT24"
+Each layout contains 24 dynamic blocks with simplified naming pattern: `NTXX`
+- Examples: "NT01", "NT02", "NT24"
+- Same blocks used across all layouts with different attribute values
 - Dynamic block attributes:
   - **Number**: Note number (1, 2, 4, etc.)
   - **Note**: Full note text from series-specific table
@@ -167,7 +168,7 @@ Each layout contains 24 dynamic blocks with naming pattern: `{sheet-number}-NTXX
 - Sheet ABC-101 has entries in EXCEL_NOTES: column 1="ABC-101", column 2="1", column 3="1"
 - This means sheet ABC-101 has two instances of note 1
 - Note 1 definition comes from ABC_NOTES table: Number=1, Note="CONSTRUCT CURB"
-- System updates blocks 101-NT01 and 101-NT02 with Number="1", Note="CONSTRUCT CURB", Visibility="ON"
+- System updates blocks NT01 and NT02 with Number="1", Note="CONSTRUCT CURB", Visibility="ON"
 
 #### Dynamic Block Handling
 ```csharp
@@ -181,7 +182,7 @@ if (blockRef.IsDynamicBlock)
 ```
 
 ### Development Dependencies
-- **EPPlus**: Excel file reading (handles files open in Excel)
+- **ClosedXML**: Excel file reading (handles files open in Excel)
 - **AutoCAD .NET API**: Drawing analysis, block manipulation, viewport processing
 - **System.Text.Json**: Project configuration serialization
 
@@ -192,208 +193,15 @@ The system has been simplified to remove worksheet dependencies:
 - Configuration now only requires table names: SHEET_INDEX, EXCEL_NOTES, {SERIES}_NOTES
 - More robust and works regardless of which worksheet contains the tables
 
-### Excel Notes Implementation Status
 
-#### ✅ Phase 1 Complete: Read-Only Block Discovery
-- `CurrentDrawingBlockManager` successfully discovers NT## construction note blocks
-- Safe AutoCAD object access with crash prevention
-- Comprehensive logging and error handling
-- Test commands: TESTPHASE1, TESTPHASE1DETAIL, TESTLAYOUTS
+## References
+- **API Documentation**: `docs/api-reference/` - AutoCAD .NET API reference by namespace
+- **LISP Reference**: `docs/lisp/` - Original LISP implementation algorithms
 
-#### ✅ Phase 2 Complete: Single Block Update  
-- **Real-time block updates working for open drawings**
-- `UpdateConstructionNoteBlock()` method successfully updates:
-  - NUMBER and NOTE attributes
-  - Dynamic block visibility state (OFF → ON)
-  - Proper transaction handling with rollback on failure
-- Test commands: TESTPHASE2, TESTPHASE2RESET
-- **Verified Results**: Block NT02 updated to Number=55, Note="AGAIN", Visible=True
+### Multi-Drawing Support
+The construction notes system supports all drawing scenarios:
+- **Active**: Drawing is open and currently active in AutoCAD
+- **Inactive**: Drawing is open but not the active document  
+- **Closed**: Drawing file exists on disk but is not open
 
-#### 🔄 Phase 3 Planned: Excel Integration
-- Integrate with ExcelReaderService to read note definitions from Excel tables
-- Map note numbers to note text using series-specific tables (ABC_NOTES, etc.)
-- Batch processing for multiple blocks in a layout
-
-#### 🔄 Phase 4 Needed: Closed Drawing Operations
-**Current Limitation**: Phase 2 only works with active/open drawings (`MdiActiveDocument`)
-
-**Required for Production Use**: 
-- **Side Database Pattern**: Use `Database.ReadDwgFile()` to access closed drawings
-- **External File Access**: Open external DWG files in memory without displaying them
-- **Batch Processing**: Update multiple drawings (both open and closed) in sequence  
-- **File Management**: Safe opening, updating, and closing of external files
-- **Advanced Error Handling**: File locking, permission issues, corrupted files
-
-This is critical for the user's workflow: "select any number of sheets and make updates to both drawings they have opened on their computer and drawings that are closed"
-
-### Future Enhancements
-- Automated construction note block creation for new sheets
-- Enhanced viewport geometry support for complex layouts
-- Template-based note management system
-
-## Documentation References
-
-### Overview
-This project includes comprehensive documentation and reference materials in the `docs/` folder to assist with development and understanding of the AutoCAD plugin architecture.
-
-### AutoCAD .NET API Reference
-The `docs/api-reference/` folder contains extracted documentation from the Autodesk ObjectARX for AutoCAD 2025: Managed .NET Reference Guide, organized by namespace:
-
-#### Available Namespaces
-- **Autodesk.AutoCAD.ApplicationServices**: Core application classes (Application, Document)
-- **Autodesk.AutoCAD.ApplicationServices.Core**: Application management and events
-- **Autodesk.AutoCAD.DatabaseServices**: Database objects (BlockReference, Layout, MLeader, Viewport, Transaction, Database)
-- **Autodesk.AutoCAD.DatabaseServices.Filters**: Spatial and layer filtering (SpatialFilter, LayerFilter, Index classes)
-- **Autodesk.AutoCAD.EditorInput**: Editor interaction and input handling
-- **Autodesk.AutoCAD.Geometry**: Geometric primitives and transformations
-
-#### Key Classes Documented
-- **BlockReference**: Dynamic block handling, attributes, transformations
-- **Layout**: Paper space layouts, viewport management
-- **MLeader**: Multileader creation and manipulation
-- **Viewport**: Viewport properties and model space mapping
-- **Transaction/TransactionManager**: Database transaction handling
-- **SpatialFilter**: Spatial querying and filtering
-- **Editor**: User input and selection
-
-**Note**: If you need documentation for any AutoCAD API methods, properties, or classes not currently in the reference folder, please request them specifically and they can be extracted from the CHM documentation.
-
-### LISP Reference Implementation
-The `docs/lisp/` folder contains the original LISP implementation of the construction notes system, which serves as an algorithmic reference for the C# implementation:
-
-#### Files
-- **DBRT_UNB_DWG.lsp**: Auto Notes implementation
-  - Uses COGO points to define viewport boundaries (naming pattern: `{layoutNum}-{index}`, e.g., "101-1", "101-2")
-  - Implements ray-casting algorithm for point-in-polygon detection
-  - Filters multileaders by style "Arw-Straight-Hex_Anno_WSDOT"
-  - Exports results to CSV files
-- **DBRT_UNB_EXCEL.lsp**: Excel Notes implementation
-  - Reads construction notes from CSV files at hardcoded paths
-  - Uses blocks with "HEX" in naming convention (`{layoutNum}-HEX-NT##`)
-  - Updates block visibility states and attributes
-- **_DBRT_NOTES_FROM_DWG.scr**: AutoCAD script to load and execute Auto Notes
-- **_DBRT_NOTES_FROM_EXCEL.scr**: AutoCAD script to load and execute Excel Notes
-
-#### Key Differences from C# Implementation
-| Aspect | LISP Implementation | C# Implementation |
-|--------|-------------------|-------------------|
-| **Viewport Detection** | Manual COGO points setup | Direct viewport geometry calculation |
-| **Block Naming** | `{layoutNum}-HEX-NT##` | `{layoutNum}-NT##` |
-| **Multileader Style** | Hardcoded "Arw-Straight-Hex_Anno_WSDOT" | Configurable via ProjectConfig.json |
-| **Data Source** | CSV files at fixed paths | Excel files with EPPlus library |
-| **Polygon Detection** | Ray-casting with COGO points | Viewport boundary calculation |
-
-### Developer Guidance
-
-#### Requesting Additional API Documentation
-When working with AutoCAD API methods or properties not documented in the reference folder:
-1. Identify the specific class, method, or property needed
-2. Request extraction from the CHM documentation
-3. The content will be added as a text file in the appropriate namespace folder
-
-#### Using the LISP Reference
-The LISP files demonstrate working algorithms for:
-- Point-in-polygon detection using ray-casting
-- Dynamic block visibility state manipulation
-- Multileader content extraction
-- Construction note block attribute updates
-
-While the algorithmic approaches are valuable references, the C# implementation uses more modern .NET patterns and AutoCAD API features for improved maintainability and performance.
-
-#### API Documentation Format
-Each API reference file contains:
-- Class hierarchy and inheritance
-- Method signatures in C# and VB.NET
-- Parameter descriptions
-- Property accessor information
-- Links to related classes and namespaces
-
-## Excel Notes Implementation Approach
-
-### Phase-Based Development Strategy
-
-The Excel Notes functionality is being implemented using a **safe, incremental approach** to avoid AutoCAD crashes and ensure reliable operation:
-
-#### **Phase 1: Read-Only Block Discovery (COMPLETED)**
-- **Goal**: Safely find and read construction note blocks without modifications
-- **Implementation**: `CurrentDrawingBlockManager` with read-only operations
-- **Key Features**:
-  - Pattern matching for NT## blocks (NT01, NT02, etc.)
-  - Safe AutoCAD object access with extensive error handling
-  - Block attribute reading (Number, Note)
-  - Dynamic block visibility state detection
-- **Testing**: `TESTPHASE1` and `TESTPHASE1DETAIL` commands
-- **Status**: ✅ **Complete and tested**
-
-#### **Phase 2: Single Block Update (PLANNED)**
-- **Goal**: Safely modify one construction note block in active drawing
-- **Features**: Update block attributes and visibility state
-- **Testing**: Update specific block with hardcoded values
-
-#### **Phase 3: Excel-Driven Batch Updates (PLANNED)**  
-- **Goal**: Update multiple blocks based on Excel EXCEL_NOTES table
-- **Features**: Map Excel data to blocks for current layout
-- **Testing**: Process one sheet currently open in AutoCAD
-
-#### **Phase 4: Side Database Operations (PLANNED)**
-- **Goal**: Safely open external DWG files without crashes
-- **Features**: Database(false, true) pattern with proper file handling
-- **Testing**: Read blocks from closed DWG files
-
-### **Simplified Block Architecture (IMPLEMENTED)**
-
-#### **Before (Redundant)**
-- Block names: `101-NT01`, `101-NT02`, `102-NT01`, `102-NT02`
-- Result: N layouts × 24 blocks = hundreds of definitions
-
-#### **After (Optimized)**  
-- Block names: `NT01`, `NT02`, ... `NT24`
-- Same blocks used across all layouts with different attribute values
-- Result: Only 24 total block definitions
-
-### **Critical Safety Measures (IMPLEMENTED)**
-
-#### **AutoCAD Crash Prevention**
-The system includes extensive crash prevention for the access violation (0xc0000005) issues:
-
-1. **Deferred Initialization**: No AutoCAD object access during plugin load
-2. **Safe Object Access**: All DocumentManager access wrapped in try-catch
-3. **Lazy Service Creation**: CurrentDrawingBlockManager not in DI container
-4. **Defensive Programming**: Null checks and graceful fallbacks throughout
-
-#### **Transaction Safety**
-- Read-only transactions for discovery operations
-- Proper transaction disposal and error handling
-- No premature commits that could corrupt drawings
-
-#### **Drawing State Protection**
-- Never access viewports or other entities accidentally
-- Only target construction note blocks with precise pattern matching
-- Extensive logging for debugging and audit trails
-
-### **Excel Integration Strategy**
-
-#### **Data Flow**
-1. **Excel Reading**: EPPlus library reads EXCEL_NOTES table
-2. **Data Mapping**: Map note numbers to series-specific text from {SERIES}_NOTES
-3. **Block Updates**: Update NT## blocks with mapped data per layout
-4. **Validation**: Verify all updates completed successfully
-
-#### **Error Handling**
-- Handle locked Excel files (EPPlus works with files open in Excel)  
-- Graceful handling of missing sheets, tables, or data
-- Rollback capability if updates fail mid-process
-
-### **Testing Strategy**
-
-#### **Development Testing**
-- **Unit Tests**: Mock AutoCAD objects for safe testing
-- **Integration Commands**: Manual testing commands (TESTPHASE1, etc.)
-- **Incremental Validation**: Test each phase before proceeding
-
-#### **Production Readiness**
-- **Error Recovery**: Comprehensive exception handling
-- **Audit Logging**: Full operation logs for troubleshooting  
-- **User Feedback**: Clear progress reporting and error messages
-
-This approach ensures **reliable, crash-free operation** while maintaining **clean, maintainable code** that follows AutoCAD .NET API best practices.
+Both Auto Notes and Excel Notes work seamlessly across all three drawing states with proper attribute alignment and viewport protection.

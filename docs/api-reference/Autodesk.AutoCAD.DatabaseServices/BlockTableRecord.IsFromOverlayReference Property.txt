@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > BlockTableRecord Class > BlockTableRecord Properties > IsFromOverlayReference Property
+BlockTableRecord.IsFromOverlayReference Property    Description
+Gets and sets the BlockTableRecord's overlay flag. 
+
+Wraps the ObjectARX AcDbBlockTableRecord::isFromOverlayReference() and AcDbBlockTableRecord::setIsFromOverlayReference() methods.
+
+Visual Basic
+Public Property IsFromOverlayReference() As bool
+C#
+public bool IsFromOverlayReference;
+Conditions
+Read / write
+
+Links
+BlockTableRecord Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

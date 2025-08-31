@@ -1,0 +1,6 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollection Class > DocumentCollection Classes
+DocumentCollection ClassesClasses
+Class  Description  
+ ExecutionResult  This is class Autodesk.AutoCAD.ApplicationServices.DocumentCollection.ExecutionResult.  
+
+   Comments?  

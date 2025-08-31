@@ -1,0 +1,7 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentDestroyedEventArgs Class > DocumentDestroyedEventArgs Properties
+DocumentDestroyedEventArgs PropertiesProperties
+Property  Description  
+ FileName  
+Accesses the name of the document that was destroyed.  
+
+   Comments?  

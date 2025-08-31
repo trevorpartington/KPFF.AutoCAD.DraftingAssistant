@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.Windows Namespace > PaletteSet Class > PaletteSet Methods > FloatControl Method > FloatControl(Rect) Method
+PaletteSet.FloatControl(Rect) Method    Description
+Floats the PaletteSet with area position and size specified by the Rectangle.
+
+Visual Basic
+Public Function FloatControl(
+    value As Rect
+) As void
+C#
+public void FloatControl(
+    Rect value
+);
+Parameters
+Parameters  Description  
+Rect value  Rectangle specifying the position and size of the floating PaletteSet  
+
+Links
+PaletteSet Class, Autodesk.AutoCAD.Windows Namespace
+   Comments?  

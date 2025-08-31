@@ -1,0 +1,45 @@
+Autodesk.AutoCAD.Runtime Namespace > Exception Class > Exception Constructor > Exception() Constructor
+Exception.Exception() ConstructorDescription
+ 
+
+Default constructor.
+
+Visual Basic
+Public Sub New()
+Public Sub New(
+    es As Autodesk.AutoCAD.Runtime.ErrorStatus
+)
+Public Sub New(
+    es As Autodesk.AutoCAD.Runtime.ErrorStatus, 
+    message As string
+)
+Protected Sub New(
+    info As SerializationInfo, 
+    context As StreamingContext
+)
+Public Sub New(
+    es As Autodesk.AutoCAD.Runtime.ErrorStatus, 
+    message As string, 
+    innerException As System.Exception
+)
+C#
+public Exception();
+public Exception(
+    Autodesk.AutoCAD.Runtime.ErrorStatus es
+);
+public Exception(
+    Autodesk.AutoCAD.Runtime.ErrorStatus es, 
+    string message
+);
+protected Exception(
+    SerializationInfo info, 
+    StreamingContext context
+);
+public Exception(
+    Autodesk.AutoCAD.Runtime.ErrorStatus es, 
+    string message, 
+    System.Exception innerException
+);
+Links
+Exception Class, Autodesk.AutoCAD.Runtime Namespace
+   Comments?  

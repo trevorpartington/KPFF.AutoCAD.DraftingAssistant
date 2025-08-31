@@ -1,0 +1,19 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > ObjectId Structure > ObjectId Methods > Equals Method
+ObjectId.Equals MethodDescription
+Returns true if this object is equal to the argument object.
+
+Visual Basic
+Public sealed override Function Equals(
+    obj As object
+) As bool
+C#
+public sealed override bool Equals(
+    object obj
+);
+Parameters
+Parameters  Description  
+object obj  Input object to check against  
+
+Links
+ObjectId Structure, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

@@ -1,0 +1,17 @@
+Use Try Statements (.NET)Trap Runtime Errors (.NET)Using the VB.NET On Error Statements (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Develop Applications with VB.NET and C# (.NET) > Handle Errors (.NET) > Trap Runtime Errors (.NET) > 
+Use the Exception Object (.NET)
+ 
+ 
+ 
+The Exception object is used to obtain information about the error trapped with the Catch clause of a Try statement. The Exception object used for the AutoCAD .NET API is based on the Exception object of the Microsoft® .NET. To determine the error that is trapped by the Catch clause, you can use the properties of the Exception object. Some of the member properties of the Exception object that you can get information about the error are: 
+
+ErrorStatus - Returns the Autodesk.AutoCAD.Runtime.ErrorStatus enum value assigned to the exception. 
+Message - Returns a text message that explains the exception. 
+Source - Returns the application or object that caused the exception. 
+StackTrace - Returns a string representation of the frames on the call stack when the exception occurred. 
+TargetSite - Returns the method that threw the exception. 
+Related Concepts
+Trap Runtime Errors (.NET)
+Please send us your comment about this page
+

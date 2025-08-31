@@ -1,0 +1,16 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DynamicBlockReferencePropertyCollection Class > DynamicBlockReferencePropertyCollection Properties > Count Property
+DynamicBlockReferencePropertyCollection.Count PropertyDescription
+ 
+
+Accesses the number of objects in this collection.
+
+Visual Basic
+Public virtual Property Count() As Integer
+C#
+public virtual int Count;
+Conditions
+Read-only
+
+Links
+DynamicBlockReferencePropertyCollection Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

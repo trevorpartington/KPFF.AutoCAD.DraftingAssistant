@@ -1,0 +1,27 @@
+Redefine a Block (.NET)Use Blocks and Attributes (.NET)Create Attribute Definitions and Attribute References (.NET) 
+Autodesk ObjectARX for AutoCAD 2025: Managed .NET Developer's Guide > Advanced Drawing and Organizational Techniques (.NET) > Use Blocks and Attributes (.NET) > 
+Work with Attributes (.NET)
+ 
+ 
+ 
+
+An attribute reference provides an interactive label or tag for you to attach text to a block. Examples of data are part numbers, prices, comments, and owners' names. 
+
+You can extract attribute reference information from a drawing and use that information in a spreadsheet or database to produce items such as a parts list or bill of materials (BOM). You can associate more than one attribute reference with a block, provided that each attribute reference has a different tag. You can also define constant attributes. Because they have the same value in every occurrence of the block, AutoCAD does not prompt for a value when you insert the block. 
+
+Attributes can be invisible, which means the attribute reference is not displayed or plotted. However, information on the attribute reference is stored in the drawing file. 
+
+For more information about working with attributes, see “About Defining and Attaching Block Attributes” in the product Help system. 
+
+Topics in this section
+Create Attribute Definitions and Attribute References (.NET)
+Edit Attribute Definitions (.NET)
+Extract Attribute Information (.NET)
+Related Concepts
+Create Attribute Definitions and Attribute References (.NET)
+Edit Attribute Definitions (.NET)
+Extract Attribute Information (.NET)
+Use Blocks and Attributes (.NET)
+Advanced Drawing and Organizational Techniques (.NET)
+Please send us your comment about this page
+

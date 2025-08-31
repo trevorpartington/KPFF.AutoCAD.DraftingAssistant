@@ -1,0 +1,21 @@
+Autodesk.AutoCAD.DatabaseServices Namespace > DBDictionary Class > DBDictionary Methods > Remove Method > Remove(string) Method
+DBDictionary.Remove(string) MethodDescription
+ 
+
+This function removes and entry specified by its 'key' from the dictionary.
+
+Visual Basic
+Public Function Remove(
+    key As string
+) As ObjectId
+C#
+public ObjectId Remove(
+    string key
+);
+Parameters
+Parameters  Description  
+string key  String representing the entry's key (or name)  
+
+Links
+DBDictionary Class, Autodesk.AutoCAD.DatabaseServices Namespace
+   Comments?  

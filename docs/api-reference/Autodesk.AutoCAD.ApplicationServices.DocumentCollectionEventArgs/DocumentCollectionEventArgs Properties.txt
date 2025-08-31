@@ -1,0 +1,9 @@
+Autodesk.AutoCAD.ApplicationServices Namespace > DocumentCollectionEventArgs Class > DocumentCollectionEventArgs Properties
+DocumentCollectionEventArgs PropertiesProperties
+Property  Description  
+ Document  
+Wraps the AcApDocManager.document() function.
+
+Accesses the document that the input database belongs to. All databases created in ObjectARX, the current... more  
+
+   Comments?  

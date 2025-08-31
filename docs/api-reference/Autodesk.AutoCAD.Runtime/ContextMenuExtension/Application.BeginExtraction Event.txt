@@ -1,0 +1,15 @@
+Autodesk.AutoCAD.ApplicationServices.Core Namespace > Application Class > Application Events > BeginExtraction Event
+Application.BeginExtraction Event    Description
+Wraps the AcDwgExtractor::ExtractorReactor::beginExtraction() ObjectARX function. Called at the beginning of the extraction process. 
+
+Gives clients an opportunity to queue extra objects for property extraction. 
+
+Note: For APS Design Automation Use only. 
+
+Visual Basic
+Public static Event BeginExtraction As BeginExtractionEventHandler
+C#
+public static event BeginExtractionEventHandler BeginExtraction;
+Links
+Application Class, Autodesk.AutoCAD.ApplicationServices.Core Namespace
+   Comments?  
