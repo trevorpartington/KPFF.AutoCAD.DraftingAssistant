@@ -26,9 +26,14 @@
   },
   "constructionNotes": {
     "multileaderStyleNames": [
-      "ML-STYLE-01"
+      "Arw-Straight-Hex_Anno_WSDOT"
     ],
-    "noteBlocks": [],
+    "noteBlocks": [
+      {
+        "blockName": "_TagHexagon",
+        "attributeName": "TAGNUMBER"
+      }
+    ],
     "noteBlockPattern": "^NT\\d{2}$",
     "maxNotesPerSheet": 24,
     "attributes": {
@@ -39,10 +44,6 @@
     "noteBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\NTXX.dwg"
   },
   "titleBlocks": {
-    "titleBlockPattern": "^TB_ATT$",
-    "maxAttributesPerTitleBlock": 50,
-    "visibilityPropertyName": "Visibility",
-    "logAttributeMapping": false,
     "titleBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\DBRT-TTLB-ATT.dwg"
   }
 }

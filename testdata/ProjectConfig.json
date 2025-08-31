@@ -26,21 +26,25 @@
   },
   "constructionNotes": {
     "multileaderStyleNames": [
-      "ML-STYLE-01"
+      "ML-STYLE-01",
+      "ML-STYLE-02"
     ],
-    "noteBlocks": [],
+    "noteBlocks": [
+      {
+        "blockName": "_TagCircle",
+        "attributeName": "TAGNUMBER"
+      }
+    ],
     "noteBlockPattern": "^NT\\d{2}$",
     "maxNotesPerSheet": 24,
     "attributes": {
       "numberAttribute": "Number",
       "noteAttribute": "Note"
     },
-    "visibilityPropertyName": "Visibility"
+    "visibilityPropertyName": "Visibility",
+    "noteBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\NTXX.dwg"
   },
   "titleBlocks": {
-    "titleBlockPattern": "^TB_ATT$",
-    "maxAttributesPerTitleBlock": 50,
-    "visibilityPropertyName": "Visibility",
-    "logAttributeMapping": false
+    "titleBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\DBRT-TTLB-ATT.dwg"
   }
 }
