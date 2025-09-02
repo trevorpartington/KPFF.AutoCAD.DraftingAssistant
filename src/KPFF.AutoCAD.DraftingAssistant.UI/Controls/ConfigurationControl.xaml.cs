@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
@@ -16,6 +17,7 @@ public partial class ConfigurationControl : BaseUserControl
     private string? _currentProjectFilePath;
     private List<SheetInfo> _availableSheets = new();
     private List<SheetInfo> _selectedSheets = new();
+    private bool _hasInitiallyLoadedSheets = false;
 
     /// <summary>
     /// Gets the current project configuration with selected sheets
@@ -84,7 +86,6 @@ public partial class ConfigurationControl : BaseUserControl
                         });
                         
                         await LoadProjectDetails();
-                        await LoadAndSelectAllSheetsAsync();
                         
                     }
                 }
@@ -107,44 +108,6 @@ public partial class ConfigurationControl : BaseUserControl
         return null;
     }
 
-    private async Task LoadAndSelectAllSheetsAsync()
-    {
-        if (_currentProject == null) return;
-
-        try
-        {
-            // Load available sheets from Excel file
-            if (File.Exists(_currentProject.ProjectIndexFilePath))
-            {
-                _availableSheets = await _excelReader.ReadSheetIndexAsync(_currentProject.ProjectIndexFilePath, _currentProject);
-                
-                if (_availableSheets.Count > 0)
-                {
-                    // Select all sheets by default
-                    _selectedSheets = new List<SheetInfo>(_availableSheets);
-                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
-                    
-                    // Update display to show all sheets are selected
-                    var displayText = $"Default Configuration Loaded\n\n" +
-                                    $"Project: {_currentProject.ProjectName}\n" +
-                                    $"Client: {_currentProject.ClientName}\n\n" +
-                                    $"Automatically selected all {_selectedSheets.Count} sheets:\n\n" +
-                                    string.Join("\n", _selectedSheets.Take(10).Select(s => $"• {s.SheetName} - {s.DrawingTitle}"));
-                    
-                    if (_selectedSheets.Count > 10)
-                    {
-                        displayText += $"\n... and {_selectedSheets.Count - 10} more sheets";
-                    }
-                    
-                    UpdateConfigurationDisplay(displayText);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            UpdateConfigurationDisplay($"Error loading sheets for auto-selection: {ex.Message}");
-        }
-    }
 
     private async void SelectProjectButton_Click(object sender, RoutedEventArgs e)
     {
@@ -161,6 +124,10 @@ public partial class ConfigurationControl : BaseUserControl
                 _currentProjectFilePath = dialog.SelectedProjectFilePath;
                 ActiveProjectTextBlock.Text = _currentProject.ProjectName;
                 ActiveProjectTextBlock.FontStyle = FontStyles.Normal;
+                
+                // Reset the sheet loading flag when switching projects
+                _hasInitiallyLoadedSheets = false;
+                _selectedSheets.Clear();
                 
                 await LoadProjectDetails();
                 
@@ -203,6 +170,13 @@ public partial class ConfigurationControl : BaseUserControl
                 {
                     _selectedSheets = dialog.SelectedSheets;
                     _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
+                    
+                    // Mark that we've loaded sheets (to preserve this selection)
+                    if (_selectedSheets.Count > 0)
+                    {
+                        _hasInitiallyLoadedSheets = true;
+                    }
+                    
                     UpdateConfigurationDisplay($"Selected {_selectedSheets.Count} of {_availableSheets.Count} sheets:\n\n" + 
                                              string.Join("\n", _selectedSheets.Select(s => $"• {s.SheetName} - {s.DrawingTitle}")));
                 }
@@ -255,12 +229,35 @@ public partial class ConfigurationControl : BaseUserControl
             {
                 details.Add("✓ Configuration is valid");
                 
-                // Try to load sheet count
+                // Try to load sheet count and preserve selection
                 if (System.IO.File.Exists(_currentProject.ProjectIndexFilePath))
                 {
+                    // Save current selection to restore later
+                    var savedSelection = new List<SheetInfo>(_selectedSheets);
+                    
                     var sheets = await _excelReader.ReadSheetIndexAsync(_currentProject.ProjectIndexFilePath, _currentProject);
                     details.Add($"✓ Found {sheets.Count} sheets in index");
                     _availableSheets = sheets;
+                    
+                    // Restore selection or auto-select all on first load
+                    if (!_hasInitiallyLoadedSheets && sheets.Count > 0)
+                    {
+                        // First time loading - select all sheets
+                        _selectedSheets = new List<SheetInfo>(sheets);
+                        _hasInitiallyLoadedSheets = true;
+                        details.Add($"✓ Automatically selected all {_selectedSheets.Count} sheets (initial load)");
+                    }
+                    else if (savedSelection.Count > 0)
+                    {
+                        // Restore previous selection by matching sheet names
+                        _selectedSheets = sheets
+                            .Where(sheet => savedSelection.Any(saved => saved.SheetName == sheet.SheetName))
+                            .ToList();
+                        details.Add($"✓ Restored {_selectedSheets.Count} sheets from previous selection");
+                    }
+                    
+                    // Update project configuration with current selection
+                    _currentProject.SelectedSheets = new List<SheetInfo>(_selectedSheets);
                     
                     if (_selectedSheets.Count > 0)
                     {
