@@ -27,7 +27,7 @@ public partial class ProjectSelectionDialog : Window
         // TODO: Replace with proper dependency injection
         var logger = new DebugLogger();
         _configService = new ProjectConfigurationService(logger);
-        _excelReader = new PlaceholderExcelReader(logger);
+        _excelReader = new ExcelReaderService(logger);
         
         // Pre-populate with current project if provided
         if (currentProject != null && !string.IsNullOrEmpty(currentProjectFilePath))
@@ -58,7 +58,7 @@ public partial class ProjectSelectionDialog : Window
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Select Project Configuration",
             Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
@@ -149,8 +149,6 @@ public partial class ProjectSelectionDialog : Window
                 $"DWG Path: {_loadedProject.ProjectDWGFilePath}",
                 "",
                 "Configuration Details:",
-                $"• Sheet Pattern: {_loadedProject.SheetNaming.Pattern}",
-                $"• Series Group: {_loadedProject.SheetNaming.SeriesGroup}, Number Group: {_loadedProject.SheetNaming.NumberGroup}",
                 $"• Sheet Index Table: {_loadedProject.Tables.SheetIndex}",
                 $"• Excel Notes Table: {_loadedProject.Tables.ExcelNotes}",
                 $"• Max Notes per Sheet: {_loadedProject.ConstructionNotes.MaxNotesPerSheet}",

@@ -13,18 +13,24 @@ public class PlottingService : IPlottingService
     private readonly IDrawingOperations _drawingOperations;
     private readonly IExcelReader _excelReader;
     private readonly IPlotManager? _plotManager;
+    private readonly MultiDrawingConstructionNotesService _multiDrawingConstructionNotesService;
+    private readonly MultiDrawingTitleBlockService _multiDrawingTitleBlockService;
 
     public PlottingService(
         ILogger logger,
         IConstructionNotesService constructionNotesService,
         IDrawingOperations drawingOperations,
         IExcelReader excelReader,
+        MultiDrawingConstructionNotesService multiDrawingConstructionNotesService,
+        MultiDrawingTitleBlockService multiDrawingTitleBlockService,
         IPlotManager? plotManager = null)
     {
         _logger = logger;
         _constructionNotesService = constructionNotesService;
         _drawingOperations = drawingOperations;
         _excelReader = excelReader;
+        _multiDrawingConstructionNotesService = multiDrawingConstructionNotesService;
+        _multiDrawingTitleBlockService = multiDrawingTitleBlockService;
         _plotManager = plotManager;
     }
 
@@ -198,19 +204,6 @@ public class PlottingService : IPlottingService
         {
             _logger.LogDebug($"Validating {sheetNames.Count} sheets for plotting");
 
-            // Check if plotting is enabled
-            if (!config.Plotting.EnablePlotting)
-            {
-                result.Issues.Add(new PlotValidationIssue
-                {
-                    SheetName = "Project",
-                    IssueType = PlotValidationIssueType.Other,
-                    Description = "Plotting is disabled in project configuration",
-                    IsWarning = false
-                });
-                result.IsValid = false;
-                return result;
-            }
 
             // Check output directory
             if (string.IsNullOrEmpty(config.Plotting.OutputDirectory))
@@ -334,6 +327,7 @@ public class PlottingService : IPlottingService
 
     /// <summary>
     /// Performs pre-plot updates (construction notes and title blocks) based on plot settings
+    /// Uses multi-drawing services to support Active, Inactive, and Closed drawing states
     /// </summary>
     private async Task PerformPrePlotUpdatesAsync(
         string sheetName,
@@ -343,6 +337,9 @@ public class PlottingService : IPlottingService
     {
         try
         {
+            // Get sheet info list for drawing state resolution
+            var sheetInfos = await _excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+
             // Update construction notes if requested
             if (plotSettings.UpdateConstructionNotes)
             {
@@ -368,8 +365,23 @@ public class PlottingService : IPlottingService
                     // Get notes using Excel Notes mode
                     noteNumbers = await _constructionNotesService.GetExcelNotesForSheetAsync(sheetName, config);
                 }
-                
-                await _constructionNotesService.UpdateConstructionNoteBlocksAsync(sheetName, noteNumbers, config);
+
+                // Use multi-drawing service to handle any drawing state
+                var sheetToNotes = new Dictionary<string, List<int>> { { sheetName, noteNumbers } };
+                var constructionNotesResult = await _multiDrawingConstructionNotesService.UpdateConstructionNotesAcrossDrawingsAsync(
+                    sheetToNotes, 
+                    config, 
+                    sheetInfos);
+
+                if (constructionNotesResult.HasFailures)
+                {
+                    var failure = constructionNotesResult.Failures.FirstOrDefault();
+                    _logger.LogWarning($"Construction notes update failed for sheet {sheetName}: {failure?.ErrorMessage}");
+                }
+                else
+                {
+                    _logger.LogDebug($"Successfully updated construction notes for sheet {sheetName}");
+                }
             }
 
             // Update title blocks if requested  
@@ -386,13 +398,20 @@ public class PlottingService : IPlottingService
 
                 _logger.LogDebug($"Updating title blocks for sheet {sheetName}");
                 
-                // Get title block mappings and update
-                var titleBlockMappings = await _excelReader.ReadTitleBlockMappingsAsync(config.ProjectIndexFilePath, config);
-                var sheetMapping = titleBlockMappings.FirstOrDefault(m => m.SheetName.Equals(sheetName, StringComparison.OrdinalIgnoreCase));
-                
-                if (sheetMapping != null)
+                // Use multi-drawing service to handle any drawing state
+                var titleBlockResult = await _multiDrawingTitleBlockService.UpdateTitleBlocksAcrossDrawingsAsync(
+                    new List<string> { sheetName }, 
+                    config, 
+                    sheetInfos);
+
+                if (titleBlockResult.HasFailures)
                 {
-                    await _drawingOperations.UpdateTitleBlockAsync(sheetName, sheetMapping, config);
+                    var failure = titleBlockResult.Failures.FirstOrDefault();
+                    _logger.LogWarning($"Title block update failed for sheet {sheetName}: {failure?.ErrorMessage}");
+                }
+                else
+                {
+                    _logger.LogDebug($"Successfully updated title blocks for sheet {sheetName}");
                 }
             }
         }

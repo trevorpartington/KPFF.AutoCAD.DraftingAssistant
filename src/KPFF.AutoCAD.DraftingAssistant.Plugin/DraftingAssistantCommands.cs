@@ -3496,8 +3496,16 @@ public class DraftingAssistantCommands
             var excelReaderService = new ExcelReaderService(logger);
             var drawingOperations = new DrawingOperations(logger);
             var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, drawingOperations);
+            var drawingAccessService = new DrawingAccessService(logger);
+            var backupCleanupService = new BackupCleanupService(logger);
+            var multileaderAnalyzer = new MultileaderAnalyzer(logger);
+            var blockAnalyzer = new BlockAnalyzer(logger);
+            var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
+            var titleBlockService = new TitleBlockService(logger, excelReaderService, drawingOperations);
+            var multiDrawingConstructionNotesService = new MultiDrawingConstructionNotesService(logger, drawingAccessService, externalDrawingManager, constructionNotesService, excelReaderService);
+            var multiDrawingTitleBlockService = new MultiDrawingTitleBlockService(logger, drawingAccessService, externalDrawingManager, titleBlockService, excelReaderService);
             var plotManager = new PlotManager(logger);
-            var plottingService = new PlottingService(logger, constructionNotesService, drawingOperations, excelReaderService, plotManager);
+            var plottingService = new PlottingService(logger, constructionNotesService, drawingOperations, excelReaderService, multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager);
             
             ed.WriteMessage("✓ ExcelReaderService created\n");
             ed.WriteMessage("✓ DrawingOperations created\n");
@@ -3560,8 +3568,7 @@ public class DraftingAssistantCommands
                         config.Plotting.OutputDirectory = Path.Combine(config.ProjectDWGFilePath, "PlotOutput");
                     }
                     
-                    config.Plotting.EnablePlotting = true;
-                    config.Plotting.DefaultPlotFormat = "PDF";
+                    // Plotting configuration - removed EnablePlotting and DefaultPlotFormat properties
                 }
                 else
                 {
@@ -3789,7 +3796,7 @@ public class DraftingAssistantCommands
             // Step 10: Summary
             ed.WriteMessage("\n--- STEP 10: TEST SUMMARY ---\n");
             
-            ed.WriteMessage($"📋 Configuration: {(config.Plotting.EnablePlotting ? "✅" : "❌")} Plotting enabled\n");
+            ed.WriteMessage($"📋 Configuration: ✅ Plotting ready\n");
             ed.WriteMessage($"📂 Output Directory: {(Directory.Exists(config.Plotting.OutputDirectory) ? "✅" : "❌")} {config.Plotting.OutputDirectory}\n");
             ed.WriteMessage($"📄 Sheet Validation: {(validation.IsValid ? "✅" : "❌")} {validation.ValidSheets.Count} valid sheets\n");
             ed.WriteMessage($"🖨 Plot Operations: {(plotResult.Success ? "✅" : "❌")} {plotResult.SuccessRate:F1}% success rate\n");

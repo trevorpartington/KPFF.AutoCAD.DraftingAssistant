@@ -10,7 +10,7 @@ namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 /// <summary>
 /// Base class for all user controls in the drafting assistant
 /// </summary>
-public abstract class BaseUserControl : UserControl
+public abstract class BaseUserControl : System.Windows.Controls.UserControl
 {
     protected ILogger Logger { get; }
     protected INotificationService NotificationService { get; }
@@ -58,7 +58,7 @@ public abstract class BaseUserControl : UserControl
     /// <param name="textBlock">The text block to update</param>
     /// <param name="featureName">Name of the feature</param>
     /// <param name="featureDescription">Description of what the feature will provide</param>
-    protected static void UpdateTextBlockWithComingSoon(TextBlock textBlock, string featureName, string featureDescription)
+    protected static void UpdateTextBlockWithComingSoon(System.Windows.Controls.TextBlock textBlock, string featureName, string featureDescription)
     {
         textBlock.Text = $"{featureName} button clicked!\n\n" +
                         "This feature is coming soon. It will provide:\n" +

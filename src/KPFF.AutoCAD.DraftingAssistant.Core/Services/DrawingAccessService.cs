@@ -248,24 +248,3 @@ public class DrawingAccessService
         }
     }
 }
-
-/// <summary>
-/// Enumeration of possible drawing states
-/// </summary>
-public enum DrawingState
-{
-    /// <summary>Drawing is currently active in AutoCAD</summary>
-    Active,
-    
-    /// <summary>Drawing is open but not the active document</summary>
-    Inactive,
-    
-    /// <summary>Drawing file exists but is not currently open</summary>
-    Closed,
-    
-    /// <summary>Drawing file was not found</summary>
-    NotFound,
-    
-    /// <summary>Error occurred while checking drawing state</summary>
-    Error
-}

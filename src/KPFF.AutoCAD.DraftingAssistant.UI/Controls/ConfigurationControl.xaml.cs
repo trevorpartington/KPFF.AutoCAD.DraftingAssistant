@@ -218,8 +218,6 @@ public partial class ConfigurationControl : BaseUserControl
                 $"DWG Path: {_currentProject.ProjectDWGFilePath}",
                 "",
                 "Configuration Details:",
-                $"• Sheet Pattern: {_currentProject.SheetNaming.Pattern}",
-                $"• Series Group: {_currentProject.SheetNaming.SeriesGroup}, Number Group: {_currentProject.SheetNaming.NumberGroup}",
                 $"• Sheet Index Table: {_currentProject.Tables.SheetIndex}",
                 $"• Excel Notes Table: {_currentProject.Tables.ExcelNotes}",
                 $"• Max Notes per Sheet: {_currentProject.ConstructionNotes.MaxNotesPerSheet}",

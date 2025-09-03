@@ -509,6 +509,12 @@ public partial class PlottingControl : BaseUserControl
         
         messages.Add("Ready to plot selected sheets to PDF using their default page setup");
         
+        // Show output directory
+        if (!string.IsNullOrEmpty(config?.Plotting?.OutputDirectory))
+        {
+            messages.Add($"Output Directory: {config.Plotting.OutputDirectory}");
+        }
+        
         // Check pre-plot options - add null checks for during initialization
         if (UpdateConstructionNotesCheckBox?.IsChecked == true)
         {
