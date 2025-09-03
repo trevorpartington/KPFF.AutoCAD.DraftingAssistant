@@ -10,22 +10,22 @@ public class WpfNotificationService : INotificationService
 {
     public void ShowInformation(string title, string message)
     {
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+        System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
     }
 
     public void ShowWarning(string title, string message)
     {
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+        System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
     }
 
     public void ShowError(string title, string message)
     {
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
     }
 
     public bool ShowConfirmation(string title, string message)
     {
-        var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
-        return result == MessageBoxResult.Yes;
+        var result = System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+        return result == System.Windows.MessageBoxResult.Yes;
     }
 }

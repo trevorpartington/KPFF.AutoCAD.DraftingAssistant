@@ -38,12 +38,19 @@ public partial class ConstructionNoteControl : BaseUserControl
         
         // Subscribe to shared state changes
         _sharedUIState.OnApplyToCurrentSheetOnlyChanged += OnSharedApplyToCurrentSheetOnlyChanged;
+        _sharedUIState.OnConstructionNotesModeChanged += OnSharedConstructionNotesModeChanged;
         
         // Initialize checkbox with shared state
         ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
         
-        // Load initial display information
-        _ = LoadInitialDisplayAsync();
+        // Initialize radio buttons with shared state
+        AutoNotesRadioButton.IsChecked = _sharedUIState.IsAutoNotesMode;
+        ExcelNotesRadioButton.IsChecked = !_sharedUIState.IsAutoNotesMode;
+        
+        // Load initial display information when the control is fully loaded
+        this.Loaded += ConstructionNoteControl_Loaded;
+        
+        // Display will be initialized when Loaded event fires
     }
 
     private static IConstructionNotesService GetConstructionNotesService()
@@ -192,7 +199,7 @@ public partial class ConstructionNoteControl : BaseUserControl
                     var drawingState = drawingAccessService.GetDrawingState(dwgPath);
                     List<int> noteNumbers;
 
-                    if (drawingState == Core.Services.DrawingState.Closed)
+                    if (drawingState == DrawingState.Closed)
                     {
                         // Use ExternalDrawingManager for closed drawings
                         autocadLogger.LogDebug($"Using external drawing analysis for closed sheet {sheet.SheetName}");
@@ -203,7 +210,7 @@ public partial class ConstructionNoteControl : BaseUserControl
                     else
                     {
                         // For active/inactive drawings, use the standard approach
-                        if (drawingState == Core.Services.DrawingState.Inactive)
+                        if (drawingState == DrawingState.Inactive)
                         {
                             // Make inactive drawing active temporarily
                             drawingAccessService.TryMakeDrawingActive(dwgPath);
@@ -488,8 +495,50 @@ public partial class ConstructionNoteControl : BaseUserControl
 
     private void UpdateStatus(string message)
     {
-        NotesTextBlock.Text = message;
+        RefreshDisplay(new List<string> { message });
         Logger.LogDebug($"Status updated: {message}");
+    }
+
+    private async void RefreshDisplay(List<string>? statusMessages = null)
+    {
+        try
+        {
+            var config = GetSharedConfigurationFromSibling();
+            var selectedSheets = await GetSelectedSheetsForDisplay(config);
+            
+            var readout = BuildStandardReadout(
+                config?.ProjectName,
+                statusMessages,
+                selectedSheets
+            );
+            NotesTextBlock.Text = readout;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error refreshing construction notes display: {ex.Message}", ex);
+            // Fallback to a simple display
+            NotesTextBlock.Text = "Active Project: No project selected\n" +
+                                 "────────────────────────────────────────────────────────\n\n" +
+                                 "Ready for construction notes operations.\n\n" +
+                                 "────────────────────────────────────────────────────────\n" +
+                                 "Selected Sheets: 0\n" +
+                                 "────────────────────────────────────────────────────────\n" +
+                                 "No sheets selected for processing";
+        }
+    }
+
+    private async Task<List<SheetInfo>> GetSelectedSheetsForDisplay(ProjectConfiguration? config)
+    {
+        if (config == null) return new List<SheetInfo>();
+        
+        try
+        {
+            return await GetSelectedSheetsAsync(config);
+        }
+        catch
+        {
+            return new List<SheetInfo>();
+        }
     }
 
 
@@ -556,67 +605,34 @@ public partial class ConstructionNoteControl : BaseUserControl
         await ExceptionHandler.TryExecuteAsync(async () =>
         {
             var config = await LoadProjectConfigurationAsync();
-            var selectedSheets = config != null ? await GetSelectedSheetsAsync(config) : new List<SheetInfo>();
-            
-            UpdateInfoDisplay(config, selectedSheets);
+            RefreshDisplay(BuildInfoMessages(config));
         }, Logger, NotificationService, "LoadInitialDisplayAsync", showUserMessage: false);
     }
 
-    private void UpdateInfoDisplay(ProjectConfiguration? config, List<SheetInfo> selectedSheets)
+    private List<string> BuildInfoMessages(ProjectConfiguration? config)
     {
-        var multileaderStyle = config?.ConstructionNotes?.MultileaderStyleName ?? "Not configured";
-        
-        var displayText = $"Construction Notes Information\n\n" +
-                         $"Multileader Style(s): {multileaderStyle}\n\n";
+        var messages = new List<string>();
         
         // Show sheet selection mode
-        if (ApplyToCurrentSheetCheckBox.IsChecked == true)
+        if (ApplyToCurrentSheetCheckBox?.IsChecked == true)
         {
             var currentLayoutName = GetCurrentLayoutName();
-            displayText += $"Mode: Apply to current sheet only\n";
+            messages.Add("Mode: Apply to current sheet only");
             if (!string.IsNullOrEmpty(currentLayoutName))
             {
-                displayText += $"Current Sheet: {currentLayoutName}\n\n";
-                if (selectedSheets.Count > 0)
-                {
-                    var sheet = selectedSheets[0];
-                    displayText += $"Target Sheet: {sheet.SheetName} - {sheet.DrawingTitle}\n";
-                }
-                else
-                {
-                    displayText += $"WARNING: Current sheet '{currentLayoutName}' not found in project index\n";
-                }
+                messages.Add($"Current Sheet: {currentLayoutName}");
             }
             else
             {
-                displayText += "WARNING: Could not determine current sheet\n";
+                messages.Add("WARNING: Could not determine current sheet");
             }
         }
         else
         {
-            displayText += $"Mode: Apply to selected sheets ({selectedSheets.Count} sheets)\n";
-            displayText += $"Selected Sheet(s):\n";
-            
-            if (selectedSheets.Count > 0)
-            {
-                var displayLimit = 5; // Show first 5 sheets
-                foreach (var sheet in selectedSheets.Take(displayLimit))
-                {
-                    displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
-                }
-                
-                if (selectedSheets.Count > displayLimit)
-                {
-                    displayText += $"  ... and {selectedSheets.Count - displayLimit} more sheets\n";
-                }
-            }
-            else
-            {
-                displayText += "  No sheets selected\n";
-            }
+            messages.Add("Mode: Apply to selected sheets");
         }
         
-        UpdateStatus(displayText);
+        return messages;
     }
 
     private async void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
@@ -643,8 +659,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config != null)
             {
-                var selectedSheets = await GetSelectedSheetsAsync(config);
-                UpdateInfoDisplay(config, selectedSheets);
+                RefreshDisplay(BuildInfoMessages(config));
             }
         }
         catch (Exception ex)
@@ -669,5 +684,34 @@ public partial class ConstructionNoteControl : BaseUserControl
             Logger.LogWarning($"Failed to get current layout name: {ex.Message}");
         }
         return null;
+    }
+
+    private void RadioButton_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        // Update shared state when radio buttons change
+        // Null check needed because XAML can trigger this before constructor completes
+        if (_sharedUIState != null)
+        {
+            var isAutoMode = AutoNotesRadioButton.IsChecked == true;
+            _sharedUIState.IsAutoNotesMode = isAutoMode;
+        }
+    }
+
+    private void OnSharedConstructionNotesModeChanged(bool isAutoNotesMode)
+    {
+        // Update radio buttons if they don't match shared state
+        if (AutoNotesRadioButton.IsChecked != isAutoNotesMode)
+        {
+            AutoNotesRadioButton.IsChecked = isAutoNotesMode;
+            ExcelNotesRadioButton.IsChecked = !isAutoNotesMode;
+        }
+    }
+
+    private async void ConstructionNoteControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Only load initial display after the control is fully loaded and palette is created
+        // This prevents AutoCAD API access during palette initialization
+        RefreshDisplay(); // Initialize standard display format
+        await LoadInitialDisplayAsync();
     }
 }

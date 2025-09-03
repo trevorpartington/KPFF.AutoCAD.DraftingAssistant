@@ -102,7 +102,7 @@
                                 <!-- SHEET_INDEX Table -->
                                 <Border BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="3" Background="{StaticResource DarkSurfaceBrush}" Margin="0,0,0,10">
                                     <StackPanel Margin="10">
-                                        <TextBlock Text="&quot;SHEET_INDEX&quot;: List of all sheets and metadata, including containing file name and title block attributes." Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" FontWeight="SemiBold" Margin="0,0,0,5" TextWrapping="Wrap"/>
+                                        <TextBlock Text="&quot;SHEET_INDEX&quot;: List of all sheets including DWG file name and title block attributes." Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" FontWeight="SemiBold" Margin="0,0,0,5" TextWrapping="Wrap"/>
                                         <TextBlock Text="Required:" Style="{StaticResource DarkTextBlockStyle}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         <TextBlock Text="• &quot;Sheet&quot; column containing the name of each sheet layout" Style="{StaticResource DarkTextBlockStyle}" Margin="15,0,0,3"/>
                                         <TextBlock Text="• &quot;File&quot; column containing the name of the file that contains each sheet, e.g. &quot;PV-100&quot; (do not include file path or file type extension)" Style="{StaticResource DarkTextBlockStyle}" Margin="15,0,0,3" TextWrapping="Wrap"/>
@@ -195,7 +195,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="NTXX Block File:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="NTXX Block:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Name="NoteBlockFilePathTextBox" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,10,0"/>
                                     <Button Grid.Column="2" Name="BrowseNoteBlockButton" Content="Browse..." Width="80" Height="25" Style="{StaticResource DarkButtonStyle}" Click="BrowseNoteBlockButton_Click"/>
                                 </Grid>
@@ -296,20 +296,114 @@
                         <!-- Title Block Attributes File Location -->
                         <GroupBox Header="Title Block Attributes File Location" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
                             <StackPanel Margin="10">
-                                <TextBlock Text="Specify the location of the title block DWG file for insertion:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,10"/>
+                                <TextBlock Text="Specify the location of the title block attributes block (.dwg) for insertion:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,10"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="120"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Title Block File:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Title Block Attributes:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Name="TitleBlockFilePathTextBox" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,10,0"/>
                                     <Button Grid.Column="2" Name="BrowseTitleBlockButton" Content="Browse..." Width="80" Height="25" Style="{StaticResource DarkButtonStyle}" Click="BrowseTitleBlockButton_Click"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
                         
+                        
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Plotting Tab -->
+            <TabItem Header="Plotting" Style="{StaticResource DarkTabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        
+                        <!-- Plotting Settings -->
+                        <GroupBox Header="Plotting Settings" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                
+                                
+                                <!-- Output Directory -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Output Directory:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" Name="PlotOutputDirectoryTextBox" 
+                                             Style="{StaticResource DarkTextBoxStyle}" 
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="2" Name="BrowseOutputDirectoryButton" 
+                                            Content="Browse..." 
+                                            Width="80" 
+                                            Height="25" 
+                                            Style="{StaticResource DarkButtonStyle}" 
+                                            Click="BrowseOutputDirectoryButton_Click"/>
+                                </Grid>
+                                
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        
+                        <!-- Plot Behavior -->
+                        <GroupBox Header="Plot Behavior" Style="{StaticResource DarkGroupBoxStyle}" Margin="0,0,0,15">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Plotting system behavior and file naming:" Style="{StaticResource DarkTextBlockStyle}" Margin="0,0,0,15"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="File Naming:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="{}{SheetName}.pdf" FontWeight="SemiBold"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Plot Area:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Layout (Paper Space)" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Plot Settings Source:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Layout's Default Page Setup" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                    
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="File Overwrite:" Style="{StaticResource DarkTextBlockStyle}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource DarkTextBlockStyle}" FontFamily="Consolas" Text="Yes (Existing PDFs will be replaced)" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                </Grid>
+                                
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Information -->
+                        <GroupBox Header="How Plotting Works" Style="{StaticResource DarkGroupBoxStyle}">
+                            <StackPanel Margin="10">
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    <Run Text="The plotting system uses AutoCAD's native plotting engine to create PDF files from selected sheets." FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,5">
+                                    <Run Text="• " FontWeight="Bold"/><Run Text="Plots use each layout's existing page setup and plot device settings"/>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,5">
+                                    <Run Text="• " FontWeight="Bold"/><Run Text="Drawing files can be active, inactive, or closed - all scenarios are supported"/>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,5">
+                                    <Run Text="• " FontWeight="Bold"/><Run Text="Construction notes and title blocks can be updated before plotting"/>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,5">
+                                    <Run Text="• " FontWeight="Bold"/><Run Text="Failed plots are logged and reported in the job summary"/>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource DarkTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,0">
+                                    <Run Text="• " FontWeight="Bold"/><Run Text="Output files are named using the sheet name (e.g., ABC-101.pdf)"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </GroupBox>
                         
                     </StackPanel>
                 </ScrollViewer>

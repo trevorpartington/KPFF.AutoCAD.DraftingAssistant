@@ -205,3 +205,134 @@ The construction notes system supports all drawing scenarios:
 - **Closed**: Drawing file exists on disk but is not open
 
 Both Auto Notes and Excel Notes work seamlessly across all three drawing states with proper attribute alignment and viewport protection.
+
+## Plotting System
+
+### Overview
+The plotting system provides seamless batch plotting capabilities that integrate with the existing construction notes and title block features. Users can plot selected sheets using each sheet's default page setup with optional pre-plot updates.
+
+### Key Features
+- **Simple PDF Plotting**: Uses each sheet's existing page setup, outputs to `{sheetname}.pdf`
+- **Optional Pre-Plot Updates**: Checkbox options to update construction notes and/or title blocks before plotting
+- **Multi-Drawing Support**: Works with active, inactive, and closed drawings
+- **Synchronized UI State**: "Apply to current sheet only" checkbox state persists across all tabs
+- **Comprehensive Error Handling**: Failed plots are skipped and logged with detailed error information
+
+### File Structure
+
+#### Project Configuration
+- **ProjectConfig.json**: Plotting configuration section includes:
+  - Output directory path for generated PDFs
+  - Default plot format settings
+  - Enable/disable plotting for project
+
+### User Interface
+
+#### Plotting Tab Layout
+```
+[☐ Update Construction Notes] [☐ Update Title Blocks]
+[☐ Apply to current sheet only]
+[Plot] button
+─────────────────────────────────────────────────────
+[Results and progress display area]
+```
+
+### Technical Implementation
+
+#### Publisher API Architecture
+The plotting system uses AutoCAD's Publisher API with Drawing Set Description (DSD) files for batch plotting operations. This approach provides superior performance and reliability compared to individual plot operations.
+
+**Key Components:**
+- **Publisher API**: AutoCAD's native batch plotting system
+- **DsdEntry**: Represents a single sheet to plot (drawing path, layout name, page setup)
+- **DsdData**: Collection of DsdEntry objects with output settings
+- **DsdEntryCollection**: Container for multiple sheets to plot together
+
+#### Plot Architecture Decision
+- **Batch Operations (Multiple Sheets)**: Uses Publisher API with DsdData for optimal performance
+- **Single Sheet Operations**: Uses Publisher API internally for consistency
+- **Legacy Support**: Maintains existing `PlotLayoutToPdfAsync` interface for backward compatibility
+
+#### Plot Workflow
+1. **Sheet Filtering Phase**:
+   - Apply "Apply to current sheet only" filter if enabled
+   - Validate selected sheets (layout exists, drawing accessible)
+
+2. **Pre-Plot Phase**:
+   - Update construction notes (if checkbox enabled) - uses Construction Notes tab radio button selection (Auto/Excel)
+   - Update title blocks (if checkbox enabled)
+   - Perform pre-plot updates for all sheets before plotting begins
+
+3. **Plot Phase**:
+   - **Batch Mode** (Multiple sheets): Use `PublishSheetsToPdfAsync` with Publisher API
+   - **Individual Mode** (Fallback): Use legacy plotting for single sheets or fallback scenarios
+   - Honor each layout's saved page setup automatically
+   - Skip sheets that fail validation or plotting
+   - Track progress and errors in real-time
+
+4. **Post-Plot Phase**:
+   - Clean up temporary files
+   - Display comprehensive results with success/failure summary
+   - Log all errors for troubleshooting
+
+#### Publisher API Benefits
+- **No Layout Switching Required**: Eliminates `eInvalidPlotInfo` and `eSetFailed` errors
+- **Handles All Drawing States**: Works with open/active, open/inactive, and closed drawings seamlessly
+- **Better Performance**: Native batch plotting without UI flicker
+- **Automatic Page Setup**: Uses each layout's saved plot settings without override
+- **Robust Error Handling**: Built-in validation and error recovery
+
+#### Implementation Details
+```csharp
+// Build DSD entries for batch plotting
+var dsdEntries = new List<DsdEntry>();
+foreach (var sheet in sheets)
+{
+    var entry = new DsdEntry
+    {
+        DwgName = sheet.DWGFileName,           // Full path to drawing
+        Layout = sheet.SheetName,             // Layout name to plot
+        Title = sheet.DrawingTitle,           // Display title
+        Nps = string.Empty,                   // Use layout's saved page setup
+        NpsSourceDwg = string.Empty
+    };
+    dsdEntries.Add(entry);
+}
+
+// Execute batch plot
+using (var dsdData = new DsdData())
+{
+    dsdData.ProjectPath = outputDirectory;
+    dsdData.SheetType = SheetType.SinglePdf;  // Individual PDFs
+    dsdData.SetDsdEntryCollection(dsdCollection);
+    
+    Application.Publisher.PublishExecute(dsdData, plotConfig);
+}
+```
+
+#### Error Handling Strategy
+- **Missing Plot Device**: Skip sheet, log error in job summary
+- **Drawing Access Issues**: Skip sheet, log specific error
+- **Page Setup Problems**: Skip sheet, continue with remaining sheets
+- **File Overwriting**: Always overwrite existing PDFs with same name
+
+#### Integration Points
+- **Construction Notes**: Checks Construction Notes tab radio button state (Auto Notes vs Excel Notes)
+- **Title Blocks**: Uses existing title block update service
+- **Shared UI State**: Synchronizes "Apply to current sheet only" across all tabs
+- **External Drawing Manager**: Handles closed/inactive drawing operations
+
+### Development Dependencies
+- **AutoCAD .NET PlottingServices**: Plot device and validation (`PlotConfig`, `PlotConfigManager`)
+- **AutoCAD .NET Publishing**: Publisher API for batch operations (`Publisher`, `DsdData`, `DsdEntry`)
+- **Existing Services**: Integrates with `ConstructionNotesService` and title block operations
+- **Project Configuration**: Extends existing configuration system with plotting settings
+
+### Current Status
+- ✅ Publisher API implementation completed
+- ✅ Batch plotting with DSD entries
+- ✅ Pre-plot operations (Construction Notes and Title Blocks)
+- ✅ "Apply to current sheet only" functionality
+- ✅ Multi-drawing support (open/active, open/inactive, closed)
+- ✅ Error handling and progress reporting
+- ✅ Backward compatibility with existing interfaces

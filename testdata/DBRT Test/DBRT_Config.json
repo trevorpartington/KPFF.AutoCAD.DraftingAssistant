@@ -17,7 +17,8 @@
       "A-123",
       "A-12",
       "A-1"
-    ]
+    ],
+    "seriesLength": 0
   },
   "tables": {
     "sheetIndex": "SHEET_INDEX",
@@ -45,5 +46,10 @@
   },
   "titleBlocks": {
     "titleBlockFilePath": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\Blocks\\DBRT-TTLB-ATT.dwg"
+  },
+  "plotting": {
+    "outputDirectory": "C:\\Users\\trevorp\\Dev\\KPFF.AutoCAD.DraftingAssistant\\testdata\\DBRT Test\\PlotOutput",
+    "enablePlotting": false,
+    "defaultPlotFormat": "PDF"
   }
 }

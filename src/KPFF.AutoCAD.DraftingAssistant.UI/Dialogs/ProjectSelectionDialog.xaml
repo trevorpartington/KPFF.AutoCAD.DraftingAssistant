@@ -43,7 +43,7 @@
             </Grid.ColumnDefinitions>
             
             <TextBlock Grid.Column="0" 
-                       Text="Config File:" 
+                       Text="Config File (JSON):" 
                        Style="{StaticResource DarkTextBlockStyle}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
@@ -92,7 +92,7 @@
                 Background="{StaticResource DarkSurfaceBrush}">
             <ScrollViewer Margin="15" VerticalScrollBarVisibility="Auto">
                 <TextBlock Name="ProjectDetailsTextBlock"
-                          Text="Select a project configuration file to view details."
+                          Text="Select a project configuration file (JSON) to view details."
                           Style="{StaticResource DarkTextBlockStyle}"
                           TextWrapping="Wrap"
                           FontFamily="Consolas"

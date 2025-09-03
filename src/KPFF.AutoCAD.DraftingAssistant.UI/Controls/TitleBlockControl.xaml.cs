@@ -42,8 +42,10 @@ public partial class TitleBlockControl : BaseUserControl
         // Initialize checkbox with shared state
         ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
         
-        // Load initial display information
-        _ = LoadInitialDisplayAsync();
+        // Load initial display information when the control is fully loaded
+        this.Loaded += TitleBlockControl_Loaded;
+        
+        // Display will be initialized when Loaded event fires
     }
 
     private static ITitleBlockService GetTitleBlockService()
@@ -335,8 +337,7 @@ public partial class TitleBlockControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config != null)
             {
-                var selectedSheets = await GetSelectedSheetsAsync(config);
-                UpdateInfoDisplay(config, selectedSheets);
+                RefreshDisplay(BuildInfoMessages(config));
             }
             else
             {
@@ -385,8 +386,7 @@ public partial class TitleBlockControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config != null)
             {
-                var selectedSheets = await GetSelectedSheetsAsync(config);
-                UpdateInfoDisplay(config, selectedSheets);
+                RefreshDisplay(BuildInfoMessages(config));
             }
         }
         catch (Exception ex)
@@ -395,75 +395,87 @@ public partial class TitleBlockControl : BaseUserControl
         }
     }
 
-    private void UpdateInfoDisplay(ProjectConfiguration? config, List<SheetInfo> selectedSheets)
+
+    private void UpdateStatus(string message)
     {
-        var displayText = $"Title Block Management\n\n";
-        
-        if (config != null)
+        RefreshDisplay(new List<string> { message });
+    }
+
+    private async void RefreshDisplay(List<string>? statusMessages = null)
+    {
+        try
         {
-            displayText += $"Project: {config.ProjectName}\n\n";
+            var config = GetSharedConfigurationFromSibling();
+            var selectedSheets = await GetSelectedSheetsForDisplay(config);
+            
+            var readout = BuildStandardReadout(
+                config?.ProjectName,
+                statusMessages,
+                selectedSheets
+            );
+            
+            if (TitleBlockTextBlock != null)
+            {
+                TitleBlockTextBlock.Text = readout;
+                TitleBlockTextBlock.UpdateLayout();
+            }
         }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error refreshing title block display: {ex.Message}", ex);
+            // Fallback to a simple display
+            if (TitleBlockTextBlock != null)
+            {
+                TitleBlockTextBlock.Text = "Active Project: No project selected\n" +
+                                          "────────────────────────────────────────────────────────\n\n" +
+                                          "Ready for title block operations.\n\n" +
+                                          "────────────────────────────────────────────────────────\n" +
+                                          "Selected Sheets: 0\n" +
+                                          "────────────────────────────────────────────────────────\n" +
+                                          "No sheets selected for processing";
+                TitleBlockTextBlock.UpdateLayout();
+            }
+        }
+    }
+
+    private async Task<List<SheetInfo>> GetSelectedSheetsForDisplay(ProjectConfiguration? config)
+    {
+        if (config == null) return new List<SheetInfo>();
+        
+        try
+        {
+            return await GetSelectedSheetsAsync(config);
+        }
+        catch
+        {
+            return new List<SheetInfo>();
+        }
+    }
+
+    private List<string> BuildInfoMessages(ProjectConfiguration? config)
+    {
+        var messages = new List<string>();
         
         // Show sheet selection mode
         if (ApplyToCurrentSheetCheckBox.IsChecked == true)
         {
             var currentLayoutName = GetCurrentLayoutName();
-            displayText += $"Mode: Apply to current sheet only\n";
+            messages.Add("Mode: Apply to current sheet only");
             if (!string.IsNullOrEmpty(currentLayoutName))
             {
-                displayText += $"Current Sheet: {currentLayoutName}\n\n";
-                if (selectedSheets.Count > 0)
-                {
-                    var sheet = selectedSheets[0];
-                    displayText += $"Target Sheet: {sheet.SheetName} - {sheet.DrawingTitle}\n";
-                }
-                else
-                {
-                    displayText += $"WARNING: Current sheet '{currentLayoutName}' not found in project index\n";
-                }
+                messages.Add($"Current Sheet: {currentLayoutName}");
             }
             else
             {
-                displayText += "WARNING: Could not determine current sheet\n";
+                messages.Add("WARNING: Could not determine current sheet");
             }
         }
         else
         {
-            displayText += $"Mode: Apply to selected sheets ({selectedSheets.Count} sheets)\n";
-            displayText += $"Selected Sheet(s):\n";
-            
-            if (selectedSheets.Count > 0)
-            {
-                var displayLimit = 5; // Show first 5 sheets
-                foreach (var sheet in selectedSheets.Take(displayLimit))
-                {
-                    displayText += $"  • {sheet.SheetName} - {sheet.DrawingTitle}\n";
-                }
-                
-                if (selectedSheets.Count > displayLimit)
-                {
-                    displayText += $"  ... and {selectedSheets.Count - displayLimit} more sheets\n";
-                }
-            }
-            else
-            {
-                displayText += "  No sheets selected\n";
-            }
+            messages.Add("Mode: Apply to selected sheets");
         }
         
-        displayText += "\nTitle block data will be read from the SHEET_INDEX table\n" +
-                      "and applied across all target drawings.";
-        
-        UpdateStatus(displayText);
-    }
-
-    private void UpdateStatus(string message)
-    {
-        if (TitleBlockTextBlock != null)
-        {
-            TitleBlockTextBlock.Text = message;
-            TitleBlockTextBlock.UpdateLayout();
-        }
+        return messages;
     }
 
     private string? GetCurrentLayoutName()
@@ -482,5 +494,13 @@ public partial class TitleBlockControl : BaseUserControl
             Logger.LogWarning($"Failed to get current layout name: {ex.Message}");
         }
         return null;
+    }
+
+    private async void TitleBlockControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Only load initial display after the control is fully loaded and palette is created
+        // This prevents AutoCAD API access during palette initialization
+        RefreshDisplay(); // Initialize standard display format
+        await LoadInitialDisplayAsync();
     }
 }

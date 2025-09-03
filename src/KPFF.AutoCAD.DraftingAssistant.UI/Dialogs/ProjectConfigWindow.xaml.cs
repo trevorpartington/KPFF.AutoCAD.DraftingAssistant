@@ -62,6 +62,9 @@ public partial class ProjectConfigWindow : Window
 
         // Title blocks tab - File paths
         TitleBlockFilePathTextBox.Text = _config.TitleBlocks.TitleBlockFilePath;
+        
+        // Plotting tab - Settings
+        PlotOutputDirectoryTextBox.Text = _config.Plotting.OutputDirectory;
     }
 
     private void UpdateStylesDisplay()
@@ -114,12 +117,15 @@ public partial class ProjectConfigWindow : Window
         // Title blocks tab - File paths
         _config.TitleBlocks.TitleBlockFilePath = TitleBlockFilePathTextBox.Text.Trim();
         
+        // Plotting tab - Settings
+        _config.Plotting.OutputDirectory = PlotOutputDirectoryTextBox.Text.Trim();
+        
         // The block attributes and other settings remain as configured (non-editable in UI)
     }
 
     private void BrowseExcelButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Select Excel Index File",
             Filter = "Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*",
@@ -134,10 +140,13 @@ public partial class ProjectConfigWindow : Window
 
     private void BrowseDwgButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Select DWG Files Directory (Select any file in the folder)",
-            Filter = "All Files (*.*)|*.*",
+            Title = "Select DWG Files Directory",
+            ValidateNames = false,
+            CheckFileExists = false,
+            CheckPathExists = true,
+            FileName = "Select Folder",
             InitialDirectory = Directory.Exists(DwgFilePathTextBox.Text) ? DwgFilePathTextBox.Text : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
         };
 
@@ -282,7 +291,7 @@ public partial class ProjectConfigWindow : Window
 
     private void BrowseNoteBlockButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Select NTXX Construction Note Block File",
             Filter = "DWG Files (*.dwg)|*.dwg|All Files (*.*)|*.*",
@@ -306,7 +315,7 @@ public partial class ProjectConfigWindow : Window
 
     private void BrowseTitleBlockButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Select Title Block DWG File",
             Filter = "DWG Files (*.dwg)|*.dwg|All Files (*.*)|*.*",
@@ -316,6 +325,30 @@ public partial class ProjectConfigWindow : Window
         if (dialog.ShowDialog() == true)
         {
             TitleBlockFilePathTextBox.Text = dialog.FileName;
+        }
+    }
+
+    private void BrowseOutputDirectoryButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select Plot Output Directory",
+            ValidateNames = false,
+            CheckFileExists = false,
+            CheckPathExists = true,
+            FileName = "Select Folder",
+            InitialDirectory = Directory.Exists(PlotOutputDirectoryTextBox.Text.Trim()) 
+                ? PlotOutputDirectoryTextBox.Text.Trim() 
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        };
+
+        if (dialog.ShowDialog() == true && !string.IsNullOrEmpty(dialog.FileName))
+        {
+            var selectedDirectory = Path.GetDirectoryName(dialog.FileName);
+            if (!string.IsNullOrEmpty(selectedDirectory))
+            {
+                PlotOutputDirectoryTextBox.Text = selectedDirectory;
+            }
         }
     }
 

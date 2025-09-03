@@ -59,8 +59,8 @@ public partial class ConfirmationDialog : Window
         catch
         {
             // Fallback to MessageBox if custom dialog fails
-            var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
-            return result == MessageBoxResult.Yes;
+            var result = System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+            return result == System.Windows.MessageBoxResult.Yes;
         }
     }
 }

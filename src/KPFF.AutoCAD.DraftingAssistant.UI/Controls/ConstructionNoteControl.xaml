@@ -39,11 +39,15 @@
                             GroupName="NotesMode"
                             IsChecked="True"
                             Style="{StaticResource DarkRadioButtonStyle}"
-                            Margin="0,0,20,0"/>
+                            Margin="0,0,20,0"
+                            Checked="RadioButton_CheckedChanged"
+                            Unchecked="RadioButton_CheckedChanged"/>
                 <RadioButton Name="ExcelNotesRadioButton" 
                             Content="Excel Notes" 
                             GroupName="NotesMode"
-                            Style="{StaticResource DarkRadioButtonStyle}"/>
+                            Style="{StaticResource DarkRadioButtonStyle}"
+                            Checked="RadioButton_CheckedChanged"
+                            Unchecked="RadioButton_CheckedChanged"/>
             </StackPanel>
             
             <!-- Action Buttons -->

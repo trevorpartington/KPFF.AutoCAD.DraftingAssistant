@@ -21,18 +21,49 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Button -->
-        <StackPanel Grid.Row="0" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Left" 
-                    Margin="0,0,0,20">
-            <Button Name="PlotButton" 
-                    Content="Plot" 
-                    Width="100" 
-                    Height="30"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="PlotButton_Click"/>
-        </StackPanel>
+        <!-- Controls -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Checkboxes -->
+            <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,0,15">
+                <CheckBox Name="UpdateConstructionNotesCheckBox" 
+                          Content="Update construction notes before plotting" 
+                          Style="{StaticResource DarkCheckBoxStyle}"
+                          HorizontalAlignment="Left"
+                          Margin="0,0,0,5"
+                          IsChecked="True"/>
+                
+                <CheckBox Name="UpdateTitleBlocksCheckBox" 
+                          Content="Update title blocks before plotting" 
+                          Style="{StaticResource DarkCheckBoxStyle}"
+                          HorizontalAlignment="Left"
+                          Margin="0,0,0,5"
+                          IsChecked="True"/>
+                
+                <CheckBox Name="ApplyToCurrentSheetCheckBox" 
+                          Content="Apply to current sheet only" 
+                          Style="{StaticResource DarkCheckBoxStyle}"
+                          HorizontalAlignment="Left"
+                          Margin="0,5,0,0"/>
+            </StackPanel>
+            
+            <!-- Button -->
+            <StackPanel Grid.Row="1" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Left">
+                <Button Name="PlotButton" 
+                        Content="Plot Selected Sheets" 
+                        Width="150" 
+                        Height="30"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="PlotButton_Click"/>
+            </StackPanel>
+        </Grid>
         
         <!-- Text Readout Area -->
         <Border Grid.Row="1" 
@@ -42,14 +73,7 @@
                 Background="{StaticResource DarkSurfaceBrush}">
             <ScrollViewer Margin="15" VerticalScrollBarVisibility="Auto">
                 <TextBlock x:Name="PlottingTextBlock"
-                          Text="Plotting and Output Management
-
-This area will display:
-- Plot queue and batch processing status
-- Output file locations and formats
-- Print settings and configurations
-- Processing logs and error messages
-- Quality control checks and validations"
+                          Text="Plotting System\n\nReady to plot selected sheets to PDF using their default page setup.\n\nOptions:\n• Update construction notes before plotting\n• Update title blocks before plotting\n• Apply operations to current sheet only\n\nOutput files will be saved as {SheetName}.pdf in the configured output directory."
                           Style="{StaticResource DarkTextBlockStyle}"
                           TextWrapping="Wrap"
                           FontFamily="Consolas"

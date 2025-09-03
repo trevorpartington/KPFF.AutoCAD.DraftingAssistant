@@ -9,7 +9,9 @@
       "Bash(git checkout:*)",
       "Bash(git rm:*)",
       "Bash(git mv:*)",
-      "Bash(dotnet test)"
+      "Bash(dotnet test)",
+      "Read(c:\\Users\\trevorp\\OneDrive - KPFF, Inc\\Desktop\\temp/**)",
+      "Read(c:\\Users\\trevorp\\OneDrive - KPFF, Inc\\Desktop\\temp/**)"
     ],
     "deny": []
   }
