@@ -49,9 +49,7 @@
                           Content="Apply to current sheet only" 
                           Style="{StaticResource DarkCheckBoxStyle}"
                           HorizontalAlignment="Left"
-                          Margin="0,5,0,0"
-                          Checked="ApplyToCurrentSheetCheckBox_CheckedChanged"
-                          Unchecked="ApplyToCurrentSheetCheckBox_CheckedChanged"/>
+                          Margin="0,5,0,0"/>
             </StackPanel>
             
             <!-- Button -->

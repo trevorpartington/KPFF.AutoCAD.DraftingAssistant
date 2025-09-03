@@ -40,8 +40,22 @@ public partial class PlottingControl : BaseUserControl
         // Subscribe to shared state changes
         _sharedUIState.OnApplyToCurrentSheetOnlyChanged += OnSharedApplyToCurrentSheetOnlyChanged;
         
-        // Initialize checkbox with shared state
-        ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
+        // Initialize display when control is loaded
+        this.Loaded += PlottingControl_Loaded;
+        
+        // Wire up event handlers and initialize state after control is fully loaded
+        this.Loaded += (s, e) => {
+            // Initialize checkbox with shared state
+            ApplyToCurrentSheetCheckBox.IsChecked = _sharedUIState.ApplyToCurrentSheetOnly;
+            
+            // Wire up event handlers
+            UpdateConstructionNotesCheckBox.Checked += UpdateConstructionNotesCheckBox_CheckedChanged;
+            UpdateConstructionNotesCheckBox.Unchecked += UpdateConstructionNotesCheckBox_CheckedChanged;
+            UpdateTitleBlocksCheckBox.Checked += UpdateTitleBlocksCheckBox_CheckedChanged;
+            UpdateTitleBlocksCheckBox.Unchecked += UpdateTitleBlocksCheckBox_CheckedChanged;
+            ApplyToCurrentSheetCheckBox.Checked += ApplyToCurrentSheetCheckBox_CheckedChanged;
+            ApplyToCurrentSheetCheckBox.Unchecked += ApplyToCurrentSheetCheckBox_CheckedChanged;
+        };
     }
 
     private static IConstructionNotesService GetConstructionNotesService()
@@ -58,7 +72,10 @@ public partial class PlottingControl : BaseUserControl
         var excelReader = new ExcelReaderService(debugLogger);
         var drawingOps = new DrawingOperations(debugLogger);
         var constructionNotesService = new ConstructionNotesService(debugLogger, excelReader, drawingOps);
-        return new PlottingService(debugLogger, constructionNotesService, drawingOps, excelReader);
+        var multiDrawingConstructionNotesService = GetMultiDrawingConstructionNotesService();
+        var multiDrawingTitleBlockService = GetMultiDrawingTitleBlockService();
+        return new PlottingService(debugLogger, constructionNotesService, drawingOps, excelReader, 
+            multiDrawingConstructionNotesService, multiDrawingTitleBlockService);
     }
     
     private static IProjectConfigurationService GetConfigurationService()
@@ -271,7 +288,8 @@ public partial class PlottingControl : BaseUserControl
 
             // Execute plotting using basic PlottingService (just for PDF generation)
             var basicConstructionNotesService = new ConstructionNotesService(autocadLogger, excelReader, drawingOps);
-            var productionPlottingService = new PlottingService(autocadLogger, basicConstructionNotesService, drawingOps, excelReader, plotManager);
+            var productionPlottingService = new PlottingService(autocadLogger, basicConstructionNotesService, drawingOps, excelReader, 
+                multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager);
             
             // Create plot settings without pre-plot updates since we already did them
             var plotOnlySettings = new PlotJobSettings
@@ -433,16 +451,103 @@ public partial class PlottingControl : BaseUserControl
 
     private void UpdatePlottingDisplay(string message)
     {
-        Dispatcher.Invoke(() =>
+        RefreshDisplay(new List<string> { $"{DateTime.Now:HH:mm:ss} - {message}" });
+    }
+
+    private async void RefreshDisplay(List<string>? statusMessages = null)
+    {
+        try
         {
-            PlottingTextBlock.Text = $"{DateTime.Now:HH:mm:ss} - {message}";
-        });
+            var config = GetSharedConfigurationFromSibling();
+            var selectedSheets = await GetSelectedSheetsForDisplay(config);
+            
+            var readout = BuildStandardReadout(
+                config?.ProjectName,
+                statusMessages ?? BuildInfoMessages(config),
+                selectedSheets
+            );
+            
+            Dispatcher.Invoke(() =>
+            {
+                PlottingTextBlock.Text = readout;
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError($"Error refreshing plotting display: {ex.Message}", ex);
+            // Fallback to a simple display
+            Dispatcher.Invoke(() =>
+            {
+                PlottingTextBlock.Text = "Active Project: No project selected\n" +
+                                        "────────────────────────────────────────────────────────\n\n" +
+                                        "Ready for plotting operations.\n\n" +
+                                        "────────────────────────────────────────────────────────\n" +
+                                        "Selected Sheets: 0\n" +
+                                        "────────────────────────────────────────────────────────\n" +
+                                        "No sheets selected for processing";
+            });
+        }
+    }
+
+    private async Task<List<SheetInfo>> GetSelectedSheetsForDisplay(ProjectConfiguration? config)
+    {
+        if (config == null) return new List<SheetInfo>();
+        
+        try
+        {
+            return await GetSelectedSheetsAsync(config);
+        }
+        catch
+        {
+            return new List<SheetInfo>();
+        }
+    }
+
+    private List<string> BuildInfoMessages(ProjectConfiguration? config)
+    {
+        var messages = new List<string>();
+        
+        messages.Add("Ready to plot selected sheets to PDF using their default page setup");
+        
+        // Check pre-plot options - add null checks for during initialization
+        if (UpdateConstructionNotesCheckBox?.IsChecked == true)
+        {
+            messages.Add("• Construction notes will be updated before plotting");
+        }
+        
+        if (UpdateTitleBlocksCheckBox?.IsChecked == true)
+        {
+            messages.Add("• Title blocks will be updated before plotting");
+        }
+        
+        // Show sheet selection mode - add null check for during initialization
+        if (ApplyToCurrentSheetCheckBox?.IsChecked == true)
+        {
+            messages.Add("Mode: Apply to current sheet only");
+        }
+        else if (ApplyToCurrentSheetCheckBox != null)
+        {
+            messages.Add("Mode: Apply to selected sheets");
+        }
+        
+        return messages;
     }
     
     private void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
     {
         // Update shared state
         _sharedUIState.ApplyToCurrentSheetOnly = ApplyToCurrentSheetCheckBox.IsChecked == true;
+        RefreshDisplay();
+    }
+    
+    private void UpdateConstructionNotesCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        RefreshDisplay();
+    }
+    
+    private void UpdateTitleBlocksCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        RefreshDisplay();
     }
     
     private void OnSharedApplyToCurrentSheetOnlyChanged(bool applyToCurrentSheetOnly)
@@ -452,6 +557,7 @@ public partial class PlottingControl : BaseUserControl
         {
             ApplyToCurrentSheetCheckBox.IsChecked = applyToCurrentSheetOnly;
         }
+        RefreshDisplay();
     }
 
     /// <summary>
@@ -760,5 +866,11 @@ public partial class PlottingControl : BaseUserControl
         var blockAnalyzer = new BlockAnalyzer(logger);
         
         return new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
+    }
+    
+    private void PlottingControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Initialize standard display format when control is loaded
+        RefreshDisplay();
     }
 }

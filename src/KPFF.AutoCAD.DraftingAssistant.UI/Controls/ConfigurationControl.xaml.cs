@@ -43,6 +43,8 @@ public partial class ConfigurationControl : BaseUserControl
         
         // Load default project configuration when the control is fully loaded
         this.Loaded += ConfigurationControl_Loaded;
+        
+        // Display will be initialized when Loaded event fires
     }
 
     private static IProjectConfigurationService GetConfigurationService()
@@ -86,6 +88,7 @@ public partial class ConfigurationControl : BaseUserControl
                         });
                         
                         await LoadProjectDetails();
+                        RefreshDisplay();
                         
                     }
                 }
@@ -130,6 +133,7 @@ public partial class ConfigurationControl : BaseUserControl
                 _selectedSheets.Clear();
                 
                 await LoadProjectDetails();
+                RefreshDisplay();
                 
             }
         }
@@ -177,8 +181,7 @@ public partial class ConfigurationControl : BaseUserControl
                         _hasInitiallyLoadedSheets = true;
                     }
                     
-                    UpdateConfigurationDisplay($"Selected {_selectedSheets.Count} of {_availableSheets.Count} sheets:\n\n" + 
-                                             string.Join("\n", _selectedSheets.Select(s => $"• {s.SheetName} - {s.DrawingTitle}")));
+                    RefreshDisplay();
                 }
             }
             else
@@ -271,12 +274,12 @@ public partial class ConfigurationControl : BaseUserControl
                 details.AddRange(errors.Select(e => $"  • {e}"));
             }
 
-            UpdateConfigurationDisplay(string.Join("\n", details));
+            RefreshDisplay(details);
             
         }
         catch (Exception ex)
         {
-            UpdateConfigurationDisplay($"Error loading project details: {ex.Message}");
+            RefreshDisplay(new List<string> { $"Error loading project details: {ex.Message}" });
         }
     }
 
@@ -286,24 +289,50 @@ public partial class ConfigurationControl : BaseUserControl
         ConfigurationTextBlock.Text = text;
     }
 
+    private void RefreshDisplay(List<string>? statusMessages = null)
+    {
+        try
+        {
+            var readout = BuildStandardReadout(
+                _currentProject?.ProjectName,
+                statusMessages,
+                _selectedSheets.Count > 0 ? _selectedSheets : null
+            );
+            ConfigurationTextBlock.Text = readout;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error refreshing configuration display: {ex.Message}", ex);
+            // Fallback to a simple display
+            ConfigurationTextBlock.Text = $"Active Project: {_currentProject?.ProjectName ?? "No project selected"}\n" +
+                                         "────────────────────────────────────────────────────────\n\n" +
+                                         "Ready for configuration.\n\n" +
+                                         "────────────────────────────────────────────────────────\n" +
+                                         "Selected Sheets: 0\n" +
+                                         "────────────────────────────────────────────────────────\n" +
+                                         "No sheets selected for processing";
+        }
+    }
+
     private void ShowErrorNotification(string message)
     {
         Logger.LogError(message);
         NotificationService.ShowError("Configuration Error", message);
-        UpdateConfigurationDisplay($"ERROR: {message}");
+        RefreshDisplay(new List<string> { $"ERROR: {message}" });
     }
 
     private void ShowWarningNotification(string message)
     {
         Logger.LogWarning(message);
         NotificationService.ShowWarning("Configuration Warning", message);
-        UpdateConfigurationDisplay($"WARNING: {message}");
+        RefreshDisplay(new List<string> { $"WARNING: {message}" });
     }
 
     private async void ConfigurationControl_Loaded(object sender, RoutedEventArgs e)
     {
         // Only load default project after the control is fully loaded and palette is created
         // This prevents any potential issues during palette initialization
+        RefreshDisplay(); // Initialize standard display format
         await LoadDefaultProjectAsync();
     }
 

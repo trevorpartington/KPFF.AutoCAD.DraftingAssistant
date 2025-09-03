@@ -1,6 +1,8 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Constants;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
+using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using System.Text;
 using System.Windows.Controls;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
@@ -62,5 +64,67 @@ public abstract class BaseUserControl : UserControl
                         "This feature is coming soon. It will provide:\n" +
                         featureDescription + "\n\n" +
                         "Status: Feature in development...";
+    }
+
+    /// <summary>
+    /// Builds a standardized three-section readout display
+    /// </summary>
+    /// <param name="activeProject">Name of the active project, or null if none</param>
+    /// <param name="statusMessages">List of status/information messages to display</param>
+    /// <param name="selectedSheets">List of selected sheets to display</param>
+    /// <param name="additionalInfo">Optional additional information to show in status section</param>
+    /// <returns>Formatted readout string</returns>
+    protected static string BuildStandardReadout(
+        string? activeProject,
+        List<string>? statusMessages = null,
+        List<SheetInfo>? selectedSheets = null,
+        string? additionalInfo = null)
+    {
+        var sb = new StringBuilder();
+
+        // Section 1: Active Project
+        sb.AppendLine($"Active Project: {activeProject ?? "No project selected"}");
+        sb.AppendLine("────────────────────────────────────────────────────────");
+        sb.AppendLine();
+
+        // Section 2: Status Messages
+        if (statusMessages != null && statusMessages.Count > 0)
+        {
+            foreach (var message in statusMessages)
+            {
+                sb.AppendLine(message);
+            }
+        }
+        else if (!string.IsNullOrEmpty(additionalInfo))
+        {
+            sb.AppendLine(additionalInfo);
+        }
+        else
+        {
+            sb.AppendLine("Ready for operations.");
+        }
+
+        sb.AppendLine();
+        
+        // Section 3: Selected Sheets
+        sb.AppendLine("────────────────────────────────────────────────────────");
+        if (selectedSheets != null && selectedSheets.Count > 0)
+        {
+            sb.AppendLine($"Selected Sheets: {selectedSheets.Count}");
+            sb.AppendLine("────────────────────────────────────────────────────────");
+            foreach (var sheet in selectedSheets)
+            {
+                var title = !string.IsNullOrEmpty(sheet.DrawingTitle) ? $" - {sheet.DrawingTitle}" : "";
+                sb.AppendLine($"• {sheet.SheetName}{title}");
+            }
+        }
+        else
+        {
+            sb.AppendLine("Selected Sheets: 0");
+            sb.AppendLine("────────────────────────────────────────────────────────");
+            sb.AppendLine("No sheets selected for processing");
+        }
+
+        return sb.ToString();
     }
 }
