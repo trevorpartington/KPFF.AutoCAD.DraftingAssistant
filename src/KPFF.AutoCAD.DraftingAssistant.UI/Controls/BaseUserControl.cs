@@ -84,7 +84,7 @@ public abstract class BaseUserControl : UserControl
 
         // Section 1: Active Project
         sb.AppendLine($"Active Project: {activeProject ?? "No project selected"}");
-        sb.AppendLine("────────────────────────────────────────────────────────");
+        sb.AppendLine();
         sb.AppendLine();
 
         // Section 2: Status Messages
@@ -105,13 +105,12 @@ public abstract class BaseUserControl : UserControl
         }
 
         sb.AppendLine();
+        sb.AppendLine();
         
         // Section 3: Selected Sheets
-        sb.AppendLine("────────────────────────────────────────────────────────");
         if (selectedSheets != null && selectedSheets.Count > 0)
         {
             sb.AppendLine($"Selected Sheets: {selectedSheets.Count}");
-            sb.AppendLine("────────────────────────────────────────────────────────");
             foreach (var sheet in selectedSheets)
             {
                 var title = !string.IsNullOrEmpty(sheet.DrawingTitle) ? $" - {sheet.DrawingTitle}" : "";
@@ -121,7 +120,6 @@ public abstract class BaseUserControl : UserControl
         else
         {
             sb.AppendLine("Selected Sheets: 0");
-            sb.AppendLine("────────────────────────────────────────────────────────");
             sb.AppendLine("No sheets selected for processing");
         }
 

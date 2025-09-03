@@ -304,13 +304,12 @@ public partial class ConfigurationControl : BaseUserControl
         {
             Logger.LogError($"Error refreshing configuration display: {ex.Message}", ex);
             // Fallback to a simple display
-            ConfigurationTextBlock.Text = $"Active Project: {_currentProject?.ProjectName ?? "No project selected"}\n" +
-                                         "────────────────────────────────────────────────────────\n\n" +
-                                         "Ready for configuration.\n\n" +
-                                         "────────────────────────────────────────────────────────\n" +
-                                         "Selected Sheets: 0\n" +
-                                         "────────────────────────────────────────────────────────\n" +
-                                         "No sheets selected for processing";
+            var fallbackReadout = BuildStandardReadout(
+                _currentProject?.ProjectName,
+                new List<string> { "Ready for configuration." },
+                new List<SheetInfo>()
+            );
+            ConfigurationTextBlock.Text = fallbackReadout;
         }
     }
 

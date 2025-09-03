@@ -613,11 +613,8 @@ public partial class ConstructionNoteControl : BaseUserControl
     {
         var messages = new List<string>();
         
-        var multileaderStyle = config?.ConstructionNotes?.MultileaderStyleName ?? "Not configured";
-        messages.Add($"Multileader Style: {multileaderStyle}");
-        
         // Show sheet selection mode
-        if (ApplyToCurrentSheetCheckBox.IsChecked == true)
+        if (ApplyToCurrentSheetCheckBox?.IsChecked == true)
         {
             var currentLayoutName = GetCurrentLayoutName();
             messages.Add("Mode: Apply to current sheet only");

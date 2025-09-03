@@ -475,8 +475,6 @@ public partial class TitleBlockControl : BaseUserControl
             messages.Add("Mode: Apply to selected sheets");
         }
         
-        messages.Add("Title block data will be read from the SHEET_INDEX table");
-        
         return messages;
     }
 
