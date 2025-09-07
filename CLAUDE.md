@@ -203,6 +203,16 @@ The construction notes system supports all drawing scenarios:
 
 Both Auto Notes and Excel Notes work seamlessly across all three drawing states with proper attribute alignment and viewport protection.
 
+#### Auto Notes Closed Drawing Handling
+Auto Notes detection requires viewport analysis, which is only possible with database access. The system handles closed drawings using the established external database pattern:
+
+1. **External Database**: Creates a new `Database` object using `new Database(false, true)`
+2. **File Loading**: Loads the drawing using `db.ReadDwgFile(path, FileOpenMode.OpenForReadAndAllShare, true, null)`
+3. **Auto Notes Detection**: Uses the database-specific `AutoNotesService.GetAutoNotesForSheetAsync()` overload
+4. **Automatic Cleanup**: Database is disposed automatically when the using block completes
+
+This approach is **faster and cleaner** than opening drawings in the AutoCAD interface, following the same pattern used by `ExternalDrawingManager`, `ModelSpaceCacheService`, and other external drawing operations.
+
 #### Auto Notes Drawing State Handling
 
 **Critical Architectural Pattern**: Auto Notes detection requires access to viewports, which are only available in the active drawing context. The system handles drawing states during the Auto Notes collection phase:

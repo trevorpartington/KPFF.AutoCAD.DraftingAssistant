@@ -1,5 +1,7 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
@@ -435,12 +437,47 @@ public class BatchOperationService : IBatchOperationService
                             break;
 
                         case DrawingState.Closed:
-                            // Closed drawings cannot be processed for Auto Notes (requires viewports analysis)
-                            _logger.LogWarning($"Cannot perform Auto Notes detection on closed drawing: {drawingPath}. Skipping sheets: {string.Join(", ", sheetsInDrawing)}");
-                            foreach (var sheetName in sheetsInDrawing)
+                            // Use external database for Auto Notes detection on closed drawings
+                            _logger.LogDebug($"Processing closed drawing with external database: {drawingPath}");
+                            try
                             {
-                                sheetToNotes[sheetName] = new List<int>();
-                                processedSheets++;
+                                using (var db = new Database(false, true))
+                                {
+                                    db.ReadDwgFile(drawingPath, FileOpenMode.OpenForReadAndAllShare, true, null);
+                                    _logger.LogDebug($"Successfully loaded external database for: {drawingPath}");
+                                    
+                                    foreach (var sheetName in sheetsInDrawing)
+                                    {
+                                        try
+                                        {
+                                            // Create AutoNotesService instance for external database operations
+                                            var autoNotesService = new AutoNotesService(_logger);
+                                            var noteNumbers = await autoNotesService.GetAutoNotesForSheetAsync(sheetName, config, db, drawingPath);
+                                            sheetToNotes[sheetName] = noteNumbers;
+                                            processedSheets++;
+
+                                            // Report progress
+                                            var progress = baseProgress + progressRange * processedSheets / sheetNames.Count;
+                                            progressCallback?.Report(CreateProgress("Construction Notes", BatchOperationType.ConstructionNotes,
+                                                $"Collecting notes for {sheetName}", progress, processedSheets, sheetNames.Count));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            _logger.LogWarning($"Failed to get Auto Notes for closed drawing sheet {sheetName}: {ex.Message}");
+                                            sheetToNotes[sheetName] = new List<int>();
+                                            processedSheets++;
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"Error loading external database for {drawingPath}: {ex.Message}", ex);
+                                foreach (var sheetName in sheetsInDrawing)
+                                {
+                                    sheetToNotes[sheetName] = new List<int>();
+                                    processedSheets++;
+                                }
                             }
                             break;
 
