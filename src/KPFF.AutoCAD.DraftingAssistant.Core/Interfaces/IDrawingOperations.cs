@@ -19,16 +19,17 @@ public interface IDrawingOperations : IDisposable
     /// </summary>
     Task<bool> UpdateConstructionNoteBlockAsync(string sheetName, int blockIndex, int noteNumber, string noteText, ProjectConfiguration config);
 
-    /// <summary>
-    /// Updates multiple construction note blocks for a sheet
-    /// Resets all blocks first, then sets the specified ones
-    /// </summary>
-    Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config);
 
     /// <summary>
     /// Validates that construction note blocks exist for the specified sheet
     /// </summary>
     Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config);
+
+    /// <summary>
+    /// Sets construction notes using a dictionary-based clear-and-fill approach
+    /// Clears all blocks first, then fills with provided note data in sequential order
+    /// </summary>
+    Task<bool> SetConstructionNotesAsync(string sheetName, Dictionary<int, string> noteData, ProjectConfiguration config);
 
     /// <summary>
     /// Resets all construction note blocks for a sheet to invisible/empty state

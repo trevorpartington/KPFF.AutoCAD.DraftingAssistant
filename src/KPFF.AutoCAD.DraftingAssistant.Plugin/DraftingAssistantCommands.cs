@@ -3086,7 +3086,7 @@ public class DraftingAssistantCommands
         public void Dispose() { }
         public Task<List<ConstructionNoteBlock>> GetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(new List<ConstructionNoteBlock>());
         public Task<bool> UpdateConstructionNoteBlockAsync(string sheetName, int blockIndex, int noteNumber, string noteText, ProjectConfiguration config) => Task.FromResult(true);
-        public Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config) => Task.FromResult(true);
+        public Task<bool> SetConstructionNotesAsync(string sheetName, Dictionary<int, string> noteData, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null) => Task.FromResult(true);
         public Task UpdateTitleBlockAsync(string sheetName, TitleBlockMapping mapping, ProjectConfiguration config) => Task.CompletedTask;

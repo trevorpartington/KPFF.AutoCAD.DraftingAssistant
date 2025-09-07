@@ -2,6 +2,9 @@ using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.ApplicationServices.Core;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
+using AcadException = Autodesk.AutoCAD.Runtime.Exception;
+using SystemException = System.Exception;
+using Autodesk.AutoCAD.Runtime;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using System.Text.RegularExpressions;
@@ -93,7 +96,7 @@ public class CurrentDrawingBlockManager
                 var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager?.MdiActiveDocument;
                 return (doc?.Database, doc);
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 _logger.LogError($"Failed to access current drawing: {ex.Message}", ex);
                 return (null, null);
@@ -132,7 +135,7 @@ public class CurrentDrawingBlockManager
             _logger.LogDebug($"CurrentDrawingBlockManager initialized successfully ({(_useExternalDatabase ? "external" : "current")})");
             return true;
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to initialize CurrentDrawingBlockManager: {ex.Message}", ex);
             return false;
@@ -212,7 +215,7 @@ public class CurrentDrawingBlockManager
 
                     _logger.LogInformation($"Found {blocks.Count} NT construction note blocks in layout '{layoutName}'");
                 }
-                catch (Exception ex)
+                catch (SystemException ex)
                 {
                     _logger.LogError($"Error reading blocks from layout: {ex.Message}", ex);
                 }
@@ -223,7 +226,7 @@ public class CurrentDrawingBlockManager
                 }
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to get construction note blocks: {ex.Message}", ex);
         }
@@ -251,7 +254,7 @@ public class CurrentDrawingBlockManager
                 return btr.Name;
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogWarning($"Could not get effective block name: {ex.Message}");
             return string.Empty;
@@ -288,9 +291,14 @@ public class CurrentDrawingBlockManager
             var attributes = ReadBlockAttributes(blockRef, tr);
             if (attributes.ContainsKey("NUMBER"))
             {
-                if (int.TryParse(attributes["NUMBER"], out int noteNumber))
+                string numberText = attributes["NUMBER"];
+                if (!string.IsNullOrEmpty(numberText) && int.TryParse(numberText, out int noteNumber))
                 {
                     noteBlock.Number = noteNumber;
+                }
+                else
+                {
+                    noteBlock.Number = 0; // Keep 0 only for truly empty, not default
                 }
             }
             if (attributes.ContainsKey("NOTE"))
@@ -308,7 +316,7 @@ public class CurrentDrawingBlockManager
 
             return noteBlock;
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to read construction note block {blockName}: {ex.Message}", ex);
             return null;
@@ -329,17 +337,19 @@ public class CurrentDrawingBlockManager
             
             foreach (ObjectId attId in attCol)
             {
-                AttributeReference attRef = tr.GetObject(attId, OpenMode.ForRead) as AttributeReference;
-                if (attRef != null)
+                using (AttributeReference attRef = tr.GetObject(attId, OpenMode.ForRead) as AttributeReference)
                 {
-                    string tag = attRef.Tag.ToUpper();
-                    string value = attRef.TextString;
-                    attributes[tag] = value;
-                    _logger.LogDebug($"  Attribute: {tag} = '{value}'");
+                    if (attRef != null)
+                    {
+                        string tag = attRef.Tag.ToUpper();
+                        string value = attRef.TextString;
+                        attributes[tag] = value;
+                        _logger.LogDebug($"  Attribute: {tag} = '{value}'");
+                    }
                 }
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to read block attributes: {ex.Message}", ex);
         }
@@ -372,7 +382,7 @@ public class CurrentDrawingBlockManager
                 }
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogWarning($"Could not read dynamic block visibility: {ex.Message}");
         }
@@ -423,7 +433,7 @@ public class CurrentDrawingBlockManager
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (SystemException ex)
                 {
                     _logger.LogError($"Error scanning layouts: {ex.Message}", ex);
                 }
@@ -435,7 +445,7 @@ public class CurrentDrawingBlockManager
 
             _logger.LogInformation($"Found NT construction note blocks in {allBlocks.Count} layouts");
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to get all construction note blocks: {ex.Message}", ex);
         }
@@ -498,13 +508,15 @@ public class CurrentDrawingBlockManager
                                 AttributeCollection attCol = writeBlockRef.AttributeCollection;
                                 foreach (ObjectId attId in attCol)
                                 {
-                                    AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                                    if (attRef != null)
+                                    using (AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
                                     {
-                                        string tag = attRef.Tag.ToUpper();
-                                        if (tag == "NUMBER" || tag == "NOTE")
+                                        if (attRef != null)
                                         {
-                                            attRef.TextString = "";
+                                            string tag = attRef.Tag.ToUpper();
+                                            if (tag == "NUMBER" || tag == "NOTE")
+                                            {
+                                                attRef.TextString = "";
+                                            }
                                         }
                                     }
                                 }
@@ -525,7 +537,7 @@ public class CurrentDrawingBlockManager
                                                 _logger.LogDebug($"Cleared block {currentBlockName}");
                                                 break;
                                             }
-                                            catch (Exception ex)
+                                            catch (SystemException ex)
                                             {
                                                 _logger.LogWarning($"Could not set visibility for {currentBlockName}: {ex.Message}");
                                             }
@@ -539,13 +551,13 @@ public class CurrentDrawingBlockManager
                     tr.Commit();
                     _logger.LogInformation($"Successfully cleared {clearedCount} construction note blocks in layout {layoutName}");
                 }
-                catch (Exception ex)
+                catch (SystemException ex)
                 {
                     _logger.LogError($"Error clearing blocks: {ex.Message}", ex);
                 }
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to clear construction note blocks: {ex.Message}", ex);
         }
@@ -733,7 +745,7 @@ public class CurrentDrawingBlockManager
                         return false;
                     }
                 }
-                    catch (Exception ex)
+                    catch (SystemException ex)
                     {
                         _logger.LogError($"Error updating block: {ex.Message}", ex);
                         return false;
@@ -746,7 +758,7 @@ public class CurrentDrawingBlockManager
                 documentLock?.Dispose();
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to update construction note block: {ex.Message}", ex);
             return false;
@@ -768,8 +780,9 @@ public class CurrentDrawingBlockManager
             
             foreach (ObjectId attId in attCol)
             {
-                AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                if (attRef != null)
+                using (AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
+                {
+                    if (attRef != null)
                 {
                     string tag = attRef.Tag.ToUpper();
                     
@@ -839,6 +852,7 @@ public class CurrentDrawingBlockManager
                         noteUpdated = true;
                     }
                 }
+                }
             }
 
             // Record graphics modification after attribute updates
@@ -859,7 +873,7 @@ public class CurrentDrawingBlockManager
 
             return numberUpdated && noteUpdated;
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to update block attributes: {ex.Message}", ex);
             return false;
@@ -966,7 +980,7 @@ public class CurrentDrawingBlockManager
                 _logger.LogWarning("No visibility property found in dynamic block");
                 return false;
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 _logger.LogWarning($"Exception updating dynamic block visibility (attempt {attempt + 1}): {ex.Message}");
                 if (attempt == maxRetries - 1)
@@ -1008,7 +1022,7 @@ public class CurrentDrawingBlockManager
                 }
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Could not enumerate available layouts: {ex.Message}", ex);
         }
@@ -1083,10 +1097,12 @@ public class CurrentDrawingBlockManager
                                 AttributeCollection attCol = blockRef.AttributeCollection;
                                 foreach (ObjectId attId in attCol)
                                 {
-                                    AttributeReference attRef = tr.GetObject(attId, OpenMode.ForRead) as AttributeReference;
-                                    if (attRef != null)
+                                    using (AttributeReference attRef = tr.GetObject(attId, OpenMode.ForRead) as AttributeReference)
                                     {
-                                        attributes[attRef.Tag] = attRef.TextString ?? "";
+                                        if (attRef != null)
+                                        {
+                                            attributes[attRef.Tag] = attRef.TextString ?? "";
+                                        }
                                     }
                                 }
 
@@ -1113,7 +1129,7 @@ public class CurrentDrawingBlockManager
                 documentLock?.Dispose();
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to get title blocks for layout {layoutName}: {ex.Message}", ex);
         }
@@ -1201,38 +1217,40 @@ public class CurrentDrawingBlockManager
                     
                     foreach (ObjectId attId in attCol)
                     {
-                        AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                        if (attRef != null && attRef.Tag.Equals(attributeName, StringComparison.OrdinalIgnoreCase))
+                        using (AttributeReference attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
                         {
-                            string currentValue = attRef.TextString ?? "";
-                            if (currentValue != attributeValue)
+                            if (attRef != null && attRef.Tag.Equals(attributeName, StringComparison.OrdinalIgnoreCase))
                             {
-                                attRef.TextString = attributeValue ?? "";
-                                
-                                // Handle alignment for external databases
-                                if (_useExternalDatabase)
+                                string currentValue = attRef.TextString ?? "";
+                                if (currentValue != attributeValue)
                                 {
-                                    var originalWdb = HostApplicationServices.WorkingDatabase;
-                                    try
+                                    attRef.TextString = attributeValue ?? "";
+                                    
+                                    // Handle alignment for external databases
+                                    if (_useExternalDatabase)
                                     {
-                                        HostApplicationServices.WorkingDatabase = attRef.Database;
+                                        var originalWdb = HostApplicationServices.WorkingDatabase;
+                                        try
+                                        {
+                                            HostApplicationServices.WorkingDatabase = attRef.Database;
+                                            attRef.AdjustAlignment(attRef.Database);
+                                        }
+                                        finally
+                                        {
+                                            HostApplicationServices.WorkingDatabase = originalWdb;
+                                        }
+                                    }
+                                    else
+                                    {
                                         attRef.AdjustAlignment(attRef.Database);
                                     }
-                                    finally
-                                    {
-                                        HostApplicationServices.WorkingDatabase = originalWdb;
-                                    }
+                                    
+                                    targetBlockRef.RecordGraphicsModified(true);
+                                    attributeUpdated = true;
+                                    _logger.LogDebug($"Updated attribute '{attributeName}' = '{attributeValue}'");
                                 }
-                                else
-                                {
-                                    attRef.AdjustAlignment(attRef.Database);
-                                }
-                                
-                                targetBlockRef.RecordGraphicsModified(true);
-                                attributeUpdated = true;
-                                _logger.LogDebug($"Updated attribute '{attributeName}' = '{attributeValue}'");
+                                break;
                             }
-                            break;
                         }
                     }
 
@@ -1250,7 +1268,7 @@ public class CurrentDrawingBlockManager
                 documentLock?.Dispose();
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to update title block attribute: {ex.Message}", ex);
             return false;
@@ -1288,12 +1306,246 @@ public class CurrentDrawingBlockManager
                 _logger.LogWarning($"No title blocks found matching pattern '{titleBlockPattern}' in layout {layoutName}");
             }
         }
-        catch (Exception ex)
+        catch (SystemException ex)
         {
             _logger.LogError($"Failed to get title block attributes for layout {layoutName}: {ex.Message}", ex);
         }
 
         return attributes;
+    }
+
+    /// <summary>
+    /// Optimized batch update method that discovers and updates construction note blocks in a single operation.
+    /// Eliminates transaction conflicts and memory leaks by doing everything in one transaction.
+    /// </summary>
+    /// <param name="layoutName">Name of the layout containing the blocks</param>
+    /// <param name="blockUpdates">Dictionary of block name to update parameters</param>
+    /// <returns>Tuple of (success, discovered block names) for validation</returns>
+    public (bool success, List<string> discoveredBlocks) UpdateConstructionNoteBlocksBatchWithDiscovery(string layoutName, Dictionary<string, (int noteNumber, string noteText, bool makeVisible)> blockUpdates)
+    {
+        if (blockUpdates == null || blockUpdates.Count == 0)
+        {
+            _logger.LogWarning("No block updates provided for batch operation");
+            return (true, new List<string>());
+        }
+
+        _logger.LogInformation($"=== BATCH UpdateConstructionNoteBlocks ENTRY ====");
+        _logger.LogInformation($"Layout: {layoutName}");
+        _logger.LogInformation($"Blocks to update: {blockUpdates.Count} ({string.Join(", ", blockUpdates.Keys)})");
+
+        var document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+        var database = document.Database;
+
+        _logger.LogDebug($"Database filename: {database.Filename}");
+
+        int successCount = 0;
+        int totalBlocks = blockUpdates.Count;
+
+        // Lock document before starting transaction (like other methods in this file do)
+        using (var documentLock = document.LockDocument())
+        using (var transaction = database.TransactionManager.StartTransaction())
+        {
+            try
+            {
+                _logger.LogDebug("Starting single transaction for batch block update...");
+
+                // STEP 1: Get layout and validate it exists
+                var layoutDict = transaction.GetObject(database.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
+                
+                if (!layoutDict.Contains(layoutName))
+                {
+                    _logger.LogError($"Layout '{layoutName}' not found in drawing");
+                    return (false, new List<string>());
+                }
+
+                var layoutId = layoutDict.GetAt(layoutName);
+                var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
+                var layoutBtr = transaction.GetObject(layout.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord;
+
+                _logger.LogDebug($"Layout BTR contains {layoutBtr.Cast<ObjectId>().Count()} entities");
+
+                // STEP 2: Find ALL target blocks in ONE scan and cache their ObjectIds
+                _logger.LogDebug($"Scanning layout once to find all target blocks...");
+                var blockCache = new Dictionary<string, ObjectId>();
+                int blocksScanned = 0;
+
+                foreach (ObjectId objId in layoutBtr)
+                {
+                    blocksScanned++;
+                    var entity = transaction.GetObject(objId, OpenMode.ForRead) as Entity;
+                    
+                    if (entity is BlockReference blockRef)
+                    {
+                        string currentBlockName = GetEffectiveBlockName(blockRef, transaction);
+                        
+                        // Check if this is one of our target blocks
+                        if (blockUpdates.ContainsKey(currentBlockName))
+                        {
+                            blockCache[currentBlockName] = objId;
+                            _logger.LogDebug($"Cached block '{currentBlockName}' with ObjectId {objId.Handle.Value}");
+                        }
+                    }
+                }
+
+                _logger.LogInformation($"Single scan completed: found {blockCache.Count} target blocks out of {blocksScanned} entities scanned");
+
+                // STEP 3: Update all cached blocks in batch
+                foreach (var (blockName, updateParams) in blockUpdates)
+                {
+                    if (!blockCache.TryGetValue(blockName, out var blockId))
+                    {
+                        _logger.LogWarning($"Block '{blockName}' not found in layout - skipping");
+                        continue;
+                    }
+
+                    try
+                    {
+                        _logger.LogDebug($"Batch updating block '{blockName}' (note={updateParams.noteNumber}, visible={updateParams.makeVisible})...");
+                        
+                        try
+                        {
+                            // Open block directly for write - no upgrade needed
+                            using (var blockRef = transaction.GetObject(blockId, OpenMode.ForWrite) as BlockReference)
+                            {
+                                if (blockRef == null)
+                                {
+                                    _logger.LogWarning($"Could not open block '{blockName}' for write");
+                                    continue;
+                                }
+
+                                // Update attributes
+                                bool attributesUpdated = UpdateBlockAttributesBatch(blockRef, updateParams.noteNumber, updateParams.noteText, transaction);
+                                
+                                // Update visibility
+                                bool visibilityUpdated = UpdateBlockVisibilityBatch(blockRef, updateParams.makeVisible, transaction);
+
+                                if (attributesUpdated && visibilityUpdated)
+                                {
+                                    successCount++;
+                                    _logger.LogDebug($"✓ Successfully batch updated block '{blockName}'");
+                                }
+                                else
+                                {
+                                    _logger.LogWarning($"✗ Partial failure updating block '{blockName}' (attributes={attributesUpdated}, visibility={visibilityUpdated})");
+                                }
+                            }
+                        }
+                        catch (AcadException acEx) when (acEx.Message.Contains("eLockViolation") || acEx.Message.Contains("lock violation"))
+                        {
+                            _logger.LogError($"Lock violation opening block '{blockName}' for write - may be locked by another operation");
+                            // Continue with other blocks instead of failing entire operation
+                        }
+                    }
+                    catch (SystemException blockEx)
+                    {
+                        _logger.LogError($"Error updating block '{blockName}': {blockEx.Message}");
+                    }
+                }
+
+                // STEP 4: Commit all changes at once
+                _logger.LogDebug("Committing batch transaction...");
+                transaction.Commit();
+                
+                _logger.LogInformation($"=== BATCH UPDATE COMPLETE ===");
+                _logger.LogInformation($"Successfully updated {successCount} of {totalBlocks} blocks in layout '{layoutName}'");
+                _logger.LogInformation($"Performance: {blocksScanned} entities scanned ONCE vs {totalBlocks} individual searches avoided");
+
+                return (successCount == totalBlocks, blockCache.Keys.ToList());
+            }
+            catch (SystemException ex)
+            {
+                _logger.LogError($"Exception during batch block update: {ex.Message}", ex);
+                transaction.Abort();
+                return (false, new List<string>());
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Updates block attributes in batch mode (helper method)
+    /// </summary>
+    private bool UpdateBlockAttributesBatch(BlockReference blockRef, int noteNumber, string noteText, Transaction transaction)
+    {
+        try
+        {
+            bool attributesUpdated = false;
+
+            // Handle attribute references (for regular blocks)
+            foreach (ObjectId attRefId in blockRef.AttributeCollection)
+            {
+                using (var attRef = transaction.GetObject(attRefId, OpenMode.ForWrite) as AttributeReference)
+                {
+                    if (attRef == null) continue;
+
+                    string tag = attRef.Tag?.ToUpperInvariant() ?? "";
+                    
+                    if (tag == "NUMBER")
+                    {
+                        // Use empty string for note numbers <= 0 (empty/reset blocks)
+                        attRef.TextString = noteNumber <= 0 ? "" : noteNumber.ToString();
+                        attributesUpdated = true;
+                    }
+                    else if (tag == "NOTE")
+                    {
+                        attRef.TextString = noteText ?? "";
+                        attributesUpdated = true;
+                    }
+                }
+            }
+
+            return attributesUpdated;
+        }
+        catch (SystemException ex)
+        {
+            _logger.LogDebug($"Error updating attributes in batch: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates block visibility in batch mode (helper method)
+    /// </summary>
+    private bool UpdateBlockVisibilityBatch(BlockReference blockRef, bool makeVisible, Transaction transaction)
+    {
+        try
+        {
+            if (blockRef.IsDynamicBlock)
+            {
+                var dynamicProps = blockRef.DynamicBlockReferencePropertyCollection;
+                
+                foreach (DynamicBlockReferenceProperty prop in dynamicProps)
+                {
+                    if (string.Equals(prop.PropertyName, "Visibility", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string newVisibilityState = makeVisible ? "ON" : "OFF";
+                        
+                        // Check if the visibility state is available
+                        if (prop.GetAllowedValues().Cast<object>().Any(val => 
+                            string.Equals(val?.ToString(), newVisibilityState, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            prop.Value = newVisibilityState;
+                            _logger.LogDebug($"Set batch visibility to: {newVisibilityState}");
+                            return true;
+                        }
+                        else
+                        {
+                            _logger.LogDebug($"Visibility state '{newVisibilityState}' not available for block");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // For non-dynamic blocks or if no visibility property found, use layer visibility
+            // (This could be extended based on your needs)
+            return true;
+        }
+        catch (SystemException ex)
+        {
+            _logger.LogDebug($"Error updating visibility in batch: {ex.Message}");
+            return false;
+        }
     }
 
     #endregion
