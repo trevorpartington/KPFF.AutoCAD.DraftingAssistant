@@ -642,13 +642,15 @@ public class ExternalDrawingManager
             var attCol = blockRef.AttributeCollection;
             foreach (ObjectId attId in attCol)
             {
-                var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                if (attRef != null)
+                using (var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
                 {
-                    string tag = attRef.Tag.ToUpper();
-                    if (tag == "NUMBER" || tag == "NOTE")
+                    if (attRef != null)
                     {
-                        attRef.TextString = "";
+                        string tag = attRef.Tag.ToUpper();
+                        if (tag == "NUMBER" || tag == "NOTE")
+                        {
+                            attRef.TextString = "";
+                        }
                     }
                 }
             }
@@ -672,64 +674,66 @@ public class ExternalDrawingManager
             
             foreach (ObjectId attId in attCol)
             {
-                var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                if (attRef != null)
+                using (var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
                 {
-                    string tag = attRef.Tag.ToUpper();
-                    
-                    if (tag == "NUMBER")
+                    if (attRef != null)
                     {
-                        string newValue = noteNumber > 0 ? noteNumber.ToString() : "";
-                        string currentValue = attRef.TextString ?? "";
-                        if (currentValue != newValue)
+                        string tag = attRef.Tag.ToUpper();
+                        
+                        if (tag == "NUMBER")
                         {
-                            attRef.Justify = AttachmentPoint.MiddleCenter;
-                            attRef.TextString = newValue;
-                            
-                            // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
-                            var originalWdb = HostApplicationServices.WorkingDatabase;
-                            try
+                            string newValue = noteNumber > 0 ? noteNumber.ToString() : "";
+                            string currentValue = attRef.TextString ?? "";
+                            if (currentValue != newValue)
                             {
-                                _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NUMBER attribute alignment");
-                                HostApplicationServices.WorkingDatabase = db;
-                                attRef.AdjustAlignment(db);
-                                _logger.LogDebug($"Successfully adjusted NUMBER attribute alignment");
+                                attRef.Justify = AttachmentPoint.MiddleCenter;
+                                attRef.TextString = newValue;
+                                
+                                // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
+                                var originalWdb = HostApplicationServices.WorkingDatabase;
+                                try
+                                {
+                                    _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NUMBER attribute alignment");
+                                    HostApplicationServices.WorkingDatabase = db;
+                                    attRef.AdjustAlignment(db);
+                                    _logger.LogDebug($"Successfully adjusted NUMBER attribute alignment");
+                                }
+                                finally
+                                {
+                                    HostApplicationServices.WorkingDatabase = originalWdb;
+                                    _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
+                                }
+                                
+                                wasModified = true;
+                                _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with minimal-scope WorkingDatabase alignment");
                             }
-                            finally
-                            {
-                                HostApplicationServices.WorkingDatabase = originalWdb;
-                                _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
-                            }
-                            
-                            wasModified = true;
-                            _logger.LogDebug($"Updated NUMBER attribute: '{newValue}' with minimal-scope WorkingDatabase alignment");
                         }
-                    }
-                    else if (tag == "NOTE")
-                    {
-                        string newValue = noteText ?? "";
-                        string currentValue = attRef.TextString ?? "";
-                        if (currentValue != newValue)
+                        else if (tag == "NOTE")
                         {
-                            attRef.TextString = newValue;
-                            
-                            // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
-                            var originalWdb = HostApplicationServices.WorkingDatabase;
-                            try
+                            string newValue = noteText ?? "";
+                            string currentValue = attRef.TextString ?? "";
+                            if (currentValue != newValue)
                             {
-                                _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NOTE attribute alignment");
-                                HostApplicationServices.WorkingDatabase = db;
-                                attRef.AdjustAlignment(db);
-                                _logger.LogDebug($"Successfully adjusted NOTE attribute alignment");
+                                attRef.TextString = newValue;
+                                
+                                // CRITICAL: Minimal WorkingDatabase switch ONLY for AdjustAlignment
+                                var originalWdb = HostApplicationServices.WorkingDatabase;
+                                try
+                                {
+                                    _logger.LogDebug($"Switching WorkingDatabase from {originalWdb?.Filename ?? "null"} to {db.Filename ?? "external"} for NOTE attribute alignment");
+                                    HostApplicationServices.WorkingDatabase = db;
+                                    attRef.AdjustAlignment(db);
+                                    _logger.LogDebug($"Successfully adjusted NOTE attribute alignment");
+                                }
+                                finally
+                                {
+                                    HostApplicationServices.WorkingDatabase = originalWdb;
+                                    _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
+                                }
+                                
+                                wasModified = true;
+                                _logger.LogDebug($"Updated NOTE attribute with minimal-scope WorkingDatabase alignment");
                             }
-                            finally
-                            {
-                                HostApplicationServices.WorkingDatabase = originalWdb;
-                                _logger.LogDebug($"Restored WorkingDatabase to {originalWdb?.Filename ?? "null"}");
-                            }
-                            
-                            wasModified = true;
-                            _logger.LogDebug($"Updated NOTE attribute with minimal-scope WorkingDatabase alignment");
                         }
                     }
                 }
@@ -979,65 +983,67 @@ public class ExternalDrawingManager
 
                 foreach (ObjectId attId in attCol)
                 {
-                    var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference;
-                    if (attRef != null)
+                    using (var attRef = tr.GetObject(attId, OpenMode.ForWrite) as AttributeReference)
                     {
-                        string tag = attRef.Tag.ToUpper();
-                        
-                        // Check if this attribute matches any of our candidate names
-                        if (candidateNames.Any(candidate => candidate.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+                        if (attRef != null)
                         {
-                            string currentValue = attRef.TextString ?? "";
-                            if (currentValue != attrData.AttributeValue)
+                            string tag = attRef.Tag.ToUpper();
+                            
+                            // Check if this attribute matches any of our candidate names
+                            if (candidateNames.Any(candidate => candidate.Equals(tag, StringComparison.OrdinalIgnoreCase)))
                             {
-                                // Store original position and justification to preserve placement
-                                var originalJustify = attRef.Justify;
-                                var originalPosition = attRef.Position;
-                                var originalAlignmentPoint = attRef.AlignmentPoint;
-                                
-                                // Update the text
-                                attRef.TextString = attrData.AttributeValue;
-                                
-                                // CRITICAL: Restore the justify property BEFORE adjusting alignment
-                                attRef.Justify = originalJustify;
-                                
-                                // Restore position based on justification type
-                                if (originalJustify == AttachmentPoint.BaseLeft || 
-                                    originalJustify == AttachmentPoint.BaseAlign || 
-                                    originalJustify == AttachmentPoint.BaseFit)
+                                string currentValue = attRef.TextString ?? "";
+                                if (currentValue != attrData.AttributeValue)
                                 {
-                                    // Left-justified attributes use Position
-                                    attRef.Position = originalPosition;
+                                    // Store original position and justification to preserve placement
+                                    var originalJustify = attRef.Justify;
+                                    var originalPosition = attRef.Position;
+                                    var originalAlignmentPoint = attRef.AlignmentPoint;
+                                    
+                                    // Update the text
+                                    attRef.TextString = attrData.AttributeValue;
+                                    
+                                    // CRITICAL: Restore the justify property BEFORE adjusting alignment
+                                    attRef.Justify = originalJustify;
+                                    
+                                    // Restore position based on justification type
+                                    if (originalJustify == AttachmentPoint.BaseLeft || 
+                                        originalJustify == AttachmentPoint.BaseAlign || 
+                                        originalJustify == AttachmentPoint.BaseFit)
+                                    {
+                                        // Left-justified attributes use Position
+                                        attRef.Position = originalPosition;
+                                    }
+                                    else
+                                    {
+                                        // All other justifications use AlignmentPoint
+                                        attRef.AlignmentPoint = originalAlignmentPoint;
+                                    }
+                                    
+                                    // Apply proper attribute alignment with database context
+                                    var originalWdb = HostApplicationServices.WorkingDatabase;
+                                    try
+                                    {
+                                        _logger.LogDebug($"Switching WorkingDatabase for {attrData.AttributeName} attribute alignment (justify: {originalJustify})");
+                                        HostApplicationServices.WorkingDatabase = db;
+                                        attRef.AdjustAlignment(db);
+                                    }
+                                    finally
+                                    {
+                                        HostApplicationServices.WorkingDatabase = originalWdb;
+                                    }
+                                    
+                                    wasModified = true;
+                                    foundMatch = true;
+                                    _logger.LogDebug($"Updated title block attribute '{tag}' = '{attrData.AttributeValue}'");
+                                    break; // Found and updated this attribute, move to next
                                 }
                                 else
                                 {
-                                    // All other justifications use AlignmentPoint
-                                    attRef.AlignmentPoint = originalAlignmentPoint;
+                                    foundMatch = true;
+                                    _logger.LogDebug($"Title block attribute '{tag}' already has value '{attrData.AttributeValue}'");
+                                    break;
                                 }
-                                
-                                // Apply proper attribute alignment with database context
-                                var originalWdb = HostApplicationServices.WorkingDatabase;
-                                try
-                                {
-                                    _logger.LogDebug($"Switching WorkingDatabase for {attrData.AttributeName} attribute alignment (justify: {originalJustify})");
-                                    HostApplicationServices.WorkingDatabase = db;
-                                    attRef.AdjustAlignment(db);
-                                }
-                                finally
-                                {
-                                    HostApplicationServices.WorkingDatabase = originalWdb;
-                                }
-                                
-                                wasModified = true;
-                                foundMatch = true;
-                                _logger.LogDebug($"Updated title block attribute '{tag}' = '{attrData.AttributeValue}'");
-                                break; // Found and updated this attribute, move to next
-                            }
-                            else
-                            {
-                                foundMatch = true;
-                                _logger.LogDebug($"Title block attribute '{tag}' already has value '{attrData.AttributeValue}'");
-                                break;
                             }
                         }
                     }

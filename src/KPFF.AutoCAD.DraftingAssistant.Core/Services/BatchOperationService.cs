@@ -1,5 +1,7 @@
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 
 namespace KPFF.AutoCAD.DraftingAssistant.Core.Services;
 
@@ -315,38 +317,251 @@ public class BatchOperationService : IBatchOperationService
         var processedSheets = 0;
 
         // Get note numbers for each sheet
-        foreach (var sheetName in sheetNames)
+        // For Auto Notes mode, we need to handle drawing states during collection
+        if (batchSettings.IsAutoNotesMode)
         {
-            try
+            processedSheets = await CollectAutoNotesAcrossDrawings(sheetNames, config, sheetInfos, sheetToNotes, progressCallback, baseProgress, progressRange / 2);
+        }
+        else
+        {
+            // Excel Notes mode doesn't require active drawings
+            foreach (var sheetName in sheetNames)
             {
-                List<int> noteNumbers;
-                if (batchSettings.IsAutoNotesMode)
+                try
                 {
-                    noteNumbers = await _constructionNotesService.GetAutoNotesForSheetAsync(sheetName, config);
+                    var noteNumbers = await _constructionNotesService.GetExcelNotesForSheetAsync(sheetName, config);
+                    sheetToNotes[sheetName] = noteNumbers;
+                    processedSheets++;
+
+                    // Progress for note collection phase
+                    var progress = baseProgress + (progressRange / 2) * processedSheets / sheetNames.Count;
+                    progressCallback?.Report(CreateProgress("Construction Notes", BatchOperationType.ConstructionNotes, 
+                        $"Collecting notes for {sheetName}", progress, processedSheets, sheetNames.Count));
                 }
-                else
+                catch (Exception ex)
                 {
-                    noteNumbers = await _constructionNotesService.GetExcelNotesForSheetAsync(sheetName, config);
+                    _logger.LogWarning($"Failed to get notes for sheet {sheetName}: {ex.Message}");
+                    sheetToNotes[sheetName] = new List<int>(); // Continue with empty notes
                 }
-
-                sheetToNotes[sheetName] = noteNumbers;
-                processedSheets++;
-
-                // Progress for note collection phase
-                var progress = baseProgress + (progressRange / 2) * processedSheets / sheetNames.Count;
-                progressCallback?.Report(CreateProgress("Construction Notes", BatchOperationType.ConstructionNotes, 
-                    $"Collecting notes for {sheetName}", progress, processedSheets, sheetNames.Count));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning($"Failed to get notes for sheet {sheetName}: {ex.Message}");
-                sheetToNotes[sheetName] = new List<int>(); // Continue with empty notes
             }
         }
 
         // Update construction notes using multi-drawing service
         return await _multiDrawingConstructionNotesService.UpdateConstructionNotesAcrossDrawingsAsync(
             sheetToNotes, config, sheetInfos);
+    }
+
+    /// <summary>
+    /// Collects Auto Notes across multiple drawings, handling drawing states correctly.
+    /// For inactive drawings, makes them active temporarily during Auto Notes detection.
+    /// </summary>
+    private async Task<int> CollectAutoNotesAcrossDrawings(
+        List<string> sheetNames,
+        ProjectConfiguration config,
+        List<SheetInfo> sheetInfos,
+        Dictionary<string, List<int>> sheetToNotes,
+        IProgress<BatchOperationProgress>? progressCallback,
+        int baseProgress,
+        int progressRange)
+    {
+        var processedSheets = 0;
+        
+        try
+        {
+            // Remember the originally active drawing so we can restore it
+            var originalActiveDoc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            var originalActivePath = originalActiveDoc?.Name;
+            
+            _logger.LogDebug($"Starting Auto Notes collection for {sheetNames.Count} sheets. Original active drawing: {originalActivePath}");
+
+            // Group sheets by their drawing file paths
+            var sheetsByDrawing = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var sheetInfoDict = sheetInfos.ToDictionary(s => s.SheetName, StringComparer.OrdinalIgnoreCase);
+            
+            foreach (var sheetName in sheetNames)
+            {
+                var drawingPath = _drawingAccessService.GetDrawingFilePath(sheetName, config, sheetInfos);
+                if (!string.IsNullOrEmpty(drawingPath))
+                {
+                    if (!sheetsByDrawing.ContainsKey(drawingPath))
+                    {
+                        sheetsByDrawing[drawingPath] = new List<string>();
+                    }
+                    sheetsByDrawing[drawingPath].Add(sheetName);
+                }
+                else
+                {
+                    _logger.LogWarning($"Could not resolve drawing path for sheet {sheetName}");
+                    sheetToNotes[sheetName] = new List<int>();
+                    processedSheets++;
+                }
+            }
+
+            // Process each drawing group
+            foreach (var (drawingPath, sheetsInDrawing) in sheetsByDrawing)
+            {
+                try
+                {
+                    var drawingState = _drawingAccessService.GetDrawingState(drawingPath);
+                    _logger.LogDebug($"Processing {sheetsInDrawing.Count} sheets in drawing '{drawingPath}' (state: {drawingState})");
+
+                    switch (drawingState)
+                    {
+                        case DrawingState.Active:
+                            // Drawing is already active, process sheets normally
+                            foreach (var sheetName in sheetsInDrawing)
+                            {
+                                processedSheets = await CollectAutoNotesForActiveSheet(sheetName, config, sheetToNotes, progressCallback, baseProgress, progressRange, sheetNames.Count, processedSheets);
+                            }
+                            break;
+
+                        case DrawingState.Inactive:
+                            // Make drawing active temporarily
+                            if (_drawingAccessService.TryMakeDrawingActive(drawingPath))
+                            {
+                                _logger.LogDebug($"Successfully made drawing active: {drawingPath}");
+                                foreach (var sheetName in sheetsInDrawing)
+                                {
+                                    processedSheets = await CollectAutoNotesForActiveSheet(sheetName, config, sheetToNotes, progressCallback, baseProgress, progressRange, sheetNames.Count, processedSheets);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"Could not make drawing active: {drawingPath}. Skipping Auto Notes detection for sheets: {string.Join(", ", sheetsInDrawing)}");
+                                foreach (var sheetName in sheetsInDrawing)
+                                {
+                                    sheetToNotes[sheetName] = new List<int>();
+                                    processedSheets++;
+                                }
+                            }
+                            break;
+
+                        case DrawingState.Closed:
+                            // Use external database for Auto Notes detection on closed drawings
+                            _logger.LogDebug($"Processing closed drawing with external database: {drawingPath}");
+                            try
+                            {
+                                using (var db = new Database(false, true))
+                                {
+                                    db.ReadDwgFile(drawingPath, FileOpenMode.OpenForReadAndAllShare, true, null);
+                                    _logger.LogDebug($"Successfully loaded external database for: {drawingPath}");
+                                    
+                                    foreach (var sheetName in sheetsInDrawing)
+                                    {
+                                        try
+                                        {
+                                            // Create AutoNotesService instance for external database operations
+                                            var autoNotesService = new AutoNotesService(_logger);
+                                            var noteNumbers = await autoNotesService.GetAutoNotesForSheetAsync(sheetName, config, db, drawingPath);
+                                            sheetToNotes[sheetName] = noteNumbers;
+                                            processedSheets++;
+
+                                            // Report progress
+                                            var progress = baseProgress + progressRange * processedSheets / sheetNames.Count;
+                                            progressCallback?.Report(CreateProgress("Construction Notes", BatchOperationType.ConstructionNotes,
+                                                $"Collecting notes for {sheetName}", progress, processedSheets, sheetNames.Count));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            _logger.LogWarning($"Failed to get Auto Notes for closed drawing sheet {sheetName}: {ex.Message}");
+                                            sheetToNotes[sheetName] = new List<int>();
+                                            processedSheets++;
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"Error loading external database for {drawingPath}: {ex.Message}", ex);
+                                foreach (var sheetName in sheetsInDrawing)
+                                {
+                                    sheetToNotes[sheetName] = new List<int>();
+                                    processedSheets++;
+                                }
+                            }
+                            break;
+
+                        default:
+                            _logger.LogError($"Cannot process drawing in state {drawingState}: {drawingPath}");
+                            foreach (var sheetName in sheetsInDrawing)
+                            {
+                                sheetToNotes[sheetName] = new List<int>();
+                                processedSheets++;
+                            }
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error processing drawing {drawingPath}: {ex.Message}", ex);
+                    foreach (var sheetName in sheetsInDrawing)
+                    {
+                        sheetToNotes[sheetName] = new List<int>();
+                        processedSheets++;
+                    }
+                }
+            }
+
+            // Try to restore the original active drawing if it's different from current
+            if (!string.IsNullOrEmpty(originalActivePath))
+            {
+                var currentActiveDoc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+                if (currentActiveDoc?.Name != originalActivePath)
+                {
+                    var restored = _drawingAccessService.TryMakeDrawingActive(originalActivePath);
+                    _logger.LogDebug($"Attempted to restore original active drawing '{originalActivePath}': {(restored ? "success" : "failed")}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error during Auto Notes collection: {ex.Message}", ex);
+            // Ensure all sheets get at least empty note lists
+            foreach (var sheetName in sheetNames)
+            {
+                if (!sheetToNotes.ContainsKey(sheetName))
+                {
+                    sheetToNotes[sheetName] = new List<int>();
+                    processedSheets++;
+                }
+            }
+        }
+
+        return processedSheets;
+    }
+
+    /// <summary>
+    /// Collects Auto Notes for a single sheet in the currently active drawing.
+    /// </summary>
+    private async Task<int> CollectAutoNotesForActiveSheet(
+        string sheetName,
+        ProjectConfiguration config,
+        Dictionary<string, List<int>> sheetToNotes,
+        IProgress<BatchOperationProgress>? progressCallback,
+        int baseProgress,
+        int progressRange,
+        int totalSheets,
+        int processedSheets)
+    {
+        try
+        {
+            var noteNumbers = await _constructionNotesService.GetAutoNotesForSheetAsync(sheetName, config);
+            sheetToNotes[sheetName] = noteNumbers;
+            processedSheets++;
+
+            // Report progress
+            var progress = baseProgress + progressRange * processedSheets / totalSheets;
+            progressCallback?.Report(CreateProgress("Construction Notes", BatchOperationType.ConstructionNotes,
+                $"Collecting notes for {sheetName}", progress, processedSheets, totalSheets));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Failed to get Auto Notes for sheet {sheetName}: {ex.Message}");
+            sheetToNotes[sheetName] = new List<int>(); // Continue with empty notes
+            processedSheets++;
+        }
+
+        return processedSheets;
     }
 
     private async Task<MultiDrawingUpdateResult> UpdateTitleBlocksInternalAsync(

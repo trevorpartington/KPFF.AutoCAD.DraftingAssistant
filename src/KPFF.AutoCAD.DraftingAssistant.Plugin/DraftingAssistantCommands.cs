@@ -3086,7 +3086,7 @@ public class DraftingAssistantCommands
         public void Dispose() { }
         public Task<List<ConstructionNoteBlock>> GetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(new List<ConstructionNoteBlock>());
         public Task<bool> UpdateConstructionNoteBlockAsync(string sheetName, int blockIndex, int noteNumber, string noteText, ProjectConfiguration config) => Task.FromResult(true);
-        public Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config) => Task.FromResult(true);
+        public Task<bool> SetConstructionNotesAsync(string sheetName, Dictionary<int, string> noteData, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config) => Task.FromResult(true);
         public Task<bool> ResetConstructionNoteBlocksAsync(string sheetName, ProjectConfiguration config, CurrentDrawingBlockManager? blockManager = null) => Task.FromResult(true);
         public Task UpdateTitleBlockAsync(string sheetName, TitleBlockMapping mapping, ProjectConfiguration config) => Task.CompletedTask;
@@ -3706,7 +3706,16 @@ public class DraftingAssistantCommands
                 
                 try
                 {
-                    var plotSuccess = await plotManager.PlotLayoutToPdfAsync(drawingPath, sheetName, outputPath);
+                    // Use Publisher API for single sheet test
+                    var testSheetInfo = new KPFF.AutoCAD.DraftingAssistant.Core.Models.SheetInfo
+                    {
+                        SheetName = sheetName,
+                        DWGFileName = sheetInfo.DWGFileName,
+                        DrawingTitle = sheetInfo.DrawingTitle
+                    };
+                    
+                    var outputDir = Path.GetDirectoryName(outputPath)!;
+                    var plotSuccess = await plotManager.PublishSheetsToPdfAsync(new[] { testSheetInfo }, outputDir);
                     
                     if (plotSuccess)
                     {

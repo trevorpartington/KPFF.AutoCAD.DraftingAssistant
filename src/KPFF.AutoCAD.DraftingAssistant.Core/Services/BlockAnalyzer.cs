@@ -257,11 +257,13 @@ public class BlockAnalyzer
             // Search through all attributes
             foreach (ObjectId attributeId in attributeCollection)
             {
-                var attributeRef = transaction.GetObject(attributeId, OpenMode.ForRead) as AttributeReference;
-                if (attributeRef != null && 
-                    string.Equals(attributeRef.Tag, attributeName, StringComparison.OrdinalIgnoreCase))
+                using (var attributeRef = transaction.GetObject(attributeId, OpenMode.ForRead) as AttributeReference)
                 {
-                    return attributeRef.TextString;
+                    if (attributeRef != null && 
+                        string.Equals(attributeRef.Tag, attributeName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return attributeRef.TextString;
+                    }
                 }
             }
 

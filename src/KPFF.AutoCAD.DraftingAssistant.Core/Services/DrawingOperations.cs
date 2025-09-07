@@ -71,146 +71,6 @@ public class DrawingOperations : IDrawingOperations
         }
     }
 
-    public async Task<bool> UpdateConstructionNoteBlocksAsync(string sheetName, List<int> noteNumbers, List<ConstructionNote> notes, ProjectConfiguration config)
-    {
-        // Add immediate logging for debugging
-        _logger.LogInformation($"=== ENTRY: UpdateConstructionNoteBlocksAsync for sheet {sheetName} ====");
-        
-        try
-        {
-                _logger.LogInformation($"=== STARTING UpdateConstructionNoteBlocksAsync ====");
-                _logger.LogInformation($"Sheet: {sheetName}");
-                _logger.LogInformation($"Note numbers: [{string.Join(", ", noteNumbers)}]");
-                _logger.LogInformation($"Total notes available: {notes.Count}");
-                _logger.LogInformation($"Max notes per sheet: {config.ConstructionNotes.MaxNotesPerSheet}");
-                
-                // Create block manager with explicit logging
-                _logger.LogDebug($"Creating CurrentDrawingBlockManager with logger type: {_logger.GetType().Name}");
-                var blockManager = GetBlockManager();
-                _logger.LogDebug($"Block manager created successfully");
-                
-                
-                // Discover which blocks exist in this layout
-                _logger.LogInformation($"Discovering existing construction note blocks in layout '{sheetName}'...");
-                List<ConstructionNoteBlock> availableBlocks;
-                try
-                {
-                    availableBlocks = blockManager.GetConstructionNoteBlocks(sheetName);
-                    _logger.LogInformation($"Found {availableBlocks.Count} construction note blocks in layout '{sheetName}'");
-                    
-                    if (availableBlocks.Count == 0)
-                    {
-                        _logger.LogError($"CRITICAL: No NT## blocks found in layout '{sheetName}'. Cannot update construction notes.");
-                        return false;
-                    }
-                    
-                    // Log which blocks are available
-                    var blockNames = availableBlocks.Select(b => b.BlockName).OrderBy(n => n).ToList();
-                    _logger.LogInformation($"Available blocks: [{string.Join(", ", blockNames)}]");
-                }
-                catch (Exception layoutEx)
-                {
-                    _logger.LogError($"CRITICAL: Cannot access layout '{sheetName}': {layoutEx.Message}", layoutEx);
-                    return false;
-                }
-                
-                // First reset all available blocks to invisible state
-                _logger.LogInformation($"Resetting construction note blocks in layout '{sheetName}'...");
-                var resetSuccess = ResetConstructionNoteBlocksAsync(sheetName, config, blockManager).Result;
-                if (!resetSuccess)
-                {
-                    _logger.LogWarning($"Warning: Reset operation had issues for sheet {sheetName}, but continuing...");
-                    // Don't fail the entire operation - continue with updates
-                }
-                else
-                {
-                    _logger.LogInformation($"Block reset completed successfully");
-                }
-
-                // Create a dictionary for quick note lookup
-                var noteLookup = notes.ToDictionary(n => n.Number, n => n.Text);
-                _logger.LogDebug($"Created note lookup dictionary with {noteLookup.Count} entries");
-                
-                // Check if we have enough blocks for all the notes
-                int notesToPlace = noteNumbers.Count;
-                int blocksAvailable = availableBlocks.Count;
-                
-                if (notesToPlace > blocksAvailable)
-                {
-                    _logger.LogWarning($"WARNING: Need to place {notesToPlace} notes but only have {blocksAvailable} blocks available!");
-                    _logger.LogWarning($"Notes {string.Join(", ", noteNumbers.Skip(blocksAvailable))} will not be placed due to missing blocks.");
-                }
-                
-                int successCount = 0;
-                int notesPlaced = 0;
-                var sortedBlocks = availableBlocks.OrderBy(b => b.BlockName).ToList(); // Ensure consistent order (NT01, NT02, etc.)
-                
-                // Update blocks with notes, using only the blocks that exist
-                foreach (var noteNumber in noteNumbers)
-                {
-                    if (notesPlaced >= sortedBlocks.Count)
-                    {
-                        _logger.LogWarning($"Cannot place note #{noteNumber} - no more blocks available (have {sortedBlocks.Count} blocks, already placed {notesPlaced})");
-                        break;
-                    }
-                    
-                    var targetBlock = sortedBlocks[notesPlaced];
-                    var blockName = targetBlock.BlockName;
-                    
-                    _logger.LogInformation($"Processing block {blockName} for note number {noteNumber}...");
-                    
-                    if (noteLookup.TryGetValue(noteNumber, out var noteText))
-                    {
-                        _logger.LogDebug($"Found note text for #{noteNumber}: '{noteText?.Substring(0, Math.Min(noteText?.Length ?? 0, 50))}...'");
-                        
-                        _logger.LogInformation($"Calling blockManager.UpdateConstructionNoteBlock('{sheetName}', '{blockName}', {noteNumber}, noteText, true)");
-                        var success = blockManager.UpdateConstructionNoteBlock(sheetName, blockName, noteNumber, noteText, true);
-                        
-                        if (success)
-                        {
-                            successCount++;
-                            _logger.LogInformation($"✓ Successfully updated block {blockName} with note {noteNumber}");
-                        }
-                        else
-                        {
-                            _logger.LogError($"✗ FAILED to update block {blockName} for note {noteNumber}");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"Note text not found for note number {noteNumber} in lookup dictionary");
-                    }
-                    
-                    notesPlaced++;
-                }
-                
-                _logger.LogInformation($"=== UpdateConstructionNoteBlocksAsync COMPLETE ====");
-                _logger.LogInformation($"Successfully updated {successCount} of {notesToPlace} construction note blocks for sheet {sheetName}");
-                _logger.LogInformation($"Notes placed: {Math.Min(notesToPlace, blocksAvailable)} of {notesToPlace} requested");
-                _logger.LogInformation($"Blocks available: {blocksAvailable}, Blocks updated successfully: {successCount}");
-                
-                if (successCount == 0)
-                {
-                    _logger.LogError($"ERROR: No blocks were updated successfully for sheet {sheetName}");
-                    return false;
-                }
-                
-                if (notesToPlace > blocksAvailable)
-                {
-                    _logger.LogWarning($"PARTIAL SUCCESS: Placed {Math.Min(notesToPlace, blocksAvailable)} of {notesToPlace} notes due to limited blocks");
-                }
-                
-                // Return true if we successfully updated at least some blocks
-                return await Task.FromResult(true);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"EXCEPTION in UpdateConstructionNoteBlocksAsync for sheet {sheetName}: {ex.Message}", ex);
-            _logger.LogError($"Exception type: {ex.GetType().Name}");
-            _logger.LogError($"Stack trace: {ex.StackTrace}");
-            return await Task.FromResult(false);
-        }
-    }
 
     public async Task<bool> ValidateNoteBlocksExistAsync(string sheetName, ProjectConfiguration config)
     {
@@ -228,6 +88,96 @@ public class DrawingOperations : IDrawingOperations
         catch (Exception ex)
         {
             _logger.LogError($"Exception validating construction note blocks for sheet {sheetName}: {ex.Message}", ex);
+            return await Task.FromResult(false);
+        }
+    }
+
+    /// <summary>
+    /// Unified clear-and-fill service for construction note blocks.
+    /// Always clears all blocks first, then fills with provided note data.
+    /// This ensures consistent updates regardless of what data changed.
+    /// </summary>
+    /// <param name="sheetName">The layout/sheet name to update</param>
+    /// <param name="noteData">Dictionary of note number to note text mappings</param>
+    /// <param name="config">Project configuration</param>
+    /// <returns>True if successful, false otherwise</returns>
+    public async Task<bool> SetConstructionNotesAsync(string sheetName, Dictionary<int, string> noteData, ProjectConfiguration config)
+    {
+        _logger.LogInformation($"=== ENTRY: SetConstructionNotesAsync for sheet {sheetName} ====");
+        
+        try
+        {
+            _logger.LogInformation($"=== STARTING SetConstructionNotesAsync (CLEAR-AND-FILL) ====");
+            _logger.LogInformation($"Sheet: {sheetName}");
+            _logger.LogInformation($"Note data: {noteData.Count} entries");
+            if (noteData.Count > 0)
+            {
+                var noteInfo = string.Join(", ", noteData.Select(kvp => $"#{kvp.Key}=\"{kvp.Value.Substring(0, Math.Min(kvp.Value.Length, 30))}...\""));
+                _logger.LogInformation($"Notes: {noteInfo}");
+            }
+            
+            var blockManager = GetBlockManager();
+            _logger.LogDebug($"Block manager created successfully");
+            
+            // STEP 1: Build clear-and-fill batch update dictionary for all 24 blocks
+            _logger.LogInformation($"Building clear-and-fill update plan for all 24 blocks...");
+            var batchUpdates = new Dictionary<string, (int noteNumber, string noteText, bool makeVisible)>();
+            
+            // Clear all blocks first (start with reset state)
+            for (int i = 1; i <= 24; i++)
+            {
+                string blockName = $"NT{i:D2}";
+                batchUpdates[blockName] = (-1, "", false); // Reset: invisible with empty data
+            }
+            
+            // STEP 2: Fill blocks with provided note data
+            if (noteData.Count > 0)
+            {
+                int blockIndex = 1;
+                foreach (var kvp in noteData.OrderBy(x => x.Key)) // Sort by note number for consistent ordering
+                {
+                    if (blockIndex > 24)
+                    {
+                        _logger.LogWarning($"Cannot place note #{kvp.Key} - only 24 blocks available (NT01-NT24)");
+                        break;
+                    }
+                    
+                    string blockName = $"NT{blockIndex:D2}";
+                    batchUpdates[blockName] = (kvp.Key, kvp.Value ?? "", true); // Visible with note data
+                    
+                    _logger.LogDebug($"✓ Planned update for {blockName} with note #{kvp.Key}: '{kvp.Value?.Substring(0, Math.Min(kvp.Value?.Length ?? 0, 30))}...'");
+                    blockIndex++;
+                }
+                
+                _logger.LogInformation($"Filled {Math.Min(noteData.Count, 24)} blocks with note data, reset remaining {Math.Max(0, 24 - noteData.Count)} blocks");
+            }
+            else
+            {
+                _logger.LogInformation($"No note data provided - all 24 blocks will be cleared");
+            }
+            
+            // STEP 3: Execute single batch operation with discovery (clears all then fills)
+            _logger.LogInformation($"Executing unified clear-and-fill batch update for {batchUpdates.Count} blocks...");
+            var (batchSuccess, discoveredBlocks) = blockManager.UpdateConstructionNoteBlocksBatchWithDiscovery(sheetName, batchUpdates);
+            
+            _logger.LogInformation($"Batch update discovered {discoveredBlocks.Count} actual blocks: [{string.Join(", ", discoveredBlocks.OrderBy(x => x))}]");
+            int actualBlocksAvailable = discoveredBlocks.Count;
+            
+            _logger.LogInformation($"=== SetConstructionNotesAsync COMPLETE ====");
+            _logger.LogInformation($"Clear-and-fill operation result: {(batchSuccess ? "SUCCESS" : "FAILED")}");
+            _logger.LogInformation($"Processed {noteData.Count} note entries across {actualBlocksAvailable} discovered blocks");
+            _logger.LogInformation($"Blocks planned: {batchUpdates.Count}, Blocks discovered: {actualBlocksAvailable}");
+            
+            if (!batchSuccess)
+            {
+                _logger.LogError($"ERROR: Clear-and-fill batch operation failed for sheet {sheetName}");
+            }
+            
+            return await Task.FromResult(batchSuccess);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"EXCEPTION in SetConstructionNotesAsync for sheet {sheetName}: {ex.Message}", ex);
             return await Task.FromResult(false);
         }
     }

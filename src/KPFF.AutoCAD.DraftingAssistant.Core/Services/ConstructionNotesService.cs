@@ -75,8 +75,9 @@ public class ConstructionNotesService : IConstructionNotesService
             
             if (noteNumbers.Count == 0)
             {
-                _logger.LogInformation($"No notes to update for sheet {sheetName}, resetting all blocks");
-                await _drawingOperations.ResetConstructionNoteBlocksAsync(sheetName, config);
+                _logger.LogInformation($"No notes to update for sheet {sheetName}, using unified service with empty dictionary");
+                var emptyNoteData = new Dictionary<int, string>();
+                await _drawingOperations.SetConstructionNotesAsync(sheetName, emptyNoteData, config);
                 return;
             }
             
@@ -101,16 +102,33 @@ public class ConstructionNotesService : IConstructionNotesService
                 return;
             }
             
-            // Update the blocks using DrawingOperations
-            var success = await _drawingOperations.UpdateConstructionNoteBlocksAsync(sheetName, noteNumbers, notes, config);
+            // Build dictionary mapping note numbers to note text
+            var noteData = new Dictionary<int, string>();
+            foreach (var noteNumber in noteNumbers)
+            {
+                var note = notes.FirstOrDefault(n => n.Number == noteNumber);
+                if (note != null)
+                {
+                    noteData[noteNumber] = note.Text ?? "";
+                    _logger.LogDebug($"Mapped note {noteNumber} to text: {note.Text}");
+                }
+                else
+                {
+                    _logger.LogWarning($"No note text found for note number {noteNumber} in series {series}");
+                    noteData[noteNumber] = $"Note {noteNumber}"; // Fallback text
+                }
+            }
+            
+            // Use the new unified service method
+            var success = await _drawingOperations.SetConstructionNotesAsync(sheetName, noteData, config);
             
             if (success)
             {
-                _logger.LogInformation($"Successfully updated construction note blocks for sheet {sheetName}");
+                _logger.LogInformation($"Successfully updated construction note blocks for sheet {sheetName} using unified service");
             }
             else
             {
-                _logger.LogWarning($"Failed to update some construction note blocks for sheet {sheetName}");
+                _logger.LogWarning($"Failed to update construction note blocks for sheet {sheetName} using unified service");
             }
         }
         catch (Exception ex)
