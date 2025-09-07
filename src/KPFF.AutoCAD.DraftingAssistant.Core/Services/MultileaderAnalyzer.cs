@@ -283,37 +283,39 @@ public class MultileaderAnalyzer
             }
 
             // Get the attribute value from the multileader
-            var attributeRef = mleader.GetBlockAttribute(tagNumberDefId.Value);
-            if (attributeRef == null)
+            using (var attributeRef = mleader.GetBlockAttribute(tagNumberDefId.Value))
             {
-                _logger.LogDebug("Could not get TAGNUMBER attribute from multileader");
-                return null;
-            }
-
-            string attributeValue = attributeRef.TextString?.Trim() ?? string.Empty;
-            
-            if (string.IsNullOrWhiteSpace(attributeValue))
-            {
-                _logger.LogDebug("TAGNUMBER attribute is empty or whitespace");
-                return null;
-            }
-
-            // Try to parse as integer
-            if (int.TryParse(attributeValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out int noteNumber))
-            {
-                if (noteNumber > 0) // Only accept positive note numbers
+                if (attributeRef == null)
                 {
-                    _logger.LogDebug($"Extracted note number {noteNumber} from TAGNUMBER attribute");
-                    return noteNumber;
+                    _logger.LogDebug("Could not get TAGNUMBER attribute from multileader");
+                    return null;
+                }
+
+                string attributeValue = attributeRef.TextString?.Trim() ?? string.Empty;
+                
+                if (string.IsNullOrWhiteSpace(attributeValue))
+                {
+                    _logger.LogDebug("TAGNUMBER attribute is empty or whitespace");
+                    return null;
+                }
+
+                // Try to parse as integer
+                if (int.TryParse(attributeValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out int noteNumber))
+                {
+                    if (noteNumber > 0) // Only accept positive note numbers
+                    {
+                        _logger.LogDebug($"Extracted note number {noteNumber} from TAGNUMBER attribute");
+                        return noteNumber;
+                    }
+                    else
+                    {
+                        _logger.LogDebug($"TAGNUMBER attribute value {noteNumber} is not positive");
+                    }
                 }
                 else
                 {
-                    _logger.LogDebug($"TAGNUMBER attribute value {noteNumber} is not positive");
+                    _logger.LogDebug($"Could not parse TAGNUMBER attribute value '{attributeValue}' as integer");
                 }
-            }
-            else
-            {
-                _logger.LogDebug($"Could not parse TAGNUMBER attribute value '{attributeValue}' as integer");
             }
         }
         catch (Exception ex)
