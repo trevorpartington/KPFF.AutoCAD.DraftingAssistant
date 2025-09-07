@@ -84,13 +84,12 @@ Core (net8.0-windows) ← Plugin (depends on Core)
 - Ensure AutoCAD 2025 path is correct in launch profile
 - Verify DLL path in start.scr matches build output location
 - Check AutoCAD command line for plugin loading errors
-- Use `NETUNLOAD` in AutoCAD to unload plugin before rebuilding
 
 ## Construction Notes Automation System
 
 ### Overview
 The construction notes automation system provides dual-mode functionality:
-- **Auto Notes**: Automatically scans drawing viewports to detect bubble multileaders and extract note numbers
+- **Auto Notes**: Automatically scans drawing viewports to detect bubble multileaders and blocks and extract note numbers
 - **Excel Notes**: Uses manual Excel-based configuration for note assignment to sheets
 
 ### File Structure
@@ -104,7 +103,7 @@ The construction notes automation system provides dual-mode functionality:
 
 #### Excel File Structure (ProjectIndex.xlsx)
 - **SHEET_INDEX table**: Complete sheet list with title block information
-  - Columns: Sheet, File, Title
+  - Columns: Sheet, File, Title, and title block attributes
   - Example: "ABC-101", "PROJ-ABC-100", "ABC PLAN"
 - **{SERIES}_NOTES tables**: Construction note definitions per drawing series
   - Example: ABC_NOTES, PV_NOTES, C_NOTES
@@ -119,9 +118,7 @@ The construction notes automation system provides dual-mode functionality:
 
 #### Configuration Tab Layout
 ```
-[Select Sheets] [Select Project] [Configure Project]
-─────────────────────────────────────────────────────
-Active Project: [Project Name or "No project selected"]
+[Sheets] [Project]
 ─────────────────────────────────────────────────────
 [Configuration details display area]
 ```
@@ -153,8 +150,8 @@ Each layout contains 24 dynamic blocks with simplified naming pattern: `NTXX`
 #### Auto Notes Processing
 1. Identify viewports in layout
 2. Calculate model space boundaries for each viewport
-3. Use ray casting to determine which bubble multileaders fall within boundaries
-4. Filter multileaders by designated style (from project config)
+3. Use ray casting to determine which bubble multileaders and blocks fall within boundaries
+4. Filter multileaders and blocks by designated style (from project config)
 5. Extract note numbers from bubble text content
 6. Combine results from all viewports into master list
 
@@ -206,6 +203,42 @@ The construction notes system supports all drawing scenarios:
 
 Both Auto Notes and Excel Notes work seamlessly across all three drawing states with proper attribute alignment and viewport protection.
 
+#### Auto Notes Drawing State Handling
+
+**Critical Architectural Pattern**: Auto Notes detection requires access to viewports, which are only available in the active drawing context. The system handles drawing states during the Auto Notes collection phase:
+
+**Collection Phase Strategy (BatchOperationService)**:
+1. **Group by Drawing**: Group sheets by their drawing file paths
+2. **Sequential Processing**: Process each drawing group sequentially  
+3. **State Management**: Make inactive drawings active temporarily for Auto Notes detection
+4. **Active Drawing Restoration**: Restore original active drawing when complete
+
+**Drawing State Processing**:
+- **Active**: Process sheets directly (drawing already active)
+- **Inactive**: Make active using `TryMakeDrawingActive()`, then process sheets
+- **Closed**: Cannot perform Auto Notes (skip with empty note lists - viewport access impossible)
+
+**Key Classes**:
+- **AutoNotesService**: Enhanced with database-specific overloads for explicit drawing context
+- **BatchOperationService**: Orchestrates drawing state changes during collection phase
+- **DrawingAccessService**: Provides drawing state detection and activation methods
+
+**Updated AutoNotesService API**:
+```csharp
+// Standard method (uses current active drawing)
+public List<int> GetAutoNotesForSheet(string sheetName, ProjectConfiguration config)
+
+// Database-specific method (for explicit drawing context)  
+public List<int> GetAutoNotesForSheet(string sheetName, ProjectConfiguration config, Database database, string drawingPath)
+```
+
+**Logging Improvements**:
+- All Auto Notes operations now log which drawing file is being searched
+- Clear distinction between "Layout not found" and "Drawing not accessible"
+- Better error messages specify exact drawing context
+
+**Excel Notes Difference**: Excel Notes mode does not require viewport access, so it works with all drawing states without state changes.
+
 ## Plotting System
 
 ### Overview
@@ -251,7 +284,6 @@ The plotting system uses AutoCAD's Publisher API with Drawing Set Description (D
 #### Plot Architecture Decision
 - **Batch Operations (Multiple Sheets)**: Uses Publisher API with DsdData for optimal performance
 - **Single Sheet Operations**: Uses Publisher API internally for consistency
-- **Legacy Support**: Maintains existing `PlotLayoutToPdfAsync` interface for backward compatibility
 
 #### Plot Workflow
 1. **Sheet Filtering Phase**:
@@ -336,3 +368,90 @@ using (var dsdData = new DsdData())
 - ✅ Multi-drawing support (open/active, open/inactive, closed)
 - ✅ Error handling and progress reporting
 - ✅ Backward compatibility with existing interfaces
+
+## Multi-Drawing Operations Architecture
+
+### Overview
+The system uses a three-layer architecture for handling operations across multiple drawings regardless of their state (Active, Inactive, Closed):
+
+#### 1. **BatchOperationService** - Central Orchestrator
+- **Purpose**: Main coordinator for all multi-drawing operations
+- **Location**: `Core/Services/BatchOperationService.cs`
+- **Responsibilities**:
+  - Coordinates Construction Notes, Title Blocks, and Plotting operations
+  - Manages phased execution with progress reporting (0-100%)
+  - Handles validation, error handling, and result aggregation
+  - Provides async operation management to prevent UI freezing
+  - Supports "Apply to current sheet only" functionality
+
+#### 2. **Multi-Drawing Services** - Specialized Workers
+- **Purpose**: Handle specific operation types across drawing states
+- **Services**:
+  - `MultiDrawingConstructionNotesService`: Auto Notes and Excel Notes
+  - `MultiDrawingTitleBlockService`: Title block attribute updates
+  - `PlottingService`: PDF generation with pre-plot operations
+- **Responsibilities**:
+  - Drawing state detection and routing (Active/Inactive/Closed)
+  - External drawing operations via ExternalDrawingManager
+  - Transaction management and error recovery
+
+#### 3. **Drawing Access Layer** - State Management
+- **Services**:
+  - `DrawingAccessService`: Drawing state detection and access
+  - `ExternalDrawingManager`: Closed drawing operations
+  - Various analyzers and utilities for each drawing state
+
+### UI Integration Requirements
+
+#### ✅ **CORRECT PATTERN**: Use BatchOperationService
+All UI controls should use BatchOperationService for multi-drawing operations:
+
+```csharp
+// ✅ CORRECT - Use BatchOperationService
+var batchSettings = new BatchOperationSettings
+{
+    UpdateConstructionNotes = true,
+    IsAutoNotesMode = true,
+    ApplyToCurrentSheetOnly = applyToCurrentOnly
+};
+
+var progress = new Progress<BatchOperationProgress>(p => 
+{
+    UpdateStatus($"[{p.OverallProgress}%] {p.CurrentOperation}: {p.StatusMessage}");
+});
+
+var result = await _batchOperationService.UpdateConstructionNotesAsync(
+    sheetNames, config, applyToCurrentOnly, progress);
+```
+
+#### ❌ **INCORRECT PATTERN**: Direct Multi-Drawing Service Usage
+Do NOT instantiate multi-drawing services directly in UI controls:
+
+```csharp
+// ❌ WRONG - Causes UI freezing and duplicate code
+var multiDrawingService = new MultiDrawingConstructionNotesService(...);
+var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(...);
+```
+
+### Implementation Status
+
+#### ✅ Correctly Implemented
+- **PlottingControl**: Uses PlottingService which integrates with BatchOperationService
+- **ConstructionNoteControl**: Refactored to use BatchOperationService
+- **TitleBlockControl**: Refactored to use BatchOperationService
+
+#### Architecture Benefits
+- **No UI Freezing**: Proper async operation management
+- **Unified Progress Reporting**: Consistent 0-100% progress with status messages  
+- **Centralized Error Handling**: Single point for validation and error management
+- **Reduced Code Duplication**: Eliminates redundant service instantiations
+- **Better Performance**: Optimized drawing state handling and batch processing
+
+### Key Principles
+1. **UI Controls**: Should never directly instantiate multi-drawing services
+2. **BatchOperationService**: Always use for multi-sheet operations
+3. **Progress Reporting**: Use provided progress callbacks for user feedback
+4. **Error Handling**: Let BatchOperationService handle validation and errors
+5. **Async Operations**: All multi-drawing operations must be properly async
+
+This architecture ensures consistent behavior, prevents UI freezing, and provides proper error handling across all multi-drawing operations in the system.

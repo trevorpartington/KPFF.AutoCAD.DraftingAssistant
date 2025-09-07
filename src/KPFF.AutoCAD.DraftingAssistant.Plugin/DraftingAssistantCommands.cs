@@ -3706,7 +3706,16 @@ public class DraftingAssistantCommands
                 
                 try
                 {
-                    var plotSuccess = await plotManager.PlotLayoutToPdfAsync(drawingPath, sheetName, outputPath);
+                    // Use Publisher API for single sheet test
+                    var testSheetInfo = new KPFF.AutoCAD.DraftingAssistant.Core.Models.SheetInfo
+                    {
+                        SheetName = sheetName,
+                        DWGFileName = sheetInfo.DWGFileName,
+                        DrawingTitle = sheetInfo.DrawingTitle
+                    };
+                    
+                    var outputDir = Path.GetDirectoryName(outputPath)!;
+                    var plotSuccess = await plotManager.PublishSheetsToPdfAsync(new[] { testSheetInfo }, outputDir);
                     
                     if (plotSuccess)
                     {

@@ -10,7 +10,7 @@ public partial class TitleBlockControl : BaseUserControl
 {
     private readonly ITitleBlockService _titleBlockService;
     private readonly IProjectConfigurationService _configService;
-    private readonly MultiDrawingTitleBlockService _multiDrawingService;
+    private readonly IBatchOperationService _batchOperationService;
     private readonly SharedUIStateService _sharedUIState;
 
     public TitleBlockControl() : this(null, null, null, null)
@@ -30,8 +30,8 @@ public partial class TitleBlockControl : BaseUserControl
         _titleBlockService = titleBlockService ?? GetTitleBlockService();
         _configService = configService ?? GetConfigurationService();
         
-        // Initialize multi-drawing service
-        _multiDrawingService = GetMultiDrawingService();
+        // Initialize batch operation service
+        _batchOperationService = GetBatchOperationService();
         
         // Initialize shared UI state
         _sharedUIState = SharedUIStateService.Instance;
@@ -64,7 +64,7 @@ public partial class TitleBlockControl : BaseUserControl
         return new ProjectConfigurationService(logger);
     }
 
-    private static MultiDrawingTitleBlockService GetMultiDrawingService()
+    private static IBatchOperationService GetBatchOperationService()
     {
         // CRASH FIX: Never access ApplicationServices during UI initialization
         var logger = new DebugLogger();
@@ -74,13 +74,25 @@ public partial class TitleBlockControl : BaseUserControl
         var blockAnalyzer = new BlockAnalyzer(logger);
         var externalDrawingManager = new ExternalDrawingManager(logger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
         var excelReaderService = new ExcelReaderService(logger);
+        var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, new DrawingOperations(logger));
         var titleBlockService = new TitleBlockService(logger, excelReaderService, new DrawingOperations(logger));
         
-        return new MultiDrawingTitleBlockService(
+        // Create multi-drawing services
+        var multiDrawingConstructionNotesService = new MultiDrawingConstructionNotesService(
+            logger, drawingAccessService, externalDrawingManager, constructionNotesService, excelReaderService);
+        var multiDrawingTitleBlockService = new MultiDrawingTitleBlockService(
+            logger, drawingAccessService, externalDrawingManager, titleBlockService, excelReaderService);
+        var drawingOperations = new DrawingOperations(logger);
+        var plottingService = new PlottingService(logger, constructionNotesService, drawingOperations, excelReaderService, 
+            multiDrawingConstructionNotesService, multiDrawingTitleBlockService);
+        
+        return new BatchOperationService(
             logger,
             drawingAccessService,
-            externalDrawingManager,
-            titleBlockService,
+            multiDrawingConstructionNotesService,
+            multiDrawingTitleBlockService,
+            plottingService,
+            constructionNotesService,
             excelReaderService);
     }
 
@@ -121,28 +133,7 @@ public partial class TitleBlockControl : BaseUserControl
     {
         try
         {
-            Logger.LogInformation("Executing title blocks update with multi-drawing support");
-            
-            // Use AutoCAD services when actually performing operations
-            var autocadLogger = new AutoCADLogger();
-            
-            // Create production-ready multi-drawing service
-            var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var backupCleanupService = new BackupCleanupService(autocadLogger);
-            var multileaderAnalyzer = new MultileaderAnalyzer(autocadLogger);
-            var blockAnalyzer = new BlockAnalyzer(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
-            var excelReaderService = new ExcelReaderService(autocadLogger);
-            var titleBlockService = new TitleBlockService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
-            
-            var multiDrawingService = new MultiDrawingTitleBlockService(
-                autocadLogger,
-                drawingAccessService,
-                externalDrawingManager,
-                titleBlockService,
-                excelReaderService);
-            
-            autocadLogger.LogInformation("Using multi-drawing batch processing for title blocks update");
+            Logger.LogInformation("Executing title blocks update using BatchOperationService");
             
             // Load project configuration
             var config = await LoadProjectConfigurationAsync();
@@ -161,41 +152,26 @@ public partial class TitleBlockControl : BaseUserControl
             }
 
             UpdateStatus($"Processing {selectedSheets.Count} sheets for title blocks update...\n" +
-                        "Analyzing drawing states and preparing batch operations...\n");
-            autocadLogger.LogInformation($"Starting title blocks batch update for {selectedSheets.Count} sheets");
+                        "Starting batch operation...\n");
 
-            // Get sheet names
-            var selectedSheetNames = selectedSheets.Select(s => s.SheetName).ToList();
+            // Use BatchOperationService for proper async handling
+            var sheetNames = selectedSheets.Select(s => s.SheetName).ToList();
+            var applyToCurrentOnly = ApplyToCurrentSheetCheckBox.IsChecked == true;
+            var progress = new Progress<BatchOperationProgress>(p => 
+            {
+                UpdateStatus($"[{p.ProgressPercentage}%] {p.Phase}: {p.CurrentOperationDescription}\n" +
+                           $"Processing: {p.CompletedSheets}/{p.TotalSheets} sheets");
+            });
 
-            // Execute the multi-drawing update
-            var result = await multiDrawingService.UpdateTitleBlocksAcrossDrawingsAsync(selectedSheetNames, config, selectedSheets);
+            var result = await _batchOperationService.UpdateTitleBlocksAsync(
+                sheetNames, config, applyToCurrentOnly, progress);
 
-            // Update UI with results
-            var successMessage = result.Successes.Count > 0 
-                ? $"✓ Successfully updated title blocks for {result.Successes.Count} sheets:\n  - {string.Join("\n  - ", result.Successes.Select(s => s.SheetName))}\n\n"
-                : "";
+            // Generate status report
+            var statusText = GenerateBatchOperationStatusReport(result, "Title Blocks");
+            UpdateStatus(statusText);
             
-            var failureMessage = result.Failures.Count > 0
-                ? $"✗ Failed to update title blocks for {result.Failures.Count} sheets:\n{string.Join("\n", result.Failures.Select(f => $"  - {f.SheetName}: {f.ErrorMessage}"))}\n"
-                : "";
-
-            var statusMessage = $"{successMessage}{failureMessage}";
-            
-            if (result.Successes.Count > 0 && result.Failures.Count == 0)
-            {
-                statusMessage += "Title blocks update completed successfully!";
-            }
-            else if (result.Successes.Count > 0 && result.Failures.Count > 0)
-            {
-                statusMessage += "Title blocks update completed with some failures.";
-            }
-            else
-            {
-                statusMessage += "Title blocks update failed for all selected sheets.";
-            }
-
-            UpdateStatus(statusMessage);
-            autocadLogger.LogInformation($"Title blocks batch update completed. Success: {result.Successes.Count}, Failed: {result.Failures.Count}");
+            Logger.LogInformation($"Title blocks batch update completed via BatchOperationService. " +
+                                $"Success: {result.Success}");
         }
         catch (Exception ex)
         {
@@ -203,6 +179,58 @@ public partial class TitleBlockControl : BaseUserControl
             Logger.LogError(errorMsg, ex);
             UpdateStatus($"ERROR: {errorMsg}");
         }
+    }
+
+    /// <summary>
+    /// Generates a comprehensive status report for batch operation results
+    /// Shows success/failure counts and detailed results from BatchOperationService
+    /// </summary>
+    private string GenerateBatchOperationStatusReport(BatchOperationResult result, string mode)
+    {
+        var statusText = $"=== {mode} BATCH UPDATE COMPLETE ===\n\n";
+        
+        // Summary statistics
+        statusText += $"Operation Status: {(result.Success ? "SUCCESS" : "FAILED")}\n";
+        
+        if (!string.IsNullOrEmpty(result.ErrorMessage))
+        {
+            statusText += $"Error: {result.ErrorMessage}\n\n";
+        }
+        
+        if (result.TotalSheets > 0)
+        {
+            statusText += $"Total sheets processed: {result.TotalSheets}\n";
+            statusText += $"Successful updates: {result.SuccessfulSheets.Count}\n";
+            statusText += $"Failed updates: {result.FailedSheets.Count}\n";
+            statusText += $"Success rate: {result.SuccessRate:F1}%\n\n";
+
+            // Failures first (if any)
+            if (result.FailedSheets.Count > 0)
+            {
+                statusText += "❌ FAILED UPDATES:\n";
+                foreach (var failure in result.FailedSheets)
+                {
+                    statusText += $"  • {failure.SheetName}: {failure.ErrorMessage}\n";
+                }
+                statusText += "\n";
+            }
+
+            // Successes
+            if (result.SuccessfulSheets.Count > 0)
+            {
+                statusText += "✅ SUCCESSFUL UPDATES:\n";
+                foreach (var success in result.SuccessfulSheets)
+                {
+                    statusText += $"  • {success.SheetName}: Update completed successfully\n";
+                }
+            }
+        }
+        else
+        {
+            statusText += $"No sheets processed. Check that sheets have {mode.ToLower()} configured.";
+        }
+
+        return statusText;
     }
 
     private async Task<ProjectConfiguration?> LoadProjectConfigurationAsync()
