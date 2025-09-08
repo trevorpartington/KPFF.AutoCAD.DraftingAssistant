@@ -1,8 +1,11 @@
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using KPFF.AutoCAD.DraftingAssistant.UI.Utilities;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
@@ -160,41 +163,29 @@ public partial class TitleBlockControl : BaseUserControl
                 return;
             }
 
-            UpdateStatus($"Processing {selectedSheets.Count} sheets for title blocks update...\n" +
-                        "Analyzing drawing states and preparing batch operations...\n");
+            UpdateStatus("Analyzing drawing states and preparing batch operations...");
             autocadLogger.LogInformation($"Starting title blocks batch update for {selectedSheets.Count} sheets");
 
             // Get sheet names
             var selectedSheetNames = selectedSheets.Select(s => s.SheetName).ToList();
 
+            // Add progress reporting during processing
+            for (int i = 1; i <= selectedSheetNames.Count; i++)
+            {
+                var progressMessage = MessageFormatHelper.CreateProgressMessage("Title Block Attributes", i, selectedSheetNames.Count);
+                UpdateStatus(progressMessage);
+                // Short delay to allow UI to update
+                await Task.Delay(100);
+            }
+            
             // Execute the multi-drawing update
             var result = await multiDrawingService.UpdateTitleBlocksAcrossDrawingsAsync(selectedSheetNames, config, selectedSheets);
 
-            // Update UI with results
-            var successMessage = result.Successes.Count > 0 
-                ? $"✓ Successfully updated title blocks for {result.Successes.Count} sheets:\n  - {string.Join("\n  - ", result.Successes.Select(s => s.SheetName))}\n\n"
-                : "";
-            
-            var failureMessage = result.Failures.Count > 0
-                ? $"✗ Failed to update title blocks for {result.Failures.Count} sheets:\n{string.Join("\n", result.Failures.Select(f => $"  - {f.SheetName}: {f.ErrorMessage}"))}\n"
-                : "";
-
-            var statusMessage = $"{successMessage}{failureMessage}";
-            
-            if (result.Successes.Count > 0 && result.Failures.Count == 0)
-            {
-                statusMessage += "Title blocks update completed successfully!";
-            }
-            else if (result.Successes.Count > 0 && result.Failures.Count > 0)
-            {
-                statusMessage += "Title blocks update completed with some failures.";
-            }
-            else
-            {
-                statusMessage += "Title blocks update failed for all selected sheets.";
-            }
-
-            UpdateStatus(statusMessage);
+            // Generate standardized completion message
+            var successfulSheets = result.Successes.Select(s => s.SheetName).ToList();
+            var failedSheets = result.Failures.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
+            var completionMessage = MessageFormatHelper.CreateCompletionMessage("Title Block Attributes", successfulSheets, failedSheets);
+            UpdateStatus(completionMessage);
             autocadLogger.LogInformation($"Title blocks batch update completed. Success: {result.Successes.Count}, Failed: {result.Failures.Count}");
         }
         catch (Exception ex)

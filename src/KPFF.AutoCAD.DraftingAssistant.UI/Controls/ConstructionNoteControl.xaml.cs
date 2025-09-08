@@ -1,8 +1,11 @@
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using KPFF.AutoCAD.DraftingAssistant.UI.Utilities;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
@@ -178,8 +181,7 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-            UpdateStatus($"Processing {selectedSheets.Count} sheets in Auto Notes mode...\n" +
-                        "Analyzing drawing states and preparing batch operations...\n");
+            UpdateStatus("Analyzing drawing states and preparing batch operations...");
             autocadLogger.LogInformation($"Starting Auto Notes batch update for {selectedSheets.Count} sheets");
 
             // Gather Auto Notes for selected sheets using smart drawing state handling
@@ -236,15 +238,24 @@ public partial class ConstructionNoteControl : BaseUserControl
             }
 
             var sheetsWithNotes = sheetToNotes.Values.Count(notes => notes.Count > 0);
-            UpdateStatus($"Processing {sheetToNotes.Count} sheets in Auto Notes mode. " +
-                        $"{sheetsWithNotes} sheets have notes, {sheetToNotes.Count - sheetsWithNotes} will be cleared...\n");
+            var currentSheetIndex = 0;
+            foreach (var sheetName in sheetToNotes.Keys)
+            {
+                currentSheetIndex++;
+                var progressMessage = MessageFormatHelper.CreateProgressMessage("Auto Notes", currentSheetIndex, sheetToNotes.Count);
+                UpdateStatus(progressMessage);
+                // Short delay to allow UI to update
+                await Task.Delay(100);
+            }
 
             // Use the multi-drawing service for batch processing
             var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);
 
-            // Generate detailed status report
-            var statusText = GenerateBatchUpdateStatusReport(result, sheetToNotes.Count, "Auto Notes");
-            UpdateStatus(statusText);
+            // Generate standardized completion message
+            var successfulSheets = result.Successes.Select(s => s.SheetName).ToList();
+            var failedSheets = result.Failures.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
+            var completionMessage = MessageFormatHelper.CreateCompletionMessage("Auto Notes", successfulSheets, failedSheets);
+            UpdateStatus(completionMessage);
             
             autocadLogger.LogInformation($"Auto Notes batch update completed. " +
                                        $"Processed {selectedSheets.Count} sheets. " +
@@ -302,8 +313,7 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-            UpdateStatus($"Processing {selectedSheets.Count} sheets in Excel Notes mode...\n" +
-                        "Analyzing drawing states and preparing batch operations...\n");
+            UpdateStatus("Analyzing drawing states and preparing batch operations...");
             autocadLogger.LogInformation($"Starting Excel Notes batch update for {selectedSheets.Count} sheets");
 
             // Gather Excel Notes for selected sheets
@@ -329,16 +339,24 @@ public partial class ConstructionNoteControl : BaseUserControl
                 }
             }
 
-            var sheetsWithNotes = sheetToNotes.Values.Count(notes => notes.Count > 0);
-            UpdateStatus($"Processing {sheetToNotes.Count} sheets in Excel Notes mode. " +
-                        $"{sheetsWithNotes} sheets have notes, {sheetToNotes.Count - sheetsWithNotes} will be cleared...\n");
+            var currentSheetIndex = 0;
+            foreach (var sheetName in sheetToNotes.Keys)
+            {
+                currentSheetIndex++;
+                var progressMessage = MessageFormatHelper.CreateProgressMessage("Excel Notes", currentSheetIndex, sheetToNotes.Count);
+                UpdateStatus(progressMessage);
+                // Short delay to allow UI to update
+                await Task.Delay(100);
+            }
 
             // Use the multi-drawing service for batch processing
             var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);
 
-            // Generate detailed status report
-            var statusText = GenerateBatchUpdateStatusReport(result, sheetToNotes.Count, "Excel Notes");
-            UpdateStatus(statusText);
+            // Generate standardized completion message
+            var successfulSheets = result.Successes.Select(s => s.SheetName).ToList();
+            var failedSheets = result.Failures.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
+            var completionMessage = MessageFormatHelper.CreateCompletionMessage("Excel Notes", successfulSheets, failedSheets);
+            UpdateStatus(completionMessage);
             
             autocadLogger.LogInformation($"Excel Notes batch update completed. " +
                                        $"Processed {selectedSheets.Count} sheets. " +
@@ -542,63 +560,6 @@ public partial class ConstructionNoteControl : BaseUserControl
     }
 
 
-    /// <summary>
-    /// Generates a comprehensive status report for batch update operations
-    /// Shows drawing states, success/failure counts, and detailed results
-    /// </summary>
-    private string GenerateBatchUpdateStatusReport(MultiDrawingUpdateResult result, int totalSheets, string mode)
-    {
-        var statusText = $"=== {mode} BATCH UPDATE COMPLETE ===\n\n";
-        
-        // Summary statistics
-        statusText += $"Total sheets processed: {totalSheets}\n";
-        statusText += $"Successful updates: {result.Successes.Count}\n";
-        statusText += $"Failed updates: {result.Failures.Count}\n";
-        statusText += $"Success rate: {(result.Successes.Count * 100.0 / totalSheets):F1}%\n\n";
-
-        // Drawing state breakdown
-        var groupedByState = result.Successes
-            .GroupBy(s => s.DrawingState)
-            .ToDictionary(g => g.Key, g => g.Count());
-        
-        if (groupedByState.Count > 0)
-        {
-            statusText += "DRAWING STATES PROCESSED:\n";
-            foreach (var (state, count) in groupedByState)
-            {
-                statusText += $"• {state}: {count} drawings\n";
-            }
-            statusText += "\n";
-        }
-
-        // Failures first (if any)
-        if (result.Failures.Count > 0)
-        {
-            statusText += "❌ FAILED UPDATES:\n";
-            foreach (var failure in result.Failures)
-            {
-                statusText += $"  • {failure.SheetName}: {failure.ErrorMessage}\n";
-            }
-            statusText += "\n";
-        }
-
-        // Successes
-        if (result.Successes.Count > 0)
-        {
-            statusText += "✅ SUCCESSFUL UPDATES:\n";
-            foreach (var success in result.Successes)
-            {
-                statusText += $"  • {success.SheetName} ({success.DrawingState}): {success.NotesUpdated} notes updated\n";
-            }
-        }
-
-        if (result.Successes.Count == 0 && result.Failures.Count == 0)
-        {
-            statusText += $"No updates performed. Check that sheets have {mode.ToLower()} configured.";
-        }
-
-        return statusText;
-    }
 
     private async Task LoadInitialDisplayAsync()
     {

@@ -1,8 +1,10 @@
 using System.IO;
+using System.Linq;
 using System.Windows;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
+using KPFF.AutoCAD.DraftingAssistant.UI.Utilities;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
@@ -303,33 +305,16 @@ public partial class PlottingControl : BaseUserControl
             var progress = new Progress<PlotProgress>(OnPlotProgress);
             var plotResult = await productionPlottingService.PlotSheetsAsync(sheetNames, config, plotOnlySettings, progress);
 
-            // Display results
-            var resultMessage = $"✅ Plot operation completed!\n";
-            resultMessage += $"📊 Results: {plotResult.SuccessfulSheets.Count}/{selectedSheets.Count} sheets plotted successfully\n";
-            
-            if (plotResult.SuccessfulSheets.Count > 0)
-            {
-                resultMessage += $"\n📁 Successful sheets:\n";
-                resultMessage += string.Join("\n", plotResult.SuccessfulSheets.Select(s => $"• {s}"));
-            }
-            
-            if (plotResult.FailedSheets.Count > 0)
-            {
-                resultMessage += $"\n❌ Failed sheets:\n";
-                resultMessage += string.Join("\n", plotResult.FailedSheets.Select(f => $"• {f.SheetName}: {f.ErrorMessage}"));
-            }
+            // Generate standardized completion message using helper
+            var failedSheets = plotResult.FailedSheets.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
+            var completionMessage = MessageFormatHelper.CreateCompletionMessage(
+                "Plotting",
+                plotResult.SuccessfulSheets.ToList(), 
+                failedSheets);
 
-            UpdatePlottingDisplay(resultMessage);
+            UpdatePlottingDisplay(completionMessage);
             
-            var notificationMessage = $"Plot completed: {plotResult.SuccessfulSheets.Count}/{selectedSheets.Count} sheets successful";
-            if (plotResult.Success)
-            {
-                NotificationService?.ShowInformation("Plot", notificationMessage);
-            }
-            else
-            {
-                NotificationService?.ShowWarning("Plot", notificationMessage);
-            }
+            // No popup notification needed - user can see results in the display
         }
         catch (Exception ex)
         {
@@ -439,19 +424,13 @@ public partial class PlottingControl : BaseUserControl
     /// </summary>
     private void OnPlotProgress(PlotProgress progress)
     {
-        var message = $"📄 {progress.CurrentOperation}";
-        if (!string.IsNullOrEmpty(progress.CurrentSheet))
-        {
-            message += $" - {progress.CurrentSheet}";
-        }
-        message += $" ({progress.CompletedSheets + 1}/{progress.TotalSheets})";
-        
-        UpdatePlottingDisplay(message);
+        // Don't show batch plotting progress - AutoCAD provides its own progress window
+        // This prevents the "stuck on 1/Y" issue while AutoCAD shows real progress
     }
 
     private void UpdatePlottingDisplay(string message)
     {
-        RefreshDisplay(new List<string> { $"{DateTime.Now:HH:mm:ss} - {message}" });
+        RefreshDisplay(new List<string> { message });
     }
 
     private async void RefreshDisplay(List<string>? statusMessages = null)
@@ -464,7 +443,8 @@ public partial class PlottingControl : BaseUserControl
             var readout = BuildStandardReadout(
                 config?.ProjectName,
                 statusMessages ?? BuildInfoMessages(config),
-                selectedSheets
+                selectedSheets,
+                GetOutputDirectoryInfo(config)
             );
             
             Dispatcher.Invoke(() =>
@@ -507,26 +487,7 @@ public partial class PlottingControl : BaseUserControl
     {
         var messages = new List<string>();
         
-        messages.Add("Ready to plot selected sheets to PDF using their default page setup");
-        
-        // Show output directory
-        if (!string.IsNullOrEmpty(config?.Plotting?.OutputDirectory))
-        {
-            messages.Add($"Output Directory: {config.Plotting.OutputDirectory}");
-        }
-        
-        // Check pre-plot options - add null checks for during initialization
-        if (UpdateConstructionNotesCheckBox?.IsChecked == true)
-        {
-            messages.Add("• Construction notes will be updated before plotting");
-        }
-        
-        if (UpdateTitleBlocksCheckBox?.IsChecked == true)
-        {
-            messages.Add("• Title blocks will be updated before plotting");
-        }
-        
-        // Show sheet selection mode - add null check for during initialization
+        // Only show sheet selection mode
         if (ApplyToCurrentSheetCheckBox?.IsChecked == true)
         {
             messages.Add("Mode: Apply to current sheet only");
@@ -537,6 +498,15 @@ public partial class PlottingControl : BaseUserControl
         }
         
         return messages;
+    }
+    
+    private string? GetOutputDirectoryInfo(ProjectConfiguration? config)
+    {
+        if (!string.IsNullOrEmpty(config?.Plotting?.OutputDirectory))
+        {
+            return $"Output Directory: {config.Plotting.OutputDirectory}";
+        }
+        return null;
     }
     
     private void ApplyToCurrentSheetCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
