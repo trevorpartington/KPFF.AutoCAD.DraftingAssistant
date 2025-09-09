@@ -487,8 +487,10 @@ public class PlottingService : IPlottingService
             // Use actual PlotManager if available, otherwise use placeholder
             if (_plotManager != null)
             {
-                _logger.LogDebug($"Plotting {drawingPath} layout '{sheetName}' to {outputPath}");
-                return await _plotManager.PlotLayoutToPdfAsync(drawingPath, sheetName, outputPath);
+                _logger.LogDebug($"Plotting {drawingPath} layout '{sheetName}' to {outputDirectory}");
+                // Use Publisher API for single sheet plotting
+                var sheets = new[] { sheetInfo };
+                return await _plotManager.PublishSheetsToPdfAsync(sheets, outputDirectory);
             }
             else
             {

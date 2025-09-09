@@ -1,11 +1,8 @@
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
 using KPFF.AutoCAD.DraftingAssistant.Core.Services;
-using KPFF.AutoCAD.DraftingAssistant.UI.Utilities;
 
 namespace KPFF.AutoCAD.DraftingAssistant.UI.Controls;
 
@@ -13,7 +10,7 @@ public partial class ConstructionNoteControl : BaseUserControl
 {
     private readonly IConstructionNotesService _constructionNotesService;
     private readonly IProjectConfigurationService _configService;
-    private readonly MultiDrawingConstructionNotesService _multiDrawingService;
+    private readonly IBatchOperationService _batchOperationService;
     private readonly SharedUIStateService _sharedUIState;
 
     public ConstructionNoteControl() : this(null, null, null, null)
@@ -33,8 +30,8 @@ public partial class ConstructionNoteControl : BaseUserControl
         _constructionNotesService = constructionNotesService ?? GetConstructionNotesService();
         _configService = configService ?? GetConfigurationService();
         
-        // Initialize multi-drawing service
-        _multiDrawingService = GetMultiDrawingService();
+        // Initialize batch operation service
+        _batchOperationService = GetBatchOperationService();
         
         // Initialize shared UI state
         _sharedUIState = SharedUIStateService.Instance;
@@ -72,7 +69,7 @@ public partial class ConstructionNoteControl : BaseUserControl
         return new ProjectConfigurationService(logger);
     }
 
-    private static MultiDrawingConstructionNotesService GetMultiDrawingService()
+    private static IBatchOperationService GetBatchOperationService()
     {
         // CRASH FIX: Never access ApplicationServices during UI initialization
         var logger = new DebugLogger();
@@ -84,13 +81,24 @@ public partial class ConstructionNoteControl : BaseUserControl
         var excelReaderService = new ExcelReaderService(logger);
         var constructionNotesService = new ConstructionNotesService(logger, excelReaderService, new DrawingOperations(logger));
         
-        return new MultiDrawingConstructionNotesService(
+        // Create multi-drawing services
+        var multiDrawingConstructionNotesService = new MultiDrawingConstructionNotesService(
+            logger, drawingAccessService, externalDrawingManager, constructionNotesService, excelReaderService);
+        var titleBlockService = new TitleBlockService(logger, excelReaderService, new DrawingOperations(logger));
+        var multiDrawingTitleBlockService = new MultiDrawingTitleBlockService(
+            logger, drawingAccessService, externalDrawingManager, titleBlockService, excelReaderService);
+        var drawingOperations = new DrawingOperations(logger);
+        var plottingService = new PlottingService(logger, constructionNotesService, drawingOperations, excelReaderService, 
+            multiDrawingConstructionNotesService, multiDrawingTitleBlockService);
+        
+        return new BatchOperationService(
             logger,
             drawingAccessService,
-            externalDrawingManager,
+            multiDrawingConstructionNotesService,
+            multiDrawingTitleBlockService,
+            plottingService,
             constructionNotesService,
-            excelReaderService,
-            drawingAvailabilityService: null);
+            excelReaderService);
     }
 
     private void UpdateNotesButton_Click(object sender, RoutedEventArgs e)
@@ -142,61 +150,7 @@ public partial class ConstructionNoteControl : BaseUserControl
     {
         try
         {
-            Logger.LogInformation("Executing Auto Notes update with multi-drawing support");
-            
-            // Use AutoCAD services when actually performing operations
-            var autocadLogger = new AutoCADLogger();
-            
-            // Create production-ready multi-drawing service
-            var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var backupCleanupService = new BackupCleanupService(autocadLogger);
-            var multileaderAnalyzer = new MultileaderAnalyzer(autocadLogger);
-            var blockAnalyzer = new BlockAnalyzer(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
-            var excelReaderService = new ExcelReaderService(autocadLogger);
-            var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
-            
-            // Try to get DrawingAvailabilityService from the composition root
-            IDrawingAvailabilityService? drawingAvailabilityService = null;
-            try
-            {
-                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
-                if (pluginAssembly != null)
-                {
-                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
-                    if (extensionAppType != null)
-                    {
-                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
-                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                        var compositionRoot = compositionRootProperty?.GetValue(null);
-                        if (compositionRoot != null)
-                        {
-                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
-                            if (getServiceMethod != null)
-                            {
-                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
-                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
-                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved for construction notes: {drawingAvailabilityService != null}");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService for construction notes: {ex.Message}");
-            }
-            
-            var multiDrawingService = new MultiDrawingConstructionNotesService(
-                autocadLogger,
-                drawingAccessService,
-                externalDrawingManager,
-                constructionNotesService,
-                excelReaderService,
-                drawingAvailabilityService);
-            
-            autocadLogger.LogInformation("Using multi-drawing batch processing for Auto Notes update");
+            Logger.LogInformation("Executing Auto Notes update using BatchOperationService");
             
             // Load project configuration
             var config = await LoadProjectConfigurationAsync();
@@ -206,7 +160,6 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-
             // Get selected sheets from configuration
             var selectedSheets = await GetSelectedSheetsAsync(config);
             if (selectedSheets.Count == 0)
@@ -215,86 +168,34 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-            UpdateStatus("Analyzing drawing states and preparing batch operations...");
-            autocadLogger.LogInformation($"Starting Auto Notes batch update for {selectedSheets.Count} sheets");
+            UpdateStatus($"Processing {selectedSheets.Count} sheets in Auto Notes mode...\n" +
+                        "Starting batch operation...\n");
 
-            // Gather Auto Notes for selected sheets using smart drawing state handling
-            var sheetToNotes = new Dictionary<string, List<int>>();
-            
-            foreach (var sheet in selectedSheets)
+            // Create batch operation settings
+            var batchSettings = new BatchOperationSettings
             {
-                try
-                {
-                    var dwgPath = drawingAccessService.GetDrawingFilePath(sheet.SheetName, config, selectedSheets);
-                    if (string.IsNullOrEmpty(dwgPath))
-                    {
-                        autocadLogger.LogWarning($"Could not find drawing file for sheet {sheet.SheetName}");
-                        continue;
-                    }
+                UpdateConstructionNotes = true,
+                IsAutoNotesMode = true,
+                ApplyToCurrentSheetOnly = ApplyToCurrentSheetCheckBox.IsChecked == true
+            };
 
-                    var drawingState = drawingAccessService.GetDrawingState(dwgPath);
-                    List<int> noteNumbers;
-
-                    if (drawingState == DrawingState.Closed)
-                    {
-                        // Use ExternalDrawingManager for closed drawings
-                        autocadLogger.LogDebug($"Using external drawing analysis for closed sheet {sheet.SheetName}");
-                        var styleNames = config.ConstructionNotes?.MultileaderStyleNames ?? new List<string> { "ML-STYLE-01" };
-                        var blockConfigs = config.ConstructionNotes?.NoteBlocks ?? new List<NoteBlockConfiguration>();
-                        noteNumbers = externalDrawingManager.GetAutoNotesForClosedDrawing(dwgPath, sheet.SheetName, styleNames, blockConfigs);
-                    }
-                    else
-                    {
-                        // For active/inactive drawings, use the standard approach
-                        if (drawingState == DrawingState.Inactive)
-                        {
-                            // Make inactive drawing active temporarily
-                            drawingAccessService.TryMakeDrawingActive(dwgPath);
-                        }
-                        
-                        noteNumbers = await constructionNotesService.GetAutoNotesForSheetAsync(sheet.SheetName, config);
-                    }
-
-                    sheetToNotes[sheet.SheetName] = noteNumbers;
-                    if (noteNumbers.Count > 0)
-                    {
-                        autocadLogger.LogDebug($"Auto Notes for {sheet.SheetName}: [{string.Join(", ", noteNumbers)}]");
-                    }
-                    else
-                    {
-                        autocadLogger.LogDebug($"No Auto Notes for {sheet.SheetName}, will clear construction note blocks");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    autocadLogger.LogWarning($"Failed to get Auto Notes for sheet {sheet.SheetName}: {ex.Message}");
-                }
-            }
-
-            var sheetsWithNotes = sheetToNotes.Values.Count(notes => notes.Count > 0);
-            var currentSheetIndex = 0;
-            foreach (var sheetName in sheetToNotes.Keys)
+            // Use BatchOperationService for proper async handling
+            var sheetNames = selectedSheets.Select(s => s.SheetName).ToList();
+            var progress = new Progress<BatchOperationProgress>(p => 
             {
-                currentSheetIndex++;
-                var progressMessage = MessageFormatHelper.CreateProgressMessage("Auto Notes", currentSheetIndex, sheetToNotes.Count);
-                UpdateStatus(progressMessage);
-                // Short delay to allow UI to update
-                await Task.Delay(100);
-            }
+                UpdateStatus($"[{p.ProgressPercentage}%] {p.Phase}: {p.CurrentOperationDescription}\n" +
+                           $"Processing: {p.CompletedSheets}/{p.TotalSheets} sheets");
+            });
 
-            // Use the multi-drawing service for batch processing
-            var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);
+            var result = await _batchOperationService.UpdateConstructionNotesAsync(
+                sheetNames, config, batchSettings.IsAutoNotesMode, batchSettings.ApplyToCurrentSheetOnly, progress);
 
-            // Generate standardized completion message
-            var successfulSheets = result.Successes.Select(s => s.SheetName).ToList();
-            var failedSheets = result.Failures.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
-            var completionMessage = MessageFormatHelper.CreateCompletionMessage("Auto Notes", successfulSheets, failedSheets);
-            UpdateStatus(completionMessage);
+            // Generate status report
+            var statusText = GenerateBatchOperationStatusReport(result, "Auto Notes");
+            UpdateStatus(statusText);
             
-            autocadLogger.LogInformation($"Auto Notes batch update completed. " +
-                                       $"Processed {selectedSheets.Count} sheets. " +
-                                       $"Successful: {result.Successes.Count}, " +
-                                       $"Failures: {result.Failures.Count}");
+            Logger.LogInformation($"Auto Notes batch update completed via BatchOperationService. " +
+                                $"Success: {result.Success}");
         }
         catch (Exception ex)
         {
@@ -308,61 +209,7 @@ public partial class ConstructionNoteControl : BaseUserControl
     {
         try
         {
-            Logger.LogInformation("Executing Excel Notes update with multi-drawing support");
-            
-            // Use AutoCAD services when actually performing operations
-            var autocadLogger = new AutoCADLogger();
-            
-            // Create production-ready multi-drawing service
-            var drawingAccessService = new DrawingAccessService(autocadLogger);
-            var backupCleanupService = new BackupCleanupService(autocadLogger);
-            var multileaderAnalyzer = new MultileaderAnalyzer(autocadLogger);
-            var blockAnalyzer = new BlockAnalyzer(autocadLogger);
-            var externalDrawingManager = new ExternalDrawingManager(autocadLogger, backupCleanupService, multileaderAnalyzer, blockAnalyzer);
-            var excelReaderService = new ExcelReaderService(autocadLogger);
-            var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
-            
-            // Try to get DrawingAvailabilityService from the composition root
-            IDrawingAvailabilityService? drawingAvailabilityService = null;
-            try
-            {
-                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
-                if (pluginAssembly != null)
-                {
-                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
-                    if (extensionAppType != null)
-                    {
-                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
-                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                        var compositionRoot = compositionRootProperty?.GetValue(null);
-                        if (compositionRoot != null)
-                        {
-                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
-                            if (getServiceMethod != null)
-                            {
-                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
-                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
-                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved for construction notes: {drawingAvailabilityService != null}");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService for construction notes: {ex.Message}");
-            }
-            
-            var multiDrawingService = new MultiDrawingConstructionNotesService(
-                autocadLogger,
-                drawingAccessService,
-                externalDrawingManager,
-                constructionNotesService,
-                excelReaderService,
-                drawingAvailabilityService);
-            
-            autocadLogger.LogInformation("Using multi-drawing batch processing for Excel Notes update");
+            Logger.LogInformation("Executing Excel Notes update using BatchOperationService");
             
             // Load project configuration
             var config = await LoadProjectConfigurationAsync();
@@ -380,55 +227,34 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return;
             }
 
-            UpdateStatus("Analyzing drawing states and preparing batch operations...");
-            autocadLogger.LogInformation($"Starting Excel Notes batch update for {selectedSheets.Count} sheets");
+            UpdateStatus($"Processing {selectedSheets.Count} sheets in Excel Notes mode...\n" +
+                        "Starting batch operation...\n");
 
-            // Gather Excel Notes for selected sheets
-            var sheetToNotes = new Dictionary<string, List<int>>();
-            foreach (var sheet in selectedSheets)
+            // Create batch operation settings
+            var batchSettings = new BatchOperationSettings
             {
-                try
-                {
-                    var noteNumbers = await constructionNotesService.GetExcelNotesForSheetAsync(sheet.SheetName, config);
-                    sheetToNotes[sheet.SheetName] = noteNumbers;
-                    if (noteNumbers.Count > 0)
-                    {
-                        autocadLogger.LogDebug($"Excel Notes for {sheet.SheetName}: [{string.Join(", ", noteNumbers)}]");
-                    }
-                    else
-                    {
-                        autocadLogger.LogDebug($"No Excel Notes for {sheet.SheetName}, will clear construction note blocks");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    autocadLogger.LogWarning($"Failed to get Excel Notes for sheet {sheet.SheetName}: {ex.Message}");
-                }
-            }
+                UpdateConstructionNotes = true,
+                IsAutoNotesMode = false, // Excel Notes mode
+                ApplyToCurrentSheetOnly = ApplyToCurrentSheetCheckBox.IsChecked == true
+            };
 
-            var currentSheetIndex = 0;
-            foreach (var sheetName in sheetToNotes.Keys)
+            // Use BatchOperationService for proper async handling
+            var sheetNames = selectedSheets.Select(s => s.SheetName).ToList();
+            var progress = new Progress<BatchOperationProgress>(p => 
             {
-                currentSheetIndex++;
-                var progressMessage = MessageFormatHelper.CreateProgressMessage("Excel Notes", currentSheetIndex, sheetToNotes.Count);
-                UpdateStatus(progressMessage);
-                // Short delay to allow UI to update
-                await Task.Delay(100);
-            }
+                UpdateStatus($"[{p.ProgressPercentage}%] {p.Phase}: {p.CurrentOperationDescription}\n" +
+                           $"Processing: {p.CompletedSheets}/{p.TotalSheets} sheets");
+            });
 
-            // Use the multi-drawing service for batch processing
-            var result = await multiDrawingService.UpdateConstructionNotesAcrossDrawingsAsync(sheetToNotes, config, selectedSheets);
+            var result = await _batchOperationService.UpdateConstructionNotesAsync(
+                sheetNames, config, batchSettings.IsAutoNotesMode, batchSettings.ApplyToCurrentSheetOnly, progress);
 
-            // Generate standardized completion message
-            var successfulSheets = result.Successes.Select(s => s.SheetName).ToList();
-            var failedSheets = result.Failures.ToDictionary(f => f.SheetName, f => f.ErrorMessage);
-            var completionMessage = MessageFormatHelper.CreateCompletionMessage("Excel Notes", successfulSheets, failedSheets);
-            UpdateStatus(completionMessage);
+            // Generate status report
+            var statusText = GenerateBatchOperationStatusReport(result, "Excel Notes");
+            UpdateStatus(statusText);
             
-            autocadLogger.LogInformation($"Excel Notes batch update completed. " +
-                                       $"Processed {selectedSheets.Count} sheets. " +
-                                       $"Successful: {result.Successes.Count}, " +
-                                       $"Failures: {result.Failures.Count}");
+            Logger.LogInformation($"Excel Notes batch update completed via BatchOperationService. " +
+                                $"Success: {result.Success}");
         }
         catch (Exception ex)
         {
@@ -621,6 +447,57 @@ public partial class ConstructionNoteControl : BaseUserControl
     }
 
 
+    /// <summary>
+    /// Generates a comprehensive status report for batch operation results
+    /// Shows success/failure counts and detailed results from BatchOperationService
+    /// </summary>
+    private string GenerateBatchOperationStatusReport(BatchOperationResult result, string mode)
+    {
+        var statusText = $"=== {mode} BATCH UPDATE COMPLETE ===\n\n";
+        
+        // Summary statistics
+        statusText += $"Operation Status: {(result.Success ? "SUCCESS" : "FAILED")}\n";
+        
+        if (!string.IsNullOrEmpty(result.ErrorMessage))
+        {
+            statusText += $"Error: {result.ErrorMessage}\n\n";
+        }
+        
+        if (result.TotalSheets > 0)
+        {
+            statusText += $"Total sheets processed: {result.TotalSheets}\n";
+            statusText += $"Successful updates: {result.SuccessfulSheets.Count}\n";
+            statusText += $"Failed updates: {result.FailedSheets.Count}\n";
+            statusText += $"Success rate: {result.SuccessRate:F1}%\n\n";
+
+            // Failures first (if any)
+            if (result.FailedSheets.Count > 0)
+            {
+                statusText += "❌ FAILED UPDATES:\n";
+                foreach (var failure in result.FailedSheets)
+                {
+                    statusText += $"  • {failure.SheetName}: {failure.ErrorMessage}\n";
+                }
+                statusText += "\n";
+            }
+
+            // Successes
+            if (result.SuccessfulSheets.Count > 0)
+            {
+                statusText += "✅ SUCCESSFUL UPDATES:\n";
+                foreach (var success in result.SuccessfulSheets)
+                {
+                    statusText += $"  • {success.SheetName}: Update completed successfully\n";
+                }
+            }
+        }
+        else
+        {
+            statusText += $"No sheets processed. Check that sheets have {mode.ToLower()} configured.";
+        }
+
+        return statusText;
+    }
 
     private async Task LoadInitialDisplayAsync()
     {

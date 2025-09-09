@@ -40,6 +40,19 @@ public class AutoNotesService
     }
 
     /// <summary>
+    /// Gets construction note numbers automatically detected from a sheet's viewports using a specific database.
+    /// </summary>
+    /// <param name="sheetName">Name of the sheet/layout to analyze</param>
+    /// <param name="config">Project configuration containing multileader style settings</param>
+    /// <param name="database">Specific database to search in</param>
+    /// <param name="drawingPath">Path to the drawing file for logging purposes</param>
+    /// <returns>List of unique note numbers found in the sheet's viewports</returns>
+    public async Task<List<int>> GetAutoNotesForSheetAsync(string sheetName, ProjectConfiguration config, Database database, string drawingPath)
+    {
+        return await Task.Run(() => GetAutoNotesForSheet(sheetName, config, database, drawingPath));
+    }
+
+    /// <summary>
     /// Synchronous implementation of auto notes detection.
     /// </summary>
     /// <param name="sheetName">Name of the sheet/layout to analyze</param>
@@ -49,21 +62,22 @@ public class AutoNotesService
     {
         try
         {
-            _logger.LogInformation($"Starting auto notes detection for sheet '{sheetName}'");
-
             // Get current document and database
             Document doc = Application.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
+            string drawingPath = doc.Name;
+            
+            _logger.LogInformation($"Starting auto notes detection for sheet '{sheetName}' in drawing '{drawingPath}'");
 
             using (var transaction = db.TransactionManager.StartTransaction())
             {
                 try
                 {
                     // Find the layout
-                    var layout = FindLayout(db, transaction, sheetName);
+                    var layout = FindLayout(db, transaction, sheetName, drawingPath);
                     if (layout == null)
                     {
-                        _logger.LogWarning($"Layout '{sheetName}' not found");
+                        _logger.LogWarning($"Layout '{sheetName}' not found in drawing '{drawingPath}'");
                         return new List<int>();
                     }
 
@@ -111,6 +125,68 @@ public class AutoNotesService
     }
 
     /// <summary>
+    /// Synchronous implementation of auto notes detection using a specific database.
+    /// </summary>
+    /// <param name="sheetName">Name of the sheet/layout to analyze</param>
+    /// <param name="config">Project configuration containing multileader style settings</param>
+    /// <param name="database">Specific database to search in</param>
+    /// <param name="drawingPath">Path to the drawing file for logging purposes</param>
+    /// <returns>List of unique note numbers found in the sheet's viewports</returns>
+    public List<int> GetAutoNotesForSheet(string sheetName, ProjectConfiguration config, Database database, string drawingPath)
+    {
+        try
+        {
+            _logger.LogInformation($"Starting auto notes detection for sheet '{sheetName}' in drawing '{drawingPath}'");
+
+            using (var transaction = database.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    // Find the layout
+                    var layout = FindLayout(database, transaction, sheetName, drawingPath);
+                    if (layout == null)
+                    {
+                        _logger.LogWarning($"Layout '{sheetName}' not found in drawing '{drawingPath}'");
+                        return new List<int>();
+                    }
+
+                    // Get all multileaders in model space
+                    var targetStyles = config.ConstructionNotes?.MultileaderStyleNames;
+                    var allMultileaders = _multileaderAnalyzer.FindMultileadersInModelSpace(database, transaction, targetStyles);
+                    _logger.LogDebug($"Found {allMultileaders.Count} multileaders in model space");
+
+                    // Get all configured blocks in model space
+                    var blockConfigurations = config.ConstructionNotes?.NoteBlocks;
+                    var allBlocks = _blockAnalyzer.FindBlocksInModelSpace(database, transaction, blockConfigurations);
+                    _logger.LogDebug($"Found {allBlocks.Count} blocks in model space");
+
+                    // Analyze viewports in the layout for both multileaders and blocks
+                    var notesFromViewports = AnalyzeViewportsInLayout(layout, transaction, allMultileaders, allBlocks);
+
+                    // Consolidate and return unique note numbers from both sources
+                    var uniqueNotes = notesFromViewports.Distinct().OrderBy(n => n).ToList();
+                    
+                    transaction.Commit();
+                    
+                    _logger.LogInformation($"Auto notes detection completed for sheet '{sheetName}': found {uniqueNotes.Count} notes");
+                    return uniqueNotes;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Abort();
+                    _logger.LogError($"Error during auto notes detection for sheet '{sheetName}' in drawing '{drawingPath}': {ex.Message}", ex);
+                    return new List<int>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to get auto notes for sheet '{sheetName}' in drawing '{drawingPath}': {ex.Message}", ex);
+            return new List<int>();
+        }
+    }
+
+    /// <summary>
     /// Finds a layout by name in the database.
     /// </summary>
     /// <param name="database">The drawing database</param>
@@ -119,12 +195,25 @@ public class AutoNotesService
     /// <returns>Layout object if found, null otherwise</returns>
     private Layout? FindLayout(Database database, Transaction transaction, string layoutName)
     {
+        return FindLayout(database, transaction, layoutName, "current drawing");
+    }
+
+    /// <summary>
+    /// Finds a layout by name in the database with specific drawing path for logging.
+    /// </summary>
+    /// <param name="database">The drawing database</param>
+    /// <param name="transaction">Transaction for database access</param>
+    /// <param name="layoutName">Name of the layout to find</param>
+    /// <param name="drawingPath">Path to the drawing file for logging purposes</param>
+    /// <returns>Layout object if found, null otherwise</returns>
+    private Layout? FindLayout(Database database, Transaction transaction, string layoutName, string drawingPath)
+    {
         try
         {
             var layoutDict = transaction.GetObject(database.LayoutDictionaryId, OpenMode.ForRead) as DBDictionary;
             if (layoutDict == null)
             {
-                _logger.LogWarning("Could not access layout dictionary");
+                _logger.LogWarning($"Could not access layout dictionary in drawing '{drawingPath}'");
                 return null;
             }
 
@@ -132,18 +221,18 @@ public class AutoNotesService
             {
                 var layoutId = layoutDict.GetAt(layoutName);
                 var layout = transaction.GetObject(layoutId, OpenMode.ForRead) as Layout;
-                _logger.LogDebug($"Found layout '{layoutName}'");
+                _logger.LogDebug($"Found layout '{layoutName}' in drawing '{drawingPath}'");
                 return layout;
             }
             else
             {
-                _logger.LogWarning($"Layout '{layoutName}' not found in drawing");
+                _logger.LogWarning($"Layout '{layoutName}' not found in drawing '{drawingPath}'");
                 return null;
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error finding layout '{layoutName}': {ex.Message}", ex);
+            _logger.LogError($"Error finding layout '{layoutName}' in drawing '{drawingPath}': {ex.Message}", ex);
             return null;
         }
     }
