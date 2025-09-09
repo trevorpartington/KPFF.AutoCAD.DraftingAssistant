@@ -76,8 +76,41 @@ public partial class PlottingControl : BaseUserControl
         var constructionNotesService = new ConstructionNotesService(debugLogger, excelReader, drawingOps);
         var multiDrawingConstructionNotesService = GetMultiDrawingConstructionNotesService();
         var multiDrawingTitleBlockService = GetMultiDrawingTitleBlockService();
+        
+        // Try to get DrawingAvailabilityService from the composition root
+        IDrawingAvailabilityService? drawingAvailabilityService = null;
+        try
+        {
+            // Access the composition root using reflection to avoid compile-time dependency
+            var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
+            if (pluginAssembly != null)
+            {
+                var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
+                if (extensionAppType != null)
+                {
+                    var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
+                        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                    var compositionRoot = compositionRootProperty?.GetValue(null);
+                    if (compositionRoot != null)
+                    {
+                        var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
+                        if (getServiceMethod != null)
+                        {
+                            var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
+                            drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Ignore - service will be null and PlottingService will handle gracefully
+        }
+        
         return new PlottingService(debugLogger, constructionNotesService, drawingOps, excelReader, 
-            multiDrawingConstructionNotesService, multiDrawingTitleBlockService);
+            multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager: null, drawingAvailabilityService);
     }
     
     private static IProjectConfigurationService GetConfigurationService()
@@ -290,8 +323,41 @@ public partial class PlottingControl : BaseUserControl
 
             // Execute plotting using basic PlottingService (just for PDF generation)
             var basicConstructionNotesService = new ConstructionNotesService(autocadLogger, excelReader, drawingOps);
+            
+            // Try to get DrawingAvailabilityService from the composition root for runtime plotting
+            IDrawingAvailabilityService? drawingAvailabilityService = null;
+            try
+            {
+                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
+                if (pluginAssembly != null)
+                {
+                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
+                    if (extensionAppType != null)
+                    {
+                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var compositionRoot = compositionRootProperty?.GetValue(null);
+                        if (compositionRoot != null)
+                        {
+                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
+                            if (getServiceMethod != null)
+                            {
+                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
+                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
+                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved: {drawingAvailabilityService != null}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService: {ex.Message}");
+            }
+            
             var productionPlottingService = new PlottingService(autocadLogger, basicConstructionNotesService, drawingOps, excelReader, 
-                multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager);
+                multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager, drawingAvailabilityService);
             
             // Create plot settings without pre-plot updates since we already did them
             var plotOnlySettings = new PlotJobSettings

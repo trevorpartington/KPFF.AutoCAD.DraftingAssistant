@@ -15,6 +15,7 @@ public class PlottingService : IPlottingService
     private readonly IPlotManager? _plotManager;
     private readonly MultiDrawingConstructionNotesService _multiDrawingConstructionNotesService;
     private readonly MultiDrawingTitleBlockService _multiDrawingTitleBlockService;
+    private readonly IDrawingAvailabilityService? _drawingAvailabilityService;
 
     public PlottingService(
         ILogger logger,
@@ -23,7 +24,8 @@ public class PlottingService : IPlottingService
         IExcelReader excelReader,
         MultiDrawingConstructionNotesService multiDrawingConstructionNotesService,
         MultiDrawingTitleBlockService multiDrawingTitleBlockService,
-        IPlotManager? plotManager = null)
+        IPlotManager? plotManager = null,
+        IDrawingAvailabilityService? drawingAvailabilityService = null)
     {
         _logger = logger;
         _constructionNotesService = constructionNotesService;
@@ -32,6 +34,7 @@ public class PlottingService : IPlottingService
         _multiDrawingConstructionNotesService = multiDrawingConstructionNotesService;
         _multiDrawingTitleBlockService = multiDrawingTitleBlockService;
         _plotManager = plotManager;
+        _drawingAvailabilityService = drawingAvailabilityService;
     }
 
     public async Task<PlotResult> PlotSheetsAsync(
@@ -72,6 +75,20 @@ public class PlottingService : IPlottingService
             }
 
             _logger.LogInformation($"Starting plot job for {sheetNames.Count} sheets");
+            
+            // Ensure drawing is available before starting plotting operations
+            if (_drawingAvailabilityService != null)
+            {
+                if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation: true))
+                {
+                    result.ErrorMessage = "Failed to ensure drawing availability for plotting operation";
+                    return result;
+                }
+            }
+            else
+            {
+                _logger.LogDebug("DrawingAvailabilityService not available - assuming drawing context exists");
+            }
             
             // Validate sheets before starting
             var validation = await ValidateSheetsForPlottingAsync(sheetNames, config);

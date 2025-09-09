@@ -193,6 +193,7 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
         // Register plugin-specific services
         serviceRegistration.RegisterNotificationService<AutoCadNotificationService>();
         serviceRegistration.RegisterPaletteManager<AutoCadPaletteManager>();
+        serviceRegistration.RegisterDrawingAvailabilityService<DrawingAvailabilityService>();
         
         // Register command handlers
         RegisterCommandHandlers(serviceRegistration);

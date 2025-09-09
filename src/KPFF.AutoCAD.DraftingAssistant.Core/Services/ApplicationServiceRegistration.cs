@@ -50,6 +50,9 @@ public class ApplicationServiceRegistration : IServiceContainerBuilder, IService
         // CRASH FIX: Removed CurrentDrawingBlockManager registration from DI container
         // It will be instantiated manually when needed to avoid premature AutoCAD access
         
+        // Drawing availability service - plugin-specific implementation will be registered by Plugin layer
+        // Core interface is defined here but implementation must be AutoCAD-aware
+        
         // Notification services - these will be registered by specific layers (UI/Plugin)
         // Command handlers will be registered by Plugin layer
     }
@@ -68,6 +71,14 @@ public class ApplicationServiceRegistration : IServiceContainerBuilder, IService
             throw new InvalidOperationException("Cannot register services after they have been built");
         
         _serviceProvider.RegisterSingleton<IPaletteManager, T>();
+    }
+
+    public void RegisterDrawingAvailabilityService<T>() where T : class, IDrawingAvailabilityService
+    {
+        if (_servicesRegistered)
+            throw new InvalidOperationException("Cannot register services after they have been built");
+        
+        _serviceProvider.RegisterSingleton<IDrawingAvailabilityService, T>();
     }
 
     public T GetService<T>() where T : class

@@ -17,6 +17,7 @@ public class BatchOperationService : IBatchOperationService
     private readonly IPlottingService _plottingService;
     private readonly IConstructionNotesService _constructionNotesService;
     private readonly IExcelReader _excelReader;
+    private readonly IDrawingAvailabilityService _drawingAvailabilityService;
 
     public BatchOperationService(
         ILogger logger,
@@ -25,7 +26,8 @@ public class BatchOperationService : IBatchOperationService
         MultiDrawingTitleBlockService multiDrawingTitleBlockService,
         IPlottingService plottingService,
         IConstructionNotesService constructionNotesService,
-        IExcelReader excelReader)
+        IExcelReader excelReader,
+        IDrawingAvailabilityService drawingAvailabilityService)
     {
         _logger = logger;
         _drawingAccessService = drawingAccessService;
@@ -34,6 +36,7 @@ public class BatchOperationService : IBatchOperationService
         _plottingService = plottingService;
         _constructionNotesService = constructionNotesService;
         _excelReader = excelReader;
+        _drawingAvailabilityService = drawingAvailabilityService;
     }
 
     public async Task<BatchOperationResult> ExecuteBatchOperationAsync(
@@ -47,6 +50,14 @@ public class BatchOperationService : IBatchOperationService
         try
         {
             _logger.LogInformation($"Starting batch operation for {sheetNames.Count} sheets");
+            
+            // Ensure drawing is available before starting operations
+            var isPlottingOperation = batchSettings.PlotToPdf;
+            if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation))
+            {
+                result.ErrorMessage = "Failed to ensure drawing availability for batch operation";
+                return result;
+            }
             
             // Filter sheets if ApplyToCurrentSheetOnly is enabled
             var filteredSheets = await FilterSheetsForCurrentSheetOnlyAsync(sheetNames, batchSettings);
