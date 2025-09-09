@@ -321,9 +321,6 @@ public partial class PlottingControl : BaseUserControl
                 await PerformMultiDrawingTitleBlockUpdates(selectedSheets, config, multiDrawingTitleBlockService, autocadLogger);
             }
 
-            // Execute plotting using basic PlottingService (just for PDF generation)
-            var basicConstructionNotesService = new ConstructionNotesService(autocadLogger, excelReader, drawingOps);
-            
             // Try to get DrawingAvailabilityService from the composition root for runtime plotting
             IDrawingAvailabilityService? drawingAvailabilityService = null;
             try
@@ -355,6 +352,9 @@ public partial class PlottingControl : BaseUserControl
             {
                 autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService: {ex.Message}");
             }
+            
+            // Create ConstructionNotesService with DrawingAvailabilityService for pre-plot operations
+            var basicConstructionNotesService = new ConstructionNotesService(autocadLogger, excelReader, drawingOps, drawingAvailabilityService);
             
             var productionPlottingService = new PlottingService(autocadLogger, basicConstructionNotesService, drawingOps, excelReader, 
                 multiDrawingConstructionNotesService, multiDrawingTitleBlockService, plotManager, drawingAvailabilityService);

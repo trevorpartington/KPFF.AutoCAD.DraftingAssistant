@@ -89,7 +89,8 @@ public partial class ConstructionNoteControl : BaseUserControl
             drawingAccessService,
             externalDrawingManager,
             constructionNotesService,
-            excelReaderService);
+            excelReaderService,
+            drawingAvailabilityService: null);
     }
 
     private void UpdateNotesButton_Click(object sender, RoutedEventArgs e)
@@ -155,12 +156,45 @@ public partial class ConstructionNoteControl : BaseUserControl
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
+            // Try to get DrawingAvailabilityService from the composition root
+            IDrawingAvailabilityService? drawingAvailabilityService = null;
+            try
+            {
+                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
+                if (pluginAssembly != null)
+                {
+                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
+                    if (extensionAppType != null)
+                    {
+                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var compositionRoot = compositionRootProperty?.GetValue(null);
+                        if (compositionRoot != null)
+                        {
+                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
+                            if (getServiceMethod != null)
+                            {
+                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
+                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
+                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved for construction notes: {drawingAvailabilityService != null}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService for construction notes: {ex.Message}");
+            }
+            
             var multiDrawingService = new MultiDrawingConstructionNotesService(
                 autocadLogger,
                 drawingAccessService,
                 externalDrawingManager,
                 constructionNotesService,
-                excelReaderService);
+                excelReaderService,
+                drawingAvailabilityService);
             
             autocadLogger.LogInformation("Using multi-drawing batch processing for Auto Notes update");
             
@@ -288,12 +322,45 @@ public partial class ConstructionNoteControl : BaseUserControl
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var constructionNotesService = new ConstructionNotesService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
+            // Try to get DrawingAvailabilityService from the composition root
+            IDrawingAvailabilityService? drawingAvailabilityService = null;
+            try
+            {
+                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
+                if (pluginAssembly != null)
+                {
+                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
+                    if (extensionAppType != null)
+                    {
+                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var compositionRoot = compositionRootProperty?.GetValue(null);
+                        if (compositionRoot != null)
+                        {
+                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
+                            if (getServiceMethod != null)
+                            {
+                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
+                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
+                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved for construction notes: {drawingAvailabilityService != null}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService for construction notes: {ex.Message}");
+            }
+            
             var multiDrawingService = new MultiDrawingConstructionNotesService(
                 autocadLogger,
                 drawingAccessService,
                 externalDrawingManager,
                 constructionNotesService,
-                excelReaderService);
+                excelReaderService,
+                drawingAvailabilityService);
             
             autocadLogger.LogInformation("Using multi-drawing batch processing for Excel Notes update");
             

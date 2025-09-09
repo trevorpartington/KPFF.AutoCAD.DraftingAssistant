@@ -14,19 +14,22 @@ public class MultiDrawingConstructionNotesService
     private readonly ExternalDrawingManager _externalDrawingManager;
     private readonly IConstructionNotesService _constructionNotesService;
     private readonly IExcelReader _excelReader;
+    private readonly IDrawingAvailabilityService? _drawingAvailabilityService;
 
     public MultiDrawingConstructionNotesService(
         ILogger logger,
         DrawingAccessService drawingAccessService,
         ExternalDrawingManager externalDrawingManager,
         IConstructionNotesService constructionNotesService,
-        IExcelReader excelReader)
+        IExcelReader excelReader,
+        IDrawingAvailabilityService? drawingAvailabilityService = null)
     {
         _logger = logger;
         _drawingAccessService = drawingAccessService;
         _externalDrawingManager = externalDrawingManager;
         _constructionNotesService = constructionNotesService;
         _excelReader = excelReader;
+        _drawingAvailabilityService = drawingAvailabilityService;
     }
 
     /// <summary>
@@ -44,6 +47,22 @@ public class MultiDrawingConstructionNotesService
         var result = new MultiDrawingUpdateResult();
         
         _logger.LogInformation($"Starting multi-drawing update for {sheetToNotes.Count} sheets");
+        
+        // Ensure drawing is available before starting construction notes operations
+        if (_drawingAvailabilityService != null)
+        {
+            if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation: false))
+            {
+                var error = "Failed to ensure drawing availability for construction notes update";
+                _logger.LogError(error);
+                result.Failures.Add(new DrawingUpdateFailure("ALL_SHEETS", "", error));
+                return result;
+            }
+        }
+        else
+        {
+            _logger.LogDebug("DrawingAvailabilityService not available for construction notes operation");
+        }
 
         foreach (var (sheetName, noteNumbers) in sheetToNotes)
         {

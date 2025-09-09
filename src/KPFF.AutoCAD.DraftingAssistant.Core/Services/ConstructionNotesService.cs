@@ -14,12 +14,14 @@ public class ConstructionNotesService : IConstructionNotesService
     private readonly IExcelReader _excelReader;
     private readonly IDrawingOperations _drawingOperations;
     private readonly AutoNotesService _autoNotesService;
+    private readonly IDrawingAvailabilityService? _drawingAvailabilityService;
 
-    public ConstructionNotesService(ILogger logger, IExcelReader excelReader, IDrawingOperations drawingOperations)
+    public ConstructionNotesService(ILogger logger, IExcelReader excelReader, IDrawingOperations drawingOperations, IDrawingAvailabilityService? drawingAvailabilityService = null)
     {
         _logger = logger;
         _excelReader = excelReader;
         _drawingOperations = drawingOperations;
+        _drawingAvailabilityService = drawingAvailabilityService;
         _autoNotesService = new AutoNotesService(logger);
     }
 
@@ -27,6 +29,20 @@ public class ConstructionNotesService : IConstructionNotesService
     {
         try
         {
+            // Ensure drawing is available for auto notes detection
+            if (_drawingAvailabilityService != null)
+            {
+                if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation: false))
+                {
+                    _logger.LogError("Failed to ensure drawing availability for auto notes detection");
+                    return new List<int>();
+                }
+            }
+            else
+            {
+                _logger.LogDebug("DrawingAvailabilityService not available for auto notes detection");
+            }
+
             _logger.LogDebug($"Getting auto notes for sheet {sheetName}");
             var noteNumbers = await _autoNotesService.GetAutoNotesForSheetAsync(sheetName, config);
             _logger.LogInformation($"Auto notes detection found {noteNumbers.Count} notes for sheet {sheetName}: {string.Join(", ", noteNumbers)}");
@@ -71,6 +87,20 @@ public class ConstructionNotesService : IConstructionNotesService
     {
         try
         {
+            // Ensure drawing is available for construction note block updates
+            if (_drawingAvailabilityService != null)
+            {
+                if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation: false))
+                {
+                    _logger.LogError("Failed to ensure drawing availability for construction note block updates");
+                    return;
+                }
+            }
+            else
+            {
+                _logger.LogDebug("DrawingAvailabilityService not available for construction note block updates");
+            }
+
             _logger.LogDebug($"Updating construction note blocks for sheet {sheetName} with {noteNumbers.Count} notes");
             
             if (noteNumbers.Count == 0)

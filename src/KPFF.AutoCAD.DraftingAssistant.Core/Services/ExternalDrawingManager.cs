@@ -2,6 +2,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.ApplicationServices.Core;
 using KPFF.AutoCAD.DraftingAssistant.Core.Interfaces;
 using KPFF.AutoCAD.DraftingAssistant.Core.Models;
+using KPFF.AutoCAD.DraftingAssistant.Core.Services;
 using KPFF.AutoCAD.DraftingAssistant.Core.Utilities;
 using System.IO;
 using System.Linq;
@@ -102,6 +103,15 @@ public class ExternalDrawingManager
             noteData = new List<ConstructionNoteData>();
         }
 
+        // Ensure document context exists to prevent access violations during database operations
+        IDocumentContextToken? contextToken = null;
+        var documentContextManager = DocumentContextRegistry.Instance;
+        if (documentContextManager != null && documentContextManager.NeedsContextProtection())
+        {
+            _logger.LogDebug("Creating document context protection for closed drawing operations");
+            contextToken = documentContextManager.EnsureContextForClosedDrawingOperations();
+        }
+
         try
         {
             // Create external database and load the drawing
@@ -183,6 +193,11 @@ public class ExternalDrawingManager
             _logger.LogError($"Failed to update closed drawing: {ex.Message}", ex);
             return false;
         }
+        finally
+        {
+            // Clean up document context protection
+            contextToken?.Dispose();
+        }
     }
 
     /// <summary>
@@ -212,6 +227,15 @@ public class ExternalDrawingManager
         if (attributeData == null)
         {
             attributeData = new List<TitleBlockAttributeData>();
+        }
+
+        // Ensure document context exists to prevent access violations during database operations
+        IDocumentContextToken? contextToken = null;
+        var documentContextManager = DocumentContextRegistry.Instance;
+        if (documentContextManager != null && documentContextManager.NeedsContextProtection())
+        {
+            _logger.LogDebug("Creating document context protection for title block operations on closed drawing");
+            contextToken = documentContextManager.EnsureContextForClosedDrawingOperations();
         }
 
         try
@@ -294,6 +318,11 @@ public class ExternalDrawingManager
         {
             _logger.LogError($"Failed to update title blocks in closed drawing: {ex.Message}", ex);
             return false;
+        }
+        finally
+        {
+            // Clean up document context protection
+            contextToken?.Dispose();
         }
     }
 

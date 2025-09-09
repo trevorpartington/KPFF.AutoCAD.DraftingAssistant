@@ -30,6 +30,11 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 SetupBasicDependencyInjection();
                 // Don't access services yet - this would trigger automatic build
                 
+                // Register DocumentContextManager immediately for closed drawing operations
+                var documentContextManager = new DocumentContextManager(logger);
+                DocumentContextRegistry.Register(documentContextManager);
+                logger.LogDebug("DocumentContextManager registered for closed drawing operations");
+                
                 // Hook into Application.Idle to trigger ProjectWise fix automatically
                 Application.Idle += OnApplicationIdleProjectWiseFix;
                 
@@ -58,6 +63,9 @@ public class DraftingAssistantExtensionApplication : IExtensionApplication
                 // Dispose and cleanup the composition root
                 _compositionRoot?.Dispose();
                 _compositionRoot = null;
+                
+                // Clear DocumentContextManager tracking
+                DocumentContextManager.ClearProtectionTracking();
                 
                 // Note: Excel reader process has been removed in Phase 1 refactoring
                 

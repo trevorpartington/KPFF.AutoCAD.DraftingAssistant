@@ -84,7 +84,8 @@ public partial class TitleBlockControl : BaseUserControl
             drawingAccessService,
             externalDrawingManager,
             titleBlockService,
-            excelReaderService);
+            excelReaderService,
+            drawingAvailabilityService: null);
     }
 
     private async void UpdateTitleBlocksButton_Click(object sender, RoutedEventArgs e)
@@ -138,12 +139,45 @@ public partial class TitleBlockControl : BaseUserControl
             var excelReaderService = new ExcelReaderService(autocadLogger);
             var titleBlockService = new TitleBlockService(autocadLogger, excelReaderService, new DrawingOperations(autocadLogger));
             
+            // Try to get DrawingAvailabilityService from the composition root
+            IDrawingAvailabilityService? drawingAvailabilityService = null;
+            try
+            {
+                var pluginAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => a.GetName().Name == "KPFF.AutoCAD.DraftingAssistant.Plugin");
+                if (pluginAssembly != null)
+                {
+                    var extensionAppType = pluginAssembly.GetType("KPFF.AutoCAD.DraftingAssistant.Plugin.DraftingAssistantExtensionApplication");
+                    if (extensionAppType != null)
+                    {
+                        var compositionRootProperty = extensionAppType.GetProperty("CompositionRoot", 
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var compositionRoot = compositionRootProperty?.GetValue(null);
+                        if (compositionRoot != null)
+                        {
+                            var getServiceMethod = compositionRoot.GetType().GetMethod("GetOptionalService");
+                            if (getServiceMethod != null)
+                            {
+                                var genericMethod = getServiceMethod.MakeGenericMethod(typeof(IDrawingAvailabilityService));
+                                drawingAvailabilityService = (IDrawingAvailabilityService?)genericMethod.Invoke(compositionRoot, null);
+                                autocadLogger.LogDebug($"DrawingAvailabilityService resolved for title blocks: {drawingAvailabilityService != null}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                autocadLogger.LogDebug($"Failed to resolve DrawingAvailabilityService for title blocks: {ex.Message}");
+            }
+            
             var multiDrawingService = new MultiDrawingTitleBlockService(
                 autocadLogger,
                 drawingAccessService,
                 externalDrawingManager,
                 titleBlockService,
-                excelReaderService);
+                excelReaderService,
+                drawingAvailabilityService);
             
             autocadLogger.LogInformation("Using multi-drawing batch processing for title blocks update");
             

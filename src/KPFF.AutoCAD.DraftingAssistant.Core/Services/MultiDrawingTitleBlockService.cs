@@ -14,19 +14,22 @@ public class MultiDrawingTitleBlockService
     private readonly ExternalDrawingManager _externalDrawingManager;
     private readonly ITitleBlockService _titleBlockService;
     private readonly IExcelReader _excelReader;
+    private readonly IDrawingAvailabilityService? _drawingAvailabilityService;
 
     public MultiDrawingTitleBlockService(
         ILogger logger,
         DrawingAccessService drawingAccessService,
         ExternalDrawingManager externalDrawingManager,
         ITitleBlockService titleBlockService,
-        IExcelReader excelReader)
+        IExcelReader excelReader,
+        IDrawingAvailabilityService? drawingAvailabilityService = null)
     {
         _logger = logger;
         _drawingAccessService = drawingAccessService;
         _externalDrawingManager = externalDrawingManager;
         _titleBlockService = titleBlockService;
         _excelReader = excelReader;
+        _drawingAvailabilityService = drawingAvailabilityService;
     }
 
     /// <summary>
@@ -44,6 +47,22 @@ public class MultiDrawingTitleBlockService
         var result = new MultiDrawingUpdateResult();
         
         _logger.LogInformation($"Starting multi-drawing title block update for {selectedSheets.Count} sheets");
+        
+        // Ensure drawing is available before starting title block operations
+        if (_drawingAvailabilityService != null)
+        {
+            if (!_drawingAvailabilityService.EnsureDrawingAvailable(isPlottingOperation: false))
+            {
+                var error = "Failed to ensure drawing availability for title block update";
+                _logger.LogError(error);
+                result.Failures.Add(new DrawingUpdateFailure("ALL_SHEETS", "", error));
+                return result;
+            }
+        }
+        else
+        {
+            _logger.LogDebug("DrawingAvailabilityService not available for title block operation");
+        }
 
         // First, get all title block mappings from Excel
         var allMappings = await _excelReader.ReadTitleBlockMappingsAsync(config.ProjectIndexFilePath, config);
