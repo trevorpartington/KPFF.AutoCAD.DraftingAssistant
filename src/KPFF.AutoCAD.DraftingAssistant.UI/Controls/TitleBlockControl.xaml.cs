@@ -185,7 +185,7 @@ public partial class TitleBlockControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config == null)
             {
-                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configuration tab.");
+                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configure tab.");
                 return;
             }
 
@@ -193,7 +193,7 @@ public partial class TitleBlockControl : BaseUserControl
             var selectedSheets = await GetSelectedSheetsAsync(config);
             if (selectedSheets.Count == 0)
             {
-                UpdateStatus("No sheets selected. Please select sheets in the Configuration tab.");
+                UpdateStatus("No sheets selected. Please select sheets in the Configure tab.");
                 return;
             }
 
@@ -372,7 +372,7 @@ public partial class TitleBlockControl : BaseUserControl
                     Dispatcher.BeginInvoke(() =>
                     {
                         UpdateStatus("Ready to update title blocks.\n\n" +
-                                   "1. Configure your project in the Configuration tab\n" +
+                                   "1. Configure your project in the Configure tab\n" +
                                    "2. Select the sheets you want to update\n" +
                                    "3. Click 'Update Title Blocks' to apply changes\n\n" +
                                    "The system will read title block data from the SHEET_INDEX table\n" +

@@ -202,7 +202,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config == null)
             {
-                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configuration tab.");
+                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configure tab.");
                 return;
             }
 
@@ -211,7 +211,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             var selectedSheets = await GetSelectedSheetsAsync(config);
             if (selectedSheets.Count == 0)
             {
-                UpdateStatus("No sheets selected. Please select sheets in the Configuration tab.");
+                UpdateStatus("No sheets selected. Please select sheets in the Configure tab.");
                 return;
             }
 
@@ -368,7 +368,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             var config = await LoadProjectConfigurationAsync();
             if (config == null)
             {
-                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configuration tab.");
+                UpdateStatus("ERROR: No project configuration loaded. Please select a project in the Configure tab.");
                 return;
             }
 
@@ -376,7 +376,7 @@ public partial class ConstructionNoteControl : BaseUserControl
             var selectedSheets = await GetSelectedSheetsAsync(config);
             if (selectedSheets.Count == 0)
             {
-                UpdateStatus("No sheets selected. Please select sheets in the Configuration tab.");
+                UpdateStatus("No sheets selected. Please select sheets in the Configure tab.");
                 return;
             }
 
@@ -525,17 +525,14 @@ public partial class ConstructionNoteControl : BaseUserControl
                 var currentLayoutName = GetCurrentLayoutName();
                 if (!string.IsNullOrEmpty(currentLayoutName))
                 {
-                    // Get all sheets to find the one that matches the current layout
-                    List<SheetInfo> availableSheets;
-                    if (config.SelectedSheets.Count > 0)
+                    // Get selected sheets to find the one that matches the current layout
+                    if (config.SelectedSheets.Count == 0)
                     {
-                        availableSheets = config.SelectedSheets;
+                        Logger.LogWarning("No sheets selected, cannot apply to current sheet");
+                        return new List<SheetInfo>();
                     }
-                    else
-                    {
-                        var reader = new ExcelReaderService((IApplicationLogger)Logger);
-                        availableSheets = await reader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
-                    }
+                    
+                    var availableSheets = config.SelectedSheets;
                     
                     // Find the sheet that matches the current layout
                     var currentSheet = availableSheets.FirstOrDefault(s => s.SheetName == currentLayoutName);
@@ -564,12 +561,9 @@ public partial class ConstructionNoteControl : BaseUserControl
                 return config.SelectedSheets;
             }
             
-            // Fall back to all sheets if no selection is made
-            var excelReader = new ExcelReaderService((IApplicationLogger)Logger);
-            var allSheets = await excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
-            
-            Logger.LogDebug($"No sheets selected, using all {allSheets.Count} sheets from index");
-            return allSheets;
+            // Return empty list if no sheets are selected
+            Logger.LogDebug("No sheets selected, returning empty list");
+            return new List<SheetInfo>();
         }
         catch (Exception ex)
         {

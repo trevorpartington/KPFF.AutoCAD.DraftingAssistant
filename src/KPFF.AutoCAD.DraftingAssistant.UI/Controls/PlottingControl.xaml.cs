@@ -204,9 +204,7 @@ public partial class PlottingControl : BaseUserControl
             var selectedSheets = await GetSelectedSheetsAsync(config);
             if (selectedSheets.Count == 0)
             {
-                var message = "No sheets selected for plotting. Please select sheets in the Configuration tab.";
-                UpdatePlottingDisplay($"❌ {message}");
-                NotificationService?.ShowError("Plot", message);
+                UpdatePlottingDisplay("No sheets selected. Please select sheets in the Configure tab.");
                 return;
             }
 
@@ -631,10 +629,9 @@ public partial class PlottingControl : BaseUserControl
                         }
                         else
                         {
-                            // Fallback: load all sheets from Excel
-                            var fallbackLogger = new DebugLogger();
-                            var excelReader = new ExcelReaderService(fallbackLogger);
-                            availableSheets = await excelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+                            // No sheets selected, cannot apply to current sheet
+                            Logger?.LogWarning("No sheets selected, cannot apply to current sheet");
+                            return new List<SheetInfo>();
                         }
                         
                         // Find the sheet that matches the current layout
@@ -671,11 +668,9 @@ public partial class PlottingControl : BaseUserControl
                 return config.SelectedSheets;
             }
             
-            // Fallback: load all sheets from Excel
-            Logger?.LogDebug("No selected sheets in configuration, loading all sheets from Excel");
-            var fallbackLogger2 = new DebugLogger();
-            var fallbackExcelReader = new ExcelReaderService(fallbackLogger2);
-            return await fallbackExcelReader.ReadSheetIndexAsync(config.ProjectIndexFilePath, config);
+            // Return empty list if no sheets are selected
+            Logger?.LogDebug("No sheets selected, returning empty list");
+            return new List<SheetInfo>();
         }
         catch (Exception ex)
         {
